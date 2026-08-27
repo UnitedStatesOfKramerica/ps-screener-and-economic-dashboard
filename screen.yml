@@ -1,0 +1,53 @@
+name: Run screener
+
+on:
+  schedule:
+    # 22:00 UTC on weekdays — an hour or two after the US close, whichever
+    # side of daylight saving we are on. Cron here is always UTC.
+    - cron: "0 22 * * 1-5"
+  workflow_dispatch:        # the "Run workflow" button, for when you want one now
+
+permissions:
+  contents: write
+
+jobs:
+  screen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install yfinance requests pandas numpy lxml
+
+      # Same idea as the Drive folder, without the Drive. Restored before the
+      # run, saved after it, keyed by day so it refreshes rather than ossifies.
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: cache
+          key: screener-cache-${{ github.run_id }}
+          restore-keys: |
+            screener-cache-
+
+      - name: Run the screener
+        env:
+          SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
+        run: python ps_screener.py --limit 500 --years 12 --verify 10000
+
+      - name: Publish
+        run: |
+          mkdir -p docs
+          cp ps_screen.html docs/index.html
+          cp ps_screen.csv docs/screen.csv || true
+          cp ps_diagnostics.txt docs/diagnostics.txt || true
+          git config user.name  "screener"
+          git config user.email "screener@users.noreply.github.com"
+          git add docs
+          git diff --staged --quiet || git commit -m "Screen for $(date -u +%Y-%m-%d)"
+          git push
