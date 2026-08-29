@@ -5,7 +5,7 @@ AMD
 FLAGGED FOR:
   - the share count moved +35% in one step on 2022-05-04, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 18.84 | 5y med 8.99 | 10y med 7.82 | Z 1.7700039590865912 | years 10.0
+P/S now 18.40 | 5y med 8.99 | 10y med 7.82 | Z 1.7283119186818159 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -126,7 +126,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    147.41  shares      1,615M  cap $    238.1B  rev $   22.11B  P/S    10.77
   2024-12-31  price    120.79  shares      1,623M  cap $    196.0B  rev $   24.30B  P/S     8.07
   2025-12-31  price    214.16  shares      1,628M  cap $    348.7B  rev $   32.03B  P/S    10.89
-  2026-12-31  price    476.67  shares      1,632M  cap $    778.2B  rev $   41.30B  P/S    18.84
+  2026-12-31  price    465.58  shares      1,632M  cap $    760.0B  rev $   41.30B  P/S    18.40
 
 ==============================================================================
 ALB
@@ -135,7 +135,7 @@ ALB
 FLAGGED FOR:
   - the share count moved +43% in one step on 2015-03-02, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.71 | 5y med 2.76 | 10y med 3.42 | Z -0.3533364986082983 | years 10.0
+P/S now 2.74 | 5y med 2.76 | 10y med 3.42 | Z -0.3317495811379742 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -249,7 +249,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    144.48  shares        117M  cap $     17.0B  rev $    9.88B  P/S     1.72
   2024-12-31  price     86.08  shares        118M  cap $     10.1B  rev $    6.50B  P/S     1.56
   2025-12-31  price    141.44  shares        118M  cap $     16.6B  rev $    4.95B  P/S     3.37
-  2026-12-31  price    135.77  shares        118M  cap $     16.0B  rev $    5.91B  P/S     2.71
+  2026-12-31  price    137.36  shares        118M  cap $     16.2B  rev $    5.91B  P/S     2.74
 
 ==============================================================================
 AMCR
@@ -259,7 +259,7 @@ FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2018-06-30, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
   - the share count moved +60% in one step on 2025-08-15, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.92 | 5y med 1.08 | 10y med 1.19 | Z -1.3608929889196069 | years 7.0
+P/S now 0.92 | 5y med 1.08 | 10y med 1.19 | Z -1.3435306448563737 | years 7.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -364,7 +364,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     48.20  shares        289M  cap $     13.9B  rev $   14.43B  P/S     0.97
   2024-12-31  price     47.05  shares        289M  cap $     13.6B  rev $   13.78B  P/S     0.99
   2025-12-31  price     41.70  shares        462M  cap $     19.3B  rev $   17.40B  P/S     1.11
-  2026-12-31  price     46.52  shares        462M  cap $     21.5B  rev $   23.51B  P/S     0.92
+  2026-12-31  price     46.67  shares        462M  cap $     21.6B  rev $   23.51B  P/S     0.92
 
 ==============================================================================
 AME
@@ -373,7 +373,7 @@ AME
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 7.10 | 5y med 6.13 | 10y med 5.34 | Z 1.452243451926212 | years 9.5
+P/S now 6.89 | 5y med 6.13 | 10y med 5.34 | Z 1.3100102831066007 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -484,7 +484,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    164.89  shares        231M  cap $     38.1B  rev $    6.03B  P/S     6.31
   2024-12-31  price    180.26  shares        231M  cap $     41.7B  rev $    6.03B  P/S     6.92
   2025-12-31  price    205.31  shares        230M  cap $     47.3B  rev $    7.16B  P/S     6.60
-  2026-12-31  price    243.67  shares        229M  cap $     55.9B  rev $    7.86B  P/S     7.10
+  2026-12-31  price    236.25  shares        229M  cap $     54.2B  rev $    7.86B  P/S     6.89
 
 ==============================================================================
 ADI
@@ -493,7 +493,7 @@ ADI
 FLAGGED FOR:
   - the share count moved +43% in one step on 2021-12-03, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 13.07 | 5y med 10.21 | 10y med 9.02 | Z 1.5865960835626223 | years 10.0
+P/S now 12.63 | 5y med 10.21 | 10y med 9.02 | Z 1.4441053857818251 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -614,7 +614,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    198.56  shares        496M  cap $     98.5B  rev $   12.31B  P/S     8.01
   2024-12-31  price    212.46  shares        496M  cap $    105.4B  rev $    9.43B  P/S    11.19
   2025-12-31  price    271.20  shares        490M  cap $    132.8B  rev $   11.02B  P/S    12.05
-  2026-12-31  price    374.52  shares        485M  cap $    181.5B  rev $   13.88B  P/S    13.07
+  2026-12-31  price    361.78  shares        485M  cap $    175.3B  rev $   13.88B  P/S    12.63
 
 ==============================================================================
 APTV
@@ -623,7 +623,7 @@ APTV
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 0.50 | 5y med 1.11 | 10y med 1.57 | Z -2.4296430249376706 | years 9.5
+P/S now 0.51 | 5y med 1.11 | 10y med 1.57 | Z -2.4107338997389403 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -736,14 +736,14 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     89.72  shares        283M  cap $     25.4B  rev $   19.77B  P/S     1.28
   2024-12-31  price     60.48  shares        235M  cap $     14.2B  rev $   20.05B  P/S     0.71
   2025-12-31  price     76.09  shares        216M  cap $     16.4B  rev $   18.14B  P/S     0.91
-  2026-12-31  price     45.44  shares        208M  cap $      9.4B  rev $   18.73B  P/S     0.50
+  2026-12-31  price     45.75  shares        208M  cap $      9.5B  rev $   18.73B  P/S     0.51
 
 ==============================================================================
 BRK-B
 ==============================================================================
 
 FLAGGED FOR:
-  - market cap comes out at $0.47bn, far below anything an index constituent can be; the share count is wrong, most often a filer with several share classes where only one was collected
+  - market cap comes out at $0.48bn, far below anything an index constituent can be; the share count is wrong, most often a filer with several share classes where only one was collected
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
                                                           15     16     17     18     19     20     21     22     23     24     25   facts
@@ -862,7 +862,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    356.66  shares          1M  cap $      0.3B  rev $  349.18B  P/S     0.00
   2024-12-31  price    453.28  shares          1M  cap $      0.4B  rev $  369.89B  P/S     0.00
   2025-12-31  price    502.65  shares          1M  cap $      0.5B  rev $  372.13B  P/S     0.00
-  2026-12-31  price    503.70  shares          1M  cap $      0.5B  rev $  384.69B  P/S     0.00
+  2026-12-31  price    505.00  shares          1M  cap $      0.5B  rev $  384.69B  P/S     0.00
 
 ==============================================================================
 BLK
@@ -954,7 +954,7 @@ CORPORATE ACTIONS: []
 P/S SERIES, YEARLY SAMPLE
   2024-12-31  price   1025.11  shares        155M  cap $    158.8B  rev $   17.86B  P/S     8.89
   2025-12-31  price   1070.34  shares        155M  cap $    165.8B  rev $   22.89B  P/S     7.25
-  2026-12-31  price   1167.57  shares        155M  cap $    180.9B  rev $   27.30B  P/S     6.63
+  2026-12-31  price   1164.48  shares        155M  cap $    180.4B  rev $   27.30B  P/S     6.61
 
 ==============================================================================
 BNY
@@ -963,7 +963,7 @@ BNY
 FLAGGED FOR:
   - trailing revenue has a 549-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 5.48 | 5y med 2.76 | 10y med 2.88 | Z 2.5961439109877817 | years 10.0
+P/S now 5.49 | 5y med 2.76 | 10y med 2.88 | Z 2.5985701558944707 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1082,7 +1082,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     52.05  shares        769M  cap $     40.0B  rev $   16.53B  P/S     2.42
   2024-12-31  price     76.83  shares        727M  cap $     55.9B  rev $   17.70B  P/S     3.16
   2025-12-31  price    116.09  shares        697M  cap $     81.0B  rev $   18.62B  P/S     4.35
-  2026-12-31  price    162.24  shares        679M  cap $    110.1B  rev $   20.08B  P/S     5.48
+  2026-12-31  price    162.50  shares        679M  cap $    110.3B  rev $   20.08B  P/S     5.49
 
 ==============================================================================
 BMY
@@ -1091,7 +1091,7 @@ BMY
 FLAGGED FOR:
   - the share count moved +39% in one step on 2020-02-24, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.78 | 5y med 2.52 | 10y med 3.34 | Z -0.5777341944595472 | years 10.0
+P/S now 2.77 | 5y med 2.52 | 10y med 3.34 | Z -0.595495936090442 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1212,7 +1212,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     51.31  shares      2,035M  cap $    104.4B  rev $   44.94B  P/S     2.32
   2024-12-31  price     56.56  shares      2,028M  cap $    114.7B  rev $   47.44B  P/S     2.42
   2025-12-31  price     53.94  shares      2,036M  cap $    109.8B  rev $   48.03B  P/S     2.29
-  2026-12-31  price     66.95  shares      2,043M  cap $    136.8B  rev $   49.19B  P/S     2.78
+  2026-12-31  price     66.58  shares      2,043M  cap $    136.0B  rev $   49.19B  P/S     2.77
 
 ==============================================================================
 AVGO
@@ -1221,7 +1221,7 @@ AVGO
 FLAGGED FOR:
   - trailing revenue has a 364-day hole ending 2017-10-29, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 23.42 | 5y med 15.06 | 10y med 7.94 | Z 1.5527038837421674 | years 8.2
+P/S now 23.25 | 5y med 15.21 | 10y med 7.94 | Z 1.537843593991688 | years 8.2
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1333,7 +1333,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    111.62  shares      4,681M  cap $    522.6B  rev $   35.82B  P/S    14.59
   2024-12-31  price    231.84  shares      4,687M  cap $  1,086.7B  rev $   51.57B  P/S    21.07
   2025-12-31  price    346.10  shares      4,741M  cap $  1,641.0B  rev $   63.89B  P/S    25.69
-  2026-12-31  price    371.54  shares      4,758M  cap $  1,767.6B  rev $   75.47B  P/S    23.42
+  2026-12-31  price    368.79  shares      4,758M  cap $  1,754.5B  rev $   75.47B  P/S    23.25
 
 ==============================================================================
 BLDR
@@ -1342,7 +1342,7 @@ BLDR
 FLAGGED FOR:
   - the share count moved +77% in one step on 2021-02-26, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.50 | 5y med 0.79 | 10y med 0.52 | Z -0.034532408214977585 | years 10.0
+P/S now 0.50 | 5y med 0.79 | 10y med 0.52 | Z -0.021286998774026723 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1453,7 +1453,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    166.94  shares        123M  cap $     20.6B  rev $   17.30B  P/S     1.19
   2024-12-31  price    142.93  shares        115M  cap $     16.4B  rev $   16.73B  P/S     0.98
   2025-12-31  price    102.89  shares        111M  cap $     11.4B  rev $   15.65B  P/S     0.73
-  2026-12-31  price     67.21  shares        108M  cap $      7.2B  rev $   14.45B  P/S     0.50
+  2026-12-31  price     67.72  shares        108M  cap $      7.3B  rev $   14.45B  P/S     0.50
 
 ==============================================================================
 BG
@@ -1554,7 +1554,7 @@ CORPORATE ACTIONS: [('2025-08-05', 0.489)]
 P/S SERIES, YEARLY SAMPLE
   2024-12-31  price     77.76  shares        140M  cap $     10.9B  rev $   54.50B  P/S     0.20
   2025-12-31  price     89.08  shares        193M  cap $     17.2B  rev $   60.11B  P/S     0.29
-  2026-12-31  price    111.57  shares        194M  cap $     21.6B  rev $   80.55B  P/S     0.27
+  2026-12-31  price    115.48  shares        194M  cap $     22.4B  rev $   80.55B  P/S     0.28
 
 ==============================================================================
 COF
@@ -1563,7 +1563,7 @@ COF
 FLAGGED FOR:
   - the share count moved +67% in one step on 2025-07-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.30 | 5y med 1.60 | 10y med 1.57 | Z 1.2238149717048878 | years 10.0
+P/S now 2.29 | 5y med 1.60 | 10y med 1.57 | Z 1.2070972696519844 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1681,7 +1681,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    131.12  shares        381M  cap $     49.9B  rev $   36.32B  P/S     1.37
   2024-12-31  price    178.32  shares        382M  cap $     68.0B  rev $   38.43B  P/S     1.77
   2025-12-31  price    242.36  shares        636M  cap $    154.1B  rev $   48.04B  P/S     3.21
-  2026-12-31  price    216.67  shares        622M  cap $    134.8B  rev $   58.66B  P/S     2.30
+  2026-12-31  price    215.67  shares        622M  cap $    134.2B  rev $   58.66B  P/S     2.29
 
 ==============================================================================
 CCL
@@ -1693,7 +1693,7 @@ FLAGGED FOR:
   - trailing revenue has a 456-day hole ending 2022-11-30, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
   - the share count moved +35% in one step on 2021-04-07, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.25 | 5y med 1.21 | 10y med 1.47 | Z -0.4115570803787365 | years 10.0
+P/S now 1.24 | 5y med 1.21 | 10y med 1.47 | Z -0.4171190310488053 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1809,7 +1809,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     18.54  shares      1,119M  cap $     20.8B  rev $   20.04B  P/S     1.04
   2024-12-31  price     24.92  shares      1,154M  cap $     28.8B  rev $   24.48B  P/S     1.17
   2025-12-31  price     30.54  shares      1,168M  cap $     35.7B  rev $   26.23B  P/S     1.36
-  2026-12-31  price     24.95  shares      1,370M  cap $     34.2B  rev $   27.31B  P/S     1.25
+  2026-12-31  price     24.76  shares      1,370M  cap $     33.9B  rev $   27.31B  P/S     1.24
 
 ==============================================================================
 CARR
@@ -1818,7 +1818,7 @@ CARR
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2019-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 2.23 | 5y med 2.38 | 10y med 2.28 | Z 0.05326158546926766 | years 6.3
+P/S now 2.23 | 5y med 2.38 | 10y med 2.28 | Z 0.05026001239541192 | years 6.3
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1920,7 +1920,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     57.45  shares        839M  cap $     48.2B  rev $   18.17B  P/S     2.65
   2024-12-31  price     68.26  shares        897M  cap $     61.2B  rev $   18.17B  P/S     3.37
   2025-12-31  price     52.84  shares        842M  cap $     44.5B  rev $   22.06B  P/S     2.02
-  2026-12-31  price     58.84  shares        831M  cap $     48.9B  rev $   21.87B  P/S     2.23
+  2026-12-31  price     58.79  shares        831M  cap $     48.8B  rev $   21.87B  P/S     2.23
 
 ==============================================================================
 CBOE
@@ -1929,7 +1929,7 @@ CBOE
 FLAGGED FOR:
   - the share count moved +38% in one step on 2017-05-11, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 6.48 | 5y med 4.97 | 10y med 5.11 | Z 0.30541412850235944 | years 10.0
+P/S now 6.41 | 5y med 4.98 | 10y med 5.11 | Z 0.2828965468743779 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2048,7 +2048,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    178.56  shares        106M  cap $     18.8B  rev $    3.81B  P/S     4.95
   2024-12-31  price    195.40  shares        105M  cap $     20.5B  rev $    3.96B  P/S     5.17
   2025-12-31  price    251.00  shares        105M  cap $     26.3B  rev $    4.62B  P/S     5.69
-  2026-12-31  price    313.95  shares        104M  cap $     32.8B  rev $    5.06B  P/S     6.48
+  2026-12-31  price    310.45  shares        104M  cap $     32.4B  rev $    5.06B  P/S     6.41
 
 ==============================================================================
 CNC
@@ -2057,7 +2057,7 @@ CNC
 FLAGGED FOR:
   - the share count moved +42% in one step on 2020-02-18, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.18 | 5y med 0.27 | 10y med 0.34 | Z -1.261929138594937 | years 10.0
+P/S now 0.18 | 5y med 0.27 | 10y med 0.34 | Z -1.2817416569336089 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2165,7 +2165,7 @@ CORPORATE ACTIONS: [('2016-04-26', 0.43), ('2020-02-18', 0.418)]
 
 P/S SERIES, YEARLY SAMPLE
   2014-12-31  price     25.96  shares        235M  cap $      6.1B  rev $   13.81B  P/S     0.44
-  2015-12-31  price     32.90  shares        238M  cap $      7.8B  rev $   19.81B  P/S     0.40
+  2015-12-31  price     32.91  shares        238M  cap $      7.8B  rev $   19.81B  P/S     0.40
   2016-12-31  price     28.25  shares        342M  cap $      9.7B  rev $   32.73B  P/S     0.30
   2017-12-31  price     50.44  shares        345M  cap $     17.4B  rev $   42.44B  P/S     0.41
   2018-12-31  price     57.65  shares        411M  cap $     23.7B  rev $   45.81B  P/S     0.52
@@ -2176,7 +2176,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     74.21  shares        534M  cap $     39.6B  rev $  138.31B  P/S     0.29
   2024-12-31  price     60.58  shares        505M  cap $     30.6B  rev $  144.55B  P/S     0.21
   2025-12-31  price     41.15  shares        492M  cap $     20.2B  rev $  166.15B  P/S     0.12
-  2026-12-31  price     65.33  shares        494M  cap $     32.3B  rev $  178.66B  P/S     0.18
+  2026-12-31  price     64.75  shares        494M  cap $     32.0B  rev $  178.66B  P/S     0.18
 
 ==============================================================================
 SCHW
@@ -2185,7 +2185,7 @@ SCHW
 FLAGGED FOR:
   - the share count moved +41% in one step on 2025-02-26, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 7.18 | 5y med 5.26 | 10y med 5.97 | Z 0.8220399242465036 | years 10.0
+P/S now 7.32 | 5y med 5.26 | 10y med 5.97 | Z 0.8974891174010642 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2302,7 +2302,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     68.80  shares      1,289M  cap $     88.7B  rev $   19.88B  P/S     4.46
   2024-12-31  price     74.01  shares      1,289M  cap $     95.4B  rev $   18.74B  P/S     5.09
   2025-12-31  price     99.91  shares      1,777M  cap $    177.5B  rev $   22.91B  P/S     7.75
-  2026-12-31  price    108.05  shares      1,729M  cap $    186.9B  rev $   26.02B  P/S     7.18
+  2026-12-31  price    110.16  shares      1,729M  cap $    190.5B  rev $   26.02B  P/S     7.32
 
 ==============================================================================
 CMG
@@ -2311,7 +2311,7 @@ CMG
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 3.79 | 5y med 5.78 | 10y med 4.99 | Z -0.6319343465686513 | years 9.5
+P/S now 3.87 | 5y med 5.78 | 10y med 4.99 | Z -0.5719421036397443 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2424,7 +2424,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     45.74  shares      1,372M  cap $     62.8B  rev $    9.54B  P/S     6.58
   2024-12-31  price     60.30  shares      1,363M  cap $     82.2B  rev $   10.98B  P/S     7.48
   2025-12-31  price     37.00  shares      1,322M  cap $     48.9B  rev $   11.79B  P/S     4.15
-  2026-12-31  price     37.22  shares      1,265M  cap $     47.1B  rev $   12.42B  P/S     3.79
+  2026-12-31  price     38.03  shares      1,265M  cap $     48.1B  rev $   12.42B  P/S     3.87
 
 ==============================================================================
 CB
@@ -2433,7 +2433,7 @@ CB
 FLAGGED FOR:
   - the share count moved +42% in one step on 2016-02-26, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.16 | 5y med 2.04 | 10y med 2.04 | Z 0.44803642902457785 | years 10.0
+P/S now 2.17 | 5y med 2.04 | 10y med 2.04 | Z 0.4835568980981188 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2551,7 +2551,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    226.00  shares        408M  cap $     92.2B  rev $   48.19B  P/S     1.91
   2024-12-31  price    276.30  shares        403M  cap $    111.4B  rev $   54.57B  P/S     2.04
   2025-12-31  price    312.12  shares        394M  cap $    122.8B  rev $   58.51B  P/S     2.10
-  2026-12-31  price    338.31  shares        388M  cap $    131.2B  rev $   60.82B  P/S     2.16
+  2026-12-31  price    339.92  shares        388M  cap $    131.8B  rev $   60.82B  P/S     2.17
 
 ==============================================================================
 CI
@@ -2560,7 +2560,7 @@ CI
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 0.26 | 5y med 0.44 | 10y med 0.45 | Z -1.8027308367317976 | years 7.5
+P/S now 0.26 | 5y med 0.44 | 10y med 0.45 | Z -1.7861888581445335 | years 7.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2672,7 +2672,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    299.45  shares        293M  cap $     87.6B  rev $  189.90B  P/S     0.46
   2024-12-31  price    276.14  shares        278M  cap $     76.8B  rev $  232.59B  P/S     0.33
   2025-12-31  price    275.23  shares        267M  cap $     73.5B  rev $  268.08B  P/S     0.27
-  2026-12-31  price    277.67  shares        264M  cap $     73.4B  rev $  282.38B  P/S     0.26
+  2026-12-31  price    278.88  shares        264M  cap $     73.7B  rev $  282.38B  P/S     0.26
 
 ==============================================================================
 COHR
@@ -2681,7 +2681,7 @@ COHR
 FLAGGED FOR:
   - the share count is 26% higher than a year ago, on 2019-11-12 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 8.13 | 5y med 2.10 | 10y med 2.24 | Z 2.7423563718527655 | years 10.0
+P/S now 7.68 | 5y med 2.10 | 10y med 2.24 | Z 2.6155434001628324 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2796,7 +2796,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     43.53  shares        151M  cap $      6.6B  rev $    4.87B  P/S     1.35
   2024-12-31  price     94.73  shares        155M  cap $     14.7B  rev $    5.00B  P/S     2.93
   2025-12-31  price    184.57  shares        157M  cap $     29.0B  rev $    6.04B  P/S     4.80
-  2026-12-31  price    295.39  shares        196M  cap $     57.8B  rev $    7.12B  P/S     8.13
+  2026-12-31  price    279.20  shares        196M  cap $     54.7B  rev $    7.12B  P/S     7.68
 
 ==============================================================================
 CEG
@@ -2906,7 +2906,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    116.89  shares        319M  cap $     37.3B  rev $   14.55B  P/S     2.57
   2024-12-31  price    223.71  shares        313M  cap $     70.0B  rev $   19.43B  P/S     3.60
   2025-12-31  price    353.27  shares        312M  cap $    110.3B  rev $   21.50B  P/S     5.13
-  2026-12-31  price    282.41  shares        354M  cap $    100.1B  rev $   24.78B  P/S     4.04
+  2026-12-31  price    276.75  shares        354M  cap $     98.1B  rev $   24.78B  P/S     3.96
 
 ==============================================================================
 CPAY
@@ -2915,7 +2915,7 @@ CPAY
 FLAGGED FOR:
   - the share count moved -30% in one step on 2019-03-01, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 5.28 | 5y med 5.39 | 10y med 7.21 | Z -0.9507478969137545 | years 10.0
+P/S now 5.33 | 5y med 5.39 | 10y med 7.21 | Z -0.9169367125781105 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -3027,7 +3027,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    282.61  shares         72M  cap $     20.4B  rev $    3.70B  P/S     5.51
   2024-12-31  price    338.42  shares         70M  cap $     23.6B  rev $    3.88B  P/S     6.08
   2025-12-31  price    300.93  shares         70M  cap $     21.1B  rev $    4.31B  P/S     4.88
-  2026-12-31  price    403.67  shares         66M  cap $     26.5B  rev $    5.02B  P/S     5.28
+  2026-12-31  price    407.88  shares         66M  cap $     26.8B  rev $    5.02B  P/S     5.33
 
 ==============================================================================
 CRH
@@ -3128,7 +3128,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     69.16  shares        752M  cap $     52.0B  rev $   32.72B  P/S     1.59
   2024-12-31  price     92.52  shares        679M  cap $     62.9B  rev $   35.39B  P/S     1.78
   2025-12-31  price    124.80  shares        670M  cap $     83.6B  rev $   36.90B  P/S     2.27
-  2026-12-31  price     95.58  shares        665M  cap $     63.6B  rev $   38.63B  P/S     1.65
+  2026-12-31  price     95.86  shares        665M  cap $     63.8B  rev $   38.63B  P/S     1.65
 
 ==============================================================================
 CMI
@@ -3137,7 +3137,7 @@ CMI
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 2.28 | 5y med 1.29 | 10y med 1.33 | Z 2.0422237872928837 | years 9.5
+P/S now 2.24 | 5y med 1.29 | 10y med 1.33 | Z 1.976124093729739 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -3254,7 +3254,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    239.57  shares        142M  cap $     34.0B  rev $   33.29B  P/S     1.02
   2024-12-31  price    348.60  shares        137M  cap $     47.8B  rev $   34.20B  P/S     1.40
   2025-12-31  price    510.45  shares        138M  cap $     70.5B  rev $   34.10B  P/S     2.07
-  2026-12-31  price    573.87  shares        138M  cap $     79.0B  rev $   34.71B  P/S     2.28
+  2026-12-31  price    564.85  shares        138M  cap $     77.8B  rev $   34.71B  P/S     2.24
 
 ==============================================================================
 DVA
@@ -3263,7 +3263,7 @@ DVA
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 0.81 | 5y med 0.82 | 10y med 0.91 | Z -0.47239187149132794 | years 9.5
+P/S now 0.82 | 5y med 0.82 | 10y med 0.91 | Z -0.4234482380516649 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -3379,7 +3379,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    104.76  shares         91M  cap $      9.6B  rev $   11.91B  P/S     0.80
   2024-12-31  price    149.55  shares         82M  cap $     12.3B  rev $   12.67B  P/S     0.97
   2025-12-31  price    113.61  shares         71M  cap $      8.0B  rev $   13.32B  P/S     0.60
-  2026-12-31  price    178.88  shares         64M  cap $     11.4B  rev $   14.01B  P/S     0.81
+  2026-12-31  price    180.68  shares         64M  cap $     11.5B  rev $   14.01B  P/S     0.82
 
 ==============================================================================
 DVN
@@ -3390,7 +3390,7 @@ FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
   - the share count moved +76% in one step on 2021-02-17, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.49 | 5y med 1.79 | 10y med 1.87 | Z -0.6061026187753736 | years 10.0
+P/S now 1.49 | 5y med 1.79 | 10y med 1.86 | Z -0.5982526725170728 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -3493,7 +3493,7 @@ SHARE COUNTS AS COLLECTED (last 8)
   2026-05-06         621,400,000
   2026-08-05       1,100,000,000
 SPLITS: {}
-CORPORATE ACTIONS: [('2016-05-04', 0.275), ('2021-02-17', 0.76)]
+CORPORATE ACTIONS: [('2016-05-04', 0.187), ('2021-02-17', 0.76)]
 
 P/S SERIES, YEARLY SAMPLE
   2014-12-31  price     61.21  shares        409M  cap $     25.0B  rev $   16.20B  P/S     1.55
@@ -3508,7 +3508,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     45.30  shares        641M  cap $     29.0B  rev $   15.67B  P/S     1.85
   2024-12-31  price     32.73  shares        657M  cap $     21.5B  rev $   15.25B  P/S     1.41
   2025-12-31  price     36.63  shares        627M  cap $     23.0B  rev $   17.34B  P/S     1.33
-  2026-12-31  price     47.12  shares        621M  cap $     29.3B  rev $   19.70B  P/S     1.49
+  2026-12-31  price     47.35  shares        621M  cap $     29.4B  rev $   19.70B  P/S     1.49
 
 ==============================================================================
 FANG
@@ -3517,7 +3517,7 @@ FANG
 FLAGGED FOR:
   - the share count moved +64% in one step on 2024-11-07, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.28 | 5y med 3.35 | 10y med 3.40 | Z -0.22658231040194896 | years 7.5
+P/S now 3.24 | 5y med 3.35 | 10y med 3.40 | Z -0.25147657250357536 | years 7.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -3632,7 +3632,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    155.08  shares        179M  cap $     27.8B  rev $    8.21B  P/S     3.38
   2024-12-31  price    163.83  shares        292M  cap $     47.8B  rev $    9.58B  P/S     4.99
   2025-12-31  price    150.33  shares        287M  cap $     43.1B  rev $   15.36B  P/S     2.80
-  2026-12-31  price    200.52  shares        280M  cap $     56.2B  rev $   17.10B  P/S     3.28
+  2026-12-31  price    197.67  shares        280M  cap $     55.4B  rev $   17.10B  P/S     3.24
 
 ==============================================================================
 D
@@ -3641,7 +3641,7 @@ D
 FLAGGED FOR:
   - the derived quarters disagreed with the company's own reported annual total at 10 of 19 year ends; the reported figures have been used instead, but the quarterly series is unreliable
 
-P/S now 3.36 | 5y med 3.36 | 10y med 4.13 | Z -0.8670907631736372 | years 10.0
+P/S now 3.31 | 5y med 3.36 | 10y med 4.13 | Z -0.9348132462642013 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -3763,7 +3763,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     47.00  shares        837M  cap $     39.3B  rev $   13.88B  P/S     2.83
   2024-12-31  price     53.86  shares        840M  cap $     45.2B  rev $   14.30B  P/S     3.16
   2025-12-31  price     58.59  shares        854M  cap $     50.0B  rev $   15.71B  P/S     3.18
-  2026-12-31  price     66.50  shares        879M  cap $     58.5B  rev $   17.41B  P/S     3.36
+  2026-12-31  price     65.55  shares        879M  cap $     57.6B  rev $   17.41B  P/S     3.31
 
 ==============================================================================
 DOW
@@ -3772,7 +3772,7 @@ DOW
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2018-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 0.56 | 5y med 0.70 | 10y med 0.77 | Z -1.001140892709029 | years 7.3
+P/S now 0.56 | 5y med 0.70 | 10y med 0.77 | Z -0.979372742476953 | years 7.3
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -3883,7 +3883,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     54.84  shares        701M  cap $     38.5B  rev $   45.86B  P/S     0.84
   2024-12-31  price     40.13  shares        700M  cap $     28.1B  rev $   43.18B  P/S     0.65
   2025-12-31  price     23.38  shares        711M  cap $     16.6B  rev $   40.91B  P/S     0.41
-  2026-12-31  price     30.33  shares        721M  cap $     21.9B  rev $   39.33B  P/S     0.56
+  2026-12-31  price     30.51  shares        721M  cap $     22.0B  rev $   39.33B  P/S     0.56
 
 ==============================================================================
 DD
@@ -3892,7 +3892,7 @@ DD
 FLAGGED FOR:
   - trailing revenue has a 366-day hole ending 2020-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 2.27 | 5y med 1.64 | 10y med 1.17 | Z 1.224884677207058 | years 6.5
+P/S now 2.24 | 5y med 1.65 | 10y med 1.17 | Z 1.1891808074568126 | years 6.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4003,7 +4003,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     96.56  shares        143M  cap $     13.8B  rev $   12.27B  P/S     1.13
   2024-12-31  price     95.71  shares        139M  cap $     13.3B  rev $    6.41B  P/S     2.08
   2025-12-31  price    120.60  shares        140M  cap $     16.8B  rev $    6.41B  P/S     2.63
-  2026-12-31  price    138.80  shares        135M  cap $     18.7B  rev $    8.27B  P/S     2.27
+  2026-12-31  price    136.98  shares        135M  cap $     18.5B  rev $    8.27B  P/S     2.24
 
 ==============================================================================
 EQT
@@ -4013,7 +4013,7 @@ FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
   - the share count moved +53% in one step on 2018-02-15, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.59 | 5y med 3.49 | 10y med 3.14 | Z 0.5054950191291262 | years 9.5
+P/S now 3.58 | 5y med 3.49 | 10y med 3.14 | Z 0.5003170232882653 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4129,7 +4129,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     38.66  shares        411M  cap $     15.9B  rev $    8.35B  P/S     1.91
   2024-12-31  price     46.11  shares        597M  cap $     27.5B  rev $    5.69B  P/S     4.83
   2025-12-31  price     53.60  shares        624M  cap $     33.4B  rev $    7.88B  P/S     4.24
-  2026-12-31  price     54.77  shares        626M  cap $     34.3B  rev $    9.54B  P/S     3.59
+  2026-12-31  price     54.57  shares        626M  cap $     34.1B  rev $    9.54B  P/S     3.58
 
 ==============================================================================
 EVRG
@@ -4138,7 +4138,7 @@ EVRG
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 3.26 | 5y med 2.69 | 10y med 2.78 | Z 0.3814488790275512 | years 8.1
+P/S now 3.23 | 5y med 2.69 | 10y med 2.78 | Z 0.34516819690929035 | years 8.1
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4243,7 +4243,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     52.20  shares        230M  cap $     12.0B  rev $    5.42B  P/S     2.21
   2024-12-31  price     61.55  shares        230M  cap $     14.2B  rev $    5.64B  P/S     2.51
   2025-12-31  price     72.49  shares        230M  cap $     16.7B  rev $    5.64B  P/S     2.96
-  2026-12-31  price     81.42  shares        231M  cap $     18.8B  rev $    5.76B  P/S     3.26
+  2026-12-31  price     80.65  shares        231M  cap $     18.6B  rev $    5.76B  P/S     3.23
 
 ==============================================================================
 EXE
@@ -4253,7 +4253,7 @@ FLAGGED FOR:
   - trailing revenue has a 730-day hole ending 2022-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
   - the share count moved +901% in one step on 2021-03-01, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.64 | 5y med 1.91 | 10y med 1.80 | Z -0.07954403423451088 | years 5.5
+P/S now 1.64 | 5y med 1.91 | 10y med 1.80 | Z -0.07707617128674492 | years 5.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4366,7 +4366,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     76.94  shares        131M  cap $     10.1B  rev $   10.90B  P/S     0.93
   2024-12-31  price     99.55  shares        231M  cap $     23.0B  rev $    4.18B  P/S     5.50
   2025-12-31  price    110.36  shares        238M  cap $     26.3B  rev $   10.85B  P/S     2.42
-  2026-12-31  price     98.00  shares        239M  cap $     23.4B  rev $   14.32B  P/S     1.64
+  2026-12-31  price     98.16  shares        239M  cap $     23.5B  rev $   14.32B  P/S     1.64
 
 ==============================================================================
 EXR
@@ -4375,7 +4375,7 @@ EXR
 FLAGGED FOR:
   - the share count moved +56% in one step on 2023-08-09, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 8.75 | 5y med 11.14 | 10y med 11.00 | Z -1.3471599628970066 | years 10.0
+P/S now 8.76 | 5y med 11.14 | 10y med 11.00 | Z -1.3419612188084773 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4495,14 +4495,14 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    160.33  shares        211M  cap $     33.9B  rev $    2.27B  P/S    14.93
   2024-12-31  price    149.60  shares        212M  cap $     31.7B  rev $    3.23B  P/S     9.81
   2025-12-31  price    130.22  shares        212M  cap $     27.6B  rev $    3.34B  P/S     8.27
-  2026-12-31  price    142.79  shares        211M  cap $     30.2B  rev $    3.45B  P/S     8.75
+  2026-12-31  price    142.91  shares        211M  cap $     30.2B  rev $    3.45B  P/S     8.76
 
 ==============================================================================
 FERG
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 261 days ago, so the denominator is stale
+  - newest revenue figure was filed 263 days ago, so the denominator is stale
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
                                                           22     23     24     25   facts
@@ -4586,7 +4586,7 @@ CORPORATE ACTIONS: []
 P/S SERIES, YEARLY SAMPLE
   2024-12-31  price    173.57  shares        200M  cap $     34.7B  rev $   29.73B  P/S     1.17
   2025-12-31  price    222.63  shares        196M  cap $     43.5B  rev $   31.16B  P/S     1.40
-  2026-12-31  price    233.26  shares        193M  cap $     45.1B  rev $   31.16B  P/S     1.45
+  2026-12-31  price    228.49  shares        193M  cap $     44.2B  rev $   31.16B  P/S     1.42
 
 ==============================================================================
 FIS
@@ -4595,7 +4595,7 @@ FIS
 FLAGGED FOR:
   - the share count moved +90% in one step on 2019-08-06, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.71 | 5y med 4.16 | 10y med 4.16 | Z -2.6132883435611243 | years 10.0
+P/S now 1.75 | 5y med 4.16 | 10y med 4.16 | Z -2.550450618848479 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4710,7 +4710,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     60.07  shares        592M  cap $     35.6B  rev $    8.76B  P/S     4.06
   2024-12-31  price     80.77  shares        538M  cap $     43.5B  rev $   10.04B  P/S     4.33
   2025-12-31  price     66.46  shares        518M  cap $     34.4B  rev $   10.46B  P/S     3.29
-  2026-12-31  price     40.55  shares        516M  cap $     20.9B  rev $   12.20B  P/S     1.71
+  2026-12-31  price     41.44  shares        516M  cap $     21.4B  rev $   12.20B  P/S     1.75
 
 ==============================================================================
 FITB
@@ -4838,7 +4838,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     34.49  shares        681M  cap $     23.5B  rev $    0.14B  P/S   164.25
   2024-12-31  price     42.28  shares        671M  cap $     28.4B  rev $    0.11B  P/S   262.51
   2025-12-31  price     46.81  shares        661M  cap $     30.9B  rev $    0.08B  P/S   372.79
-  2026-12-31  price     54.85  shares        907M  cap $     49.7B  rev $    0.08B  P/S   592.18
+  2026-12-31  price     54.54  shares        907M  cap $     49.5B  rev $    0.08B  P/S   588.83
 
 ==============================================================================
 FISV
@@ -4847,7 +4847,7 @@ FISV
 FLAGGED FOR:
   - the share count moved +73% in one step on 2019-11-07, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.34 | 5y med 4.07 | 10y med 4.68 | Z -2.977680597045096 | years 10.0
+P/S now 1.36 | 5y med 4.07 | 10y med 4.68 | Z -2.944039106121801 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4956,10 +4956,10 @@ SPLITS: {'2013-12-17': (2.0, 'rescaled'), '2018-03-20': (2.0, 'rescaled')}
 CORPORATE ACTIONS: [('2019-11-07', 0.73)]
 
 P/S SERIES, YEARLY SAMPLE
-  2014-12-31  price     35.49  shares        488M  cap $     17.3B  rev $    5.01B  P/S     3.45
+  2014-12-31  price     35.48  shares        488M  cap $     17.3B  rev $    5.01B  P/S     3.45
   2015-12-31  price     45.73  shares        457M  cap $     20.9B  rev $    5.20B  P/S     4.02
   2016-12-31  price     53.14  shares        434M  cap $     23.1B  rev $    5.44B  P/S     4.24
-  2017-12-31  price     65.57  shares        417M  cap $     27.3B  rev $    5.61B  P/S     4.87
+  2017-12-31  price     65.56  shares        417M  cap $     27.3B  rev $    5.61B  P/S     4.87
   2018-12-31  price     73.49  shares        398M  cap $     29.3B  rev $    5.79B  P/S     5.06
   2019-12-31  price    115.63  shares        680M  cap $     78.6B  rev $    5.79B  P/S    13.58
   2020-12-31  price    113.86  shares        670M  cap $     76.3B  rev $   15.06B  P/S     5.07
@@ -4968,7 +4968,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    132.84  shares        600M  cap $     79.7B  rev $   18.81B  P/S     4.24
   2024-12-31  price    205.42  shares        569M  cap $    116.9B  rev $   20.12B  P/S     5.81
   2025-12-31  price     67.17  shares        538M  cap $     36.1B  rev $   20.46B  P/S     1.77
-  2026-12-31  price     52.58  shares        532M  cap $     28.0B  rev $   20.87B  P/S     1.34
+  2026-12-31  price     53.18  shares        532M  cap $     28.3B  rev $   20.87B  P/S     1.36
 
 ==============================================================================
 FOXA
@@ -5073,7 +5073,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     29.67  shares          0M  cap $      0.0B  rev $   14.93B  P/S     0.00
   2024-12-31  price     48.58  shares          0M  cap $      0.0B  rev $   14.34B  P/S     0.00
   2025-12-31  price     73.07  shares          0M  cap $      0.0B  rev $   16.47B  P/S     0.00
-  2026-12-31  price     67.22  shares          0M  cap $      0.0B  rev $   17.13B  P/S     0.00
+  2026-12-31  price     68.42  shares          0M  cap $      0.0B  rev $   17.13B  P/S     0.00
 
 ==============================================================================
 FOX
@@ -5178,7 +5178,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     27.65  shares          0M  cap $      0.0B  rev $   14.93B  P/S     0.00
   2024-12-31  price     45.74  shares          0M  cap $      0.0B  rev $   14.34B  P/S     0.00
   2025-12-31  price     64.93  shares          0M  cap $      0.0B  rev $   16.47B  P/S     0.00
-  2026-12-31  price     60.40  shares          0M  cap $      0.0B  rev $   17.13B  P/S     0.00
+  2026-12-31  price     61.32  shares          0M  cap $      0.0B  rev $   17.13B  P/S     0.00
 
 ==============================================================================
 GE
@@ -5187,7 +5187,7 @@ GE
 FLAGGED FOR:
   - the derived quarters disagreed with the company's own reported annual total at 11 of 19 year ends; the reported figures have been used instead, but the quarterly series is unreliable
 
-P/S now 7.02 | 5y med 3.80 | 10y med 1.11 | Z 1.685336639163001 | years 10.0
+P/S now 7.02 | 5y med 3.82 | 10y med 1.11 | Z 1.6835791092769454 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -5312,7 +5312,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    101.86  shares      1,088M  cap $    110.9B  rev $   49.37B  P/S     2.25
   2024-12-31  price    166.79  shares      1,082M  cap $    180.5B  rev $   37.35B  P/S     4.83
   2025-12-31  price    308.03  shares      1,055M  cap $    324.9B  rev $   43.95B  P/S     7.39
-  2026-12-31  price    342.73  shares      1,038M  cap $    355.6B  rev $   50.64B  P/S     7.02
+  2026-12-31  price    342.58  shares      1,038M  cap $    355.4B  rev $   50.64B  P/S     7.02
 
 ==============================================================================
 GEHC
@@ -5413,7 +5413,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     77.32  shares        455M  cap $     35.2B  rev $   17.59B  P/S     2.00
   2024-12-31  price     78.18  shares        457M  cap $     35.7B  rev $   19.56B  P/S     1.83
   2025-12-31  price     82.02  shares        456M  cap $     37.4B  rev $   20.25B  P/S     1.85
-  2026-12-31  price     72.48  shares        455M  cap $     33.0B  rev $   20.98B  P/S     1.57
+  2026-12-31  price     71.72  shares        455M  cap $     32.6B  rev $   20.98B  P/S     1.56
 
 ==============================================================================
 GEV
@@ -5511,7 +5511,7 @@ CORPORATE ACTIONS: []
 P/S SERIES, YEARLY SAMPLE
   2024-12-31  price    328.93  shares        276M  cap $     90.7B  rev $   29.65B  P/S     3.06
   2025-12-31  price    653.57  shares        271M  cap $    177.3B  rev $   37.67B  P/S     4.71
-  2026-12-31  price    953.83  shares        266M  cap $    254.0B  rev $   41.37B  P/S     6.14
+  2026-12-31  price    911.93  shares        266M  cap $    242.9B  rev $   41.37B  P/S     5.87
 
 ==============================================================================
 GEN
@@ -5520,7 +5520,7 @@ GEN
 FLAGGED FOR:
   - trailing revenue falls 46% around 2018-03-30, 27x this company's usual move between filings, at the exact point the source concept changes from mixed to RevenueFromContractWithCustomerExcludingAssessedTax
 
-P/S now 3.59 | 5y med 4.18 | 10y med 4.68 | Z -1.1196288034798707 | years 10.0
+P/S now 3.66 | 5y med 4.18 | 10y med 4.68 | Z -1.035983365002535 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -5640,7 +5640,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     22.82  shares        641M  cap $     14.6B  rev $    3.75B  P/S     3.90
   2024-12-31  price     27.38  shares        616M  cap $     16.9B  rev $    3.85B  P/S     4.38
   2025-12-31  price     27.19  shares        617M  cap $     16.8B  rev $    4.47B  P/S     3.75
-  2026-12-31  price     30.50  shares        599M  cap $     18.3B  rev $    5.08B  P/S     3.59
+  2026-12-31  price     31.02  shares        599M  cap $     18.6B  rev $    5.08B  P/S     3.66
 
 ==============================================================================
 GPN
@@ -5649,7 +5649,7 @@ GPN
 FLAGGED FOR:
   - the share count moved +92% in one step on 2019-10-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.40 | 5y med 3.34 | 10y med 4.31 | Z -1.4590600480524405 | years 10.0
+P/S now 2.37 | 5y med 3.34 | 10y med 4.31 | Z -1.4808285842361464 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -5760,7 +5760,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    127.00  shares        260M  cap $     33.1B  rev $    9.47B  P/S     3.49
   2024-12-31  price    112.06  shares        254M  cap $     28.5B  rev $    6.55B  P/S     4.36
   2025-12-31  price     77.40  shares        237M  cap $     18.3B  rev $    7.73B  P/S     2.37
-  2026-12-31  price     92.74  shares        265M  cap $     24.5B  rev $   10.23B  P/S     2.40
+  2026-12-31  price     91.82  shares        265M  cap $     24.3B  rev $   10.23B  P/S     2.37
 
 ==============================================================================
 HAS
@@ -5769,7 +5769,7 @@ HAS
 FLAGGED FOR:
   - trailing revenue has a 371-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 2.67 | 5y med 2.00 | 10y med 2.50 | Z 0.30448016366810465 | years 10.0
+P/S now 2.67 | 5y med 2.00 | 10y med 2.50 | Z 0.3059828233272743 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -5886,7 +5886,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     51.06  shares        139M  cap $      7.1B  rev $    5.39B  P/S     1.31
   2024-12-31  price     55.91  shares        140M  cap $      7.8B  rev $    4.32B  P/S     1.80
   2025-12-31  price     82.00  shares        140M  cap $     11.5B  rev $    4.36B  P/S     2.64
-  2026-12-31  price     94.18  shares        141M  cap $     13.3B  rev $    4.97B  P/S     2.67
+  2026-12-31  price     94.23  shares        141M  cap $     13.3B  rev $    4.97B  P/S     2.67
 
 ==============================================================================
 HCA
@@ -5895,7 +5895,7 @@ HCA
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 1.22 | 5y med 1.25 | 10y med 1.13 | Z 0.47612071902142694 | years 9.5
+P/S now 1.21 | 5y med 1.25 | 10y med 1.13 | Z 0.4610491718563844 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6011,7 +6011,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    270.68  shares        268M  cap $     72.5B  rev $   63.16B  P/S     1.15
   2024-12-31  price    300.15  shares        253M  cap $     76.0B  rev $   69.62B  P/S     1.09
   2025-12-31  price    466.86  shares        228M  cap $    106.5B  rev $   74.37B  P/S     1.43
-  2026-12-31  price    419.34  shares        222M  cap $     93.0B  rev $   76.39B  P/S     1.22
+  2026-12-31  price    417.82  shares        222M  cap $     92.7B  rev $   76.39B  P/S     1.21
 
 ==============================================================================
 HSIC
@@ -6020,7 +6020,7 @@ HSIC
 FLAGGED FOR:
   - trailing revenue has a 364-day hole ending 2018-12-29, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 0.74 | 5y med 0.75 | 10y med 0.85 | Z -0.7862721561868811 | years 8.5
+P/S now 0.73 | 5y med 0.75 | 10y med 0.85 | Z -0.832596999266652 | years 8.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6135,7 +6135,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     75.71  shares        130M  cap $      9.8B  rev $   12.69B  P/S     0.78
   2024-12-31  price     69.20  shares        125M  cap $      8.6B  rev $   12.50B  P/S     0.69
   2025-12-31  price     75.58  shares        118M  cap $      8.9B  rev $   12.94B  P/S     0.69
-  2026-12-31  price     90.28  shares        111M  cap $     10.1B  rev $   13.60B  P/S     0.74
+  2026-12-31  price     89.52  shares        111M  cap $     10.0B  rev $   13.60B  P/S     0.73
 
 ==============================================================================
 HBAN
@@ -6144,7 +6144,7 @@ HBAN
 FLAGGED FOR:
   - the share count is 39% higher than a year ago, on 2021-08-06 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 20.31 | 5y med 15.92 | 10y med 15.85 | Z 1.1952794548044765 | years 7.5
+P/S now 20.38 | 5y med 15.92 | 10y med 15.85 | Z 1.2098602882157166 | years 7.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6258,7 +6258,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     12.72  shares      1,448M  cap $     18.4B  rev $    1.39B  P/S    13.25
   2024-12-31  price     16.27  shares      1,453M  cap $     23.6B  rev $    1.41B  P/S    16.75
   2025-12-31  price     17.35  shares      1,459M  cap $     25.3B  rev $    1.56B  P/S    16.21
-  2026-12-31  price     16.86  shares      2,027M  cap $     34.2B  rev $    1.68B  P/S    20.31
+  2026-12-31  price     16.92  shares      2,027M  cap $     34.3B  rev $    1.68B  P/S    20.38
 
 ==============================================================================
 IFF
@@ -6267,7 +6267,7 @@ IFF
 FLAGGED FOR:
   - the share count moved +133% in one step on 2021-02-22, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.22 | 5y med 1.91 | 10y med 2.68 | Z -0.5073446443079818 | years 10.0
+P/S now 2.25 | 5y med 1.91 | 10y med 2.68 | Z -0.4751660321331666 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6381,7 +6381,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     80.97  shares        255M  cap $     20.7B  rev $   11.62B  P/S     1.78
   2024-12-31  price     84.55  shares        256M  cap $     21.6B  rev $   11.42B  P/S     1.89
   2025-12-31  price     67.39  shares        256M  cap $     17.3B  rev $   11.42B  P/S     1.51
-  2026-12-31  price     86.85  shares        255M  cap $     22.2B  rev $    9.98B  P/S     2.22
+  2026-12-31  price     87.95  shares        255M  cap $     22.4B  rev $    9.98B  P/S     2.25
 
 ==============================================================================
 IP
@@ -6390,7 +6390,7 @@ IP
 FLAGGED FOR:
   - the share count moved +51% in one step on 2025-02-21, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.87 | 5y med 0.89 | 10y med 0.94 | Z -0.2150383394817445 | years 10.0
+P/S now 0.86 | 5y med 0.89 | 10y med 0.94 | Z -0.2614654276764827 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6505,7 +6505,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     36.15  shares        346M  cap $     12.5B  rev $   19.45B  P/S     0.64
   2024-12-31  price     53.82  shares        347M  cap $     18.7B  rev $   15.05B  P/S     1.24
   2025-12-31  price     39.39  shares        528M  cap $     20.8B  rev $   15.05B  P/S     1.38
-  2026-12-31  price     39.88  shares        530M  cap $     21.1B  rev $   24.20B  P/S     0.87
+  2026-12-31  price     39.31  shares        530M  cap $     20.8B  rev $   24.20B  P/S     0.86
 
 ==============================================================================
 INVH
@@ -6514,7 +6514,7 @@ INVH
 FLAGGED FOR:
   - the share count moved +67% in one step on 2018-03-29, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 6.05 | 5y med 8.55 | 10y med 8.74 | Z -1.7865104791691833 | years 9.3
+P/S now 6.05 | 5y med 8.55 | 10y med 8.74 | Z -1.7833780471563343 | years 9.3
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6628,7 +6628,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     34.11  shares        612M  cap $     20.9B  rev $    2.39B  P/S     8.74
   2024-12-31  price     31.97  shares        613M  cap $     19.6B  rev $    2.58B  P/S     7.58
   2025-12-31  price     27.79  shares        613M  cap $     17.0B  rev $    2.70B  P/S     6.30
-  2026-12-31  price     29.23  shares        591M  cap $     17.3B  rev $    2.86B  P/S     6.05
+  2026-12-31  price     29.24  shares        591M  cap $     17.3B  rev $    2.86B  P/S     6.05
 
 ==============================================================================
 IQV
@@ -6637,7 +6637,7 @@ IQV
 FLAGGED FOR:
   - the share count moved +108% in one step on 2016-11-03, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.63 | 5y med 2.62 | 10y med 2.75 | Z -0.0885800705185322 | years 10.0
+P/S now 2.63 | 5y med 2.62 | 10y med 2.75 | Z -0.10055712379664733 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6752,7 +6752,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    231.38  shares        182M  cap $     42.2B  rev $   14.86B  P/S     2.84
   2024-12-31  price    196.51  shares        182M  cap $     35.7B  rev $   15.31B  P/S     2.33
   2025-12-31  price    225.41  shares        170M  cap $     38.4B  rev $   15.90B  P/S     2.41
-  2026-12-31  price    262.38  shares        167M  cap $     43.8B  rev $   16.63B  P/S     2.63
+  2026-12-31  price    261.75  shares        167M  cap $     43.7B  rev $   16.63B  P/S     2.63
 
 ==============================================================================
 IRM
@@ -6761,7 +6761,7 @@ IRM
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2021-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 4.83 | 5y med 3.74 | 10y med 3.17 | Z 1.2721027208723774 | years 10.0
+P/S now 4.62 | 5y med 3.74 | 10y med 3.17 | Z 1.1099347144989535 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6880,7 +6880,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     69.98  shares        292M  cap $     20.4B  rev $    5.34B  P/S     3.83
   2024-12-31  price    105.11  shares        293M  cap $     30.8B  rev $    5.99B  P/S     5.15
   2025-12-31  price     82.95  shares        296M  cap $     24.5B  rev $    6.64B  P/S     3.69
-  2026-12-31  price    122.69  shares        298M  cap $     36.5B  rev $    7.56B  P/S     4.83
+  2026-12-31  price    117.40  shares        298M  cap $     35.0B  rev $    7.56B  P/S     4.62
 
 ==============================================================================
 JCI
@@ -6889,7 +6889,7 @@ JCI
 FLAGGED FOR:
   - the share count moved +120% in one step on 2016-11-23, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.55 | 5y med 2.24 | 10y med 1.93 | Z 1.1363750607173564 | years 10.0
+P/S now 3.49 | 5y med 2.24 | 10y med 1.93 | Z 1.0957792016130412 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7010,7 +7010,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     57.64  shares        681M  cap $     39.2B  rev $   22.33B  P/S     1.76
   2024-12-31  price     78.93  shares        662M  cap $     52.3B  rev $   22.95B  P/S     2.28
   2025-12-31  price    119.75  shares        611M  cap $     73.2B  rev $   23.60B  P/S     3.10
-  2026-12-31  price    142.21  shares        610M  cap $     86.8B  rev $   24.43B  P/S     3.55
+  2026-12-31  price    139.59  shares        610M  cap $     85.2B  rev $   24.43B  P/S     3.49
 
 ==============================================================================
 KVUE
@@ -7107,7 +7107,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     21.53  shares      1,915M  cap $     41.2B  rev $   15.05B  P/S     2.74
   2024-12-31  price     21.35  shares      1,917M  cap $     40.9B  rev $   15.46B  P/S     2.65
   2025-12-31  price     17.25  shares      1,916M  cap $     33.0B  rev $   15.01B  P/S     2.20
-  2026-12-31  price     19.20  shares      1,921M  cap $     36.9B  rev $   15.41B  P/S     2.39
+  2026-12-31  price     19.17  shares      1,921M  cap $     36.8B  rev $   15.41B  P/S     2.39
 
 ==============================================================================
 KIM
@@ -7116,7 +7116,7 @@ KIM
 FLAGGED FOR:
   - the share count moved +42% in one step on 2021-11-05, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 7.30 | 5y med 7.37 | 10y med 7.09 | Z 0.12145664286485125 | years 10.0
+P/S now 7.29 | 5y med 7.36 | 10y med 7.09 | Z 0.11578404346017664 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7238,7 +7238,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     21.31  shares        620M  cap $     13.2B  rev $    1.77B  P/S     7.46
   2024-12-31  price     23.43  shares        674M  cap $     15.8B  rev $    1.96B  P/S     8.04
   2025-12-31  price     20.27  shares        677M  cap $     13.7B  rev $    2.12B  P/S     6.47
-  2026-12-31  price     23.81  shares        671M  cap $     16.0B  rev $    2.19B  P/S     7.30
+  2026-12-31  price     23.78  shares        671M  cap $     16.0B  rev $    2.19B  P/S     7.29
 
 ==============================================================================
 KMI
@@ -7247,7 +7247,7 @@ KMI
 FLAGGED FOR:
   - the share count moved +107% in one step on 2015-02-23, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.31 | 5y med 2.95 | 10y med 3.23 | Z 1.3125271699964722 | years 10.0
+P/S now 4.32 | 5y med 2.95 | 10y med 3.23 | Z 1.314706518542534 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7368,7 +7368,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     17.64  shares      2,223M  cap $     39.2B  rev $   14.24B  P/S     2.75
   2024-12-31  price     27.40  shares      2,222M  cap $     60.9B  rev $   13.48B  P/S     4.52
   2025-12-31  price     27.49  shares      2,225M  cap $     61.2B  rev $   14.76B  P/S     4.14
-  2026-12-31  price     31.54  shares      2,227M  cap $     70.2B  rev $   16.28B  P/S     4.31
+  2026-12-31  price     31.56  shares      2,227M  cap $     70.3B  rev $   16.28B  P/S     4.32
 
 ==============================================================================
 KKR
@@ -7378,7 +7378,7 @@ FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
   - the share count moved +45% in one step on 2022-08-05, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.61 | 5y med 4.98 | 10y med 5.14 | Z -0.2708857200201721 | years 9.5
+P/S now 4.58 | 5y med 4.98 | 10y med 5.13 | Z -0.2886550784432814 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7489,17 +7489,17 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     82.85  shares        885M  cap $     73.3B  rev $   12.59B  P/S     5.82
   2024-12-31  price    147.91  shares        888M  cap $    131.4B  rev $   23.05B  P/S     5.70
   2025-12-31  price    127.48  shares        891M  cap $    113.6B  rev $   16.98B  P/S     6.69
-  2026-12-31  price    109.32  shares        898M  cap $     98.1B  rev $   21.31B  P/S     4.61
+  2026-12-31  price    108.68  shares        898M  cap $     97.6B  rev $   21.31B  P/S     4.58
 
 ==============================================================================
 LHX
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 301 days ago, so the denominator is stale
+  - newest revenue figure was filed 303 days ago, so the denominator is stale
   - the share count moved +89% in one step on 2019-08-22, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.24 | 5y med 2.31 | 10y med 2.55 | Z -0.6808012359573244 | years 10.0
+P/S now 2.25 | 5y med 2.31 | 10y med 2.55 | Z -0.6712025299947972 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7621,7 +7621,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    210.62  shares        190M  cap $     39.9B  rev $   18.66B  P/S     2.14
   2024-12-31  price    210.28  shares        190M  cap $     39.9B  rev $   21.14B  P/S     1.89
   2025-12-31  price    293.57  shares        187M  cap $     54.9B  rev $   21.74B  P/S     2.53
-  2026-12-31  price    261.98  shares        186M  cap $     48.8B  rev $   21.74B  P/S     2.24
+  2026-12-31  price    262.82  shares        186M  cap $     48.9B  rev $   21.74B  P/S     2.25
 
 ==============================================================================
 LDOS
@@ -7630,7 +7630,7 @@ LDOS
 FLAGGED FOR:
   - the share count moved +107% in one step on 2016-11-04, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.00 | 5y med 1.05 | 10y med 1.11 | Z -0.5120594701055362 | years 10.0
+P/S now 1.00 | 5y med 1.05 | 10y med 1.11 | Z -0.47940628276214625 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7750,7 +7750,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    108.24  shares        138M  cap $     14.9B  rev $   15.05B  P/S     0.99
   2024-12-31  price    144.06  shares        133M  cap $     19.2B  rev $   16.18B  P/S     1.19
   2025-12-31  price    180.40  shares        128M  cap $     23.1B  rev $   17.26B  P/S     1.34
-  2026-12-31  price    139.86  shares        125M  cap $     17.6B  rev $   17.58B  P/S     1.00
+  2026-12-31  price    140.66  shares        125M  cap $     17.7B  rev $   17.58B  P/S     1.00
 
 ==============================================================================
 LIN
@@ -7759,7 +7759,7 @@ LIN
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 6.31 | 5y med 6.07 | 10y med 5.60 | Z 0.636275912695246 | years 7.8
+P/S now 6.37 | 5y med 6.07 | 10y med 5.60 | Z 0.6794784169156038 | years 7.8
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7868,7 +7868,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    410.71  shares        485M  cap $    199.1B  rev $   32.45B  P/S     6.14
   2024-12-31  price    418.67  shares        476M  cap $    199.4B  rev $   33.02B  P/S     6.04
   2025-12-31  price    426.39  shares        467M  cap $    199.1B  rev $   33.50B  P/S     5.94
-  2026-12-31  price    485.35  shares        461M  cap $    223.7B  rev $   35.45B  P/S     6.31
+  2026-12-31  price    489.51  shares        461M  cap $    225.7B  rev $   35.45B  P/S     6.37
 
 ==============================================================================
 LYV
@@ -7878,7 +7878,7 @@ FLAGGED FOR:
   - trailing revenue falls 58% around 2021-03-31, 31x this company's usual move between filings, at the exact point the source concept changes from reported-annual to Revenues
   - trailing revenue has a 366-day hole ending 2020-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 1.62 | 5y med 1.37 | 10y med 1.14 | Z 0.12568552146168893 | years 10.0
+P/S now 1.63 | 5y med 1.37 | 10y med 1.14 | Z 0.13274523454977524 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7993,7 +7993,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     93.60  shares        230M  cap $     21.6B  rev $   21.20B  P/S     1.02
   2024-12-31  price    129.50  shares        232M  cap $     30.1B  rev $   23.29B  P/S     1.29
   2025-12-31  price    142.50  shares        235M  cap $     33.5B  rev $   24.57B  P/S     1.36
-  2026-12-31  price    180.64  shares        236M  cap $     42.6B  rev $   26.27B  P/S     1.62
+  2026-12-31  price    181.65  shares        236M  cap $     42.8B  rev $   26.27B  P/S     1.63
 
 ==============================================================================
 LITE
@@ -8003,7 +8003,7 @@ FLAGGED FOR:
   - trailing revenue has a 364-day hole ending 2018-06-30, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
   - the share count is 28% higher than a year ago, on 2019-02-07 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 28.46 | 5y med 3.38 | 10y med 3.62 | Z 3.2512226906957196 | years 9.0
+P/S now 26.64 | 5y med 3.38 | 10y med 3.62 | Z 3.136344104832116 | years 9.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8118,7 +8118,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     52.42  shares         67M  cap $      3.5B  rev $    1.68B  P/S     2.09
   2024-12-31  price     83.95  shares         69M  cap $      5.8B  rev $    1.38B  P/S     4.18
   2025-12-31  price    368.59  shares         71M  cap $     26.1B  rev $    1.84B  P/S    14.19
-  2026-12-31  price    956.14  shares         90M  cap $     85.8B  rev $    3.01B  P/S    28.46
+  2026-12-31  price    895.00  shares         90M  cap $     80.3B  rev $    3.01B  P/S    26.64
 
 ==============================================================================
 MTB
@@ -8231,7 +8231,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    137.08  shares        166M  cap $     22.7B  rev $    1.52B  P/S    14.92
   2024-12-31  price    188.01  shares        166M  cap $     31.2B  rev $    1.48B  P/S    21.02
   2025-12-31  price    201.48  shares        154M  cap $     31.0B  rev $    1.63B  P/S    19.01
-  2026-12-31  price    238.68  shares        144M  cap $     34.5B  rev $    1.70B  P/S    20.24
+  2026-12-31  price    237.29  shares        144M  cap $     34.3B  rev $    1.70B  P/S    20.12
 
 ==============================================================================
 MPC
@@ -8240,7 +8240,7 @@ MPC
 FLAGGED FOR:
   - the share count moved +53% in one step on 2018-11-05, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.66 | 5y med 0.38 | 10y med 0.38 | Z 1.926585450146783 | years 10.0
+P/S now 0.67 | 5y med 0.38 | 10y med 0.38 | Z 1.9718269429723367 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8363,7 +8363,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    148.36  shares        380M  cap $     56.3B  rev $  151.94B  P/S     0.37
   2024-12-31  price    139.50  shares        321M  cap $     44.8B  rev $  141.98B  P/S     0.32
   2025-12-31  price    162.63  shares        301M  cap $     48.9B  rev $  133.26B  P/S     0.37
-  2026-12-31  price    363.54  shares        281M  cap $    102.1B  rev $  153.58B  P/S     0.66
+  2026-12-31  price    368.83  shares        281M  cap $    103.6B  rev $  153.58B  P/S     0.67
 
 ==============================================================================
 MAR
@@ -8372,7 +8372,7 @@ MAR
 FLAGGED FOR:
   - the share count moved +53% in one step on 2016-11-09, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.43 | 5y med 2.92 | 10y med 2.59 | Z 0.8409404015985634 | years 10.0
+P/S now 3.40 | 5y med 2.92 | 10y med 2.59 | Z 0.8161789784579032 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8489,7 +8489,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    225.51  shares        294M  cap $     66.2B  rev $   23.54B  P/S     2.81
   2024-12-31  price    278.94  shares        278M  cap $     77.5B  rev $   24.77B  P/S     3.13
   2025-12-31  price    310.24  shares        268M  cap $     83.3B  rev $   25.93B  P/S     3.21
-  2026-12-31  price    353.87  shares        261M  cap $     92.3B  rev $   26.90B  P/S     3.43
+  2026-12-31  price    351.08  shares        261M  cap $     91.5B  rev $   26.90B  P/S     3.40
 
 ==============================================================================
 MRSH
@@ -8498,7 +8498,7 @@ MRSH
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 3.24 | 5y med 4.26 | 10y med 3.51 | Z -0.756821045602868 | years 9.5
+P/S now 3.29 | 5y med 4.26 | 10y med 3.51 | Z -0.6793663369343796 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8614,7 +8614,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    189.47  shares        493M  cap $     93.4B  rev $   20.84B  P/S     4.48
   2024-12-31  price    212.41  shares        491M  cap $    104.3B  rev $   20.84B  P/S     5.01
   2025-12-31  price    185.52  shares        490M  cap $     90.9B  rev $   26.45B  P/S     3.44
-  2026-12-31  price    190.00  shares        477M  cap $     90.7B  rev $   27.95B  P/S     3.24
+  2026-12-31  price    192.64  shares        477M  cap $     91.9B  rev $   27.95B  P/S     3.29
 
 ==============================================================================
 MLM
@@ -8623,7 +8623,7 @@ MLM
 FLAGGED FOR:
   - the share count moved +46% in one step on 2015-05-05, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.75 | 5y med 5.17 | 10y med 3.85 | Z 0.46666856193945033 | years 10.0
+P/S now 4.77 | 5y med 5.17 | 10y med 3.85 | Z 0.48355346649576475 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8739,7 +8739,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    498.91  shares         62M  cap $     30.8B  rev $    6.65B  P/S     4.64
   2024-12-31  price    516.50  shares         61M  cap $     31.6B  rev $    5.34B  P/S     5.91
   2025-12-31  price    622.66  shares         60M  cap $     37.6B  rev $    5.34B  P/S     7.03
-  2026-12-31  price    528.59  shares         60M  cap $     31.8B  rev $    6.69B  P/S     4.75
+  2026-12-31  price    531.05  shares         60M  cap $     31.9B  rev $    6.69B  P/S     4.77
 
 ==============================================================================
 MRVL
@@ -8748,7 +8748,7 @@ MRVL
 FLAGGED FOR:
   - trailing revenue has a 364-day hole ending 2021-01-30, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 24.23 | 5y med 10.20 | 10y med 10.32 | Z 1.8418110793388376 | years 5.2
+P/S now 21.74 | 5y med 10.20 | 10y med 10.33 | Z 1.5797558108582905 | years 5.2
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8847,7 +8847,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     60.31  shares        864M  cap $     52.1B  rev $    5.50B  P/S     9.48
   2024-12-31  price    110.45  shares        865M  cap $     95.6B  rev $    5.38B  P/S    17.78
   2025-12-31  price     84.98  shares        848M  cap $     72.1B  rev $    7.79B  P/S     9.25
-  2026-12-31  price    241.45  shares        875M  cap $    211.2B  rev $    8.72B  P/S    24.23
+  2026-12-31  price    216.62  shares        875M  cap $    189.5B  rev $    8.72B  P/S    21.74
 
 ==============================================================================
 MAA
@@ -8857,7 +8857,7 @@ FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2018-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
   - the share count moved +50% in one step on 2017-02-24, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 6.77 | 5y med 8.23 | 10y med 8.55 | Z -1.0293258429799292 | years 10.0
+P/S now 6.81 | 5y med 8.23 | 10y med 8.55 | Z -1.0103944969311296 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8974,7 +8974,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    134.46  shares        117M  cap $     15.7B  rev $    2.13B  P/S     7.35
   2024-12-31  price    154.57  shares        117M  cap $     18.1B  rev $    2.18B  P/S     8.27
   2025-12-31  price    138.91  shares        117M  cap $     16.3B  rev $    2.20B  P/S     7.38
-  2026-12-31  price    128.79  shares        116M  cap $     15.0B  rev $    2.21B  P/S     6.77
+  2026-12-31  price    129.61  shares        116M  cap $     15.1B  rev $    2.21B  P/S     6.81
 
 ==============================================================================
 MRNA
@@ -8984,7 +8984,7 @@ FLAGGED FOR:
   - trailing revenue jumps 132% around 2020-09-30, 5x this company's usual move between filings, at the exact point the source concept changes from mixed to Revenues
   - trailing revenue has a 457-day hole ending 2021-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 29.32 | 5y med 30.74 | 10y med 141.22 | Z -0.30184415956387495 | years 7.5
+P/S now 28.34 | 5y med 29.81 | 10y med 141.22 | Z -0.3193249414302989 | years 7.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9095,7 +9095,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     99.45  shares        381M  cap $     37.9B  rev $    0.25B  P/S   154.11
   2024-12-31  price     41.58  shares        385M  cap $     16.0B  rev $    6.85B  P/S     2.34
   2025-12-31  price     29.49  shares        391M  cap $     11.5B  rev $    3.24B  P/S     3.56
-  2026-12-31  price    142.77  shares        399M  cap $     57.0B  rev $    1.94B  P/S    29.32
+  2026-12-31  price    137.99  shares        399M  cap $     55.1B  rev $    1.94B  P/S    28.34
 
 ==============================================================================
 NEM
@@ -9105,7 +9105,7 @@ FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
   - the share count moved +54% in one step on 2019-04-25, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 5.41 | 5y med 3.50 | 10y med 3.42 | Z 1.9178227434071387 | years 10.0
+P/S now 5.23 | 5y med 3.50 | 10y med 3.42 | Z 1.7704293385060756 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9224,7 +9224,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     41.39  shares        795M  cap $     32.9B  rev $   11.05B  P/S     2.98
   2024-12-31  price     37.22  shares      1,138M  cap $     42.4B  rev $   16.99B  P/S     2.49
   2025-12-31  price     99.85  shares      1,091M  cap $    109.0B  rev $   21.50B  P/S     5.07
-  2026-12-31  price    132.29  shares      1,054M  cap $    139.4B  rev $   25.77B  P/S     5.41
+  2026-12-31  price    127.98  shares      1,054M  cap $    134.9B  rev $   25.77B  P/S     5.23
 
 ==============================================================================
 NTRS
@@ -9233,7 +9233,7 @@ NTRS
 FLAGGED FOR:
   - trailing revenue has a 366-day hole ending 2020-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 3.76 | 5y med 3.08 | 10y med 3.41 | Z 0.5831861066075898 | years 10.0
+P/S now 3.78 | 5y med 3.08 | 10y med 3.41 | Z 0.596777316938863 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9349,7 +9349,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     84.38  shares        207M  cap $     17.5B  rev $    6.76B  P/S     2.58
   2024-12-31  price    102.50  shares        198M  cap $     20.3B  rev $    6.77B  P/S     3.00
   2025-12-31  price    136.59  shares        189M  cap $     25.8B  rev $    7.92B  P/S     3.26
-  2026-12-31  price    186.27  shares        183M  cap $     34.1B  rev $    9.05B  P/S     3.76
+  2026-12-31  price    186.79  shares        183M  cap $     34.2B  rev $    9.05B  P/S     3.78
 
 ==============================================================================
 NCLH
@@ -9359,7 +9359,7 @@ FLAGGED FOR:
   - trailing revenue falls 97% around 2021-03-31, 100x this company's usual move between filings, at the exact point the source concept changes from reported-annual to RevenueFromContractWithCustomerIncludingAssessedTax
   - trailing revenue has a 366-day hole ending 2020-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 0.75 | 5y med 1.11 | 10y med 1.76 | Z -0.7614971848272536 | years 10.0
+P/S now 0.75 | 5y med 1.11 | 10y med 1.76 | Z -0.7612579524215161 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9481,7 +9481,7 @@ FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
   - the share count moved +37% in one step on 2016-02-26, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.52 | 5y med 4.34 | 10y med 4.18 | Z 0.33817582881706604 | years 10.0
+P/S now 4.47 | 5y med 4.34 | 10y med 4.18 | Z 0.2885399520684229 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9600,7 +9600,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    229.68  shares        258M  cap $     59.2B  rev $   13.17B  P/S     4.50
   2024-12-31  price    207.85  shares        254M  cap $     52.8B  rev $   12.93B  P/S     4.09
   2025-12-31  price    217.06  shares        252M  cap $     54.6B  rev $   12.04B  P/S     4.54
-  2026-12-31  price    225.86  shares        252M  cap $     57.0B  rev $   12.62B  P/S     4.52
+  2026-12-31  price    223.58  shares        252M  cap $     56.4B  rev $   12.62B  P/S     4.47
 
 ==============================================================================
 OMC
@@ -9609,7 +9609,7 @@ OMC
 FLAGGED FOR:
   - the share count is 47% higher than a year ago, on 2026-02-20 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 1.26 | 5y med 1.12 | 10y med 1.12 | Z 0.9602883505008816 | years 10.0
+P/S now 1.27 | 5y med 1.12 | 10y med 1.12 | Z 0.9909991574022267 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9715,7 +9715,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     86.51  shares        198M  cap $     17.1B  rev $   14.50B  P/S     1.18
   2024-12-31  price     86.04  shares        195M  cap $     16.8B  rev $   15.43B  P/S     1.09
   2025-12-31  price     80.75  shares        193M  cap $     15.6B  rev $   16.07B  P/S     0.97
-  2026-12-31  price     87.89  shares        285M  cap $     25.0B  rev $   19.82B  P/S     1.26
+  2026-12-31  price     88.28  shares        285M  cap $     25.2B  rev $   19.82B  P/S     1.27
 
 ==============================================================================
 OKE
@@ -9724,7 +9724,7 @@ OKE
 FLAGGED FOR:
   - the share count moved +80% in one step on 2017-08-02, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.52 | 5y med 2.08 | 10y med 2.06 | Z -1.0347229642199098 | years 10.0
+P/S now 1.52 | 5y med 2.08 | 10y med 2.06 | Z -1.0326624744183666 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9846,7 +9846,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     70.22  shares        583M  cap $     40.9B  rev $   13.69B  P/S     2.99
   2024-12-31  price    100.40  shares        584M  cap $     58.7B  rev $   19.93B  P/S     2.94
   2025-12-31  price     73.50  shares        629M  cap $     46.2B  rev $   31.56B  P/S     1.47
-  2026-12-31  price     94.72  shares        630M  cap $     59.7B  rev $   39.37B  P/S     1.52
+  2026-12-31  price     94.76  shares        630M  cap $     59.7B  rev $   39.37B  P/S     1.52
 
 ==============================================================================
 OTIS
@@ -9855,7 +9855,7 @@ OTIS
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2019-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 1.82 | 5y med 2.50 | 10y med 2.47 | Z -2.2823761484637504 | years 6.3
+P/S now 1.83 | 5y med 2.50 | 10y med 2.47 | Z -2.2481080835647056 | years 6.3
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9958,7 +9958,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     89.47  shares        409M  cap $     36.6B  rev $   14.03B  P/S     2.61
   2024-12-31  price     92.61  shares        399M  cap $     37.0B  rev $   14.21B  P/S     2.60
   2025-12-31  price     87.35  shares        390M  cap $     34.0B  rev $   14.31B  P/S     2.38
-  2026-12-31  price     71.48  shares        381M  cap $     27.2B  rev $   14.91B  P/S     1.82
+  2026-12-31  price     71.74  shares        381M  cap $     27.3B  rev $   14.91B  P/S     1.83
 
 ==============================================================================
 PSKY
@@ -10025,7 +10025,7 @@ CORPORATE ACTIONS: [('2025-11-10', 1071665.977)]
 
 P/S SERIES, YEARLY SAMPLE
   2025-12-31  price     13.40  shares      1,072M  cap $     14.4B  rev $   29.21B  P/S     0.49
-  2026-12-31  price     10.80  shares      1,072M  cap $     11.6B  rev $   28.76B  P/S     0.40
+  2026-12-31  price     10.88  shares      1,072M  cap $     11.7B  rev $   28.76B  P/S     0.41
 
 ==============================================================================
 PNR
@@ -10034,7 +10034,7 @@ PNR
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 2.39 | 5y med 3.11 | 10y med 2.83 | Z -0.7081763685938467 | years 9.5
+P/S now 2.37 | 5y med 3.11 | 10y med 2.83 | Z -0.7370304021740144 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -10144,7 +10144,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     72.71  shares        165M  cap $     12.0B  rev $    4.12B  P/S     2.92
   2024-12-31  price    100.64  shares        165M  cap $     16.6B  rev $    4.09B  P/S     4.06
   2025-12-31  price    104.14  shares        164M  cap $     17.0B  rev $    4.13B  P/S     4.13
-  2026-12-31  price     62.10  shares        162M  cap $     10.0B  rev $    4.20B  P/S     2.39
+  2026-12-31  price     61.67  shares        162M  cap $     10.0B  rev $    4.20B  P/S     2.37
 
 ==============================================================================
 PFE
@@ -10153,7 +10153,7 @@ PFE
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 2.51 | 5y med 2.50 | 10y med 3.75 | Z -0.9799177167270595 | years 9.5
+P/S now 2.50 | 5y med 2.50 | 10y med 3.75 | Z -0.9843407011936733 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -10271,7 +10271,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     28.79  shares      5,646M  cap $    162.6B  rev $   70.12B  P/S     2.32
   2024-12-31  price     26.53  shares      5,667M  cap $    150.3B  rev $   60.43B  P/S     2.49
   2025-12-31  price     24.90  shares      5,686M  cap $    141.6B  rev $   62.78B  P/S     2.25
-  2026-12-31  price     28.02  shares      5,700M  cap $    159.7B  rev $   63.70B  P/S     2.51
+  2026-12-31  price     27.96  shares      5,700M  cap $    159.4B  rev $   63.70B  P/S     2.50
 
 ==============================================================================
 PCG
@@ -10280,7 +10280,7 @@ PCG
 FLAGGED FOR:
   - the share count moved +266% in one step on 2020-07-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.86 | 5y med 1.79 | 10y med 1.64 | Z 0.6492132470772422 | years 10.0
+P/S now 1.72 | 5y med 1.79 | 10y med 1.64 | Z 0.5095347136719868 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -10399,7 +10399,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     18.03  shares      2,611M  cap $     47.1B  rev $   22.76B  P/S     2.07
   2024-12-31  price     20.18  shares      2,615M  cap $     52.8B  rev $   24.83B  P/S     2.13
   2025-12-31  price     16.07  shares      2,676M  cap $     43.0B  rev $   24.76B  P/S     1.74
-  2026-12-31  price     17.95  shares      2,680M  cap $     48.1B  rev $   25.84B  P/S     1.86
+  2026-12-31  price     16.60  shares      2,680M  cap $     44.5B  rev $   25.84B  P/S     1.72
 
 ==============================================================================
 PM
@@ -10408,7 +10408,7 @@ PM
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 6.98 | 5y med 5.00 | 10y med 4.85 | Z 1.7534909126224778 | years 9.5
+P/S now 7.03 | 5y med 5.00 | 10y med 4.85 | Z 1.7921281676041254 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -10522,7 +10522,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     94.08  shares      1,552M  cap $    146.1B  rev $   34.28B  P/S     4.26
   2024-12-31  price    120.35  shares      1,555M  cap $    187.1B  rev $   37.22B  P/S     5.03
   2025-12-31  price    160.40  shares      1,557M  cap $    249.7B  rev $   39.99B  P/S     6.24
-  2026-12-31  price    190.48  shares      1,559M  cap $    296.9B  rev $   42.55B  P/S     6.98
+  2026-12-31  price    191.89  shares      1,559M  cap $    299.1B  rev $   42.55B  P/S     7.03
 
 ==============================================================================
 PG
@@ -10531,7 +10531,7 @@ PG
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2018-06-30, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 3.82 | 5y med 4.42 | 10y med 4.40 | Z -0.6883636998028404 | years 10.0
+P/S now 3.84 | 5y med 4.42 | 10y med 4.40 | Z -0.6680483559016227 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -10646,7 +10646,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    146.54  shares      2,357M  cap $    345.4B  rev $   83.27B  P/S     4.15
   2024-12-31  price    167.65  shares      2,355M  cap $    394.8B  rev $   83.91B  P/S     4.71
   2025-12-31  price    143.31  shares      2,337M  cap $    334.9B  rev $   84.93B  P/S     3.94
-  2026-12-31  price    143.14  shares      2,324M  cap $    332.7B  rev $   87.03B  P/S     3.82
+  2026-12-31  price    143.78  shares      2,324M  cap $    334.2B  rev $   87.03B  P/S     3.84
 
 ==============================================================================
 PRU
@@ -10655,7 +10655,7 @@ PRU
 FLAGGED FOR:
   - trailing revenue jumps 68% around 2012-12-31, 16x this company's usual move between filings, at the exact point the source concept changes from Revenues to reported-annual
 
-P/S now 0.64 | 5y med 0.61 | 10y med 0.62 | Z 0.23124508403705818 | years 10.0
+P/S now 0.64 | 5y med 0.61 | 10y med 0.62 | Z 0.20503222516901842 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -10774,7 +10774,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    103.71  shares        361M  cap $     37.4B  rev $   60.19B  P/S     0.62
   2024-12-31  price    118.53  shares        356M  cap $     42.2B  rev $   72.97B  P/S     0.58
   2025-12-31  price    112.88  shares        350M  cap $     39.5B  rev $   57.61B  P/S     0.69
-  2026-12-31  price    120.37  shares        345M  cap $     41.5B  rev $   64.77B  P/S     0.64
+  2026-12-31  price    119.79  shares        345M  cap $     41.3B  rev $   64.77B  P/S     0.64
 
 ==============================================================================
 RTX
@@ -10784,7 +10784,7 @@ FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
   - the share count moved +76% in one step on 2020-07-29, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.06 | 5y med 2.19 | 10y med 2.03 | Z 2.0696828382741947 | years 10.0
+P/S now 3.05 | 5y med 2.19 | 10y med 2.03 | Z 2.0585819874221896 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -10905,7 +10905,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     84.14  shares      1,438M  cap $    121.0B  rev $   63.76B  P/S     1.90
   2024-12-31  price    115.72  shares      1,331M  cap $    154.0B  rev $   79.04B  P/S     1.95
   2025-12-31  price    183.40  shares      1,341M  cap $    245.9B  rev $   85.99B  P/S     2.86
-  2026-12-31  price    212.08  shares      1,348M  cap $    285.8B  rev $   93.50B  P/S     3.06
+  2026-12-31  price    211.71  shares      1,348M  cap $    285.3B  rev $   93.50B  P/S     3.05
 
 ==============================================================================
 O
@@ -10914,7 +10914,7 @@ O
 FLAGGED FOR:
   - the share count moved +46% in one step on 2022-02-23, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 9.66 | 5y med 10.96 | 10y med 13.47 | Z -1.4372577900917995 | years 10.0
+P/S now 9.69 | 5y med 10.96 | 10y med 13.47 | Z -1.4230556164718609 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -11031,7 +11031,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     57.42  shares        724M  cap $     41.6B  rev $    3.89B  P/S    10.68
   2024-12-31  price     53.41  shares        875M  cap $     46.7B  rev $    5.01B  P/S     9.34
   2025-12-31  price     56.37  shares        920M  cap $     51.9B  rev $    5.60B  P/S     9.26
-  2026-12-31  price     61.80  shares        946M  cap $     58.5B  rev $    6.05B  P/S     9.66
+  2026-12-31  price     61.98  shares        946M  cap $     58.6B  rev $    6.05B  P/S     9.69
 
 ==============================================================================
 REG
@@ -11040,7 +11040,7 @@ REG
 FLAGGED FOR:
   - the share count moved +62% in one step on 2017-05-10, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 8.72 | 5y med 8.94 | 10y med 9.36 | Z -0.5686573927841955 | years 10.0
+P/S now 8.72 | 5y med 8.94 | 10y med 9.36 | Z -0.5663264753833911 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -11158,7 +11158,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     67.00  shares        185M  cap $     12.4B  rev $    1.28B  P/S     9.68
   2024-12-31  price     73.93  shares        182M  cap $     13.4B  rev $    1.44B  P/S     9.31
   2025-12-31  price     69.03  shares        183M  cap $     12.6B  rev $    1.52B  P/S     8.30
-  2026-12-31  price     75.46  shares        183M  cap $     13.8B  rev $    1.59B  P/S     8.72
+  2026-12-31  price     75.52  shares        183M  cap $     13.8B  rev $    1.59B  P/S     8.72
 
 ==============================================================================
 RCL
@@ -11168,7 +11168,7 @@ FLAGGED FOR:
   - trailing revenue falls 90% around 2021-03-31, 101x this company's usual move between filings, at the exact point the source concept changes from reported-annual to RevenueFromContractWithCustomerExcludingAssessedTax
   - trailing revenue has a 366-day hole ending 2020-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 4.08 | 5y med 3.60 | 10y med 2.75 | Z 0.10360001410445048 | years 10.0
+P/S now 4.00 | 5y med 3.60 | 10y med 2.75 | Z 0.08595581203717154 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -11284,7 +11284,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    129.49  shares        256M  cap $     33.2B  rev $   13.17B  P/S     2.52
   2024-12-31  price    230.69  shares        269M  cap $     62.0B  rev $   16.05B  P/S     3.86
   2025-12-31  price    278.92  shares        273M  cap $     76.1B  rev $   17.44B  P/S     4.36
-  2026-12-31  price    284.80  shares        267M  cap $     76.2B  rev $   18.68B  P/S     4.08
+  2026-12-31  price    279.41  shares        267M  cap $     74.7B  rev $   18.68B  P/S     4.00
 
 ==============================================================================
 SPGI
@@ -11293,7 +11293,7 @@ SPGI
 FLAGGED FOR:
   - the share count moved +41% in one step on 2022-05-04, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 8.19 | 5y med 10.51 | 10y med 9.89 | Z -0.5351257128077448 | years 10.0
+P/S now 8.33 | 5y med 10.50 | 10y med 9.89 | Z -0.460974881614565 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -11414,7 +11414,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    416.76  shares        317M  cap $    132.0B  rev $   12.28B  P/S    10.75
   2024-12-31  price    471.17  shares        310M  cap $    146.2B  rev $   13.77B  P/S    10.62
   2025-12-31  price    494.41  shares        303M  cap $    149.7B  rev $   13.77B  P/S    10.87
-  2026-12-31  price    435.39  shares        296M  cap $    128.9B  rev $   15.73B  P/S     8.19
+  2026-12-31  price    442.89  shares        296M  cap $    131.1B  rev $   15.73B  P/S     8.33
 
 ==============================================================================
 SNDK
@@ -11504,7 +11504,7 @@ CORPORATE ACTIONS: [('2025-03-17', 0.261)]
 
 P/S SERIES, YEARLY SAMPLE
   2025-12-31  price    237.38  shares        147M  cap $     34.8B  rev $    7.78B  P/S     4.47
-  2026-12-31  price   1484.95  shares        146M  cap $    217.4B  rev $   20.25B  P/S    10.74
+  2026-12-31  price   1484.98  shares        146M  cap $    217.4B  rev $   20.25B  P/S    10.74
 
 ==============================================================================
 SW
@@ -11600,7 +11600,7 @@ CORPORATE ACTIONS: []
 P/S SERIES, YEARLY SAMPLE
   2024-12-31  price     53.86  shares        520M  cap $     28.0B  rev $   12.09B  P/S     2.32
   2025-12-31  price     38.67  shares        522M  cap $     20.2B  rev $   31.14B  P/S     0.65
-  2026-12-31  price     48.63  shares        525M  cap $     25.5B  rev $   31.33B  P/S     0.81
+  2026-12-31  price     48.29  shares        525M  cap $     25.3B  rev $   31.33B  P/S     0.81
 
 ==============================================================================
 SOLV
@@ -11691,7 +11691,7 @@ CORPORATE ACTIONS: []
 P/S SERIES, YEARLY SAMPLE
   2024-12-31  price     66.06  shares        173M  cap $     11.4B  rev $    8.13B  P/S     1.40
   2025-12-31  price     79.24  shares        173M  cap $     13.7B  rev $    8.40B  P/S     1.64
-  2026-12-31  price     90.93  shares        170M  cap $     15.5B  rev $    8.31B  P/S     1.86
+  2026-12-31  price     91.12  shares        170M  cap $     15.5B  rev $    8.31B  P/S     1.87
 
 ==============================================================================
 STE
@@ -11700,7 +11700,7 @@ STE
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2018-03-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 3.76 | 5y med 4.33 | 10y med 4.42 | Z -1.2511020373563642 | years 7.2
+P/S now 3.78 | 5y med 4.33 | 10y med 4.42 | Z -1.2269186901523754 | years 7.2
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -11806,7 +11806,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    219.85  shares         99M  cap $     21.7B  rev $    4.78B  P/S     4.54
   2024-12-31  price    205.56  shares         99M  cap $     20.3B  rev $    5.33B  P/S     3.81
   2025-12-31  price    253.52  shares         98M  cap $     24.9B  rev $    5.70B  P/S     4.36
-  2026-12-31  price    232.97  shares         98M  cap $     22.7B  rev $    6.04B  P/S     3.76
+  2026-12-31  price    233.78  shares         98M  cap $     22.8B  rev $    6.04B  P/S     3.78
 
 ==============================================================================
 TMUS
@@ -11815,7 +11815,7 @@ TMUS
 FLAGGED FOR:
   - the share count moved +44% in one step on 2020-05-06, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.07 | 5y med 2.31 | 10y med 2.11 | Z 0.08757483091883059 | years 10.0
+P/S now 2.11 | 5y med 2.31 | 10y med 2.11 | Z 0.15349191746727678 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -11936,7 +11936,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    160.33  shares      1,156M  cap $    185.4B  rev $   78.35B  P/S     2.37
   2024-12-31  price    220.73  shares      1,160M  cap $    256.2B  rev $   80.01B  P/S     3.20
   2025-12-31  price    203.04  shares      1,119M  cap $    227.1B  rev $   85.85B  P/S     2.65
-  2026-12-31  price    177.75  shares      1,073M  cap $    190.7B  rev $   92.19B  P/S     2.07
+  2026-12-31  price    181.37  shares      1,073M  cap $    194.6B  rev $   92.19B  P/S     2.11
 
 ==============================================================================
 TROW
@@ -11945,7 +11945,7 @@ TROW
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 3.16 | 5y med 3.67 | 10y med 4.18 | Z -1.301006934504096 | years 10.0
+P/S now 3.13 | 5y med 3.67 | 10y med 4.18 | Z -1.3406945696582089 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12065,7 +12065,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    107.69  shares        223M  cap $     24.1B  rev $    6.34B  P/S     3.79
   2024-12-31  price    113.09  shares        222M  cap $     25.1B  rev $    6.91B  P/S     3.64
   2025-12-31  price    102.38  shares        218M  cap $     22.3B  rev $    7.21B  P/S     3.10
-  2026-12-31  price    112.36  shares        213M  cap $     24.0B  rev $    7.59B  P/S     3.16
+  2026-12-31  price    111.24  shares        213M  cap $     23.7B  rev $    7.59B  P/S     3.13
 
 ==============================================================================
 TTWO
@@ -12074,7 +12074,7 @@ TTWO
 FLAGGED FOR:
   - the share count moved +44% in one step on 2022-08-09, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 6.52 | 5y med 5.27 | 10y med 5.45 | Z 0.7910922185339019 | years 10.0
+P/S now 6.58 | 5y med 5.27 | 10y med 5.45 | Z 0.8321115577707281 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12193,7 +12193,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    160.95  shares        170M  cap $     27.4B  rev $    5.44B  P/S     5.03
   2024-12-31  price    184.08  shares        176M  cap $     32.3B  rev $    5.46B  P/S     5.92
   2025-12-31  price    256.03  shares        185M  cap $     47.3B  rev $    6.22B  P/S     7.61
-  2026-12-31  price    233.00  shares        187M  cap $     43.6B  rev $    6.69B  P/S     6.52
+  2026-12-31  price    235.39  shares        187M  cap $     44.0B  rev $    6.69B  P/S     6.58
 
 ==============================================================================
 TRGP
@@ -12202,7 +12202,7 @@ TRGP
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 3.70 | 5y med 1.36 | 10y med 1.15 | Z 1.9357728864491621 | years 9.5
+P/S now 3.69 | 5y med 1.37 | 10y med 1.15 | Z 1.9267738282414781 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12318,7 +12318,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     86.87  shares        223M  cap $     19.4B  rev $   16.38B  P/S     1.18
   2024-12-31  price    178.50  shares        218M  cap $     38.9B  rev $   16.22B  P/S     2.40
   2025-12-31  price    184.50  shares        215M  cap $     39.6B  rev $   17.38B  P/S     2.28
-  2026-12-31  price    288.95  shares        214M  cap $     62.0B  rev $   16.74B  P/S     3.70
+  2026-12-31  price    287.82  shares        214M  cap $     61.7B  rev $   16.74B  P/S     3.69
 
 ==============================================================================
 TPL
@@ -12327,7 +12327,7 @@ TPL
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2019-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 28.41 | 5y med 26.63 | 10y med 27.60 | Z 0.08255289081069565 | years 5.5
+P/S now 28.00 | 5y med 26.63 | 10y med 27.61 | Z 0.03252652435914897 | years 5.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12426,16 +12426,16 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    174.72  shares         69M  cap $     12.1B  rev $    0.62B  P/S    19.54
   2024-12-31  price    368.65  shares         69M  cap $     25.4B  rev $    0.69B  P/S    37.00
   2025-12-31  price    287.22  shares         69M  cap $     19.8B  rev $    0.77B  P/S    25.64
-  2026-12-31  price    369.71  shares         69M  cap $     25.5B  rev $    0.90B  P/S    28.41
+  2026-12-31  price    364.38  shares         69M  cap $     25.1B  rev $    0.90B  P/S    28.00
 
 ==============================================================================
 TFC
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 3041 days ago, so the denominator is stale
+  - newest revenue figure was filed 3043 days ago, so the denominator is stale
   - trailing revenue has a 365-day hole ending 2014-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
-  - a P/S of 418 is not a valuation, it is a broken denominator
+  - a P/S of 419 is not a valuation, it is a broken denominator
   - the share count moved +75% in one step on 2020-03-03, which no split explains -- the multiples either side of it are measuring different companies
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12550,7 +12550,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     36.92  shares      1,334M  cap $     49.2B  rev $    0.15B  P/S   334.96
   2024-12-31  price     43.38  shares      1,328M  cap $     57.6B  rev $    0.15B  P/S   391.75
   2025-12-31  price     49.21  shares      1,279M  cap $     63.0B  rev $    0.15B  P/S   428.24
-  2026-12-31  price     50.30  shares      1,222M  cap $     61.4B  rev $    0.15B  P/S   418.01
+  2026-12-31  price     50.43  shares      1,222M  cap $     61.6B  rev $    0.15B  P/S   419.09
 
 ==============================================================================
 USB
@@ -12559,7 +12559,7 @@ USB
 FLAGGED FOR:
   - trailing revenue has a 1188-day hole ending 2022-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 3.27 | 5y med 2.77 | 10y med 3.20 | Z 0.18481492818003709 | years 10.0
+P/S now 3.28 | 5y med 2.77 | 10y med 3.20 | Z 0.19005312208978242 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12677,7 +12677,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     43.28  shares      1,557M  cap $     67.4B  rev $   24.30B  P/S     2.77
   2024-12-31  price     47.83  shares      1,560M  cap $     74.6B  rev $   27.21B  P/S     2.74
   2025-12-31  price     53.36  shares      1,554M  cap $     82.9B  rev $   28.30B  P/S     2.93
-  2026-12-31  price     62.40  shares      1,558M  cap $     97.2B  rev $   29.69B  P/S     3.27
+  2026-12-31  price     62.47  shares      1,558M  cap $     97.3B  rev $   29.69B  P/S     3.28
 
 ==============================================================================
 UBER
@@ -12686,7 +12686,7 @@ UBER
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2018-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 2.85 | 5y med 3.44 | 10y med 3.84 | Z -0.7716800226123568 | years 7.2
+P/S now 2.92 | 5y med 3.43 | 10y med 3.84 | Z -0.7186452647670378 | years 7.2
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12793,7 +12793,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     61.57  shares      2,058M  cap $    126.7B  rev $   35.95B  P/S     3.52
   2024-12-31  price     60.32  shares      2,106M  cap $    127.0B  rev $   41.95B  P/S     3.03
   2025-12-31  price     81.71  shares      2,078M  cap $    169.8B  rev $   49.61B  P/S     3.42
-  2026-12-31  price     76.95  shares      2,043M  cap $    157.2B  rev $   55.23B  P/S     2.85
+  2026-12-31  price     78.82  shares      2,043M  cap $    161.0B  rev $   55.23B  P/S     2.92
 
 ==============================================================================
 VLO
@@ -12802,7 +12802,7 @@ VLO
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 0.72 | 5y med 0.33 | 10y med 0.34 | Z 2.271792200798028 | years 9.5
+P/S now 0.73 | 5y med 0.33 | 10y med 0.34 | Z 2.3234777086639524 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12917,7 +12917,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    130.00  shares        340M  cap $     44.3B  rev $  151.10B  P/S     0.29
   2024-12-31  price    122.59  shares        317M  cap $     38.8B  rev $  134.54B  P/S     0.29
   2025-12-31  price    162.79  shares        305M  cap $     49.7B  rev $  123.07B  P/S     0.40
-  2026-12-31  price    346.59  shares        288M  cap $     99.8B  rev $  139.40B  P/S     0.72
+  2026-12-31  price    352.36  shares        288M  cap $    101.5B  rev $  139.40B  P/S     0.73
 
 ==============================================================================
 VLTO
@@ -13013,7 +13013,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     82.26  shares        246M  cap $     20.3B  rev $    4.87B  P/S     4.16
   2024-12-31  price    101.85  shares        247M  cap $     25.2B  rev $    5.14B  P/S     4.90
   2025-12-31  price     99.78  shares        248M  cap $     24.8B  rev $    5.45B  P/S     4.54
-  2026-12-31  price     98.37  shares        246M  cap $     24.2B  rev $    5.59B  P/S     4.32
+  2026-12-31  price     98.56  shares        246M  cap $     24.2B  rev $    5.59B  P/S     4.33
 
 ==============================================================================
 VRT
@@ -13022,7 +13022,7 @@ VRT
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2019-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 9.03 | 5y med 3.48 | 10y med 2.02 | Z 1.58006211931508 | years 6.5
+P/S now 8.62 | 5y med 3.49 | 10y med 2.02 | Z 1.5228118967800859 | years 6.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -13126,7 +13126,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     48.03  shares        381M  cap $     18.3B  rev $    6.65B  P/S     2.75
   2024-12-31  price    113.61  shares        375M  cap $     42.6B  rev $    7.53B  P/S     5.66
   2025-12-31  price    162.01  shares        382M  cap $     61.9B  rev $    9.70B  P/S     6.39
-  2026-12-31  price    269.28  shares        385M  cap $    103.7B  rev $   11.48B  P/S     9.03
+  2026-12-31  price    257.08  shares        385M  cap $     99.0B  rev $   11.48B  P/S     8.62
 
 ==============================================================================
 VTRS
@@ -13137,7 +13137,7 @@ FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2019-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
   - the share count moved +1209393316% in one step on 2021-11-08, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.32 | 5y med 0.85 | 10y med 0.82 | Z 0.42031980488947374 | years 6.3
+P/S now 1.28 | 5y med 0.85 | 10y med 0.82 | Z 0.41300234592268176 | years 6.3
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -13230,7 +13230,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     10.83  shares      1,200M  cap $     13.0B  rev $   15.43B  P/S     0.84
   2024-12-31  price     12.45  shares      1,194M  cap $     14.9B  rev $   15.00B  P/S     0.99
   2025-12-31  price     12.45  shares      1,152M  cap $     14.3B  rev $   14.08B  P/S     1.02
-  2026-12-31  price     16.89  shares      1,149M  cap $     19.4B  rev $   14.69B  P/S     1.32
+  2026-12-31  price     16.34  shares      1,149M  cap $     18.8B  rev $   14.69B  P/S     1.28
 
 ==============================================================================
 VMC
@@ -13239,7 +13239,7 @@ VMC
 FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 4.41 | 5y med 4.51 | 10y med 4.30 | Z 0.33636778990675087 | years 9.5
+P/S now 4.42 | 5y med 4.50 | 10y med 4.30 | Z 0.35165647137119516 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -13356,7 +13356,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    227.01  shares        133M  cap $     30.2B  rev $    7.19B  P/S     4.20
   2024-12-31  price    257.23  shares        132M  cap $     34.0B  rev $    7.19B  P/S     4.72
   2025-12-31  price    285.22  shares        132M  cap $     37.7B  rev $    7.88B  P/S     4.78
-  2026-12-31  price    273.85  shares        130M  cap $     35.5B  rev $    8.06B  P/S     4.41
+  2026-12-31  price    274.51  shares        130M  cap $     35.6B  rev $    8.06B  P/S     4.42
 
 ==============================================================================
 WAB
@@ -13365,7 +13365,7 @@ WAB
 FLAGGED FOR:
   - the share count moved +69% in one step on 2019-05-09, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.19 | 5y med 2.58 | 10y med 2.35 | Z 2.0737946579794517 | years 10.0
+P/S now 4.12 | 5y med 2.58 | 10y med 2.35 | Z 2.0069599940274014 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -13479,7 +13479,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    126.90  shares        179M  cap $     22.7B  rev $    9.46B  P/S     2.40
   2024-12-31  price    189.59  shares        172M  cap $     32.6B  rev $   10.33B  P/S     3.15
   2025-12-31  price    213.45  shares        171M  cap $     36.5B  rev $   10.79B  P/S     3.38
-  2026-12-31  price    297.28  shares        169M  cap $     50.2B  rev $   11.98B  P/S     4.19
+  2026-12-31  price    292.23  shares        169M  cap $     49.4B  rev $   11.98B  P/S     4.12
 
 ==============================================================================
 DIS
@@ -13488,7 +13488,7 @@ DIS
 FLAGGED FOR:
   - trailing revenue has a 364-day hole ending 2018-09-29, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
 
-P/S now 1.87 | 5y med 2.13 | 10y med 2.29 | Z -0.9844682058051326 | years 7.3
+P/S now 1.89 | 5y med 2.13 | 10y med 2.29 | Z -0.9523819927899563 | years 7.3
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -13594,7 +13594,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     90.29  shares      1,830M  cap $    165.3B  rev $   88.90B  P/S     1.86
   2024-12-31  price    111.35  shares      1,811M  cap $    201.6B  rev $   91.36B  P/S     2.21
   2025-12-31  price    113.77  shares      1,785M  cap $    203.1B  rev $   94.42B  P/S     2.15
-  2026-12-31  price    106.82  shares      1,727M  cap $    184.4B  rev $   98.86B  P/S     1.87
+  2026-12-31  price    108.10  shares      1,727M  cap $    186.7B  rev $   98.86B  P/S     1.89
 
 ==============================================================================
 WAT
@@ -13603,7 +13603,7 @@ WAT
 FLAGGED FOR:
   - the share count is 65% higher than a year ago, on 2026-02-23 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 8.91 | 5y med 6.98 | 10y med 6.79 | Z 1.5660552585764846 | years 10.0
+P/S now 8.77 | 5y med 6.98 | 10y med 6.79 | Z 1.4757535737578849 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -13725,7 +13725,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    329.23  shares         59M  cap $     19.5B  rev $    2.97B  P/S     6.55
   2024-12-31  price    370.98  shares         59M  cap $     22.0B  rev $    2.91B  P/S     7.58
   2025-12-31  price    379.83  shares         60M  cap $     22.6B  rev $    3.11B  P/S     7.28
-  2026-12-31  price    421.26  shares         98M  cap $     41.4B  rev $    4.64B  P/S     8.91
+  2026-12-31  price    414.69  shares         98M  cap $     40.7B  rev $    4.64B  P/S     8.77
 
 ==============================================================================
 WEC
@@ -13734,7 +13734,7 @@ WEC
 FLAGGED FOR:
   - the share count moved +40% in one step on 2015-08-05, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.42 | 5y med 3.55 | 10y med 3.48 | Z 0.22745666916521162 | years 10.0
+P/S now 3.41 | 5y med 3.55 | 10y med 3.48 | Z 0.22396115348152407 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -13852,7 +13852,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     84.17  shares        315M  cap $     26.6B  rev $    9.23B  P/S     2.88
   2024-12-31  price     94.04  shares        316M  cap $     29.7B  rev $    8.53B  P/S     3.49
   2025-12-31  price    105.46  shares        325M  cap $     34.3B  rev $    9.55B  P/S     3.59
-  2026-12-31  price    106.28  shares        326M  cap $     34.6B  rev $   10.14B  P/S     3.42
+  2026-12-31  price    106.22  shares        326M  cap $     34.6B  rev $   10.14B  P/S     3.41
 
 ==============================================================================
 WFC
@@ -13862,7 +13862,7 @@ FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
   - the share count moved -51% in one step on 2023-08-01, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.96 | 5y med 3.18 | 10y med 4.19 | Z -0.7294105500496674 | years 9.5
+P/S now 3.02 | 5y med 3.18 | 10y med 4.19 | Z -0.6742141942304553 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -13980,7 +13980,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     49.22  shares      3,632M  cap $    178.7B  rev $   82.15B  P/S     2.18
   2024-12-31  price     70.24  shares      3,329M  cap $    233.9B  rev $   82.40B  P/S     2.84
   2025-12-31  price     93.20  shares      3,139M  cap $    292.6B  rev $   82.78B  P/S     3.53
-  2026-12-31  price     84.97  shares      3,024M  cap $    256.9B  rev $   86.80B  P/S     2.96
+  2026-12-31  price     86.69  shares      3,024M  cap $    262.2B  rev $   86.80B  P/S     3.02
 
 ==============================================================================
 WY
@@ -13989,7 +13989,7 @@ WY
 FLAGGED FOR:
   - the share count moved +46% in one step on 2016-05-06, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.49 | 5y med 2.71 | 10y med 2.98 | Z -0.9426138678378259 | years 10.0
+P/S now 2.49 | 5y med 2.71 | 10y med 2.97 | Z -0.9548390277323212 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14107,7 +14107,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     34.77  shares        730M  cap $     25.4B  rev $    7.72B  P/S     3.29
   2024-12-31  price     28.15  shares        727M  cap $     20.5B  rev $    7.19B  P/S     2.84
   2025-12-31  price     23.69  shares        721M  cap $     17.1B  rev $    7.07B  P/S     2.41
-  2026-12-31  price     23.70  shares        721M  cap $     17.1B  rev $    6.85B  P/S     2.49
+  2026-12-31  price     23.64  shares        721M  cap $     17.0B  rev $    6.85B  P/S     2.49
 
 ==============================================================================
 WMB
@@ -14116,7 +14116,7 @@ WMB
 FLAGGED FOR:
   - the share count moved +46% in one step on 2018-11-01, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 5.88 | 5y med 3.82 | 10y med 3.25 | Z 1.8738408611066963 | years 10.0
+P/S now 5.84 | 5y med 3.82 | 10y med 3.25 | Z 1.8512765573773833 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14237,7 +14237,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     34.83  shares      1,216M  cap $     42.4B  rev $   13.10B  P/S     3.23
   2024-12-31  price     54.12  shares      1,219M  cap $     66.0B  rev $   12.24B  P/S     5.39
   2025-12-31  price     60.11  shares      1,221M  cap $     73.4B  rev $   14.47B  P/S     5.07
-  2026-12-31  price     74.19  shares      1,223M  cap $     90.7B  rev $   15.43B  P/S     5.88
+  2026-12-31  price     73.73  shares      1,223M  cap $     90.2B  rev $   15.43B  P/S     5.84
 
 ==============================================================================
 XYL
@@ -14247,7 +14247,7 @@ FLAGGED FOR:
   - trailing revenue has a 365-day hole ending 2017-12-31, inside the ten-year window; the last known figure is carried across it, so the multiple is overstated for that stretch
   - the share count moved +33% in one step on 2023-08-04, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.88 | 5y med 3.78 | 10y med 3.49 | Z -0.8901316900044731 | years 9.5
+P/S now 2.85 | 5y med 3.77 | 10y med 3.49 | Z -0.944758243321796 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14365,7 +14365,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    114.36  shares        241M  cap $     27.6B  rev $    5.10B  P/S     5.41
   2024-12-31  price    116.02  shares        243M  cap $     28.2B  rev $    8.42B  P/S     3.35
   2025-12-31  price    136.18  shares        243M  cap $     33.2B  rev $    8.89B  P/S     3.73
-  2026-12-31  price    112.65  shares        233M  cap $     26.3B  rev $    9.13B  P/S     2.88
+  2026-12-31  price    111.31  shares        233M  cap $     26.0B  rev $    9.13B  P/S     2.85
 
 
 ==============================================================================
@@ -14463,46 +14463,15 @@ WY     2010-11-05      2.5327   SPLIT ADDED from EDGAR: count 211,612,907 -> 535
 WTW    2016-01-05      0.3775   reported share count went 0.77x, not 0.38x
 YUM    2016-11-01      1.3910   reported share count went 0.85x, not 1.39x
 ==============================================================================
-NVDA
-==============================================================================
-
-FLAGGED FOR:
-  - revenue differs from Yahoo by +20%
-
-P/S now 18.13 | 5y med 26.75 | 10y med 20.28 | Z -0.0771221880056064
-  my revenue  $    302.97B   Yahoo $    253.49B
-  my mktcap   $  5,494.32B   Yahoo $  5,521.90B
-  (structurally clean -- this block exists only because the two sources disagree)
-
-REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
-                                                          16     17     18     19     20     21     22     23     24     25     26   facts
- *Revenues                                               5.0    6.9    9.7      -   10.9   16.7   26.9   27.0   60.9  130.5  215.9    280
-  CostOfRevenue                                          2.2    2.8    3.9      -    4.2    6.3    9.4   11.6   16.6   32.6   62.5    280
-  PaymentsToAcquireAvailableForSaleSecuritiesDebt          -    3.1    0.0   11.1    1.5   19.3   24.8   11.9   18.2   26.6   40.6     72
- *RevenueFromContractWithCustomerExcludingAssessedTax      -    6.9    9.7   11.7   10.9   16.7   26.9      -      -      -      -     28
-  ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailabl      -      -      -      -    4.7    8.8   15.2   19.4    9.7   11.2   11.2     51
-  BusinessAcquisitionsProFormaRevenue                      -      -      -      -   12.2   17.1      -      -      -      -      -     22
-  ProceedsFromSaleOfAvailableForSaleSecuritiesDebt         -    1.5    0.9    0.4    3.4    0.5    1.0    1.8    0.1    0.5   15.2     72
-  ProceedsFromSaleOfAvailableForSaleSecurities           2.1    1.5    0.9      -      -      -      -      -      -      -      -     45
-  ContractWithCustomerLiabilityRevenueRecognized           -      -      -    0.3      -      -      -    0.3    0.3    0.7    1.0     34
-  DeferredRevenueAdditions                                 -      -      -    0.3    0.3      -      -      -      -      -      -      8
-  DeferredRevenueRevenueRecognized1                        -      -      -    0.3    0.3      -      -      -      -      -      -      8
-  DeferredRevenueRevenueRecognized                         -      -      -      -      -      -      -      -      -      -      -      8
-  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
-  anchor: Revenues (121 periods, newest 2026-07-26)
-    RevenueFromContractWithCustomerExcludingAssessedTax: merged at 1.000x (rescaled by 1.000)
-
-==============================================================================
 MA
 ==============================================================================
 
 FLAGGED FOR:
   - market cap differs from Yahoo by +40%
 
-P/S now 20.67 | 5y med 21.48 | 10y med 21.41 | Z -0.026009074631979632
+P/S now 20.79 | 5y med 21.47 | 10y med 21.41 | Z 0.0036356649910568232
   my revenue  $     35.08B   Yahoo $     35.08B
-  my mktcap   $    725.05B   Yahoo $    518.36B
+  my mktcap   $    729.42B   Yahoo $    521.49B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14532,9 +14501,9 @@ CMCSA
 FLAGGED FOR:
   - market cap differs from Yahoo by +16%
 
-P/S now 0.87 | 5y med 1.24 | 10y med 1.50 | Z -2.0735601873886886
+P/S now 0.89 | 5y med 1.24 | 10y med 1.50 | Z -1.9697357313862494
   my revenue  $    124.91B   Yahoo $    124.90B
-  my mktcap   $    108.97B   Yahoo $     93.72B
+  my mktcap   $    111.65B   Yahoo $     96.03B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14561,9 +14530,9 @@ BX
 FLAGGED FOR:
   - market cap differs from Yahoo by -37%
 
-P/S now 6.69 | 5y med 7.93 | 10y med 5.46 | Z 0.30276849928717714
+P/S now 6.63 | 5y med 7.93 | 10y med 5.47 | Z 0.28561067641561727
   my revenue  $     16.11B   Yahoo $     15.48B
-  my mktcap   $    107.82B   Yahoo $    171.69B
+  my mktcap   $    106.88B   Yahoo $    170.20B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14584,9 +14553,9 @@ ICE
 FLAGGED FOR:
   - revenue differs from Yahoo by +27%
 
-P/S now 6.74 | 5y med 7.42 | 10y med 7.48 | Z -0.8080930852095205
+P/S now 6.79 | 5y med 7.42 | 10y med 7.48 | Z -0.7465542603209383
   my revenue  $     13.43B   Yahoo $     10.56B
-  my mktcap   $     90.52B   Yahoo $     90.52B
+  my mktcap   $     91.13B   Yahoo $     91.13B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14615,9 +14584,9 @@ UPS
 FLAGGED FOR:
   - market cap differs from Yahoo by -16%
 
-P/S now 0.84 | 5y med 1.15 | 10y med 1.24 | Z -1.562886049585324
+P/S now 0.84 | 5y med 1.15 | 10y med 1.24 | Z -1.57688185528305
   my revenue  $     89.93B   Yahoo $     89.93B
-  my mktcap   $     75.45B   Yahoo $     89.91B
+  my mktcap   $     75.20B   Yahoo $     89.61B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14644,9 +14613,9 @@ HLT
 FLAGGED FOR:
   - revenue differs from Yahoo by +145%
 
-P/S now 5.87 | 5y med 5.23 | 10y med 4.33 | Z 0.787444466956466
+P/S now 5.80 | 5y med 5.23 | 10y med 4.33 | Z 0.7573154483844038
   my revenue  $     12.48B   Yahoo $      5.10B
-  my mktcap   $     73.30B   Yahoo $     73.30B
+  my mktcap   $     72.44B   Yahoo $     72.44B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14675,9 +14644,9 @@ NKE
 FLAGGED FOR:
   - market cap differs from Yahoo by +15%
 
-P/S now 1.42 | 5y med 3.20 | 10y med 3.60 | Z -2.7071498357262715
+P/S now 1.46 | 5y med 3.19 | 10y med 3.60 | Z -2.6146067872203385
   my revenue  $     46.40B   Yahoo $     46.40B
-  my mktcap   $     65.76B   Yahoo $     57.03B
+  my mktcap   $     67.74B   Yahoo $     58.75B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14702,9 +14671,9 @@ NDAQ
 FLAGGED FOR:
   - revenue differs from Yahoo by +56%
 
-P/S now 6.35 | 5y med 5.60 | 10y med 4.38 | Z 1.4609525113992192
+P/S now 6.34 | 5y med 5.60 | 10y med 4.38 | Z 1.4582370329880119
   my revenue  $      8.75B   Yahoo $      5.61B
-  my mktcap   $     55.53B   Yahoo $     55.53B
+  my mktcap   $     55.51B   Yahoo $     55.51B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14733,9 +14702,9 @@ PAYX
 FLAGGED FOR:
   - revenue differs from Yahoo by +59%
 
-P/S now 7.14 | 5y med 8.94 | 10y med 8.33 | Z -0.8085203205841194
+P/S now 7.17 | 5y med 8.93 | 10y med 8.33 | Z -0.7823827320940235
   my revenue  $      6.30B   Yahoo $      3.97B
-  my mktcap   $     44.99B   Yahoo $     44.99B
+  my mktcap   $     45.19B   Yahoo $     45.19B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14766,9 +14735,9 @@ CME
 FLAGGED FOR:
   - market cap differs from Yahoo by -81%
 
-P/S now 2.76 | 5y med 2.68 | 10y med 2.70 | Z 0.31582298107734325
+P/S now 2.81 | 5y med 2.68 | 10y med 2.70 | Z 0.4537476849659795
   my revenue  $      6.77B   Yahoo $      6.76B
-  my mktcap   $     18.72B   Yahoo $    101.02B
+  my mktcap   $     19.05B   Yahoo $    102.77B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14796,9 +14765,9 @@ CHTR
 FLAGGED FOR:
   - market cap differs from Yahoo by -17%
 
-P/S now 0.31 | 5y med 0.74 | 10y med 0.90 | Z -2.6024081099911904
+P/S now 0.32 | 5y med 0.74 | 10y med 0.90 | Z -2.5146977284999363
   my revenue  $     54.40B   Yahoo $     54.40B
-  my mktcap   $     16.68B   Yahoo $     19.99B
+  my mktcap   $     17.28B   Yahoo $     20.70B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14818,9 +14787,9 @@ IBKR
 FLAGGED FOR:
   - market cap differs from Yahoo by -90%
 
-P/S now 2.38 | 5y med 1.18 | 10y med 1.20 | Z 2.412718685939987
+P/S now 2.36 | 5y med 1.18 | 10y med 1.20 | Z 2.3807205754532874
   my revenue  $      6.86B   Yahoo $      6.83B
-  my mktcap   $     16.31B   Yahoo $    164.50B
+  my mktcap   $     16.19B   Yahoo $    163.29B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14845,9 +14814,9 @@ ARES
 FLAGGED FOR:
   - market cap differs from Yahoo by -69%
 
-P/S now 2.46 | 5y med 2.92 | 10y med 2.58 | Z -0.08309071034125937
+P/S now 2.46 | 5y med 2.92 | 10y med 2.58 | Z -0.08074815510039483
   my revenue  $      5.99B   Yahoo $      5.99B
-  my mktcap   $     14.72B   Yahoo $     46.97B
+  my mktcap   $     14.73B   Yahoo $     47.01B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14862,37 +14831,35 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
     Revenues: merged at 0.891x (rescaled by 1.122)
 
 ==============================================================================
-UDR
+CPT
 ==============================================================================
 
 FLAGGED FOR:
-  - market cap differs from Yahoo by -12%
+  - market cap differs from Yahoo by -13%
 
-P/S now 7.02 | 5y med 8.34 | 10y med 9.79 | Z -1.5627395287462855
-  my revenue  $      1.72B   Yahoo $      1.77B
-  my mktcap   $     12.05B   Yahoo $     13.74B
+P/S now 6.82 | 5y med 7.86 | 10y med 8.68 | Z -1.3014348380700922
+  my revenue  $      1.57B   Yahoo $      1.58B
+  my mktcap   $     10.69B   Yahoo $     12.31B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
                                                           15     16     17     18     19     20     21     22     23     24     25   facts
- *Revenues                                               0.9    1.0    1.0    1.0    1.2    1.2    1.3    1.5    1.6    1.7    1.7    194
- *OperatingLeasesIncomeStatementLeaseRevenue             0.9    0.9    1.0    1.0      -      -      -      -      -      -      -     40
- *RealEstateRevenueNet                                   0.9    1.0    1.0      -      -      -      -      -      -      -      -     29
-  OperatingLeasesIncomeStatementMinimumLeaseRevenue      0.9    0.9    1.0    1.0      -      -      -      -      -      -      -    144
-  BusinessAcquisitionsProFormaRevenue                    0.9      -      -      -      -      -      -      -      -      -      -     14
-  SegmentReportingInformationRevenue                       -      -      -      -      -      -      -      -      -      -      -     33
-  GainsLossesOnSalesOfInvestmentRealEstate               0.3    0.2      -    0.1    0.0    0.1    0.1    0.0    0.4    0.0    0.2     87
-  EquityMethodInvestmentSummarizedFinancialInformatio    0.2    0.2    0.3      -      -      -      -      -      -      -      -     14
-  DisposalGroupIncludingDiscontinuedOperationRevenue       -      -      -      -      -      -      -      -      -      -      -     23
-  BusinessCombinationProFormaInformationRevenueOfAcqu      -      -      -      -      -      -      -      -      -      -      -      4
-  ProceedsFromSaleOfAvailableForSaleSecuritiesDebt         -      -      -      -      -      -      -      -      -      -      -      2
-  ProceedsFromSaleOfAvailableForSaleSecurities             -      -      -      -      -      -      -      -      -      -      -     22
+ *RevenueFromContractWithCustomerExcludingAssessedTax      -    0.9    0.9    1.0    0.0    0.0    0.0    0.0    0.0    0.0    0.0    110
+ *RealEstateRevenueNet                                   0.9    0.9    0.9      -      -      -      -      -      -      -      -    151
+  OperatingLeasesIncomeStatementMinimumLeaseRevenue      0.8    0.8    0.8    0.8    0.8      -      -      -      -      -      -    100
+  CostOfRealEstateRevenue                                0.3    0.3    0.3      -      -      -      -      -      -      -      -     95
+  EquityMethodInvestmentSummarizedFinancialInformatio    0.1    0.1    0.1    0.1    0.1      -      -      -      -      -      -    117
+  OtherRealEstateRevenue                                 0.1    0.1    0.1      -      -      -      -      -      -      -      -    108
+  DisposalGroupIncludingDiscontinuedOperationRevenue     0.1    0.0      -      -      -      -      -      -      -      -      -     60
+  BusinessCombinationProFormaInformationRevenueOfAcqu      -      -      -      -      -      -      -      -      -      -      -     13
+  ManagementFeesRevenue                                  0.0    0.0    0.0      -      -      -      -      -      -      -      -    104
+  ProceedsFromSaleOfAvailableForSaleSecurities             -      -      -      -      -      -      -      -      -      -      -     17
+  AvailableForSaleSecuritiesChangeInNetUnrealizedHold      -      -      -      -      -      -      -      -      -      -      -      4
+  OtherComprehensiveIncomeReclassificationAdjustmentF      -      -      -      -      -      -      -      -      -      -      -      3
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: OperatingLeaseLeaseIncome, OperatingLeasesIncomeStatementLeaseRevenue, RealEstateRevenueNet, Revenues
-  anchor: Revenues (98 periods, newest 2026-03-31)
+  CHOSEN: OperatingLeaseLeaseIncome, RealEstateRevenueNet
+  anchor: OperatingLeaseLeaseIncome (54 periods, newest 2026-06-30)
     RevenueFromContractWithCustomerExcludingAssessedTax: REFUSED, runs 0.01x the anchor where they overlap
-    OperatingLeaseLeaseIncome: merged at 0.995x (rescaled by 1.000)
-    OperatingLeasesIncomeStatementLeaseRevenue: merged at 0.986x (rescaled by 1.000)
     RealEstateRevenueNet: merged at 1.000x (rescaled by 1.000)
 
 
@@ -14901,28 +14868,27 @@ CROSS-CHECK AGAINST YAHOO — every row that disagrees
 ==============================================================================
 
 tkr    sector                     my revenue   my mktcap  rev diff  cap diff
-NVDA   Information Technology         303.0B    5,494.3B      +20%       -0%
-MA     Financials                      35.1B      725.0B       -0%      +40%
-COF    Financials                      58.7B      134.8B      +22%       +1%
-CMCSA  Communication Services         124.9B      109.0B       +0%      +16%
-BX     Financials                      16.1B      107.8B       +4%      -37%
-KKR    Financials                      21.3B       98.1B      -18%       -3%
-MAR    Consumer Discretionary          26.9B       92.3B     +264%       -0%
-WMB    Energy                          15.4B       90.7B      +25%       -0%
-ICE    Financials                      13.4B       90.5B      +27%       +0%
-UPS    Industrials                     89.9B       75.4B       +0%      -16%
-HLT    Consumer Discretionary          12.5B       73.3B     +145%       -0%
-NKE    Consumer Discretionary          46.4B       65.8B       -0%      +15%
+MA     Financials                      35.1B      729.4B       -0%      +40%
+COF    Financials                      58.7B      134.2B      +22%       +1%
+CMCSA  Communication Services         124.9B      111.7B       +0%      +16%
+BX     Financials                      16.1B      106.9B       +4%      -37%
+KKR    Financials                      21.3B       97.6B      -18%       -3%
+MAR    Consumer Discretionary          26.9B       91.5B     +264%       -0%
+ICE    Financials                      13.4B       91.1B      +27%       +0%
+WMB    Energy                          15.4B       90.2B      +25%       -0%
+UPS    Industrials                     89.9B       75.2B       +0%      -16%
+HLT    Consumer Discretionary          12.5B       72.4B     +145%       -0%
+NKE    Consumer Discretionary          46.4B       67.7B       -0%      +15%
 NDAQ   Financials                       8.8B       55.5B      +56%       +0%
-LHX    Industrials                     21.7B       48.8B      +69%       -0%
-PCG    Utilities                       25.8B       48.1B       -0%      +22%
-PAYX   Industrials                      6.3B       45.0B      +59%       -0%
-HBAN   Financials                       1.7B       34.2B      -82%       +0%
-MLM    Materials                        6.7B       31.8B       +0%      -15%
-DVN    Energy                          19.7B       29.3B       +5%      -44%
-DD     Industrials                      8.3B       18.7B      +18%       +0%
-CME    Financials                       6.8B       18.7B       +0%      -81%
-CHTR   Communication Services          54.4B       16.7B       +0%      -17%
-IBKR   Financials                       6.9B       16.3B       +0%      -90%
+LHX    Industrials                     21.7B       48.9B      +69%       -0%
+PAYX   Industrials                      6.3B       45.2B      +59%       +0%
+PCG    Utilities                       25.8B       44.5B       -0%      +22%
+HBAN   Financials                       1.7B       34.3B      -82%       +0%
+MLM    Materials                        6.7B       31.9B       +0%      -15%
+DVN    Energy                          19.7B       29.4B       +5%      -44%
+CME    Financials                       6.8B       19.0B       +0%      -81%
+DD     Industrials                      8.3B       18.5B      +18%       -0%
+CHTR   Communication Services          54.4B       17.3B       +0%      -17%
+IBKR   Financials                       6.9B       16.2B       +0%      -90%
 ARES   Financials                       6.0B       14.7B       +0%      -69%
-UDR    Real Estate                      1.7B       12.0B       -3%      -12%
+CPT    Real Estate                      1.6B       10.7B       -1%      -13%
