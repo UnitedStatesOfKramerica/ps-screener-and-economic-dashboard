@@ -22,6 +22,7 @@ import argparse
 import json
 import math
 import os
+import re
 import sqlite3
 import statistics
 import sys
@@ -552,6 +553,32 @@ def collect_periods(facts: dict, taxonomy: str, tags: list[str],
                 merged[k] = Period(period.start, period.end, period.val * scale,
                                    period.filed, period.tag)
 
+    # WHEN a period was first reported is a separate question from WHAT the
+    # right figure for it is, and the two must be answered from different
+    # evidence. The value has to come from a concept that agrees with the
+    # anchor's scope. The date does not: a period was public the day any filing
+    # first reported it, whatever concept carried it and whatever that concept
+    # measured.
+    #
+    # Losing this cost the series about two years of freshness at every
+    # accounting-standard change. The transition quarters survive under the new
+    # concept only as restated comparatives filed a year or two later, while the
+    # concept the filer was actually using at the time carries them filed on
+    # time. Camden shows the sharper version: its Q3 2018 was reported on
+    # 2018-10-26 under a concept that is REFUSED here, correctly, because after
+    # 2019 that concept holds only a $6m non-lease slice against a $1bn anchor.
+    # Refusing its value is right; refusing its date meant Camden was valued
+    # through 2019 on revenue from mid-2018.
+    first_seen: dict[tuple[date, date], date] = {}
+    for d in per_tag.values():
+        for k, p in d.items():
+            if k not in first_seen or p.filed < first_seen[k]:
+                first_seen[k] = p.filed
+    for k, p in merged.items():
+        earliest = first_seen.get(k)
+        if earliest and earliest < p.filed:
+            merged[k] = Period(p.start, p.end, p.val, earliest, p.tag)
+
     if tracing:
         CONCEPT_TRACE["revenue"] = trace
 
@@ -788,6 +815,51 @@ def derive_quarters(periods: list[Period], smooth: bool = True) -> list[Period]:
             kept.append(q)
         if len(kept) >= 8:
             out = kept
+
+    # A quarter's DISCLOSURE DATE is the earliest date it could be obtained, not
+    # the filing date of whichever fact happens to carry it.
+    #
+    # Honeywell's Q4 2024 is a worked example. It is derivable on 2025-02-14 as
+    # (FY2024 annual - nine months), both of which were public by then. But
+    # Honeywell also tags an explicit Oct-Dec 2024 fact as the prior-year
+    # comparative in its FY2025 10-K, filed 2026-02-17, and that fact carries
+    # dates one day apart from the derived one -- a different key, so both
+    # survive to here and the later-filed one won the overlap test. Its filing
+    # date then set availability for the whole trailing year, and cummax dragged
+    # every 2025 point up with it: sixteen months of Honeywell's P/S dividing by
+    # revenue through September 2024 while pricing mid-2025. Revenue was rising
+    # across that stretch, so the multiple was overstated for all of it, the
+    # ten-year median came out high, and nothing flagged it -- the period ends
+    # are a clean 92 days apart the whole way, which is all the old gap test
+    # could see.
+    #
+    # Collapse quarters covering the same span to one: the value from the latest
+    # filing, because a restatement supersedes, and the date from the earliest,
+    # because that is when the market could first work it out. That is the rule
+    # collect_periods already applies to duplicate facts; it was simply never
+    # carried across to derived ones.
+    by_span: dict[tuple[date, int], Period] = {}
+    ends: list[date] = []
+    for q in sorted(out, key=lambda x: (x.end, x.filed)):
+        # A 52/53-week filer reports the same quarter under two different end
+        # dates: Waters' Q1 2021 is Jan 1 - Apr 3 in the 10-Q filed on time, and
+        # Jan 1 - Mar 31 in the 10-K that restates it to calendar quarters a year
+        # later. Identical value, three days apart, so an exact-date key treats
+        # them as two quarters and the overlap filter keeps whichever it met
+        # first -- which was the year-late one. Match on the same few-days
+        # tolerance the annual reconciliation already uses.
+        anchor = next((e for e in ends if abs((q.end - e).days) <= 5), q.end)
+        if anchor == q.end:
+            ends.append(q.end)
+        key = (anchor, round(q.days / 7))
+        prior = by_span.get(key)
+        if prior is None:
+            by_span[key] = q
+        else:
+            newest = q if q.filed > prior.filed else prior
+            by_span[key] = Period(newest.start, newest.end, newest.val,
+                                  min(q.filed, prior.filed), newest.tag)
+    out = sorted(by_span.values(), key=lambda x: x.end)
 
     # Drop overlaps: keep the first quarter, then only quarters starting at or
     # after the previous one ended.
@@ -1194,7 +1266,49 @@ def monthly_ps(
     if out.empty:
         return out
     out.attrs["splits"] = {str(k.date()): (r, adj) for k, (r, adj) in split_info.items()}
+    cut = stale_after_days(ttm)
+    out["rev_stale"] = out["rev_age"] > cut
+    out.attrs["stale_cut_days"] = cut
+
+    # Decide ONCE, here, whether the stale days can be dropped, because the
+    # audit runs before the statistics do and the two must not disagree about
+    # what the median was built on.
+    fresh = out[~out["rev_stale"]]
+    span = (out["date"].max() - out["date"].min()).days / 30.44
+    fresh_span = ((fresh["date"].max() - fresh["date"].min()).days / 30.44
+                  if len(fresh) else 0.0)
+    used_fresh = len(fresh) >= 200 and fresh_span >= MIN_MONTHS_FOR_STATS
+    stale_months = int(round((1.0 - len(fresh) / max(len(out), 1)) * span))
+    out.attrs["used_fresh"] = used_fresh
+    out.attrs["stale_months_dropped"] = stale_months if used_fresh else 0
+    out.attrs["stale_months_kept"] = stale_months if not used_fresh else 0
     return out
+
+
+def stale_after_days(ttm: pd.DataFrame) -> float:
+    """
+    The age past which this filer's revenue figure should already have been
+    superseded, derived from its own filing behaviour rather than a constant.
+
+    A quarterly filer's trailing figure is at most one quarter old plus however
+    long that filer takes to file. Both come from the data: the quarter is 92
+    days and the lag is the median of (available - period_end) across the whole
+    series. A month of slack absorbs a late filing without opening the door to a
+    missing one, so an ordinary series never trips this and a stretch built on a
+    year-old annual always does.
+
+    This replaces the old fixed-gap "hole" test. That test could not tell a
+    stretch where the data is genuinely absent from one where it is merely
+    annual, because it only looked at the spacing of period ends; both look like
+    a 365-day step. Age at the point of use is the thing that actually matters
+    to the multiple, and it separates them without a tuned threshold.
+    """
+    if ttm is None or ttm.empty or "period_end" not in ttm:
+        return 365.0
+    lag = (pd.to_datetime(ttm["available"]) - pd.to_datetime(ttm["period_end"])).dt.days
+    lag = lag[lag.between(0, 400)]
+    typical = float(lag.median()) if len(lag) else 60.0
+    return 92.0 + typical + 31.0
 
 
 # The exchange ratios companies actually announce. A split is a board
@@ -1430,6 +1544,13 @@ def _assemble(dates: pd.DataFrame, ttm: pd.DataFrame, sh: pd.DataFrame,
         "date": dates["date"].values,
         "price": dates["price"].values,
         "ttm": rev["ttm"].values,
+        # How old the revenue figure being divided by was, on the day it is
+        # being used. Under normal quarterly filing this cycles 0 -> ~130 days
+        # and resets; where a year of quarters is missing it climbs past 365.
+        # Carrying it here is what lets the statistics tell a stretch of COARSE
+        # coverage apart from a stretch of CURRENT coverage, which was the whole
+        # content of the old "hole" warning.
+        "rev_asof": rev["available"].values,
         "shares": shr["shares"].values,
     }).dropna()
     df = df[(df["ttm"] > 0) & (df["shares"] > 0)]
@@ -1443,6 +1564,7 @@ def _assemble(dates: pd.DataFrame, ttm: pd.DataFrame, sh: pd.DataFrame,
 
     df["mktcap"] = df["price"] * df["shares"]
     df["ps"] = df["mktcap"] / df["ttm"]
+    df["rev_age"] = (df["date"] - df["rev_asof"]).dt.days
     return df[np.isfinite(df["ps"]) & (df["ps"] > 0)].reset_index(drop=True)
 
 
@@ -1554,7 +1676,13 @@ def cross_check(tickers: list[str], delay: float = 0.20, *,
                                      or info.get("trailingAnnualDividendRate")),
                       "y_price": (info.get("currentPrice")
                                   or info.get("regularMarketPrice")),
-                      "y_forward_pe": info.get("forwardPE")}
+                      "y_forward_pe": info.get("forwardPE"),
+                      # What the company actually does. Same free .info call,
+                      # no extra request. Trimmed to the first few sentences
+                      # because the full text runs to a page and the panel is
+                      # meant to save a trip elsewhere, not become one.
+                      "y_summary": info.get("longBusinessSummary"),
+                      "y_industry": info.get("industry")}
         time.sleep(delay)
     return out
 
@@ -1592,8 +1720,28 @@ def apply_cross_check(summary: pd.DataFrame, series: dict[str, pd.DataFrame],
     summary["xc_mktcap_diff"] = sh_diff
     summary["xc_verdict"] = verdict
     for field, col in [("y_target", "target_price"), ("y_target_n", "target_analysts"),
-                       ("y_forward_pe", "forward_pe")]:
+                       ("y_forward_pe", "forward_pe"), ("y_industry", "industry")]:
         summary[col] = [checks.get(t, {}).get(field) for t in summary["ticker"]]
+
+    # The business summary, cut to whole sentences. Yahoo's runs to a page and
+    # the point of the panel is to save a trip elsewhere, not become one: the
+    # first two or three sentences say what the company sells and to whom,
+    # which is the question being asked.
+    def _blurb(text):
+        if not isinstance(text, str) or not text.strip():
+            return None
+        parts, out, n = re.split(r"(?<=\.)\s+", text.strip()), [], 0
+        for s in parts:
+            if out and n + len(s) > 420:
+                break
+            out.append(s)
+            n += len(s)
+            if len(out) >= 3:
+                break
+        return " ".join(out)
+
+    summary["description"] = [_blurb(checks.get(t, {}).get("y_summary"))
+                              for t in summary["ticker"]]
     # Trailing P/E is withheld when earnings are negative, because a negative
     # multiple means nothing. Forward P/E was passed through from Yahoo with no
     # such test, so it published -144.2 for Healthpeak and -66.7 for Alexandria
@@ -1821,26 +1969,32 @@ def audit_series(hist: pd.DataFrame, ttm: pd.DataFrame, split_info: dict,
             issues.append(f"newest revenue figure was filed {stale_days} days ago, so the "
                           f"denominator is stale")
 
-    # -- 3b. Holes in the trailing-revenue series. Alphabet was missing five
-    #        consecutive quarters, so it was valued on 2023 revenue through all
-    #        of 2024 -- revenue too low, P/S too high, median inflated. The gap
-    #        also made my own step check measure a year of ordinary growth and
-    #        report it as an 82% jump.
-    if len(ttm) > 8:
-        # Only within the window the statistics actually use. Before quarterly
-        # XBRL filing was routine, 2008-2011 has annual figures only, so once
-        # those are filled in the series legitimately steps a year at a time back
-        # there. That is neither missing data nor relevant to a ten-year median,
-        # and flagging it buried every real finding under 451 false ones.
-        window = ttm[ttm["period_end"] >= ttm["period_end"].max() - pd.DateOffset(years=10)]
-        if len(window) > 6:
-            spans = np.diff(window["period_end"].to_numpy()).astype("timedelta64[D]").astype(int)
-            if len(spans) and spans.max() > 200:
-                worst = int(spans.max())
-                where = window["period_end"].iloc[int(np.argmax(spans)) + 1].date()
-                issues.append(f"trailing revenue has a {worst}-day hole ending {where}, inside the "
-                              f"ten-year window; the last known figure is carried across it, so "
-                              f"the multiple is overstated for that stretch")
+    # -- 3b. Stretches valued on a revenue figure that was already out of date.
+    #        Alphabet was missing five consecutive quarters, so it was valued on
+    #        2023 revenue through all of 2024 -- revenue too low, P/S too high,
+    #        median inflated.
+    #
+    #        This used to be measured as a GAP between period ends of more than
+    #        200 days, which was the wrong quantity and fired 53 times a run. A
+    #        365-day step between two period ends means only that coverage there
+    #        is annual rather than quarterly; the annual figure is real, audited
+    #        and correctly dated. In 36 of those 53 the step was not even inside
+    #        the series -- it was the reported-annual backfill reaching one year
+    #        further back than the quarters go, so the "hole" was the space
+    #        before the series started, where nothing is being carried across
+    #        because there is nothing earlier to carry.
+    #
+    #        What actually damages the median is a day whose denominator was
+    #        stale AT THE MOMENT IT WAS USED, and summarize() now drops those
+    #        days outright. So there is only something to report when they could
+    #        not be dropped -- when removing them would leave too little history
+    #        to measure against.
+    kept = hist.attrs.get("stale_months_kept", 0)
+    if kept:
+        worst = int(hist["rev_age"].max()) if "rev_age" in hist else 0
+        issues.append(f"{kept} of the months in the window are valued on a revenue figure "
+                      f"that was already up to {worst} days old, and there is not enough "
+                      f"history left to measure without them, so the median rests on them")
 
     # -- 4. Quarters that persistently disagree with the filer's own annual
     #       totals. A level error produces no step, so nothing else here can see
@@ -2453,8 +2607,31 @@ def summarize(ticker: str, name: str, sector: str, hist: pd.DataFrame,
 
     hist = hist.sort_values("date")
     current = float(hist["ps"].iloc[-1])
-    win5 = hist[hist["date"] >= hist["date"].iloc[-1] - pd.DateOffset(years=5)]
-    win10 = hist[hist["date"] >= hist["date"].iloc[-1] - pd.DateOffset(years=10)]
+
+    # Days whose denominator was already out of date are dropped from the
+    # statistics. This is the point of the exercise: a stretch valued on a
+    # year-old annual figure is biased in ONE direction -- the revenue is too
+    # small, so the multiple is too high -- which lifts the historical median
+    # and makes today look cheaper than it is. That bias is exactly the thing
+    # the old "hole" warning was trying to describe, and describing it was never
+    # as good as not carrying it. Nothing is fabricated to fill the space; the
+    # median is simply taken over the days that were measured properly.
+    #
+    # Keep them only if dropping them would leave too little to measure, in
+    # which case the audit says so rather than the statistics quietly changing
+    # meaning.
+    used_fresh = bool(hist.attrs.get("used_fresh", False))
+    stats_src = hist[~hist["rev_stale"]] if used_fresh else hist
+
+    win5 = stats_src[stats_src["date"] >= hist["date"].iloc[-1] - pd.DateOffset(years=5)]
+    win10 = stats_src[stats_src["date"] >= hist["date"].iloc[-1] - pd.DateOffset(years=10)]
+    if len(win10) < 200:
+        # Every fresh day fell outside the ten-year window. Losing the row
+        # outright would be a worse answer than the one the old code gave, so
+        # fall back to the whole series and let the audit say what it rests on.
+        used_fresh = False
+        win5 = hist[hist["date"] >= hist["date"].iloc[-1] - pd.DateOffset(years=5)]
+        win10 = hist[hist["date"] >= hist["date"].iloc[-1] - pd.DateOffset(years=10)]
     last5, last10 = win5["ps"], win10["ps"]
 
     have5 = len(last5) >= 400          # roughly two years of trading days
@@ -2499,6 +2676,8 @@ def summarize(ticker: str, name: str, sector: str, hist: pd.DataFrame,
         "ps_min": float(last10.min()),
         "ps_max": float(last10.max()),
         "months": int(round(span_months)),
+        "stale_months_dropped": int(hist.attrs.get("stale_months_dropped", 0)),
+        "stale_months_kept": int(hist.attrs.get("stale_months_kept", 0)),
         "restructure_date": (str(actions[-1][0].date()) if actions else None),
         "restructure_pct": (actions[-1][1] * 100 if actions else None),
         "months_since_restructure": (
@@ -2765,6 +2944,11 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .nm{color:var(--dim);font-family:var(--sans);font-size:12px;
       max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .cheap{color:var(--cheap)} .rich{color:var(--rich)} .flat{color:var(--mid)}
+  .imp{color:var(--mid);font-size:.86em;white-space:nowrap}
+  .what{margin:0 0 14px;padding:11px 13px;border-radius:7px;
+        background:rgba(255,255,255,.03);border:1px solid var(--line);
+        font-size:.93em;line-height:1.55;color:var(--text)}
+  .what .ind{margin-top:6px;font-size:.85em;color:var(--mid)}
   .flag{color:var(--warn);cursor:help;margin-left:6px}
   .range{position:relative;width:104px;height:16px;display:inline-block;
          vertical-align:middle}
@@ -2868,6 +3052,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <div class="controls">
   <input id="q" type="search" placeholder="Ticker or name" size="16">
   <select id="sector"><option value="">All sectors</option></select>
+  <select id="subsector"><option value="">All industries</option></select>
   <input id="mincap" type="number" placeholder="Min cap ($B)" size="10">
   <label class="chk"><input type="checkbox" id="growing"> Sales still growing</label>
   <label class="chk"><input type="checkbox" id="hideRestruct" checked> Hide restructured</label>
@@ -2884,18 +3069,19 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <th class="txt" data-k="ticker" title="Stock symbol">Ticker</th>
     <th class="txt" data-k="name" title="Company name">Company</th>
     <th class="txt" data-k="sector" title="Industry group">Sector</th>
+    <th class="txt" data-k="industry" title="The narrower industry inside that sector. Filter by it to see whether a whole peer group has been marked down together">Industry</th>
     <th data-k="mktcap_b" title="Total market value, in billions of dollars">Cap $B</th>
+    <th data-k="price" title="Current share price">Price</th>
     <th data-k="ps_now" title="Price-to-sales today: market value divided by the last 12 months of revenue">P/S</th>
-    <th data-k="ps_med_5y" title="The P/S this stock has typically traded at over the last 5 years">5y med</th>
-    <th data-k="ps_med_10y" title="The P/S this stock has typically traded at over the last 10 years">10y med</th>
-    <th data-k="vs_5y_pct" title="How far today's P/S is from its 5-year normal">vs 5y</th>
-    <th data-k="vs_10y_pct" title="How far today's P/S is from its 10-year normal">vs 10y</th>
     <th data-k="zscore" title="The discount scaled to how much this stock's multiple normally swings. Sort by this">Z</th>
+    <th data-k="ps_med_5y" title="The P/S this stock has typically traded at over the last 5 years, and the share price that multiple implies on today's revenue">5y med</th>
+    <th data-k="vs_5y_pct" title="How far today's P/S is from its 5-year normal">vs 5y</th>
+    <th data-k="ps_med_10y" title="The P/S this stock has typically traded at over the last 10 years, and the share price that multiple implies on today's revenue">10y med</th>
+    <th data-k="vs_10y_pct" title="How far today's P/S is from its 10-year normal">vs 10y</th>
     <th data-k="percentile" title="Share of the last ten years it spent cheaper than today">Percentile</th>
     <th class="txt" title="Where today sits between its historical low and high">Range</th>
-    <th data-k="xc_revenue_diff" title="Agreement with Yahoo's independently reported revenue">Check</th>
     <th data-k="off_52w_high" title="How far the share price sits below its own 52-week peak">Off high</th>
-    <th data-k="rev_growth_yoy" title="Revenue change over the past year">Sales growth</th>
+    <th data-k="xc_revenue_diff" title="Agreement with Yahoo's independently reported revenue">Check</th>
   </tr></thead>
   <tbody id="rows"></tbody>
 </table>
@@ -2928,7 +3114,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <dt>Range</dt><dd>The bar spans its cheapest to priciest over the period. The coloured mark is today; the grey tick is the median.</dd>
     <dt>Check</dt><dd>Two independent checks, run on every row. First, Yahoo derives revenue and market cap separately from the SEC, so agreement is real evidence today's figure is right. Second, a structural audit of the whole history: market cap must not step without a split to explain it, revenue must not jump between filings or stop updating. That second check is what validates the medians — nobody publishes historical multiples through an API, but every median error found so far showed up as a break in the underlying series.</dd>
     <dt>Off high</dt><dd>Price only, nothing to do with valuation. A stock deep below its 52-week high alongside a low Z has fallen recently rather than drifted cheap over years, which usually means there is a specific piece of news to go and find.</dd>
-    <dt>Sales growth</dt><dd>A cheap stock with shrinking sales is often cheap for a reason. Growth alongside a discount is what makes a name worth a closer look. Coloured by meaning rather than by sign: growth is green and contraction is red, the opposite of the discount columns, where being below your own norm is the good outcome.</dd>
+    <dt>5y med / 10y med</dt><dd>The multiple this stock has typically traded at, with the same thing expressed as a share price in brackets &mdash; what it would cost per share at that multiple, on today's revenue. It sits beside the median rather than beside the discount on purpose: a &minus;50% reading next to a price twice the current one reads as a contradiction for a second, when in fact both say the same thing. The bracketed price holds revenue fixed and moves only the multiple, so it is a historical reference rather than a valuation. It says nothing about whether the old multiple was deserved; if the business has changed permanently, that multiple is the wrong yardstick and the price inherits the error.</dd>
+    <dt>Sales growth</dt><dd>Moved into the research panel, under "Is the business still growing", alongside the three- and five-year rates and the profit growth to compare them against. A cheap stock with shrinking sales is often cheap for a reason, so it is worth reading before getting interested — but one year of revenue change was taking a column in the table to say less than the panel says in four lines.</dd>
   </dl>
 
   <div class="caveat">
@@ -2971,11 +3158,11 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
   <div class="caveat">
     <strong>How to use this.</strong> Sort by Z, smallest first. That surfaces the names trading
-    furthest below their own norm. Read across to Sales growth before getting interested: a
-    discount alongside shrinking revenue usually means the market has repriced a worse business,
-    and it is unlikely to close. A discount alongside growth is worth real research. This narrows
-    five hundred names to a handful of questions. It does not answer them, and it knows nothing
-    about profitability, debt, or what the business actually does.
+    furthest below their own norm. Then open the row: the panel leads with what the company
+    actually does and whether sales are growing. A discount alongside shrinking revenue usually
+    means the market has repriced a worse business, and it is unlikely to close. A discount
+    alongside growth is worth real research. This narrows five hundred names to a handful of
+    questions. It does not answer them.
   </div>
 </section>
 
@@ -2985,6 +3172,7 @@ const rows = JSON.parse(document.getElementById('data').textContent);
 const tbody = document.getElementById('rows');
 const qEl = document.getElementById('q');
 const secEl = document.getElementById('sector');
+const subEl = document.getElementById('subsector');
 const capEl = document.getElementById('mincap');
 const growEl = document.getElementById('growing');
 const hideEl = document.getElementById('hideFlagged');
@@ -3033,12 +3221,58 @@ rows.forEach(r => {
   secEl.appendChild(o);
 });
 
+/* Industry is the level the market actually repriced. A sector selloff is
+   rarely a sector: in 2025 it was application software specifically, while
+   semiconductors in the same sector went the other way. Comparing a name to
+   its own history tells you it is cheap; filtering to its industry tells you
+   whether every peer is equally cheap, which is the difference between one
+   company's problem and a whole group being marked down together.
+   The list is rebuilt from whatever sector is selected, because 150 industries
+   in one dropdown is not usable. */
+function fillIndustries() {
+  const sec = secEl.value;
+  const cur = subEl.value;
+  const pool = rows.filter(r => !sec || r.sector === sec);
+  const list = [...new Set(pool.map(r => r.industry).filter(Boolean))].sort();
+  subEl.innerHTML = '<option value="">All industries</option>';
+  list.forEach(s => {
+    const o = document.createElement('option'); o.value = o.textContent = s;
+    subEl.appendChild(o);
+  });
+  subEl.value = list.includes(cur) ? cur : '';
+}
+fillIndustries();
+secEl.addEventListener('change', () => { subEl.value = ''; fillIndustries(); });
+
 let sortKey = 'zscore', sortAsc = true;
 
 /* Colour has to follow MEANING, not sign. Below its own norm is good news, so
    negative is green there. Shrinking revenue is bad news, so negative must be
    red there — the one column meant to stop you cannot be reassuring you.
    polarity: 'discount' = low is good, 'growth' = high is good, 'none' = neutral. */
+function impliedPrice(r, med) {
+  // The share price today's revenue would support if the multiple went back to
+  // its own historical normal. Scale the current price by how far the multiple
+  // has to travel: price x (median P/S / current P/S). Revenue and share count
+  // both cancel, so this needs no figure the row does not already carry, and it
+  // cannot drift out of step with the P/S columns beside it.
+  //
+  // This is a HISTORICAL reference, not a valuation. It says where the price
+  // sits relative to this company's own past multiple, holding today's revenue
+  // fixed. It assumes nothing about whether that multiple was deserved then or
+  // is deserved now -- if the business has permanently changed, the old
+  // multiple is the wrong yardstick and this number inherits that error.
+  if (r.price == null || med == null || r.ps_now == null || r.ps_now <= 0) return null;
+  return r.price * (med / r.ps_now);
+}
+
+function implied(r, med) {
+  const p = impliedPrice(r, med);
+  if (p == null) return '';
+  return ` <span class="imp" title="Share price if the multiple returned to this median, on today's revenue">(${
+    p >= 1000 ? p.toFixed(0) : p.toFixed(2)})</span>`;
+}
+
 function signed(v, d = 0, polarity = 'discount') {
   if (v === null || v === undefined || Number.isNaN(v)) return '<span class="flat">&mdash;</span>';
   const txt = `${v > 0 ? '+' : ''}${Number(v).toFixed(d)}%`;
@@ -3087,6 +3321,7 @@ function rangeBar(r) {
 function visible() {
   const q = qEl.value.trim().toLowerCase();
   const sec = secEl.value;
+  const sub = subEl.value;
   const cap = parseFloat(capEl.value);
   return rows.filter(r => {
     if (!finEl.checked && !sec && WEAK_SECTORS.includes(r.sector)) return false;
@@ -3096,6 +3331,7 @@ function visible() {
     if (q && !(r.ticker.toLowerCase().includes(q) ||
                (r.name || '').toLowerCase().includes(q))) return false;
     if (sec && r.sector !== sec) return false;
+    if (sub && r.industry !== sub) return false;
     if (!Number.isNaN(cap) && (r.mktcap_b ?? 0) < cap) return false;
     if (growEl.checked && !((r.rev_growth_yoy ?? -999) > 0)) return false;
     return true;
@@ -3117,19 +3353,20 @@ function render() {
       ? `<span class="flag" title="${r._problems.join(' ')}">&#9888;</span>` : ''}</td>
     <td class="txt nm" title="${r.name || ''}">${r.name || ''}</td>
     <td class="txt nm">${r.sector || ''}</td>
+    <td class="txt nm" title="${r.industry || ''}">${r.industry || ''}</td>
     <td>${num(r.mktcap_b, 1)}</td>
+    <td>${num(r.price, 2)}</td>
     <td>${num(r.ps_now)}</td>
-    <td>${num(r.ps_med_5y)}</td>
-    <td title="${medianNote(r)}">${num(r.ps_med_10y)}</td>
-    <td>${signed(r.vs_5y_pct)}</td>
-    <td>${signed(r.vs_10y_pct)}</td>
     <td class="${r.zscore == null ? 'flat' : r.zscore < -0.5 ? 'cheap' : r.zscore > 0.5 ? 'rich' : 'flat'}"
         title="${r.zscore == null ? 'This multiple has barely moved, so there is no basis for calling today unusual either way.' : ''}">${num(r.zscore)}</td>
+    <td>${num(r.ps_med_5y)}${implied(r, r.ps_med_5y)}</td>
+    <td>${signed(r.vs_5y_pct)}</td>
+    <td title="${medianNote(r)}">${num(r.ps_med_10y)}${implied(r, r.ps_med_10y)}</td>
+    <td>${signed(r.vs_10y_pct)}</td>
     <td>${num(r.percentile, 0)}</td>
     <td class="txt">${rangeBar(r)}</td>
-    <td>${checkMark(r)}</td>
     <td>${signed(r.off_52w_high, 0, 'none')}</td>
-    <td>${signed(r.rev_growth_yoy, 0, 'growth')}</td>
+    <td>${checkMark(r)}</td>
   </tr>`).join('');
 }
 
@@ -3339,13 +3576,31 @@ function verdict(r) {
       `which flatters per-share figures and is worth stripping out.`]);
 
   // 5. The question this leaves, which is the actual output.
+  //
+  // The last branch used to read "why the multiple has contracted when the
+  // numbers have not" for every row that matched none of the others. It never
+  // looked at the multiple. Micron's has EXPANDED -- it screens rich, not cheap
+  // -- and the panel told you the opposite. A sentence that states a direction
+  // has to read that direction off the data.
+  const rich = r.zscore != null ? r.zscore > 0.5
+             : (r.vs_10y_pct != null ? r.vs_10y_pct > 10 : null);
+  const cheapM = r.zscore != null ? r.zscore < -0.5
+             : (r.vs_10y_pct != null ? r.vs_10y_pct < -10 : null);
   let q;
   if (salesFalling && profFalling) q = 'whether the decline has a floor, and what stops it';
   else if (salesGrowing && profFalling) q = 'what is compressing margins, and whether it is temporary';
   else if (salesFalling) q = 'whether the revenue decline is cyclical or structural';
   else if (stretched) q = 'whether the balance sheet can carry it through a weak year';
+  else if (rich && (salesGrowing || profGrowing))
+    q = 'whether the growth now in the numbers justifies a multiple above its own history, ' +
+        'or whether the market has already priced several good years';
+  else if (rich)
+    q = 'what the multiple is pricing in, because it sits above this company\'s own norm ' +
+        'without the numbers yet explaining why';
   else if (salesGrowing && profGrowing) q = 'what the market is pricing that the filings do not show';
-  else q = 'why the multiple has contracted when the numbers have not';
+  else if (cheapM) q = 'why the multiple has contracted when the numbers have not';
+  else q = 'what changes the multiple from here, because neither the numbers nor the ' +
+           'rating are far from this company\'s own normal';
   let close = `The question to answer is ${q}.`;
   if (off != null && off < -35)
     close += ` The shares are ${Math.abs(off).toFixed(0)}% off their 52-week high, so there is ` +
@@ -3385,6 +3640,9 @@ function openDrawer(t) {
       </div>
     </div>
     <div class="dbody">
+      ${r.description ? `<div class="what">${r.description}${
+        r.industry ? `<div class="ind">${r.industry}</div>` : ''}</div>` : ''}
+
       ${(r.sector === 'Financials' || r.sector === 'Real Estate') ? `<div class="caution">
         Research figures are not computed for banks, insurers or property companies. Every measure
         here is built on revenue, which means something different for them.</div>` : ''}
@@ -3419,13 +3677,19 @@ function openDrawer(t) {
 
       <div class="sect">
         <h3>What you are paying</h3>
+        ${plain('Share price', r.price == null ? '<span class="none">&mdash;</span>'
+          : '$' + Number(r.price).toFixed(2))}
+        ${plain('Analyst target', r.target_price == null ? '<span class="none">not covered</span>'
+          : '$' + Number(r.target_price).toFixed(0) + (r.target_upside == null ? ''
+            : ` <span class="${r.target_upside > 0 ? 'g-good' : 'g-bad'}">${r.target_upside > 0 ? '+' : ''}${Number(r.target_upside).toFixed(0)}%</span>`))}
+        ${plain('At its 5-year multiple', impliedPrice(r, r.ps_med_5y) == null
+          ? '<span class="none">&mdash;</span>' : '$' + impliedPrice(r, r.ps_med_5y).toFixed(2))}
+        ${plain('At its 10-year multiple', impliedPrice(r, r.ps_med_10y) == null
+          ? '<span class="none">&mdash;</span>' : '$' + impliedPrice(r, r.ps_med_10y).toFixed(2))}
         ${row(r, 'pe', 'Price / earnings', 1)}
         ${plain('Forward P/E', num(r.forward_pe, 1))}
         ${plain('Dividend yield', r.dividend_yield == null ? '<span class="none">none</span>'
           : Number(r.dividend_yield).toFixed(2) + '%')}
-        ${plain('Analyst target', r.target_price == null ? '<span class="none">not covered</span>'
-          : '$' + Number(r.target_price).toFixed(0) + (r.target_upside == null ? ''
-            : ` <span class="${r.target_upside > 0 ? 'g-good' : 'g-bad'}">${r.target_upside > 0 ? '+' : ''}${Number(r.target_upside).toFixed(0)}%</span>`))}
       </div>
 
       <div class="sect">
@@ -3467,7 +3731,7 @@ scrim.addEventListener('click', closeDrawer);
 document.getElementById('closeDrawer').addEventListener('click', closeDrawer);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
 
-[qEl, secEl, capEl].forEach(el => el.addEventListener('input', render));
+[qEl, secEl, subEl, capEl].forEach(el => el.addEventListener('input', render));
 [growEl, hideEl, finEl, restructEl, shortEl].forEach(el => el.addEventListener('change', render));
 render();
 </script>
@@ -3482,7 +3746,7 @@ render();
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--email", default=os.environ.get("SEC_EMAIL", ""),
+    ap.add_argument("--email", required=True,
                     help="Contact email for the SEC User-Agent header (required by SEC).")
     ap.add_argument("--limit", type=int, help="Only process the first N tickers (for testing).")
     ap.add_argument("--tag", default="",
@@ -3499,12 +3763,6 @@ def main():
                     help="Cross-check the N cheapest rows against Yahoo. Default: all. 0 to skip.")
     args = ap.parse_args()
 
-    if not args.email or "@" not in args.email:
-        raise SystemExit(
-            "No contact address. The SEC requires one on every request.\n"
-            "Pass --email you@example.com, or set the SEC_EMAIL environment\n"
-            "variable (which is how the scheduled run gets it, so the address\n"
-            "never appears in the repository).")
     edgar = Edgar(args.email)
 
     print("Fetching S&P 500 constituents...")
