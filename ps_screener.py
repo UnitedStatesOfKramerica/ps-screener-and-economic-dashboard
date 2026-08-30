@@ -19,6 +19,7 @@ First run downloads ~1-3 GB of EDGAR JSON and takes 20-40 min. It is cached in
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import os
@@ -194,7 +195,17 @@ _FACTS_DIRTY = False
 
 
 def _facts_path():
-    return CACHE / "facts.json"
+    # The cache is keyed by the SET OF CONCEPTS the code keeps. When that set
+    # changes -- as it did when the share concepts were finally kept -- a cache
+    # written by the old code holds filings with those concepts already stripped
+    # out, and reading it silently reproduces the old bug: every multi-class
+    # filer dropped again because its share count was trimmed away before the
+    # new code ever saw it. Folding a short hash of FACTS_WE_READ into the name
+    # means any change to the kept set lands in a fresh file and the stale one is
+    # simply ignored. This is the missing invalidation that made the share fix
+    # look like it had failed on its first run.
+    tag = hashlib.sha1(",".join(sorted(FACTS_WE_READ)).encode()).hexdigest()[:8]
+    return CACHE / f"facts_{tag}.json"
 
 
 def _facts_store() -> dict:
@@ -280,20 +291,18 @@ class Edgar:
         if cik in store and not refresh:
             return store[cik]
 
-        data = None
-        # Files from an earlier layout are still good data. Fold them in
-        # rather than asking EDGAR for something already on disk.
-        for old in (CACHE / f"cs_{cik}.json", CACHE / f"cf_{cik}.json"):
-            if old.exists() and not refresh:
-                if time.time() - old.stat().st_mtime < 24 * 3600 * 7:
-                    try:
-                        data = json.loads(old.read_text())
-                        break
-                    except json.JSONDecodeError:
-                        data = None
-        if data is None:
-            data = self.get_json(
-                f"https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json")
+        # The per-company cf_/cs_ files hold ALREADY-TRIMMED data, so reading
+        # them back yields filings with the share concepts already stripped --
+        # and re-trimming cannot recover a concept that was deleted before the
+        # file was written. That is the whole reason the share fix appeared to
+        # do nothing: the versioned main cache was empty on the first run, the
+        # code fell through to these legacy files, and got back exactly the
+        # trimmed data the old code had left. They were a one-time migration and
+        # are now actively harmful, so they are no longer read. The versioned
+        # facts_<hash>.json is the only cache; when it is empty, re-fetch from
+        # EDGAR untrimmed, which is the only source that still has every concept.
+        data = self.get_json(
+            f"https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json")
         if not data:
             return None
 
@@ -310,7 +319,7 @@ class Edgar:
         _FACTS_DIRTY = True
         for old in (CACHE / f"cs_{cik}.json", CACHE / f"cf_{cik}.json"):
             try:
-                old.unlink(missing_ok=True)
+                old.unlink(missing_ok=True)   # sweep the poisoned legacy files
             except OSError:
                 pass
         return trimmed
