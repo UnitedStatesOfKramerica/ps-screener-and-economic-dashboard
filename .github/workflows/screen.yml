@@ -5,7 +5,7 @@ on:
     # 22:00 UTC on weekdays — an hour or two after the US close, whichever
     # side of daylight saving we are on. Cron here is always UTC.
     - cron: "0 22 * * 1-5"
-  workflow_dispatch:        # the "Run workflow" button, for when you want one now
+  workflow_dispatch:   # the "Run workflow" button, for when you want one now
 
 permissions:
   contents: write
@@ -35,19 +35,28 @@ jobs:
           restore-keys: |
             screener-cache-
 
+      # --limit is a debugging flag: it takes the FIRST N rows of the
+      # constituent list. The index carries about 503 tickers because of dual
+      # share classes, so "--limit 500" was quietly cutting the last few
+      # alphabetically and then printing "500 tickers", which looked correct.
       - name: Run the screener
         env:
           SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
-        run: python ps_screener.py --limit 500 --years 12 --verify 10000
+        run: python ps_screener.py --years 12 --verify 10000
 
+      # The committer identity is a label written into the commit, not a
+      # permission. "screener@users.noreply.github.com" is GitHub's own
+      # no-reply format, so it resolved to the unrelated account whose
+      # username is Screener and put their face on every publish. This is the
+      # account GitHub maintains for commits made by a workflow.
       - name: Publish
         run: |
           mkdir -p docs
           cp ps_screen.html docs/index.html
           cp ps_screen.csv docs/screen.csv || true
           cp ps_diagnostics.txt docs/diagnostics.txt || true
-          git config user.name  "screener"
-          git config user.email "screener@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs
           git diff --staged --quiet || git commit -m "Screen for $(date -u +%Y-%m-%d)"
           git push
