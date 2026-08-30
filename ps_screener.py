@@ -3920,9 +3920,7 @@ def main():
     cik_map = edgar.ticker_to_cik()
 
     tickers = [t for t in const["ticker"] if t in cik_map]
-    missing = set(const["ticker"]) - set(tickers)
-    if missing:
-        print(f"  no CIK for: {', '.join(sorted(missing))}")
+    missing = sorted(set(const["ticker"]) - set(tickers))
 
     print("Downloading prices...")
     closes, splits = fetch_prices(
@@ -3932,7 +3930,19 @@ def main():
     print("Pulling EDGAR fundamentals and building P/S history...")
     meta = const.set_index("ticker")
     results, series, diagnostics, research_rows = [], {}, [], {}
+    _no_cik = list(missing)
     suppressed: list[tuple[str, str]] = []
+    # A constituent used to be able to leave the screen without a trace. Five of
+    # the six exits below were bare `continue`s, so 69 companies -- Alphabet,
+    # Meta, Exxon, PepsiCo and Costco among them -- were simply absent from a
+    # page that looked complete. Nothing recorded that they had ever been
+    # considered, so the only way to notice was to go looking for a name you
+    # expected to see. Every exit now writes down which company, which stage,
+    # and why.
+    dropped: list[tuple[str, str, str]] = [
+        (t, "no CIK", "the ticker is not in the SEC's company_tickers.json map, "
+                      "usually a ticker change the index list has not caught up with")
+        for t in _no_cik]
     # The Yahoo check cannot run until every ticker is priced, so a row that
     # only fails THERE gets no diagnostics block -- 13 of the last 20
     # disagreements, including Marriott at +264%, were invisible for that
@@ -3945,15 +3955,22 @@ def main():
         if n % 25 == 0:
             print(f"  {n}/{len(tickers)}")
         if t not in closes:
+            dropped.append((t, "no price history",
+                            "the price download returned nothing for this ticker"))
             continue
         facts = edgar.company_facts(cik_map[t], refresh=args.refresh)
         if not facts:
+            dropped.append((t, "no EDGAR filings",
+                            f"companyfacts for CIK {cik_map[t]} came back empty"))
             continue
 
         periods = collect_periods(facts, "us-gaap", REVENUE_TAGS)
         quarters = derive_quarters(periods)
         ttm = trailing_twelve(quarters, periods)
         if ttm.empty:
+            dropped.append((t, "no revenue series",
+                            f"{len(periods)} period(s) and {len(quarters)} quarter(s) survived "
+                            f"collection, which was not enough to form a trailing twelve"))
             continue
 
         # Pick ONE share source outright. The two taxonomies use opposite
@@ -3974,12 +3991,18 @@ def main():
         else:
             shares = dei_shares or gaap_shares
         if not shares:
+            dropped.append((t, "no share count",
+                            "neither the dei cover-page count nor the us-gaap count "
+                            "yielded anything usable"))
             continue
 
         ps_module = sys.modules[__name__]
         ps_module.CURRENT_TICKER = t
         hist = monthly_ps(closes[t], ttm, shares, splits.get(t), args.years)
         if hist.empty:
+            dropped.append((t, "no overlapping history",
+                            "prices and revenue exist but never line up over the window, "
+                            "or too few months survived the staleness screen"))
             continue
 
         # Gross-margin columns were dropped from the table; only growth is used.
@@ -4013,6 +4036,10 @@ def main():
                                             actions, audit, row))
             if row:
                 results.append(row); series[t] = hist
+            else:
+                dropped.append((t, "no summary row",
+                                "summarize() returned nothing -- usually fewer than "
+                                f"{MIN_MONTHS_FOR_STATS} usable months in the window"))
             continue
         try:
             rsch = research(t, facts, hist, ttm,
@@ -4028,6 +4055,10 @@ def main():
         if row:
             results.append(row)
             series[t] = hist
+        else:
+            dropped.append((t, "no summary row",
+                            "summarize() returned nothing -- usually fewer than "
+                            f"{MIN_MONTHS_FOR_STATS} usable months in the window"))
 
     if not results:
         raise SystemExit("No rows built. Try --limit 5 to debug a small batch.")
@@ -4102,6 +4133,24 @@ def main():
         diagnostics.append("\n".join(block))
         print(f"\n  {len(REJECTED_RATIOS)} price factor(s) treated as corporate actions "
               f"rather than splits (listed in ps_diagnostics.txt)")
+
+    # Every constituent is accounted for: published, suppressed as unusable, or
+    # dropped with a reason. If these three do not sum to the index, the screen
+    # is incomplete in a way nobody asked about.
+    print(f"\n  {len(const)} constituents -> {len(summary)} published, "
+          f"{len(suppressed)} suppressed as unusable, {len(dropped)} dropped")
+    if dropped:
+        stages: dict[str, list[str]] = {}
+        for tk, stage, _why in dropped:
+            stages.setdefault(stage, []).append(tk)
+        for stage, tks in sorted(stages.items(), key=lambda kv: -len(kv[1])):
+            print(f"    {len(tks):>3}  {stage}: {', '.join(sorted(tks))}")
+        block = ["=" * 78,
+                 "CONSTITUENTS THAT NEVER REACHED THE SCREEN",
+                 "=" * 78, ""]
+        for tk, stage, why in sorted(dropped):
+            block.append(f"{tk:<8}{stage:<24}{why}")
+        diagnostics.insert(0, "\n".join(block))
 
     if suppressed:
         print(f"\n  {len(suppressed)} row(s) dropped as unusable rather than shown "
