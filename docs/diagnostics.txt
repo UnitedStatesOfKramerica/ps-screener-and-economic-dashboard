@@ -2,70 +2,88 @@
 CONSTITUENTS THAT NEVER REACHED THE SCREEN
 ==============================================================================
 
-ABNB    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+ABNB    no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+ACN     share count stale       the newest consolidated share count is 6001 days old (2010-03-26); a current one is only filed per share class, which companyfacts omits
+AOS     share count stale       the newest consolidated share count is 4038 days old (2015-08-10); a current one is only filed per share class, which companyfacts omits
 APA     no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
 APO     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-APP     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+APP     no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+ARES    share count stale       the newest consolidated share count is 2673 days old (2019-05-06); a current one is only filed per share class, which companyfacts omits
 AZO     no revenue series       123 period(s) and 54 quarter(s) survived collection, which was not enough to form a trailing twelve
-BF-B    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+BF-B    no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
 BG      no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 BKR     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-BLK     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+BLK     share count stale       the newest consolidated share count is 480 days old (2025-05-07); a current one is only filed per share class, which companyfacts omits
+BRK-B   share count stale       the newest consolidated share count is 5595 days old (2011-05-06); a current one is only filed per share class, which companyfacts omits
 CEG     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-COIN    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+CHTR    share count stale       the newest consolidated share count is 3673 days old (2016-08-09); a current one is only filed per share class, which companyfacts omits
+CMCSA   share count stale       the newest consolidated share count is 6032 days old (2010-02-23); a current one is only filed per share class, which companyfacts omits
+CME     share count stale       the newest consolidated share count is 6029 days old (2010-02-26); a current one is only filed per share class, which companyfacts omits
+COIN    no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
 COST    no revenue series       122 period(s) and 54 quarter(s) survived collection, which was not enough to form a trailing twelve
 CRH     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 CRWD    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-CVNA    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
-DASH    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
-DDOG    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
-DELL    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+CVNA    no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+DASH    no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+DDOG    no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+DELL    no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
 DPZ     no revenue series       113 period(s) and 50 quarter(s) survived collection, which was not enough to form a trailing twelve
-ECHO    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
-EL      no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
-ERIE    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
-EXPE    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+ECHO    no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+EL      no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+ERIE    no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+EXPE    no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+F       share count stale       the newest consolidated share count is 5591 days old (2011-05-10); a current one is only filed per share class, which companyfacts omits
 FDXF    no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
 FERG    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+FOX     share count stale       the newest consolidated share count is 2722 days old (2019-03-18); a current one is only filed per share class, which companyfacts omits
+FOXA    share count stale       the newest consolidated share count is 2722 days old (2019-03-18); a current one is only filed per share class, which companyfacts omits
 GDDY    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 GEHC    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 GEV     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-GOOG    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
-GOOGL   no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+GOOG    no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+GOOGL   no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
 HONA    no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
-HOOD    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
-HRL     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+HOOD    no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+HRL     no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+HSY     share count stale       the newest consolidated share count is 4573 days old (2014-02-21); a current one is only filed per share class, which companyfacts omits
+IBKR    share count stale       the newest consolidated share count is 5595 days old (2011-05-06); a current one is only filed per share class, which companyfacts omits
 KR      no revenue series       125 period(s) and 54 quarter(s) survived collection, which was not enough to form a trailing twelve
 KVUE    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-LEN     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
-META    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
-MKC     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+LEN     no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+MA      share count stale       the newest consolidated share count is 5780 days old (2010-11-02); a current one is only filed per share class, which companyfacts omits
+META    no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+MKC     no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
 MTB     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-NWS     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
-NWSA    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+NKE     share count stale       the newest consolidated share count is 4056 days old (2015-07-23); a current one is only filed per share class, which companyfacts omits
+NWS     no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+NWSA    no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
 PEP     no revenue series       111 period(s) and 54 quarter(s) survived collection, which was not enough to form a trailing twelve
-PLTR    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+PLTR    no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
 PSKY    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 Q       no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-RDDT    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+RDDT    no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+REGN    share count stale       the newest consolidated share count is 5149 days old (2012-07-25); a current one is only filed per share class, which companyfacts omits
 RF      no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
-RL      no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+RL      no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
 SNDK    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 SOLV    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-SPG     no overlapping history  prices and revenue exist but never line up over the window, or too few months survived the staleness screen
-STZ     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+SPG     share count stale       the newest consolidated share count is 5956 days old (2010-05-10); a current one is only filed per share class, which companyfacts omits
+STZ     no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
 SW      no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 SYF     no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
-TAP     no overlapping history  prices and revenue exist but never line up over the window, or too few months survived the staleness screen
-TKO     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
-TSN     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
-TTD     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
-UHS     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+TAP     share count stale       the newest consolidated share count is 5815 days old (2010-09-28); a current one is only filed per share class, which companyfacts omits
+TKO     no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+TSN     no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+TTD     no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+UHS     no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
+UPS     share count stale       the newest consolidated share count is 6029 days old (2010-02-26); a current one is only filed per share class, which companyfacts omits
+V       share count stale       the newest consolidated share count is 6052 days old (2010-02-03); a current one is only filed per share class, which companyfacts omits
 VEEV    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 VLTO    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 WBD     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+WDAY    share count stale       the newest consolidated share count is 2827 days old (2018-12-03); a current one is only filed per share class, which companyfacts omits
 XOM     no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
-XYZ     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+XYZ     no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
 ==============================================================================
 AMD
 ==============================================================================
@@ -169,7 +187,7 @@ TTM SERIES (last 10)
   period 2026-06-27  available 2026-08-05  $    41.305B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 18 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-30       1,622,807,346
   2025-02-05       1,620,477,962
   2025-05-07       1,621,404,195
@@ -292,7 +310,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-05  $     5.908B  [Revenues]
   annual reconciliation: 3 mismatches of 18 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2025-03-31         117,573,461
   2025-04-30         117,660,914
   2025-08-04         117,682,932
@@ -411,7 +429,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-14  $    23.506B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 10 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-01       1,445,343,212
   2025-02-05       1,445,343,212
   2025-05-01       1,445,343,212
@@ -536,7 +554,7 @@ TTM SERIES (last 10)
   period 2026-08-01  available 2026-08-19  $    13.882B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 1 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-26         496,296,854
   2025-02-19         495,976,483
   2025-05-22         496,248,196
@@ -562,224 +580,6 @@ P/S SERIES, YEARLY SAMPLE
   2024-12-31  price    212.46  shares        496M  cap $    105.4B  rev $    9.43B  P/S    11.19
   2025-12-31  price    271.20  shares        490M  cap $    132.8B  rev $   11.02B  P/S    12.05
   2026-12-31  price    361.78  shares        485M  cap $    175.3B  rev $   13.88B  P/S    12.63
-
-==============================================================================
-BRK-B
-==============================================================================
-
-FLAGGED FOR:
-  - market cap comes out at $0.48bn, far below anything an index constituent can be; the share count is wrong, most often a filer with several share classes where only one was collected
-
-REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
-                                                          15     16     17     18     19     20     21     22     23     24     25   facts
- *Revenues                                             210.9  223.6  242.1  247.8  254.6  245.6  276.2  302.1  364.5  371.4  371.4    309
- *RevenueFromContractWithCustomerExcludingAssessedTax      -      -      -  175.4  176.5  166.7  191.3  207.8  254.9  249.7  247.2    100
-  SegmentReportingInformationRevenue                       -      -      -      -      -      -      -      -      -      -      -     28
-  PaymentsToAcquireAvailableForSaleSecuritiesDebt       17.9   96.6  158.5      -      -      -      -      -      -      -      -     59
-  SegmentReportingSegmentRevenue                           -      -      -      -      -      -      -      -      -      -      -     11
- *SalesRevenueNet                                      112.4  125.7  132.9      -      -      -      -      -      -      -      -     12
-  RevenueNotFromContractWithCustomer                       -      -      -   72.4   78.1   78.8   85.0   94.3  109.6  121.7  124.2     90
-  ProceedsFromSaleOfAvailableForSaleSecuritiesDebt       2.5   18.8   49.3      -      -      -      -      -      -      -      -     59
-  PaymentsToAcquireAvailableForSaleSecuritiesEquity     10.2   16.5   20.3      -      -      -      -      -      -      -      -     59
-  OtherComprehensiveIncomeAvailableforsaleSecuritiesA      -      -      -      -      -      -      -      -      -      -      -     39
-  OtherComprehensiveIncomeLossAvailableForSaleSecurit      -      -      -      -      -      -      -      -      -      -      -      5
-  OtherComprehensiveIncomeLossAvailableForSaleSecurit   -3.0      -      -      -      -      -      -      -      -      -      -     42
-  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: Revenues
-  anchor: Revenues (122 periods, newest 2026-06-30)
-    RevenueFromContractWithCustomerExcludingAssessedTax: REFUSED, runs 0.69x the anchor where they overlap
-    SalesRevenueNet: REFUSED, runs 0.53x the anchor where they overlap
-    OperatingLeaseLeaseIncome: REFUSED, runs 0.02x the anchor where they overlap
-    RevenueFromContractWithCustomerIncludingAssessedTax: no comparable overlap, not merged
-
-ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
-  2018-12-31  reported $   247.837B   4 quarters sum $   247.837B
-  2019-12-31  reported $   254.616B   4 quarters sum $   254.616B
-  2020-12-31  reported $   245.579B   4 quarters sum $   245.510B
-  2021-12-31  reported $   276.185B   4 quarters sum $   276.185B
-  2022-12-31  reported $   302.020B   4 quarters sum $   302.020B
-  2023-12-31  reported $   364.482B   4 quarters sum $   364.482B
-  2024-12-31  reported $   371.433B   4 quarters sum $   371.433B
-  2025-12-31  reported $   371.444B   4 quarters sum $   371.444B
-
-DERIVED QUARTERS (last 10)
-  2024-01-01 -> 2024-03-31  ( 90d)  $    89.869B  [Revenues]
-  2024-04-01 -> 2024-06-30  ( 90d)  $    93.653B  [Revenues]
-  2024-07-01 -> 2024-09-30  ( 91d)  $    92.995B  [Revenues]
-  2024-09-30 -> 2024-12-31  ( 92d)  $    94.916B  [Revenues]
-  2025-01-01 -> 2025-03-31  ( 89d)  $    89.725B  [Revenues]
-  2025-04-01 -> 2025-06-30  ( 90d)  $    92.515B  [Revenues]
-  2025-07-01 -> 2025-09-30  ( 91d)  $    94.972B  [Revenues]
-  2025-09-30 -> 2025-12-31  ( 92d)  $    94.232B  [Revenues]
-  2026-01-01 -> 2026-03-31  ( 89d)  $    93.675B  [Revenues]
-  2026-04-01 -> 2026-06-30  ( 90d)  $   101.808B  [Revenues]
-
-NET INCOME CONCEPTS (research module)
-  NetIncomeLoss                                         309 facts  2007-12-31 .. 2026-06-30  annual median $19.87B
-  ProfitLoss                                            265 facts  2007-12-31 .. 2026-06-30  annual median $20.17B
-  annual net income periods KEPT after screening (18), last 8:
-    2017-01-01 -> 2017-12-31  (364d)  $   44.940B  [NetIncomeLoss]
-    2019-01-01 -> 2019-12-31  (364d)  $   81.417B  [NetIncomeLoss]
-    2020-01-01 -> 2020-12-31  (365d)  $   42.521B  [NetIncomeLoss]
-    2021-01-01 -> 2021-12-31  (364d)  $   89.937B  [NetIncomeLoss]
-    2022-01-01 -> 2022-12-31  (364d)  $  -22.759B  [NetIncomeLoss]
-    2023-01-01 -> 2023-12-31  (364d)  $   96.223B  [NetIncomeLoss]
-    2024-01-01 -> 2024-12-31  (365d)  $   88.995B  [NetIncomeLoss]
-    2025-01-01 -> 2025-12-31  (364d)  $   66.968B  [NetIncomeLoss]
-  RAW annual-length net income facts for the newest year:
-    2023-01-01 -> 2023-12-31  $   96.223B  10-K  filed 2026-03-02  [NetIncomeLoss]
-    2023-01-01 -> 2023-12-31  $   97.147B  10-K  filed 2024-02-26  [ProfitLoss]
-    2023-01-01 -> 2023-12-31  $   97.147B  10-K  filed 2025-02-24  [ProfitLoss]
-    2023-01-01 -> 2023-12-31  $   97.147B  10-K  filed 2026-03-02  [ProfitLoss]
-    2024-01-01 -> 2024-12-31  $   88.995B  10-K  filed 2025-02-24  [NetIncomeLoss]
-    2024-01-01 -> 2024-12-31  $   88.995B  10-K  filed 2026-03-02  [NetIncomeLoss]
-    2024-01-01 -> 2024-12-31  $   89.561B  10-K  filed 2025-02-24  [ProfitLoss]
-    2024-01-01 -> 2024-12-31  $   89.561B  10-K  filed 2026-03-02  [ProfitLoss]
-    2025-01-01 -> 2025-12-31  $   66.968B  10-K  filed 2026-03-02  [NetIncomeLoss]
-    2025-01-01 -> 2025-12-31  $   67.260B  10-K  filed 2026-03-02  [ProfitLoss]
-  derived net income QUARTERS, last 6:
-    2025-01-01 -> 2025-03-31  ( 89d)  $    4.603B
-    2025-04-01 -> 2025-06-30  ( 90d)  $   12.370B
-    2025-07-01 -> 2025-09-30  ( 91d)  $   30.796B
-    2025-09-30 -> 2025-12-31  ( 92d)  $   19.199B
-    2026-01-01 -> 2026-03-31  ( 89d)  $   10.106B
-    2026-04-01 -> 2026-06-30  ( 90d)  $   25.667B
-  derived TTM net income, last 4:
-    2025-09-30  $   67.463B  [NetIncomeLoss]
-    2025-12-31  $   66.968B  [NetIncomeLoss]
-    2026-03-31  $   72.471B  [NetIncomeLoss]
-    2026-06-30  $   85.768B  [NetIncomeLoss]
-
-TTM SERIES (last 10)
-  period 2024-03-31  available 2024-05-06  $   368.958B  [Revenues]
-  period 2024-06-30  available 2024-08-05  $   370.108B  [Revenues]
-  period 2024-09-30  available 2024-11-04  $   369.893B  [Revenues]
-  period 2024-12-31  available 2025-02-24  $   371.433B  [Revenues]
-  period 2025-03-31  available 2025-05-05  $   371.289B  [Revenues]
-  period 2025-06-30  available 2025-08-04  $   370.151B  [Revenues]
-  period 2025-09-30  available 2025-11-03  $   372.128B  [Revenues]
-  period 2025-12-31  available 2026-03-02  $   371.444B  [Revenues]
-  period 2026-03-31  available 2026-05-04  $   375.394B  [Revenues]
-  period 2026-06-30  available 2026-08-10  $   384.687B  [Revenues]
-  annual reconciliation: 1 mismatches of 19 year-ends checked
-
-SHARE COUNTS AS COLLECTED (last 8)
-  2009-11-06           1,056,884
-  2010-03-01           1,103,764
-  2010-05-07                   0
-  2010-08-06             976,414
-  2010-11-05             956,153
-  2011-02-28             943,242
-  2011-05-06             941,481
-SPLITS: {}
-CORPORATE ACTIONS: []
-
-P/S SERIES, YEARLY SAMPLE
-  2014-12-31  price    150.15  shares          1M  cap $      0.1B  rev $  193.46B  P/S     0.00
-  2015-12-31  price    132.04  shares          1M  cap $      0.1B  rev $  207.26B  P/S     0.00
-  2016-12-31  price    162.98  shares          1M  cap $      0.2B  rev $  216.99B  P/S     0.00
-  2017-12-31  price    198.22  shares          1M  cap $      0.2B  rev $  239.48B  P/S     0.00
-  2018-12-31  price    204.18  shares          1M  cap $      0.2B  rev $  242.92B  P/S     0.00
-  2019-12-31  price    226.50  shares          1M  cap $      0.2B  rev $  252.96B  P/S     0.00
-  2020-12-31  price    231.87  shares          1M  cap $      0.2B  rev $  246.50B  P/S     0.00
-  2021-12-31  price    299.00  shares          1M  cap $      0.3B  rev $  268.68B  P/S     0.00
-  2022-12-31  price    308.90  shares          1M  cap $      0.3B  rev $  295.84B  P/S     0.00
-  2023-12-31  price    356.66  shares          1M  cap $      0.3B  rev $  349.18B  P/S     0.00
-  2024-12-31  price    453.28  shares          1M  cap $      0.4B  rev $  369.89B  P/S     0.00
-  2025-12-31  price    502.65  shares          1M  cap $      0.5B  rev $  372.13B  P/S     0.00
-  2026-12-31  price    505.00  shares          1M  cap $      0.5B  rev $  384.69B  P/S     0.00
-
-==============================================================================
-BLK
-==============================================================================
-
-FLAGGED FOR:
-  - 9 of the months in the window are valued on a revenue figure that was already up to 526 days old, and there is not enough history left to measure without them, so the median rests on them
-
-REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
-                                                          22     23     24     25   facts
- *RevenueFromContractWithCustomerExcludingAssessedTax   17.9   17.9   20.4   24.2     26
- *Revenues                                              11.1   11.0   12.8      -      3
-  FairValueMeasurementWithUnobservableInputsReconcili      -    0.1    0.5    0.1     24
-  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax
-  anchor: RevenueFromContractWithCustomerExcludingAssessedTax (19 periods, newest 2026-06-30)
-    Revenues: REFUSED, runs 0.62x the anchor where they overlap
-
-ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
-  2022-12-31  reported $    17.873B   4 quarters sum $     0.000B
-  2023-12-31  reported $    17.859B   4 quarters sum $     9.153B  <-- MISMATCH
-  2024-12-31  reported $    20.407B   4 quarters sum $    20.407B
-  2025-12-31  reported $    24.216B   4 quarters sum $    24.216B
-
-DERIVED QUARTERS (last 10)
-  2024-01-01 -> 2024-03-31  ( 90d)  $     4.728B  [RevenueFromContractWithCustomerExc]
-  2024-04-01 -> 2024-06-30  ( 90d)  $     4.805B  [RevenueFromContractWithCustomerExc]
-  2024-06-30 -> 2024-09-30  ( 92d)  $     5.197B  [RevenueFromContractWithCustomerExc]
-  2024-09-30 -> 2024-12-31  ( 92d)  $     5.677B  [RevenueFromContractWithCustomerExc]
-  2025-01-01 -> 2025-03-31  ( 89d)  $     5.276B  [RevenueFromContractWithCustomerExc]
-  2025-04-01 -> 2025-06-30  ( 90d)  $     5.423B  [RevenueFromContractWithCustomerExc]
-  2025-07-01 -> 2025-09-30  ( 91d)  $     6.509B  [RevenueFromContractWithCustomerExc]
-  2025-09-30 -> 2025-12-31  ( 92d)  $     7.008B  [RevenueFromContractWithCustomerExc]
-  2026-01-01 -> 2026-03-31  ( 89d)  $     6.698B  [RevenueFromContractWithCustomerExc]
-  2026-04-01 -> 2026-06-30  ( 90d)  $     7.084B  [RevenueFromContractWithCustomerExc]
-
-NET INCOME CONCEPTS (research module)
-  NetIncomeLoss                                          31 facts  2021-12-31 .. 2026-06-30  annual median $5.55B
-  ProfitLoss                                             26 facts  2022-12-31 .. 2026-06-30  annual median $5.94B
-  annual net income periods KEPT after screening (4), last 8:
-    2022-01-01 -> 2022-12-31  (364d)  $    5.178B  [NetIncomeLoss]
-    2023-01-01 -> 2023-12-31  (364d)  $    5.502B  [NetIncomeLoss]
-    2024-01-01 -> 2024-12-31  (365d)  $    6.369B  [NetIncomeLoss]
-    2025-01-01 -> 2025-12-31  (364d)  $    5.553B  [NetIncomeLoss]
-  RAW annual-length net income facts for the newest year:
-    2023-01-01 -> 2023-12-31  $    5.676B  10-K  filed 2025-02-25  [ProfitLoss]
-    2023-01-01 -> 2023-12-31  $    5.676B  10-K  filed 2026-02-25  [ProfitLoss]
-    2024-01-01 -> 2024-12-31  $    6.369B  10-K  filed 2025-02-25  [NetIncomeLoss]
-    2024-01-01 -> 2024-12-31  $    6.369B  10-K  filed 2026-02-25  [NetIncomeLoss]
-    2024-01-01 -> 2024-12-31  $    6.369B  DEF 14A  filed 2026-04-10  [NetIncomeLoss]
-    2024-01-01 -> 2024-12-31  $    6.512B  10-K  filed 2025-02-25  [ProfitLoss]
-    2024-01-01 -> 2024-12-31  $    6.512B  10-K  filed 2026-02-25  [ProfitLoss]
-    2025-01-01 -> 2025-12-31  $    5.553B  10-K  filed 2026-02-25  [NetIncomeLoss]
-    2025-01-01 -> 2025-12-31  $    5.553B  DEF 14A  filed 2026-04-10  [NetIncomeLoss]
-    2025-01-01 -> 2025-12-31  $    5.942B  10-K  filed 2026-02-25  [ProfitLoss]
-  derived net income QUARTERS, last 6:
-    2025-01-01 -> 2025-03-31  ( 89d)  $    1.510B
-    2025-04-01 -> 2025-06-30  ( 90d)  $    1.593B
-    2025-07-01 -> 2025-09-30  ( 91d)  $    1.323B
-    2025-09-30 -> 2025-12-31  ( 92d)  $    1.127B
-    2026-01-01 -> 2026-03-31  ( 89d)  $    2.212B
-    2026-04-01 -> 2026-06-30  ( 90d)  $    1.914B
-  derived TTM net income, last 4:
-    2025-09-30  $    6.096B  [NetIncomeLoss]
-    2025-12-31  $    5.553B  [NetIncomeLoss]
-    2026-03-31  $    6.255B  [NetIncomeLoss]
-    2026-06-30  $    6.576B  [NetIncomeLoss]
-
-TTM SERIES (last 10)
-  period 2023-12-31  available 2024-02-26  $    17.859B  [reported-annual]
-  period 2024-06-30  available 2025-08-06  $    18.686B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2024-09-30  available 2025-08-06  $    19.361B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2024-12-31  available 2025-08-06  $    20.407B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2025-03-31  available 2025-08-06  $    20.955B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2025-06-30  available 2025-08-06  $    21.573B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2025-09-30  available 2025-11-05  $    22.885B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2025-12-31  available 2026-02-25  $    24.216B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2026-03-31  available 2026-05-06  $    25.638B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2026-06-30  available 2026-08-06  $    27.299B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  annual reconciliation: 0 mismatches of 4 year-ends checked
-
-SHARE COUNTS AS COLLECTED (last 8)
-  2024-11-06         154,878,930
-  2025-02-25         155,253,443
-  2025-05-07         154,926,181
-SPLITS: {}
-CORPORATE ACTIONS: []
-
-P/S SERIES, YEARLY SAMPLE
-  2024-12-31  price   1025.11  shares        155M  cap $    158.8B  rev $   17.86B  P/S     8.89
-  2025-12-31  price   1070.34  shares        155M  cap $    165.8B  rev $   22.89B  P/S     7.25
-  2026-12-31  price   1164.48  shares        155M  cap $    180.4B  rev $   27.30B  P/S     6.61
 
 ==============================================================================
 BMY
@@ -884,7 +684,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-30  $    49.186B  [Revenues]
   annual reconciliation: 0 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-31       2,028,176,674
   2025-02-12       2,029,312,023
   2025-04-24       2,035,080,810
@@ -1004,7 +804,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-30  $    14.449B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 15 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-05         115,084,980
   2025-02-20         113,621,373
   2025-05-01         110,514,818
@@ -1114,7 +914,7 @@ TTM SERIES (last 10)
   period 2026-03-31  available 2026-04-29  $    80.547B  [Revenues]
   annual reconciliation: 0 mismatches of 5 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-08-01         141,651,464
   2024-10-30         139,627,104
   2025-02-20         133,968,048
@@ -1231,7 +1031,7 @@ TTM SERIES (last 10)
   period 2026-03-31  available 2026-05-07  $    58.665B  [Revenues]
   annual reconciliation: 0 mismatches of 18 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-08-01         381,856,146
   2024-10-31         381,510,336
   2025-02-20         381,327,698
@@ -1358,7 +1158,7 @@ TTM SERIES (last 10)
   period 2026-05-31  available 2026-06-26  $    27.311B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 14 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-09-30       1,154,164,826
   2025-01-27       1,164,202,729
   2025-03-25       1,166,606,981
@@ -1486,7 +1286,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-31  $     5.061B  [RevenueFromContractWithCustomerIncludingAssessedTax]
   annual reconciliation: 2 mismatches of 16 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-01         104,685,813
   2025-02-21         104,701,695
   2025-05-02         104,713,346
@@ -1614,7 +1414,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-28  $   178.655B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 16 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-25         504,865,000
   2025-02-18         496,044,000
   2025-04-25         497,603,000
@@ -1740,7 +1540,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-07  $    26.025B  [Revenues]
   annual reconciliation: 0 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2020-08-07       1,288,641,882
   2025-02-26       1,813,567,665
   2025-05-09       1,816,970,383
@@ -1867,7 +1667,7 @@ TTM SERIES (last 10)
   period 2026-03-31  available 2026-04-28  $    60.822B  [Revenues]
   annual reconciliation: 0 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-07-26         403,934,214
   2024-10-30         403,097,997
   2025-02-27         400,412,084
@@ -1991,7 +1791,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-14  $     7.118B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 1 mismatches of 18 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-06         154,663,982
   2025-02-05         154,967,323
   2025-05-07         155,440,611
@@ -2109,7 +1909,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-06  $    24.781B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 6 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-04         312,766,599
   2025-02-18         312,847,257
   2025-05-06         313,417,370
@@ -2222,7 +2022,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-10  $     5.021B  [Revenues]
   annual reconciliation: 0 mismatches of 16 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-08          69,710,982
   2025-02-27          70,249,923
   2025-05-12          70,493,451
@@ -2331,7 +2131,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-30  $    38.632B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 5 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-07         679,336,658
   2025-02-26         676,475,037
   2025-05-05         676,004,196
@@ -2450,7 +2250,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-05  $    19.699B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 1 mismatches of 9 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2025-02-19         649,000,000
   2025-05-07         642,100,000
   2025-08-06         634,800,000
@@ -2575,7 +2375,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-05  $    17.102B  [Revenues]
   annual reconciliation: 0 mismatches of 9 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-07         291,989,194
   2025-02-26         289,440,898
   2025-05-07         292,167,960
@@ -2701,7 +2501,7 @@ TTM SERIES (last 10)
   period 2026-03-31  available 2026-05-01  $    17.412B  [mixed]
   annual reconciliation: 10 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-08-01         838,938,399
   2024-11-01         840,009,626
   2025-02-27         852,050,458
@@ -2829,7 +2629,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-22  $     9.535B  [Revenues]
   annual reconciliation: 1 mismatches of 10 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-30         596,684,000
   2025-02-19         597,441,000
   2025-04-23         598,626,000
@@ -2955,7 +2755,7 @@ TTM SERIES (last 10)
   period 2026-03-31  available 2026-04-28  $    14.325B  [Revenues]
   annual reconciliation: 0 mismatches of 18 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-07-29         131,275,152
   2024-10-29         231,034,791
   2025-02-26         232,699,939
@@ -3077,7 +2877,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-31  $     3.446B  [Revenues]
   annual reconciliation: 0 mismatches of 18 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-04         211,983,569
   2025-02-28         211,998,129
   2025-05-02         212,210,881
@@ -3179,7 +2979,7 @@ TTM SERIES (last 10)
   period 2025-10-31  available 2025-12-09  $    31.159B  [Revenues]
   annual reconciliation: 0 mismatches of 4 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-12-10         199,945,642
   2025-03-11         198,700,177
   2025-06-03         197,181,036
@@ -3293,7 +3093,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-04  $    12.201B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 1 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-04         538,354,354
   2025-02-13         529,691,586
   2025-05-06         525,395,053
@@ -3420,7 +3220,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-04  $     0.084B  [OperatingLeaseLeaseIncome]
   annual reconciliation: 0 mismatches of 18 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-05         670,543,312
   2025-02-24         665,618,316
   2025-05-06         667,492,181
@@ -3550,7 +3350,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-07  $    20.866B  [mixed]
   annual reconciliation: 0 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-23         568,918,735
   2025-02-20         561,288,944
   2025-04-25         554,433,824
@@ -3576,214 +3376,6 @@ P/S SERIES, YEARLY SAMPLE
   2024-12-31  price    205.42  shares        569M  cap $    116.9B  rev $   20.12B  P/S     5.81
   2025-12-31  price     67.17  shares        538M  cap $     36.1B  rev $   21.16B  P/S     1.71
   2026-12-31  price     53.18  shares        532M  cap $     28.3B  rev $   20.87B  P/S     1.36
-
-==============================================================================
-FOXA
-==============================================================================
-
-FLAGGED FOR:
-  - market cap comes out at $0.00bn, far below anything an index constituent can be; the share count is wrong, most often a filer with several share classes where only one was collected
-
-REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
-                                                          17     18     19     20     21     22     23     24     25     26   facts
- *RevenueFromContractWithCustomerExcludingAssessedTax      -      -      -   12.3   12.9   14.0   14.9   14.0   16.3   17.1     65
- *Revenues                                               9.9   10.2   11.4   12.3   12.9   14.0   14.9      -      -      -     67
-  RevenueFromRelatedParties                              0.2    0.3    0.3      -      -      -      -      -      -      -     19
-  OtherComprehensiveIncomeLossAvailableForSaleSecurit    0.0    0.1    0.0    0.0      -      -      -      -      -      -     14
-  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
-  anchor: RevenueFromContractWithCustomerExcludingAssessedTax (37 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
-
-ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
-  2019-06-30  reported $    11.389B   4 quarters sum $    11.389B
-  2020-06-30  reported $    12.303B   4 quarters sum $    12.303B
-  2021-06-30  reported $    12.909B   4 quarters sum $    12.909B
-  2022-06-30  reported $    13.974B   4 quarters sum $    13.974B
-  2023-06-30  reported $    14.913B   4 quarters sum $    14.913B
-  2024-06-30  reported $    13.980B   4 quarters sum $    13.980B
-  2025-06-30  reported $    16.300B   4 quarters sum $    16.300B
-  2026-06-30  reported $    17.126B   4 quarters sum $    17.126B
-
-DERIVED QUARTERS (last 10)
-  2024-01-01 -> 2024-03-31  ( 90d)  $     3.447B  [RevenueFromContractWithCustomerExc]
-  2024-03-31 -> 2024-06-30  ( 91d)  $     3.092B  [RevenueFromContractWithCustomerExc]
-  2024-07-01 -> 2024-09-30  ( 91d)  $     3.564B  [RevenueFromContractWithCustomerExc]
-  2024-10-01 -> 2024-12-31  ( 91d)  $     5.078B  [RevenueFromContractWithCustomerExc]
-  2025-01-01 -> 2025-03-31  ( 89d)  $     4.371B  [RevenueFromContractWithCustomerExc]
-  2025-03-31 -> 2025-06-30  ( 91d)  $     3.287B  [RevenueFromContractWithCustomerExc]
-  2025-07-01 -> 2025-09-30  ( 91d)  $     3.738B  [RevenueFromContractWithCustomerExc]
-  2025-10-01 -> 2025-12-31  ( 91d)  $     5.182B  [RevenueFromContractWithCustomerExc]
-  2026-01-01 -> 2026-03-31  ( 89d)  $     3.994B  [RevenueFromContractWithCustomerExc]
-  2026-03-31 -> 2026-06-30  ( 91d)  $     4.212B  [RevenueFromContractWithCustomerExc]
-
-NET INCOME CONCEPTS (research module)
-  ProfitLoss                                            102 facts  2017-06-30 .. 2026-06-30  annual median $1.55B
-  NetIncomeLossAvailableToCommonStockholdersBasic       126 facts  2017-06-30 .. 2026-06-30  annual median $1.50B
-  annual net income periods KEPT after screening (10), last 8:
-    2018-07-01 -> 2019-06-30  (364d)  $    1.643B  [ProfitLoss]
-    2019-07-01 -> 2020-06-30  (365d)  $    1.062B  [ProfitLoss]
-    2020-07-01 -> 2021-06-30  (364d)  $    2.201B  [ProfitLoss]
-    2021-07-01 -> 2022-06-30  (364d)  $    1.233B  [ProfitLoss]
-    2022-07-01 -> 2023-06-30  (364d)  $    1.253B  [ProfitLoss]
-    2023-07-01 -> 2024-06-30  (365d)  $    1.554B  [ProfitLoss]
-    2024-07-01 -> 2025-06-30  (364d)  $    2.293B  [ProfitLoss]
-    2025-07-01 -> 2026-06-30  (364d)  $    1.727B  [ProfitLoss]
-  RAW annual-length net income facts for the newest year:
-    2023-07-01 -> 2024-06-30  $    1.501B  10-K  filed 2026-08-06  [NetIncomeLossAvailableToCo]
-    2023-07-01 -> 2024-06-30  $    1.554B  10-K  filed 2024-08-08  [ProfitLoss]
-    2023-07-01 -> 2024-06-30  $    1.554B  10-K  filed 2025-08-06  [ProfitLoss]
-    2023-07-01 -> 2024-06-30  $    1.554B  10-K  filed 2026-08-06  [ProfitLoss]
-    2024-07-01 -> 2025-06-30  $    2.263B  10-K  filed 2025-08-06  [NetIncomeLossAvailableToCo]
-    2024-07-01 -> 2025-06-30  $    2.263B  10-K  filed 2026-08-06  [NetIncomeLossAvailableToCo]
-    2024-07-01 -> 2025-06-30  $    2.293B  10-K  filed 2025-08-06  [ProfitLoss]
-    2024-07-01 -> 2025-06-30  $    2.293B  10-K  filed 2026-08-06  [ProfitLoss]
-    2025-07-01 -> 2026-06-30  $    1.685B  10-K  filed 2026-08-06  [NetIncomeLossAvailableToCo]
-    2025-07-01 -> 2026-06-30  $    1.727B  10-K  filed 2026-08-06  [ProfitLoss]
-  derived net income QUARTERS, last 6:
-    2025-01-01 -> 2025-03-31  ( 89d)  $    0.354B
-    2025-03-31 -> 2025-06-30  ( 91d)  $    0.719B
-    2025-07-01 -> 2025-09-30  ( 91d)  $    0.609B
-    2025-10-01 -> 2025-12-31  ( 91d)  $    0.247B
-    2026-01-01 -> 2026-03-31  ( 89d)  $    0.175B
-    2026-03-31 -> 2026-06-30  ( 91d)  $    0.696B
-  derived TTM net income, last 4:
-    2025-09-30  $    2.070B  [ProfitLoss]
-    2025-12-31  $    1.929B  [ProfitLoss]
-    2026-03-31  $    1.750B  [ProfitLoss]
-    2026-06-30  $    1.727B  [ProfitLoss]
-
-TTM SERIES (last 10)
-  period 2024-03-31  available 2024-05-08  $    13.920B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2024-06-30  available 2024-08-08  $    13.980B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2024-09-30  available 2024-11-04  $    14.337B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2024-12-31  available 2025-02-04  $    15.181B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2025-03-31  available 2025-05-12  $    16.105B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2025-06-30  available 2025-08-06  $    16.300B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2025-09-30  available 2025-10-30  $    16.474B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2025-12-31  available 2026-02-04  $    16.578B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2026-03-31  available 2026-05-11  $    16.201B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2026-06-30  available 2026-08-06  $    17.126B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  annual reconciliation: 0 mismatches of 10 year-ends checked
-
-SHARE COUNTS AS COLLECTED (last 8)
-  2019-03-18                   1
-SPLITS: {}
-CORPORATE ACTIONS: []
-
-P/S SERIES, YEARLY SAMPLE
-  2019-12-31  price     37.07  shares          0M  cap $      0.0B  rev $   11.52B  P/S     0.00
-  2020-12-31  price     29.12  shares          0M  cap $      0.0B  rev $   12.35B  P/S     0.00
-  2021-12-31  price     36.90  shares          0M  cap $      0.0B  rev $   13.24B  P/S     0.00
-  2022-12-31  price     30.37  shares          0M  cap $      0.0B  rev $   14.12B  P/S     0.00
-  2023-12-31  price     29.67  shares          0M  cap $      0.0B  rev $   14.93B  P/S     0.00
-  2024-12-31  price     48.58  shares          0M  cap $      0.0B  rev $   14.34B  P/S     0.00
-  2025-12-31  price     73.07  shares          0M  cap $      0.0B  rev $   16.47B  P/S     0.00
-  2026-12-31  price     68.42  shares          0M  cap $      0.0B  rev $   17.13B  P/S     0.00
-
-==============================================================================
-FOX
-==============================================================================
-
-FLAGGED FOR:
-  - market cap comes out at $0.00bn, far below anything an index constituent can be; the share count is wrong, most often a filer with several share classes where only one was collected
-
-REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
-                                                          17     18     19     20     21     22     23     24     25     26   facts
- *RevenueFromContractWithCustomerExcludingAssessedTax      -      -      -   12.3   12.9   14.0   14.9   14.0   16.3   17.1     65
- *Revenues                                               9.9   10.2   11.4   12.3   12.9   14.0   14.9      -      -      -     67
-  RevenueFromRelatedParties                              0.2    0.3    0.3      -      -      -      -      -      -      -     19
-  OtherComprehensiveIncomeLossAvailableForSaleSecurit    0.0    0.1    0.0    0.0      -      -      -      -      -      -     14
-  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
-  anchor: RevenueFromContractWithCustomerExcludingAssessedTax (37 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
-
-ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
-  2019-06-30  reported $    11.389B   4 quarters sum $    11.389B
-  2020-06-30  reported $    12.303B   4 quarters sum $    12.303B
-  2021-06-30  reported $    12.909B   4 quarters sum $    12.909B
-  2022-06-30  reported $    13.974B   4 quarters sum $    13.974B
-  2023-06-30  reported $    14.913B   4 quarters sum $    14.913B
-  2024-06-30  reported $    13.980B   4 quarters sum $    13.980B
-  2025-06-30  reported $    16.300B   4 quarters sum $    16.300B
-  2026-06-30  reported $    17.126B   4 quarters sum $    17.126B
-
-DERIVED QUARTERS (last 10)
-  2024-01-01 -> 2024-03-31  ( 90d)  $     3.447B  [RevenueFromContractWithCustomerExc]
-  2024-03-31 -> 2024-06-30  ( 91d)  $     3.092B  [RevenueFromContractWithCustomerExc]
-  2024-07-01 -> 2024-09-30  ( 91d)  $     3.564B  [RevenueFromContractWithCustomerExc]
-  2024-10-01 -> 2024-12-31  ( 91d)  $     5.078B  [RevenueFromContractWithCustomerExc]
-  2025-01-01 -> 2025-03-31  ( 89d)  $     4.371B  [RevenueFromContractWithCustomerExc]
-  2025-03-31 -> 2025-06-30  ( 91d)  $     3.287B  [RevenueFromContractWithCustomerExc]
-  2025-07-01 -> 2025-09-30  ( 91d)  $     3.738B  [RevenueFromContractWithCustomerExc]
-  2025-10-01 -> 2025-12-31  ( 91d)  $     5.182B  [RevenueFromContractWithCustomerExc]
-  2026-01-01 -> 2026-03-31  ( 89d)  $     3.994B  [RevenueFromContractWithCustomerExc]
-  2026-03-31 -> 2026-06-30  ( 91d)  $     4.212B  [RevenueFromContractWithCustomerExc]
-
-NET INCOME CONCEPTS (research module)
-  ProfitLoss                                            102 facts  2017-06-30 .. 2026-06-30  annual median $1.55B
-  NetIncomeLossAvailableToCommonStockholdersBasic       126 facts  2017-06-30 .. 2026-06-30  annual median $1.50B
-  annual net income periods KEPT after screening (10), last 8:
-    2018-07-01 -> 2019-06-30  (364d)  $    1.643B  [ProfitLoss]
-    2019-07-01 -> 2020-06-30  (365d)  $    1.062B  [ProfitLoss]
-    2020-07-01 -> 2021-06-30  (364d)  $    2.201B  [ProfitLoss]
-    2021-07-01 -> 2022-06-30  (364d)  $    1.233B  [ProfitLoss]
-    2022-07-01 -> 2023-06-30  (364d)  $    1.253B  [ProfitLoss]
-    2023-07-01 -> 2024-06-30  (365d)  $    1.554B  [ProfitLoss]
-    2024-07-01 -> 2025-06-30  (364d)  $    2.293B  [ProfitLoss]
-    2025-07-01 -> 2026-06-30  (364d)  $    1.727B  [ProfitLoss]
-  RAW annual-length net income facts for the newest year:
-    2023-07-01 -> 2024-06-30  $    1.501B  10-K  filed 2026-08-06  [NetIncomeLossAvailableToCo]
-    2023-07-01 -> 2024-06-30  $    1.554B  10-K  filed 2024-08-08  [ProfitLoss]
-    2023-07-01 -> 2024-06-30  $    1.554B  10-K  filed 2025-08-06  [ProfitLoss]
-    2023-07-01 -> 2024-06-30  $    1.554B  10-K  filed 2026-08-06  [ProfitLoss]
-    2024-07-01 -> 2025-06-30  $    2.263B  10-K  filed 2025-08-06  [NetIncomeLossAvailableToCo]
-    2024-07-01 -> 2025-06-30  $    2.263B  10-K  filed 2026-08-06  [NetIncomeLossAvailableToCo]
-    2024-07-01 -> 2025-06-30  $    2.293B  10-K  filed 2025-08-06  [ProfitLoss]
-    2024-07-01 -> 2025-06-30  $    2.293B  10-K  filed 2026-08-06  [ProfitLoss]
-    2025-07-01 -> 2026-06-30  $    1.685B  10-K  filed 2026-08-06  [NetIncomeLossAvailableToCo]
-    2025-07-01 -> 2026-06-30  $    1.727B  10-K  filed 2026-08-06  [ProfitLoss]
-  derived net income QUARTERS, last 6:
-    2025-01-01 -> 2025-03-31  ( 89d)  $    0.354B
-    2025-03-31 -> 2025-06-30  ( 91d)  $    0.719B
-    2025-07-01 -> 2025-09-30  ( 91d)  $    0.609B
-    2025-10-01 -> 2025-12-31  ( 91d)  $    0.247B
-    2026-01-01 -> 2026-03-31  ( 89d)  $    0.175B
-    2026-03-31 -> 2026-06-30  ( 91d)  $    0.696B
-  derived TTM net income, last 4:
-    2025-09-30  $    2.070B  [ProfitLoss]
-    2025-12-31  $    1.929B  [ProfitLoss]
-    2026-03-31  $    1.750B  [ProfitLoss]
-    2026-06-30  $    1.727B  [ProfitLoss]
-
-TTM SERIES (last 10)
-  period 2024-03-31  available 2024-05-08  $    13.920B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2024-06-30  available 2024-08-08  $    13.980B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2024-09-30  available 2024-11-04  $    14.337B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2024-12-31  available 2025-02-04  $    15.181B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2025-03-31  available 2025-05-12  $    16.105B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2025-06-30  available 2025-08-06  $    16.300B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2025-09-30  available 2025-10-30  $    16.474B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2025-12-31  available 2026-02-04  $    16.578B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2026-03-31  available 2026-05-11  $    16.201B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2026-06-30  available 2026-08-06  $    17.126B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  annual reconciliation: 0 mismatches of 10 year-ends checked
-
-SHARE COUNTS AS COLLECTED (last 8)
-  2019-03-18                   1
-SPLITS: {}
-CORPORATE ACTIONS: []
-
-P/S SERIES, YEARLY SAMPLE
-  2019-12-31  price     36.40  shares          0M  cap $      0.0B  rev $   11.52B  P/S     0.00
-  2020-12-31  price     28.88  shares          0M  cap $      0.0B  rev $   12.35B  P/S     0.00
-  2021-12-31  price     34.27  shares          0M  cap $      0.0B  rev $   13.24B  P/S     0.00
-  2022-12-31  price     28.45  shares          0M  cap $      0.0B  rev $   14.12B  P/S     0.00
-  2023-12-31  price     27.65  shares          0M  cap $      0.0B  rev $   14.93B  P/S     0.00
-  2024-12-31  price     45.74  shares          0M  cap $      0.0B  rev $   14.34B  P/S     0.00
-  2025-12-31  price     64.93  shares          0M  cap $      0.0B  rev $   16.47B  P/S     0.00
-  2026-12-31  price     61.32  shares          0M  cap $      0.0B  rev $   17.13B  P/S     0.00
 
 ==============================================================================
 GE
@@ -3892,7 +3484,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-16  $    50.639B  [Revenues]
   annual reconciliation: 11 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-22       1,082,294,004
   2025-02-03       1,073,290,505
   2025-04-22       1,066,386,643
@@ -4002,7 +3594,7 @@ TTM SERIES (last 10)
   period 2026-03-31  available 2026-04-29  $    20.979B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 5 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-07-31         456,662,253
   2024-10-30         456,872,979
   2025-02-13         457,298,310
@@ -4101,7 +3693,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-22  $    41.368B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 4 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-23         275,652,970
   2025-02-06         275,900,754
   2025-04-23         272,934,744
@@ -4220,7 +3812,7 @@ TTM SERIES (last 10)
   period 2026-07-03  available 2026-08-07  $     5.079B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 2 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-31         616,204,970
   2025-01-31         616,301,369
   2025-05-15         620,229,707
@@ -4340,7 +3932,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-05  $    10.231B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 1 mismatches of 18 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-31         254,494,835
   2025-02-14         247,616,186
   2025-05-06         243,880,022
@@ -4468,7 +4060,7 @@ TTM SERIES (last 10)
   period 2026-03-31  available 2026-04-30  $     1.683B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 8 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-07-30       1,452,432,838
   2024-10-29       1,452,811,392
   2025-02-14       1,453,758,267
@@ -4586,7 +4178,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-04  $     9.978B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 1 mismatches of 18 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-05         255,682,329
   2025-02-28         255,714,083
   2025-05-06         255,790,345
@@ -4710,7 +4302,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-05  $    24.203B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 7 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-01         347,408,286
   2025-02-21         526,125,614
   2025-05-07         527,901,518
@@ -4836,7 +4428,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-30  $     2.855B  [Revenues]
   annual reconciliation: 0 mismatches of 11 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-31         612,605,478
   2025-02-27         612,689,592
   2025-05-01         612,949,348
@@ -4957,7 +4549,7 @@ TTM SERIES (last 10)
   period 2026-03-31  available 2026-05-05  $    16.632B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 15 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-07-22         182,300,000
   2024-10-31         181,500,000
   2025-02-13         176,100,000
@@ -5087,7 +4679,7 @@ TTM SERIES (last 10)
   period 2026-03-31  available 2026-05-06  $    24.433B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 1 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-07-31         668,013,549
   2024-11-19         662,185,383
   2025-02-05         660,594,161
@@ -5193,7 +4785,7 @@ TTM SERIES (last 10)
   period 2026-06-28  available 2026-08-06  $    15.408B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 5 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-07       1,917,257,438
   2025-02-24       1,911,240,720
   2025-05-08       1,919,909,938
@@ -5309,7 +4901,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-10  $    20.090B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 9 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-24       1,356,453,649
   2025-02-25       1,356,750,877
   2025-04-24       1,358,178,069
@@ -5437,7 +5029,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-04  $     2.187B  [Revenues]
   annual reconciliation: 4 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-31         674,081,407
   2025-02-21         679,482,034
   2025-05-02         676,496,300
@@ -5567,7 +5159,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-24  $    16.283B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 17 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-18       2,221,640,145
   2025-02-13       2,221,963,025
   2025-04-18       2,222,068,746
@@ -5690,7 +5282,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-06  $    21.309B  [Revenues]
   annual reconciliation: 0 mismatches of 10 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-05         888,228,909
   2025-02-28         888,250,533
   2025-05-09         890,641,903
@@ -5819,7 +5411,7 @@ TTM SERIES (last 10)
   period 2025-10-03  available 2025-10-30  $    21.740B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 1 mismatches of 13 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-25         189,668,364
   2025-02-14         188,313,839
   2025-04-24         186,945,636
@@ -5948,7 +5540,7 @@ TTM SERIES (last 10)
   period 2026-07-03  available 2026-08-04  $    17.577B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 3 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-29         133,433,109
   2025-02-11         131,167,372
   2025-05-06         128,718,872
@@ -6072,7 +5664,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-30  $    26.273B  [Revenues]
   annual reconciliation: 1 mismatches of 17 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-12         232,353,685
   2025-02-21         233,401,156
   2025-05-01         234,089,506
@@ -6199,7 +5791,7 @@ TTM SERIES (last 10)
   period 2026-06-27  available 2026-08-17  $     3.014B  [mixed]
   annual reconciliation: 0 mismatches of 14 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-08          68,700,000
   2025-02-06          69,200,000
   2025-05-07          69,400,000
@@ -6320,7 +5912,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-04  $     1.703B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 4 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-05         165,921,158
   2025-02-19         164,333,454
   2025-05-05         160,516,041
@@ -6443,7 +6035,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-04  $   153.577B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 3 mismatches of 17 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-05         321,388,952
   2025-02-27         312,575,833
   2025-05-06         307,213,828
@@ -6569,7 +6161,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-03  $    26.904B  [Revenues]
   annual reconciliation: 1 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-04         277,893,432
   2025-02-11         275,695,298
   2025-05-06         273,896,119
@@ -6694,7 +6286,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-30  $     6.689B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 1 mismatches of 18 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-30          61,118,057
   2025-02-21          60,974,146
   2025-04-30          60,285,411
@@ -6809,7 +6401,7 @@ TTM SERIES (last 10)
   period 2026-05-02  available 2026-05-28  $     8.717B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 7 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-08-30         866,200,000
   2024-12-04         865,300,000
   2025-03-12         866,100,000
@@ -6928,7 +6520,7 @@ TTM SERIES (last 10)
   period 2026-03-31  available 2026-04-30  $     2.214B  [Revenues]
   annual reconciliation: 0 mismatches of 14 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-08-01         116,876,199
   2024-10-31         116,880,291
   2025-02-07         116,901,778
@@ -7053,7 +6645,7 @@ TTM SERIES (last 10)
   period 2025-12-31  available 2026-02-26  $     1.944B  [reported-annual]
   annual reconciliation: 0 mismatches of 6 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-07         384,817,811
   2025-02-21         385,815,877
   2025-05-01         386,741,820
@@ -7176,7 +6768,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-23  $    25.767B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 14 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-24       1,138,450,479
   2025-02-21       1,126,861,075
   2025-04-24       1,112,996,934
@@ -7297,7 +6889,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-03  $    10.154B  [RevenueFromContractWithCustomerIncludingAssessedTax]
   annual reconciliation: 0 mismatches of 14 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-07         439,708,278
   2025-02-27         439,944,822
   2025-05-05         446,806,727
@@ -7425,7 +7017,7 @@ TTM SERIES (last 10)
   period 2026-03-29  available 2026-04-28  $    12.615B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 15 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-07-23         254,732,930
   2024-11-05         254,155,580
   2025-02-20         253,620,117
@@ -7540,7 +7132,7 @@ TTM SERIES (last 10)
   period 2026-03-31  available 2026-04-29  $    19.824B  [Revenues]
   annual reconciliation: 0 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-07-17         195,648,843
   2024-10-16         195,093,092
   2025-02-05         196,490,662
@@ -7671,7 +7263,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-04  $    39.366B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 2 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-30         584,184,191
   2025-02-25         624,339,588
   2025-04-30         624,632,479
@@ -7755,7 +7347,7 @@ TTM SERIES (last 10)
   period 2025-06-30  available 2026-02-25  $    28.756B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 2 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2025-05-14               1,000
   2025-08-01               1,000
   2025-11-10       1,071,666,977
@@ -7867,7 +7459,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-23  $    25.837B  [Revenues]
   annual reconciliation: 0 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-07       2,615,288,444
   2025-02-13       2,671,320,389
   2025-04-24       2,675,428,603
@@ -7995,7 +7587,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-05  $    64.765B  [Revenues]
   annual reconciliation: 0 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-31         356,000,000
   2025-02-13         354,000,000
   2025-05-01         354,000,000
@@ -8090,7 +7682,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-04  $     5.210B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 3 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2025-11-18         209,463,194
   2026-02-26         209,658,907
   2026-05-12         209,339,207
@@ -8205,7 +7797,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-23  $    93.500B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 4 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-22       1,331,016,397
   2025-02-03       1,332,122,758
   2025-04-22       1,335,953,770
@@ -8331,7 +7923,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-06  $     6.055B  [Revenues]
   annual reconciliation: 0 mismatches of 18 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-05         875,211,050
   2025-02-25         891,516,161
   2025-05-06         903,079,947
@@ -8458,7 +8050,7 @@ TTM SERIES (last 10)
   period 2026-03-31  available 2026-05-04  $     1.585B  [Revenues]
   annual reconciliation: 0 mismatches of 9 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-08-02         181,496,694
   2024-11-01         181,505,396
   2025-02-14         181,365,237
@@ -8583,7 +8175,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-28  $    18.682B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 18 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-29         268,875,240
   2025-02-14         269,128,754
   2025-04-29         271,560,372
@@ -8713,7 +8305,7 @@ TTM SERIES (last 10)
   period 2026-03-31  available 2026-04-28  $    15.730B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 3 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-04-25         312,900,000
   2024-07-30         313,000,000
   2024-10-25         310,300,000
@@ -8814,7 +8406,7 @@ TTM SERIES (last 10)
   period 2026-07-03  available 2026-08-17  $    20.248B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 4 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2025-03-07         114,863,251
   2025-03-17         144,863,251
   2025-05-12         145,299,218
@@ -8909,7 +8501,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-31  $    31.326B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 4 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-08         520,156,112
   2025-03-07         521,964,165
   2025-05-09         522,012,629
@@ -9000,7 +8592,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-05  $     8.310B  [Revenues]
   annual reconciliation: 0 mismatches of 4 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-08         172,754,070
   2025-02-28         172,990,490
   2025-05-09         173,012,922
@@ -9120,7 +8712,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-23  $    92.189B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 16 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-23       1,160,486,648
   2025-01-31       1,141,744,952
   2025-04-24       1,135,445,108
@@ -9248,7 +8840,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-07  $     6.686B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 1 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-07         175,627,391
   2025-02-07         176,495,706
   2025-05-20         177,424,908
@@ -9372,7 +8964,7 @@ TTM SERIES (last 10)
   period 2018-03-31  available 2018-04-30  $     0.147B  [OperatingLeasesIncomeStatementLeaseRevenue]
   annual reconciliation: 0 mismatches of 5 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-01       1,327,520,624
   2025-02-25       1,305,350,706
   2025-04-30       1,309,538,961
@@ -9477,7 +9069,7 @@ TTM SERIES (last 10)
   period 2026-04-03  available 2026-04-29  $     5.593B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 5 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-07-26         247,106,400
   2024-10-24         247,307,775
   2025-02-25         247,550,644
@@ -9577,7 +9169,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-06  $    14.694B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 8 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2025-02-27       1,193,688,749
   2025-04-30       1,185,856,452
   2025-05-08       1,173,681,964
@@ -9694,7 +9286,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-22  $    11.980B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 18 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-23         171,889,624
   2025-02-12         170,848,147
   2025-04-23         171,126,330
@@ -9825,7 +9417,7 @@ TTM SERIES (last 10)
   period 2026-07-04  available 2026-08-11  $     4.644B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-01          59,376,174
   2025-02-25          59,410,941
   2025-05-06          59,509,089
@@ -9952,7 +9544,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-04  $    10.137B  [Revenues]
   annual reconciliation: 0 mismatches of 15 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-01         316,354,446
   2025-02-21         317,752,123
   2025-05-07         319,133,501
@@ -10082,7 +9674,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-28  $    86.796B  [RevenuesNetOfInterestExpense]
   annual reconciliation: 0 mismatches of 10 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-31       3,329,490,659
   2025-02-25       3,288,186,582
   2025-04-29       3,254,182,446
@@ -10206,7 +9798,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-31  $     6.852B  [Revenues]
   annual reconciliation: 5 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-25         726,582,000
   2025-02-14         725,578,000
   2025-04-25         725,273,000
@@ -10336,7 +9928,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-08-03  $    15.431B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 19 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-11-06       1,219,011,798
   2025-02-25       1,219,369,295
   2025-05-05       1,221,006,379
@@ -10466,7 +10058,7 @@ TTM SERIES (last 10)
   period 2026-06-30  available 2026-07-28  $     9.126B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   annual reconciliation: 0 mismatches of 17 year-ends checked
 
-SHARE COUNTS AS COLLECTED (last 8)
+SHARE COUNTS AS COLLECTED (last 8)  [concept: dei:EntityCommonStockSharesOutstanding]
   2024-10-31         242,944,703
   2025-03-03         243,046,226
   2025-04-29         243,351,011
@@ -10517,7 +10109,6 @@ C      2011-08-05      0.0999   SPLIT ADDED from EDGAR: count 29,206,440,560 -> 
 KO     2012-10-25      1.9926   SPLIT ADDED from EDGAR: count 2,250,961,597 -> 4,485,161,506 with revenue flat through it; Yahoo has no record of it
 COHR   2011-08-26      2.0064   SPLIT ADDED from EDGAR: count 31,248,379 -> 62,697,423 with revenue flat through it; Yahoo has no record of it
 CL     2013-07-25      1.9891   SPLIT ADDED from EDGAR: count 466,368,867 -> 927,677,358 with revenue flat through it; Yahoo has no record of it
-CMCSA  2026-01-05      1.0670   no share counts either side, and not a ratio boards announce
 CPRT   2012-06-11      2.0087   SPLIT ADDED from EDGAR: count 63,307,176 -> 127,166,914 with revenue flat through it; Yahoo has no record of it
 DHR    2016-07-05      1.3190   reported share count went 1.01x, not 1.32x
 DHR    2010-08-11      2.0103   SPLIT ADDED from EDGAR: count 324,646,610 -> 652,622,896 with revenue flat through it; Yahoo has no record of it
@@ -10562,7 +10153,6 @@ MNST   2012-02-29      2.0019   SPLIT ADDED from EDGAR: count 87,072,807 -> 174,
 MSI    2011-02-18      0.1433   SPLIT ADDED from EDGAR: count 2,349,381,030 -> 336,710,130; Yahoo has no record of it
 NTAP   2024-02-29      0.1002   SPLIT ADDED from EDGAR: count 206,031,047 -> 20,637,666; Yahoo has no record of it
 NTAP   2024-06-10      9.9721   SPLIT ADDED from EDGAR: count 20,637,666 -> 205,801,761 with revenue flat through it; Yahoo has no record of it
-NKE    2013-01-09      1.9880   SPLIT ADDED from EDGAR: count 450,552,418 -> 895,711,770 with revenue flat through it; Yahoo has no record of it
 NI     2015-07-02      2.5450   reported share count went 1.01x, not 2.54x
 NDSN   2011-06-03      2.0008   SPLIT ADDED from EDGAR: count 34,110,285 -> 68,248,139 with revenue flat through it; Yahoo has no record of it
 OKE    2012-08-01      1.9731   SPLIT ADDED from EDGAR: count 103,926,470 -> 205,056,209 with revenue flat through it; Yahoo has no record of it
@@ -10571,7 +10161,6 @@ O      2021-11-15      1.0320   reported share count went 1.63x, not 1.03x
 ROST   2012-03-27      1.9814   SPLIT ADDED from EDGAR: count 114,320,487 -> 226,520,166 with revenue flat through it; Yahoo has no record of it
 SPGI   2026-07-01      1.0570   no share counts either side, and not a ratio boards announce
 CRM    2013-05-24      4.0301   SPLIT ADDED from EDGAR: count 146,400,000 -> 590,000,000 with revenue flat through it; Yahoo has no record of it
-SPG    2014-05-29      1.0630   no share counts either side, and not a ratio boards announce
 TMUS   2013-08-08      1.9626   SPLIT ADDED from EDGAR: count 370,274,013 -> 726,716,596 with revenue flat through it; Yahoo has no record of it
 TJX    2012-03-27      1.9799   SPLIT ADDED from EDGAR: count 377,140,120 -> 746,702,028 with revenue flat through it; Yahoo has no record of it
 TSCO   2010-11-02      2.0086   SPLIT ADDED from EDGAR: count 36,299,512 -> 72,911,934 with revenue flat through it; Yahoo has no record of it
@@ -10590,67 +10179,6 @@ WTW    2016-01-05      0.3775   reported share count went 0.77x, not 0.38x
 YUM    2016-11-01      1.3910   reported share count went 0.85x, not 1.39x
 ZTS    2019-08-06      0.0508   SPLIT ADDED from EDGAR: count 478,656,189 -> 24,333,301; Yahoo has no record of it
 ZTS    2019-08-09     19.6257   SPLIT ADDED from EDGAR: count 24,333,301 -> 477,557,942 with revenue flat through it; Yahoo has no record of it
-==============================================================================
-MA
-==============================================================================
-
-FLAGGED FOR:
-  - market cap differs from Yahoo by +40%
-
-P/S now 20.79 | 5y med 21.47 | 10y med 20.94 | Z 0.13738020433031406
-  my revenue  $     35.08B   Yahoo $     35.08B
-  my mktcap   $    729.42B   Yahoo $    521.49B
-  (structurally clean -- this block exists only because the two sources disagree)
-
-REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
-                                                          15     16     17     18     19     20     21     22     23     24     25   facts
- *Revenues                                                 -   10.8   12.5   14.9   16.9   15.3   18.9   22.2   25.1   28.2   32.8    246
- *RevenueFromContractWithCustomerExcludingAssessedTax      -      -      -   21.8   25.0   23.6   29.8      -      -      -      -     54
- *SalesRevenueNet                                        9.7   10.8   12.5      -      -      -      -      -      -      -      -     59
-  ProceedsFromSaleAndMaturityOfAvailableForSaleSecuri      -      -      -      -      -      -      -      -      -      -      -      7
-  PaymentsToAcquireAvailableForSaleSecurities            1.0    1.0    0.7    1.3    0.6    0.2      -      -      -      -      -    110
-  ContractWithCustomerLiabilityRevenueRecognized           -      -      -    0.9    1.0    1.1    1.5    1.6    2.1    2.8    3.5     72
-  ProceedsFromSaleOfAvailableForSaleSecurities           0.7    0.3    0.3    0.6    1.1    0.4      -      -      -      -      -    103
-  ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailabl    0.5    0.3    0.5    0.4    0.4    0.1    0.3    0.2    0.2    0.3    0.2    148
-  ProceedsFromSaleOfAvailableForSaleSecuritiesDebt         -      -      -      -    1.1    0.4    0.1    0.1    0.1    0.2    0.3     45
-  PaymentsToAcquireAvailableForSaleSecuritiesDebt          -      -      -      -    0.6    0.2    0.4    0.3    0.3    0.5    0.5     45
-  AvailableForSaleSecuritiesGrossRealizedGains             -      -      -      -      -      -      -      -      -      -      -     19
-  OtherComprehensiveIncomeAvailableForSaleSecuritiesT      -      -      -      -      -      -      -      -      -      -      -      6
-  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: Revenues, SalesRevenueNet
-  anchor: Revenues (113 periods, newest 2026-06-30)
-    RevenueFromContractWithCustomerExcludingAssessedTax: REFUSED, runs 1.51x the anchor where they overlap
-    SalesRevenueNet: merged at 0.998x the anchor (rescaled by 1.000)
-
-==============================================================================
-CMCSA
-==============================================================================
-
-FLAGGED FOR:
-  - market cap differs from Yahoo by +16%
-
-P/S now 0.89 | 5y med 1.23 | 10y med 1.50 | Z -1.9671087451890739
-  my revenue  $    124.91B   Yahoo $    124.90B
-  my mktcap   $    111.65B   Yahoo $     96.03B
-  (structurally clean -- this block exists only because the two sources disagree)
-
-REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
-                                                          15     16     17     18     19     20     21     22     23     24     25   facts
- *RevenueFromContractWithCustomerExcludingAssessedTax      -      -      -      -      -      -      -  121.4  121.6  123.7  123.7     32
- *Revenues                                              74.5   80.7   85.0   94.5  108.9  103.6  116.4  121.4  121.6      -      -    292
-  BusinessAcquisitionsProFormaRevenue                      -      -  103.0  109.5      -      -      -      -      -      -      -     27
- *SalesRevenueServicesNet                               74.5   80.4   84.5      -      -      -      -      -      -      -      -    107
-  EntityWideDisclosureOnGeographicAreasRevenueFromExt      -      -      -      -      -      -      -      -      -      -      -      4
-  ProceedsFromSaleOfAvailableForSaleSecurities             -      -      -      -      -      -      -      -      -      -      -      3
-  AvailableForSaleSecuritiesGrossUnrealizedGains           -      -      -      -      -      -      -      -      -      -      -      2
-  AvailableForSaleSecuritiesGrossRealizedGains             -      -      -      -      -      -      -      -      -      -      -      3
-  ManagementFeesRevenue                                  0.0    0.0    0.0      -      -      -      -      -      -      -      -     56
-  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
-  anchor: RevenueFromContractWithCustomerExcludingAssessedTax (22 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
-    SalesRevenueServicesNet: merged at 1.000x merged history (rescaled by 1.000)
-
 ==============================================================================
 BX
 ==============================================================================
@@ -10706,35 +10234,6 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
     Revenues: REFUSED, runs 1.40x the anchor where they overlap
 
 ==============================================================================
-UPS
-==============================================================================
-
-FLAGGED FOR:
-  - market cap differs from Yahoo by -16%
-
-P/S now 0.84 | 5y med 1.15 | 10y med 1.20 | Z -1.5407070044178517
-  my revenue  $     89.93B   Yahoo $     89.93B
-  my mktcap   $     75.20B   Yahoo $     89.61B
-  (structurally clean -- this block exists only because the two sources disagree)
-
-REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
-                                                          15     16     17     18     19     20     21     22     23     24     25   facts
- *RevenueFromContractWithCustomerExcludingAssessedTax      -   61.6   66.6   71.9   74.1   84.6   97.3  100.3   91.0   91.1   88.7    104
- *Revenues                                              58.4   60.9   65.9      -      -      -      -      -      -      -      -    219
-  ProceedsFromSalesOfBusinessAffiliateAndProductiveAs      -      -      -      -      -      -    0.9      -      -      -      -      8
-  ProceedsFromLeasePaymentSalesTypeAndDirectFinancing      -      -      -      -      -      -      -      -      -      -    0.5      3
-  FairValueMeasurementWithUnobservableInputsReconcili    0.0    0.0    0.0      -      -      -      -      -      -      -      -     78
-  AvailableForSaleSecuritiesGrossRealizedGains             -      -      -      -      -      -      -      -      -      -      -      9
-  AvailableForSaleSecuritiesGrossRealizedLosses            -      -      -      -      -      -      -      -      -      -      -      9
-  AvailableForSaleSecuritiesContinuousUnrealizedLossP      -      -      -      -      -      -      -      -      -      -      -      1
-  AvailableForSaleSecuritiesContinuousUnrealizedLossP      -      -      -      -      -      -      -      -      -      -      -      1
-  AvailableForSaleSecuritiesContinuousUnrealizedLossP      -      -      -      -      -      -      -      -      -      -      -      1
-  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
-  anchor: RevenueFromContractWithCustomerExcludingAssessedTax (56 periods, newest 2026-06-30)
-    Revenues: merged at 0.989x the anchor (rescaled by 1.000)
-
-==============================================================================
 HLT
 ==============================================================================
 
@@ -10764,33 +10263,6 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (61 periods, newest 2026-06-30)
     Revenues: merged at 1.000x the anchor (rescaled by 1.000)
-
-==============================================================================
-NKE
-==============================================================================
-
-FLAGGED FOR:
-  - market cap differs from Yahoo by +15%
-
-P/S now 1.46 | 5y med 3.19 | 10y med 3.49 | Z -2.6005062433867248
-  my revenue  $     46.40B   Yahoo $     46.40B
-  my mktcap   $     67.74B   Yahoo $     58.75B
-  (structurally clean -- this block exists only because the two sources disagree)
-
-REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
-                                                          16     17     18     19     20     21     22     23     24     25     26   facts
- *RevenueFromContractWithCustomerExcludingAssessedTax      -   34.4   36.4   39.1   37.4   44.5   46.7   51.2   51.4   46.3   46.4     98
- *SalesRevenueNet                                       32.4   34.4   36.4      -      -      -      -      -      -      -      -    123
-  PaymentsToAcquireAvailableForSaleSecuritiesDebt        5.4    5.9    4.8    2.9    2.4   10.0   12.9    6.1    4.8    3.2    1.3    135
-  CostOfRevenue                                            -      -      -      -      -      -      -      -      -      -      -     26
-  ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailabl    2.9    3.6    3.6    1.7    0.1    4.2    8.2    3.4    2.3    0.3    0.6    135
-  ProceedsFromSaleOfAvailableForSaleSecuritiesDebt       2.4    2.4    2.5    2.1    2.4    2.4    4.0    4.2    4.2    3.1    1.0    135
-  DisposalGroupIncludingDiscontinuedOperationRevenue       -      -      -      -      -      -      -      -      -      -      -     27
-  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, SalesRevenueNet
-  anchor: RevenueFromContractWithCustomerExcludingAssessedTax (52 periods, newest 2026-05-31)
-    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.000x the anchor (rescaled by 1.000)
-    SalesRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
 
 ==============================================================================
 NDAQ
@@ -10857,36 +10329,6 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
     SalesRevenueServicesNet: merged at 1.000x the anchor (rescaled by 1.000)
 
 ==============================================================================
-CME
-==============================================================================
-
-FLAGGED FOR:
-  - market cap differs from Yahoo by -81%
-
-P/S now 2.81 | 5y med 2.68 | 10y med 2.70 | Z 0.4537476849659795
-  my revenue  $      6.77B   Yahoo $      6.76B
-  my mktcap   $     19.05B   Yahoo $    102.77B
-  (structurally clean -- this block exists only because the two sources disagree)
-
-REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
-                                                          15     16     17     18     19     20     21     22     23     24     25   facts
- *Revenues                                               3.3    3.6    3.6    4.3    4.9    4.9    4.7    5.0    5.6    6.1    6.5    317
-  BusinessAcquisitionsProFormaRevenue                      -      -    4.4    5.0      -      -      -      -      -      -      -      2
-  ClearingFeesRevenue                                    2.8    3.0    3.1      -      -      -      -      -      -      -      -     92
-  ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailabl    0.0    0.0    0.0    0.0    0.0    0.0    0.0    0.0    0.0    0.0    0.0    157
-  MarketDataRevenue                                      0.4    0.4    0.4      -      -      -      -      -      -      -      -     78
-  PaymentsToAcquireAvailableForSaleSecurities            0.0    0.0    0.0    0.0    0.0    0.0      -      -      -      -      -    110
-  ProceedsFromSaleOfAvailableForSaleSecuritiesEquity     0.1    0.1    0.2    0.0      -      -      -      -      -      -      -     32
-  OtherComprehensiveIncomeAvailableForSaleSecuritiesA      -      -      -      -      -      -      -      -      -      -      -     31
-  OtherSalesRevenueNet                                   0.1    0.1    0.1      -      -      -      -      -      -      -      -    125
-  PaymentsToAcquireAvailableForSaleSecuritiesDebt          -      -      -      -    0.0    0.0    0.0    0.0    0.0    0.0    0.0     45
-  OtherComprehensiveIncomeAvailableForSaleSecuritiesA      -      -      -      -      -      -      -      -      -      -      -      3
-  AvailableForSaleSecuritiesContinuousUnrealizedLossP      -      -      -      -      -      -      -      -      -      -      -      1
-  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: Revenues
-  anchor: Revenues (123 periods, newest 2026-06-30)
-
-==============================================================================
 DD
 ==============================================================================
 
@@ -10915,78 +10357,6 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
     Revenues: REFUSED, runs 1.39x the anchor where they overlap
     OperatingLeaseLeaseIncome: REFUSED, runs 0.01x the anchor where they overlap
     SalesRevenueNet: no comparable overlap, not merged
-
-==============================================================================
-CHTR
-==============================================================================
-
-FLAGGED FOR:
-  - market cap differs from Yahoo by -17%
-
-P/S now 0.32 | 5y med 0.74 | 10y med 0.90 | Z -2.5146977284999363
-  my revenue  $     54.40B   Yahoo $     54.40B
-  my mktcap   $     17.28B   Yahoo $     20.70B
-  (structurally clean -- this block exists only because the two sources disagree)
-
-REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
-                                                          15     16     17     18     19     20     21     22     23     24     25   facts
- *Revenues                                               9.8   29.0   41.6   43.6   45.8   48.1   51.7   54.0   54.6   55.1   54.8    274
-  BusinessAcquisitionsProFormaRevenue                   37.4   40.0      -      -      -      -      -      -      -      -      -     16
- *RevenueFromContractWithCustomerIncludingAssessedTax      -      -      -      -      -    1.1    1.1    1.1    1.0    0.9    0.9     12
-  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: Revenues
-  anchor: Revenues (109 periods, newest 2026-06-30)
-    RevenueFromContractWithCustomerIncludingAssessedTax: REFUSED, runs 0.02x the anchor where they overlap
-
-==============================================================================
-IBKR
-==============================================================================
-
-FLAGGED FOR:
-  - market cap differs from Yahoo by -90%
-
-P/S now 2.36 | 5y med 1.18 | 10y med 1.16 | Z 2.4384117549626194
-  my revenue  $      6.86B   Yahoo $      6.83B
-  my mktcap   $     16.19B   Yahoo $    163.29B
-  (structurally clean -- this block exists only because the two sources disagree)
-
-REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
-                                                          15     16     17     18     19     20     21     22     23     24     25   facts
- *RevenuesNetOfInterestExpense                           1.2    1.4    1.7    1.9    1.9    2.2    2.7    3.1    4.3    5.2    6.2    134
- *Revenues                                               1.3    1.5    1.9    2.4    2.6      -      -      -      -      -      -    133
- *RevenueFromContractWithCustomerExcludingAssessedTax      -      -      -    0.9    0.8    1.3    1.6    1.5    1.6    2.0    2.4    102
-  BrokerageCommissionsRevenue                            0.6    0.6    0.6    0.8    0.7    1.1    1.4    1.3    1.4    1.7    2.1    217
-  PrincipalTransactionsRevenue                             -      -      -    0.1    0.1    0.1    0.0   -0.0    0.0    0.1    0.2     83
-  FairValueMeasurementWithUnobservableInputsReconcili      -      -      -      -      -      -      -      -      -      -      -      6
-  FairValueMeasurementWithUnobservableInputsReconcili      -      -      -      -      -      -      -      -      -      -      -      8
-  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: Revenues, RevenuesNetOfInterestExpense
-  anchor: RevenuesNetOfInterestExpense (69 periods, newest 2026-06-30)
-    RevenueFromContractWithCustomerExcludingAssessedTax: REFUSED, runs 0.46x the anchor where they overlap
-    Revenues: merged at 1.057x the anchor (rescaled by 0.946)
-
-==============================================================================
-ARES
-==============================================================================
-
-FLAGGED FOR:
-  - market cap differs from Yahoo by -69%
-
-P/S now 2.46 | 5y med 2.92 | 10y med 2.58 | Z -0.2075610133150957
-  my revenue  $      5.99B   Yahoo $      5.99B
-  my mktcap   $     14.73B   Yahoo $     47.01B
-  (structurally clean -- this block exists only because the two sources disagree)
-
-REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
-                                                          15     16     17     18     19     20     21     22     23     24     25   facts
- *RevenueFromContractWithCustomerExcludingAssessedTax      -      -    1.5    1.0    1.8    1.8    4.2    3.1    3.6    3.9    5.6    102
- *Revenues                                               0.8    1.2    1.4    1.2    1.4    1.8    2.3    2.9    3.2    3.7    4.8    177
-  EquityMethodInvestmentSummarizedFinancialInformatio    0.8    1.4    0.9    1.2    1.4      -      -      -      -      -      -      9
-  AdministrativeServicesRevenue                            -    0.0    0.0      -      -      -      -      -      -      -      -     11
-  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax
-  anchor: RevenueFromContractWithCustomerExcludingAssessedTax (56 periods, newest 2026-06-30)
-    Revenues: REFUSED, runs 0.73x the anchor where they overlap
 
 ==============================================================================
 CPT
@@ -11026,17 +10396,13 @@ CROSS-CHECK AGAINST YAHOO — every row that disagrees
 ==============================================================================
 
 tkr    sector                     my revenue   my mktcap  rev diff  cap diff
-MA     Financials                      35.1B      729.4B       -0%      +40%
 COF    Financials                      58.7B      134.2B      +22%       +1%
-CMCSA  Communication Services         124.9B      111.7B       +0%      +16%
 BX     Financials                      16.1B      106.9B       +4%      -37%
 KKR    Financials                      21.3B       97.6B      -18%       -3%
 MAR    Consumer Discretionary          26.9B       91.5B     +264%       -0%
 ICE    Financials                      13.4B       91.1B      +27%       +0%
 WMB    Energy                          15.4B       90.2B      +25%       -0%
-UPS    Industrials                     89.9B       75.2B       +0%      -16%
 HLT    Consumer Discretionary          12.5B       72.4B     +145%       -0%
-NKE    Consumer Discretionary          46.4B       67.7B       -0%      +15%
 NDAQ   Financials                       8.8B       55.5B      +56%       +0%
 LHX    Industrials                     21.7B       48.9B      +69%       -0%
 PAYX   Industrials                      6.3B       45.2B      +59%       +0%
@@ -11044,9 +10410,5 @@ PCG    Utilities                       25.8B       44.5B       -0%      +22%
 HBAN   Financials                       1.7B       34.3B      -82%       +0%
 MLM    Materials                        6.7B       31.9B       +0%      -15%
 DVN    Energy                          19.7B       29.4B       +5%      -44%
-CME    Financials                       6.8B       19.0B       +0%      -81%
 DD     Industrials                      8.3B       18.5B      +18%       -0%
-CHTR   Communication Services          54.4B       17.3B       +0%      -17%
-IBKR   Financials                       6.9B       16.2B       +0%      -90%
-ARES   Financials                       6.0B       14.7B       +0%      -69%
 CPT    Real Estate                      1.6B       10.7B       -1%      -13%
