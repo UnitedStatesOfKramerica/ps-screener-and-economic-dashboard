@@ -406,7 +406,7 @@ def collect_periods(facts: dict, taxonomy: str, tags: list[str],
     if not current:
         current = [min(per_tag)]
 
-    def compare_scale(a: dict, b: dict) -> float | None:
+    def compare_scale(a: dict, b: dict, near: int | None = None) -> float | None:
         """
         How much larger concept `b` is than `a`, judged only where they overlap.
 
@@ -435,7 +435,43 @@ def collect_periods(facts: dict, taxonomy: str, tags: list[str],
         ay, by = by_year(a), by_year(b)
         common = [y for y in by if y in ay and ay[y] > 0]
         if len(common) >= 2:
-            return float(np.median([by[y] / ay[y] for y in common]))
+            # A concept can change scope mid-life, and then one factor for the
+            # whole overlap is wrong at both ends. Pfizer's ASC-606 tag IS its
+            # total revenue from 2016 to 2021 and becomes a subset in 2022,
+            # when collaborative revenue was broken out into its own concept.
+            # Measured across the whole overlap that reads 0.907, and the 10%
+            # was then applied to 2016-2019, where the concept had been the
+            # correct total all along -- inflating four years of revenue and
+            # depressing the multiple the median is built from.
+            #
+            # The years being CARRIED ACROSS decide which overlap to trust. Ask
+            # the three shared years nearest to them, not all of them. Where a
+            # concept never changed scope every year gives the same answer and
+            # this changes nothing.
+            ratios = {y: by[y] / ay[y] for y in common}
+            if near is not None:
+                # Walk outwards from the year nearest what is being carried
+                # across, and stop at the first year that disagrees. A concept
+                # whose scope never moved gives the same ratio everywhere and
+                # the whole overlap is used, exactly as before. One that DID
+                # move gives a step, and only the side of the step adjacent to
+                # the contributed years is used.
+                #
+                # Pfizer restated its ASC-606 figure for 2021 downward in the
+                # 2024 10-K, so its overlap reads 1.000, 0.906, 0.907, 0.855.
+                # A median over all four says 0.907 and inflates 2016-2019 by
+                # 10%, when 2020 -- the year adjacent to them -- says plainly
+                # that the two concepts were the same measure then.
+                order = sorted(common, key=lambda y: (abs(y - near), y))
+                r0 = ratios[order[0]]
+                run = [r0]
+                for y in order[1:]:
+                    if r0 > 0 and abs(ratios[y] / r0 - 1) <= 0.05:
+                        run.append(ratios[y])
+                    else:
+                        break
+                return float(np.median(run))
+            return float(np.median(list(ratios.values())))
 
         shared = [k for k in b if k in a and a[k].val not in (0, None)]
         if len(shared) >= 2:
@@ -501,57 +537,95 @@ def collect_periods(facts: dict, taxonomy: str, tags: list[str],
                      f"({len(per_tag[primary])} periods, newest "
                      f"{max(p.end for p in per_tag[primary].values())})")
 
+    # The assessed-tax pair is the one case where a large, stable gap is
+    # definitional rather than a difference of scope: it is excise tax.
+    # Rescaling onto the net basis keeps the history instead of leaving a
+    # hole. It has to cover the filer's RETIRED concepts too: once the net
+    # anchor is in force, Brown-Forman's pre-2018 SalesRevenueGoodsNet is
+    # measured on the old gross basis and falls outside the ordinary band,
+    # which cost it 34 months of history and lifted its ten-year median
+    # from 5.9 to 7.8. Where both assessed-tax concepts exist, the filer
+    # charges an excise, so every older concept is on one of the two bases.
+    pair = {_INC, _EXC}
+    excise_filer = pair.issubset(set(tags[r] for r in per_tag))
+
+    # A concept is judged against the anchor, because the anchor is the scope
+    # the whole series is stated on. But a RETIRED concept need not overlap the
+    # anchor at all. Pfizer's SalesRevenueGoodsNet ends at FY2015 and its anchor
+    # "Revenues" does not begin until years later, so there was nothing to
+    # compare and the old tag was dropped, taking real years with it. The two
+    # are not strangers: both overlap a third concept that has already been
+    # merged and is already restated onto the anchor's basis. So where the
+    # anchor is silent, judge the orphan against everything MERGED SO FAR. That
+    # never compares two concepts which were not in force together -- it
+    # compares the orphan against the anchor's own basis, carried back in time
+    # by a concept that overlapped both.
+    #
+    # This only fires where the anchor comparison returns nothing at all. A
+    # concept the anchor can see is judged by the anchor exactly as before, and
+    # one the anchor refuses stays refused.
+    #
+    # Passes repeat because the bridging concept can be merged after the orphan
+    # was first considered. Each pass that merges something opens new ground for
+    # the rest, and the loop stops the moment a pass settles nothing.
     merged = dict(per_tag[primary])
-    for rank in sorted(per_tag):
-        if rank == primary:
-            continue
-        candidate = per_tag[rank]
-        ratio = compare_scale(per_tag[primary], candidate)
-        if ratio is None or ratio <= 0:
+    pending = [r for r in sorted(per_tag) if r != primary]
+    while pending:
+        settled: list[int] = []
+        for rank in pending:
+            candidate = per_tag[rank]
+            # Only the periods this concept would actually add matter; the rest
+            # is already covered and will not be used whatever the scale says.
+            adds = [p.end.year for k, p in candidate.items() if k not in merged]
+            near = int(np.median(adds)) if adds else None
+            ratio = compare_scale(per_tag[primary], candidate, near)
+            chained = False
+            if ratio is None or ratio <= 0:
+                ratio = compare_scale(merged, candidate, near)
+                chained = True
+            if ratio is None or ratio <= 0:
+                continue        # may still become comparable on a later pass
+            where = "merged history" if chained else "the anchor"
+            siblings = {tags[primary], tags[rank]} == pair or (
+                excise_filer and tags[primary] in pair)
+            band = (0.5, 2.0) if siblings else (0.80, 1.25)
+            if abs(ratio - 1) <= 0.05:
+                scale = 1.0                 # the same measure; join it as filed
+            elif band[0] <= ratio <= band[1]:
+                # Close but not identical -- the same measure with a definitional
+                # wrinkle. Rescale the older concept onto the current basis
+                # instead of discarding it. Discarding was costing Rollins two
+                # and a half years, and a short window drops the older, cheaper
+                # years, lifts the median, and makes a stock look further below
+                # its norm than it is. For a median, internal consistency
+                # matters far more than the absolute level of a decade-old
+                # figure.
+                scale = 1.0 / ratio
+            else:
+                # Genuinely different measures. Amazon's older concept covered
+                # product sales only against a newer one covering everything,
+                # and joining them invented a 71% jump. Refuse; years_covered
+                # reports the cost honestly.
+                if tracing:
+                    trace.append(f"  {tags[rank]}: REFUSED, runs {ratio:.2f}x "
+                                 f"{where} where they overlap")
+                settled.append(rank)
+                continue
             if tracing:
-                trace.append(f"  {tags[rank]}: no comparable overlap, not merged")
-            continue
-        # The assessed-tax pair is the one case where a large, stable gap is
-        # definitional rather than a difference of scope: it is excise tax.
-        # Rescaling onto the net basis keeps the history instead of leaving a
-        # hole. It has to cover the filer's RETIRED concepts too: once the net
-        # anchor is in force, Brown-Forman's pre-2018 SalesRevenueGoodsNet is
-        # measured on the old gross basis and falls outside the ordinary band,
-        # which cost it 34 months of history and lifted its ten-year median
-        # from 5.9 to 7.8. Where both assessed-tax concepts exist, the filer
-        # charges an excise, so every older concept is on one of the two bases.
-        pair = {_INC, _EXC}
-        excise_filer = pair.issubset(set(tags[r] for r in per_tag))
-        siblings = {tags[primary], tags[rank]} == pair or (
-            excise_filer and tags[primary] in pair)
-        band = (0.5, 2.0) if siblings else (0.80, 1.25)
-        if abs(ratio - 1) <= 0.05:
-            scale = 1.0                 # the same measure; join it as filed
-        elif band[0] <= ratio <= band[1]:
-            # Close but not identical -- the same measure with a definitional
-            # wrinkle. Rescale the older concept onto the current basis instead
-            # of discarding it. Discarding was costing Rollins two and a half
-            # years, and a short window drops the older, cheaper years, lifts the
-            # median, and makes a stock look further below its norm than it is.
-            # For a median, internal consistency matters far more than the
-            # absolute level of a decade-old figure.
-            scale = 1.0 / ratio
-        else:
-            # Genuinely different measures. Amazon's older concept covered
-            # product sales only against a newer one covering everything, and
-            # joining them invented a 71% jump. Refuse; years_covered reports
-            # the cost honestly.
-            if tracing:
-                trace.append(f"  {tags[rank]}: REFUSED, runs {ratio:.2f}x the anchor "
-                             f"where they overlap")
-            continue
-        if tracing:
-            trace.append(f"  {tags[rank]}: merged at {ratio:.3f}x "
-                         f"(rescaled by {scale:.3f})")
-        for k, period in candidate.items():
-            if k not in merged:
-                merged[k] = Period(period.start, period.end, period.val * scale,
-                                   period.filed, period.tag)
+                trace.append(f"  {tags[rank]}: merged at {ratio:.3f}x {where} "
+                             f"(rescaled by {scale:.3f})")
+            for k, period in candidate.items():
+                if k not in merged:
+                    merged[k] = Period(period.start, period.end, period.val * scale,
+                                       period.filed, period.tag)
+            settled.append(rank)
+        if not settled:
+            break
+        pending = [r for r in pending if r not in settled]
+
+    if tracing:
+        for rank in pending:
+            trace.append(f"  {tags[rank]}: no comparable overlap, not merged")
 
     # WHEN a period was first reported is a separate question from WHAT the
     # right figure for it is, and the two must be answered from different
@@ -3266,6 +3340,23 @@ function impliedPrice(r, med) {
   return r.price * (med / r.ps_now);
 }
 
+function impliedTo(r, med) {
+  // The implied price plus the move it would take to get there, coloured the
+  // same way as the analyst target so the two read as the same kind of
+  // statement: here is a reference price, and here is the distance to it.
+  //
+  // The percentage is NOT the vs-column negated. vs 10y compares multiples: a
+  // stock 20% below its median multiple has to rise 25% to reach it, because
+  // the two are measured against different bases. Deriving it from the prices
+  // themselves avoids publishing a number that contradicts the one beside it.
+  const p = impliedPrice(r, med);
+  if (p == null || r.price == null || r.price <= 0)
+    return '<span class="none">&mdash;</span>';
+  const move = (p / r.price - 1) * 100;
+  return '$' + p.toFixed(2) +
+    ` <span class="${move > 0 ? 'g-good' : 'g-bad'}">${move > 0 ? '+' : ''}${move.toFixed(0)}%</span>`;
+}
+
 function implied(r, med) {
   const p = impliedPrice(r, med);
   if (p == null) return '';
@@ -3682,10 +3773,8 @@ function openDrawer(t) {
         ${plain('Analyst target', r.target_price == null ? '<span class="none">not covered</span>'
           : '$' + Number(r.target_price).toFixed(0) + (r.target_upside == null ? ''
             : ` <span class="${r.target_upside > 0 ? 'g-good' : 'g-bad'}">${r.target_upside > 0 ? '+' : ''}${Number(r.target_upside).toFixed(0)}%</span>`))}
-        ${plain('At its 5-year multiple', impliedPrice(r, r.ps_med_5y) == null
-          ? '<span class="none">&mdash;</span>' : '$' + impliedPrice(r, r.ps_med_5y).toFixed(2))}
-        ${plain('At its 10-year multiple', impliedPrice(r, r.ps_med_10y) == null
-          ? '<span class="none">&mdash;</span>' : '$' + impliedPrice(r, r.ps_med_10y).toFixed(2))}
+        ${plain('At its 5-year multiple', impliedTo(r, r.ps_med_5y))}
+        ${plain('At its 10-year multiple', impliedTo(r, r.ps_med_10y))}
         ${row(r, 'pe', 'Price / earnings', 1)}
         ${plain('Forward P/E', num(r.forward_pe, 1))}
         ${plain('Dividend yield', r.dividend_yield == null ? '<span class="none">none</span>'
