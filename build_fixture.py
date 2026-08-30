@@ -3,13 +3,13 @@
 #  Runs inside GitHub Actions, against the repo's own ps_screener.py.
 # =============================================================================
 #  What it does:
-#    1. checks the ps_screener.py it is importing is the same file I am working
-#       from, and stops if it is not
-#    2. runs YOUR CURRENT CODE over all 500 companies and records, for each one,
+#    1. runs YOUR CURRENT CODE over all 500 companies and records, for each one,
 #       which revenue concepts it dropped for "no comparable overlap"
-#    3. prints the exact list, with the fiscal years each drop is costing
-#    4. writes fixture.json.gz holding the real SEC filings + prices for the
-#       affected companies and a control set
+#    2. prints the exact list, with the fiscal years each drop is costing
+#    3. writes fixture.json.gz holding the real SEC filings + prices for the
+#       affected companies and a control set -- AND a verbatim copy of the repo
+#       files that produced them, so the code and the data can never drift apart
+#       again. That drift is what broke the first attempt at this.
 #
 #  It changes nothing and ships nothing. It contains no new logic -- every
 #  judgement in it is made by your own collect_periods.
@@ -19,9 +19,7 @@ import gzip, importlib.util, json, hashlib, os, sys, time, traceback
 from datetime import date, timedelta
 from pathlib import Path
 
-EXPECTED_SHA = "d43f8b73ca5d1cf75d54469168961e21ca531f29d4e882f563959f382b602da0"
-
-# --- 1. find and verify ps_screener.py ---------------------------------------
+# --- 1. find ps_screener.py --------------------------------------------------
 src = next((p for p in [Path("ps_screener.py")] + sorted(Path(".").rglob("ps_screener.py"))
             if p.exists()), None)
 if src is None:
@@ -29,17 +27,24 @@ if src is None:
 
 actual = hashlib.sha256(src.read_bytes()).hexdigest()
 print(f"using {src.resolve()}")
-print(f"  sha256 {actual}")
-if actual != EXPECTED_SHA:
-    raise SystemExit(
-        "\nSTOP -- the repo's ps_screener.py is not the file I am working from.\n"
-        f"  expected {EXPECTED_SHA}\n"
-        f"  found    {actual}\n"
-        "Either the repo moved on after you sent it to me, or you sent me the\n"
-        "wrong copy. Send me the current one and I will re-issue this script with\n"
-        "the new hash. Do not edit this line to make it pass -- the whole point\n"
-        "of the survey is to measure the file I am reasoning about.")
-print("  matches the file I am working from\n")
+print(f"  sha256 {actual}\n")
+
+# Earlier this pinned an expected hash and stopped when it did not match, which
+# turned a drift between the repo and my copy into a failed run and another
+# round trip. Carrying the file itself in the artifact is strictly better: the
+# survey always runs, and whatever produced it arrives with it.
+CODE_FILES = ["ps_screener.py", "replay.py", "test_current_build.py",
+              "requirements.txt", ".github/workflows/screen.yml",
+              ".github/workflows/fixture.yml"]
+code = {}
+for rel in CODE_FILES:
+    f = Path(rel)
+    if f.exists():
+        raw = f.read_bytes()
+        code[rel] = {"sha256": hashlib.sha256(raw).hexdigest(),
+                     "text": raw.decode("utf-8", "replace")}
+        print(f"  bundling {rel}  ({len(raw):,} bytes)")
+print()
 
 spec = importlib.util.spec_from_file_location("ps", src)
 ps = importlib.util.module_from_spec(spec)
@@ -202,6 +207,7 @@ except Exception:
 # --- 6. write ----------------------------------------------------------------
 out = Path("fixture.json.gz")
 payload = {"built": str(date.today()), "screener_sha256": actual,
+           "code": code,
            "meta": fixture_meta, "facts": fixture_facts,
            "prices": prices, "survey": survey,
            "failed": [t for t, _ in failed]}
