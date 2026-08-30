@@ -1,4 +1,72 @@
 ==============================================================================
+CONSTITUENTS THAT NEVER REACHED THE SCREEN
+==============================================================================
+
+ABNB    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+APA     no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
+APO     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+APP     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+AZO     no revenue series       123 period(s) and 54 quarter(s) survived collection, which was not enough to form a trailing twelve
+BF-B    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+BG      no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+BKR     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+BLK     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+CEG     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+COIN    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+COST    no revenue series       122 period(s) and 54 quarter(s) survived collection, which was not enough to form a trailing twelve
+CRH     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+CRWD    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+CVNA    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+DASH    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+DDOG    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+DELL    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+DPZ     no revenue series       113 period(s) and 50 quarter(s) survived collection, which was not enough to form a trailing twelve
+ECHO    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+EL      no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+ERIE    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+EXPE    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+FDXF    no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
+FERG    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+GDDY    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+GEHC    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+GEV     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+GOOG    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+GOOGL   no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+HONA    no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
+HOOD    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+HRL     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+KR      no revenue series       125 period(s) and 54 quarter(s) survived collection, which was not enough to form a trailing twelve
+KVUE    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+LEN     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+META    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+MKC     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+MTB     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+NWS     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+NWSA    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+PEP     no revenue series       111 period(s) and 54 quarter(s) survived collection, which was not enough to form a trailing twelve
+PLTR    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+PSKY    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+Q       no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+RDDT    no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+RF      no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
+RL      no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+SNDK    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+SOLV    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+SPG     no overlapping history  prices and revenue exist but never line up over the window, or too few months survived the staleness screen
+STZ     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+SW      no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+SYF     no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
+TAP     no overlapping history  prices and revenue exist but never line up over the window, or too few months survived the staleness screen
+TKO     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+TSN     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+TTD     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+UHS     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+VEEV    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+VLTO    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+WBD     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+XOM     no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
+XYZ     no share count          neither the dei cover-page count nor the us-gaap count yielded anything usable
+==============================================================================
 AMD
 ==============================================================================
 
