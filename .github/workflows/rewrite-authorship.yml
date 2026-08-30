@@ -1,0 +1,101 @@
+name: Rewrite commit authorship
+
+# Run this ONCE, by hand, then delete the file.
+#
+# Every publish commit carries the author "screener
+# <screener@users.noreply.github.com>". That address is GitHub's own no-reply
+# format, so it resolves to the unrelated account whose username is Screener
+# and puts their face and name on this repository. This rewrites those commits
+# to GitHub's Actions bot.
+#
+# It backs main up first, verifies the old address is gone from every commit,
+# and refuses to push if it is not.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type REWRITE to confirm. This rewrites history and force-pushes main.'
+        required: true
+        default: ''
+
+permissions:
+  contents: write
+
+env:
+  OLD_EMAIL: "screener@users.noreply.github.com"
+  NEW_NAME: "github-actions[bot]"
+  NEW_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
+
+jobs:
+  rewrite:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "REWRITE" ]; then
+            echo "Not confirmed. Type REWRITE in the box to run this."
+            exit 1
+          fi
+
+      # fetch-depth: 0 pulls the whole history. The default shallow clone
+      # would rewrite only the last commit.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Show what is there now
+        run: |
+          echo "Authors currently in the history:"
+          git log --format='%an <%ae>' | sort | uniq -c
+
+      - name: Back main up first
+        run: |
+          git push --force origin HEAD:refs/heads/backup-before-rewrite
+          echo "main is saved on the branch backup-before-rewrite"
+
+      - name: Rewrite the author and committer
+        env:
+          FILTER_BRANCH_SQUELCH_WARNING: "1"
+        run: |
+          git config user.name "$NEW_NAME"
+          git config user.email "$NEW_EMAIL"
+          git filter-branch -f --env-filter '
+            if [ "$GIT_AUTHOR_EMAIL" = "'"$OLD_EMAIL"'" ]; then
+              export GIT_AUTHOR_NAME="'"$NEW_NAME"'"
+              export GIT_AUTHOR_EMAIL="'"$NEW_EMAIL"'"
+            fi
+            if [ "$GIT_COMMITTER_EMAIL" = "'"$OLD_EMAIL"'" ]; then
+              export GIT_COMMITTER_NAME="'"$NEW_NAME"'"
+              export GIT_COMMITTER_EMAIL="'"$NEW_EMAIL"'"
+            fi
+          ' --tag-name-filter cat -- main
+
+      # Two checks, both of which must pass before anything is pushed: the old
+      # address is gone, and no file content changed. The second is the one
+      # that matters -- a rewrite that loses a file would otherwise be pushed
+      # over the only good copy.
+      - name: Verify before pushing
+        run: |
+          echo "Authors after the rewrite:"
+          git log --format='%an <%ae>' | sort | uniq -c
+          if git log --format='%ae%n%ce' | grep -qx "$OLD_EMAIL"; then
+            echo "FAILED: the old address is still in the history. Nothing pushed."
+            exit 1
+          fi
+          if ! git diff --quiet refs/original/refs/heads/main HEAD; then
+            echo "FAILED: file contents changed during the rewrite. Nothing pushed."
+            git diff --stat refs/original/refs/heads/main HEAD
+            exit 1
+          fi
+          echo "Old address gone, every file byte-identical."
+
+      - name: Force-push main
+        run: git push --force origin main
+
+      - name: What to do next
+        run: |
+          echo "Done. The contributor list can take a few minutes to catch up."
+          echo "Delete .github/workflows/rewrite-authorship.yml -- it is a one-shot."
+          echo "The branch backup-before-rewrite holds the old history; delete it"
+          echo "once you are happy, under the repo's Branches page."
