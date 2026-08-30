@@ -39,6 +39,13 @@ jobs:
       # constituent list. The index carries about 503 tickers because of dual
       # share classes, so "--limit 500" was quietly cutting the last few
       # alphabetically and then printing "500 tickers", which looked correct.
+      # The page shows when the CODE last changed as well as when the DATA was
+      # gathered, because the screen rebuilds nightly on unchanged code and one
+      # date could not tell those apart. Git is the only honest source for it;
+      # a hand-kept version string is wrong the first time someone forgets.
+      - name: Find when ps_screener.py last changed
+        run: echo "CODE_DATE=$(git log -1 --format=%cd --date=format:'%-d %b %Y' -- ps_screener.py)" >> $GITHUB_ENV
+
       - name: Run the screener
         env:
           SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
