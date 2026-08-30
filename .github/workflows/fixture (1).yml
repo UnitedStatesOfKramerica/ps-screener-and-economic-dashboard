@@ -1,0 +1,47 @@
+name: Build fixture
+
+# Manual only. This never runs on a schedule and never touches the published
+# screen -- it reads EDGAR, prints the survey, and leaves a file to download.
+on:
+  workflow_dispatch:
+
+jobs:
+  fixture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests pandas numpy yfinance lxml
+
+      # Read-only. The nightly run leaves EDGAR's filings in an Actions cache,
+      # which is why it finishes in four minutes rather than forty. Borrowing it
+      # here saves re-downloading 500 companyfacts. Nothing is written back, so
+      # this cannot disturb the nightly run.
+      - name: Borrow the nightly run's EDGAR cache
+        uses: actions/cache/restore@v4
+        with:
+          path: cache
+          key: screener-cache-
+          restore-keys: |
+            screener-cache-
+
+      - name: Run the survey and build the fixture
+        env:
+          SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
+        run: python build_fixture.py
+
+      - name: Upload the fixture
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixture
+          path: fixture.json.gz
+          retention-days: 14
+          if-no-files-found: error
