@@ -111,14 +111,38 @@ OPER_CASH_TAGS = ["NetCashProvidedByUsedInOperatingActivities",
 CAPEX_TAGS = ["PaymentsToAcquirePropertyPlantAndEquipment",
               "PaymentsToAcquireProductiveAssets"]
 
-# dei tag is the cover-page count as of the filing date -- the market-cap style
-# number. The weighted-average tags are the per-share-metric style fallback.
-SHARE_TAGS_DEI = ["EntityCommonStockSharesOutstanding"]
-SHARE_TAGS_GAAP = [
-    "CommonStockSharesOutstanding",
+# Which share count to multiply by the price for market cap. Named with the
+# _TAGS suffix so _facts_we_read() keeps them: they were SHARE_TAGS_DEI and
+# SHARE_TAGS_GAAP, ending in _DEI and _GAAP, so the scan missed them and all
+# three us-gaap share concepts were deleted at download. That is why 30
+# multi-class filers -- Alphabet, Meta, Tyson -- had no share count and no row,
+# and why Nike's eleven-year-stale dei count was never replaced.
+#
+# Order is deliberate and was checked against the filings of 40 companies:
+#   * Weighted-average DILUTED first. It is the consolidated figure -- for a
+#     multi-class filer CommonStockSharesOutstanding is the sum of A+B+C, which
+#     is wrong against one class's price (Alphabet 12,230 summed vs 12,309
+#     consolidated), and for holding companies like IBKR it is only the
+#     parent's slice (64M vs 450M). Diluted is right in both and current almost
+#     everywhere.
+#   * Shares OUTSTANDING second, only when diluted is absent.
+#   * BASIC last (Tyson files no basic; some names' diluted rounds to zero).
+# Its one weakness -- diluted averages over the period, so it lags by 1-7% for a
+# single-class filer mid-buyback (Dell, Palantir) -- does not touch the ranking,
+# which compares each company only against its own history on the same concept.
+SHARE_MARKETCAP_TAGS = [
     "WeightedAverageNumberOfDilutedSharesOutstanding",
+    "CommonStockSharesOutstanding",
     "WeightedAverageNumberOfSharesOutstandingBasic",
 ]
+# The dei cover-page count is kept as a LAST resort: it is per-class for
+# multi-class filers and goes stale (Nike stops 2015), but for a plain filer it
+# is a genuine as-of-filing snapshot when no us-gaap count survived.
+SHARE_TAGS_DEI = ["EntityCommonStockSharesOutstanding"]
+# A share count older than this is treated as unusable rather than carried
+# forward. 15 months clears a normal annual gap but rejects a decade-stale
+# figure like Berkshire's 2015 count or Nike's 2015 dei count.
+SHARE_STALE_DAYS = 460
 
 # Why collect_periods picked the concept it picked, written on every call and
 # read back by diagnose(). Deducing the anchor from the merged output was
@@ -2654,7 +2678,8 @@ def diagnose(ticker: str, facts: dict, periods: list, quarters: list,
         L.append(f"  annual reconciliation: {ttm.attrs.get('annual_mismatches', 0)} mismatches "
                  f"of {ttm.attrs.get('annual_checks', 0)} year-ends checked")
 
-    L.append("\nSHARE COUNTS AS COLLECTED (last 8)")
+    src = getattr(sys.modules[__name__], "CURRENT_SHARE_SRC", None)
+    L.append(f"\nSHARE COUNTS AS COLLECTED (last 8)  [concept: {src or '?'}]")
     for when, val in shares[-8:]:
         L.append(f"  {when}  {val:>18,.0f}")
     L.append(f"SPLITS: { 
@@ -3973,31 +3998,50 @@ def main():
                             f"collection, which was not enough to form a trailing twelve"))
             continue
 
-        # Pick ONE share source outright. The two taxonomies use opposite
-        # conventions: dei is the as-filed cover-page count, never restated,
-        # dated by filing; us-gaap counts ARE retroactively restated for splits
-        # and dated by period end. Blending them puts restated and unrestated
-        # values in the same series and then applies a split factor on top,
-        # which is a clean 10x or 20x error -- that is what made Supermicro,
-        # NetApp and HP appear to jump ~900% in a day. Prefer dei while it is
-        # current, fall back to us-gaap when it has gone stale (the Nike case).
-        dei_shares = collect_instants(facts, "dei", SHARE_TAGS_DEI)
-        gaap_shares = collect_instants(facts, "us-gaap", SHARE_TAGS_GAAP)
-        fresh = date.today() - timedelta(days=250)
-        if dei_shares and dei_shares[-1][0] >= fresh:
-            shares = dei_shares
-        elif gaap_shares and (not dei_shares or gaap_shares[-1][0] > dei_shares[-1][0]):
-            shares = gaap_shares
-        else:
-            shares = dei_shares or gaap_shares
-        if not shares:
-            dropped.append((t, "no share count",
-                            "neither the dei cover-page count nor the us-gaap count "
-                            "yielded anything usable"))
+        # Pick ONE concept whole, in priority order, and never blend two.
+        # Blending was the old 10x/20x error: dei is dated by filing and never
+        # restated for splits, us-gaap is dated by period end and IS restated,
+        # so mixing them and then applying a split factor double-counts it --
+        # that is what made Supermicro, NetApp and HP appear to jump ~900% in a
+        # day. So each concept is collected on its own, and the first one that
+        # is present and current wins outright.
+        #
+        # Diluted leads because it is the consolidated count (see
+        # SHARE_MARKETCAP_TAGS). dei is tried LAST, not first as before: for a
+        # multi-class filer the cover page lists shares per class, and for Nike
+        # it stopped in 2015, so preferring it was choosing the worst option in
+        # exactly the cases that matter.
+        shares, share_src = None, None
+        for concept in SHARE_MARKETCAP_TAGS:
+            got = collect_instants(facts, "us-gaap", [concept])
+            if got and (date.today() - got[-1][0]).days <= SHARE_STALE_DAYS:
+                shares, share_src = got, concept
+                break
+        if shares is None:
+            dei_got = collect_instants(facts, "dei", SHARE_TAGS_DEI)
+            if dei_got and (date.today() - dei_got[-1][0]).days <= SHARE_STALE_DAYS:
+                shares, share_src = dei_got, "dei:EntityCommonStockSharesOutstanding"
+        if shares is None:
+            # Distinguish "nothing usable" from "only a stale figure", because
+            # they need different fixes -- the first is a missing concept, the
+            # second (Berkshire) needs a non-EDGAR source.
+            any_share = collect_instants(facts, "us-gaap", SHARE_MARKETCAP_TAGS) or \
+                        collect_instants(facts, "dei", SHARE_TAGS_DEI)
+            if any_share:
+                age = (date.today() - any_share[-1][0]).days
+                dropped.append((t, "share count stale",
+                                f"the newest consolidated share count is {age} days old "
+                                f"({any_share[-1][0]}); a current one is only filed per "
+                                f"share class, which companyfacts omits"))
+            else:
+                dropped.append((t, "no share count",
+                                "no consolidated share concept is reported; the count "
+                                "exists only as per-class dimensioned facts"))
             continue
 
         ps_module = sys.modules[__name__]
         ps_module.CURRENT_TICKER = t
+        ps_module.CURRENT_SHARE_SRC = share_src
         hist = monthly_ps(closes[t], ttm, shares, splits.get(t), args.years)
         if hist.empty:
             dropped.append((t, "no overlapping history",
