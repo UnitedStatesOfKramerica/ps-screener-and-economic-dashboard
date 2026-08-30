@@ -13,10 +13,17 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v4
 
+      # 3.12 is not optional and must match screen.yml. ps_screener.py line 2586
+      # has an f-string whose expression runs onto a second line, which PEP 701
+      # only made legal in 3.12. Under 3.11 the tokenizer reads it as a string
+      # that never closes and the import dies with "unterminated string
+      # literal". More generally: a survey run on a different interpreter from
+      # the nightly run is not measuring the nightly run.
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
+          cache: pip
 
       - name: Install dependencies
         run: pip install requests pandas numpy yfinance lxml
