@@ -2935,6 +2935,41 @@ def rate_against_sector(summary: pd.DataFrame) -> pd.DataFrame:
     return summary
 
 
+def build_stamp() -> str:
+    """When the code last changed, and when this data was gathered.
+
+    One date could not answer the question it was being asked. The screen
+    rebuilds every weeknight on unchanged code, so "Built <date>" moved nightly
+    and said nothing about which version produced it; and once prices refresh
+    during the day, the run that wrote the page is not the run that fetched the
+    prices either. Three separate facts, so three separate stamps.
+
+    The code date comes from git, through the workflow, rather than from
+    anything written by hand -- a hand-maintained version string is wrong the
+    first time someone forgets it. If it is absent, say so rather than
+    substituting today, which would silently claim the code had just changed.
+    """
+    parts = []
+    code = os.environ.get("CODE_DATE", "").strip()
+    if code:
+        parts.append(f"Code {code}")
+    parts.append(f"Data {_now_et()}")
+    px = os.environ.get("PRICE_REFRESH_AT", "").strip()
+    if px:
+        parts.append(f"Prices {px}")
+    return " &middot; ".join(parts)
+
+
+def _now_et() -> str:
+    """Now, in New York, so the stamp reads the way the market does."""
+    try:
+        from zoneinfo import ZoneInfo
+        now = datetime.now(ZoneInfo("America/New_York"))
+        return now.strftime("%-d %b %Y %H:%M ET")
+    except Exception:
+        return datetime.utcnow().strftime("%-d %b %Y %H:%M UTC")
+
+
 def write_html(summary: pd.DataFrame, path: Path):
     # The research panel reads straight from this payload, so if the fields are
     # not on the frame at this moment every panel renders blank -- which is
@@ -2948,7 +2983,7 @@ def write_html(summary: pd.DataFrame, path: Path):
     payload = json.dumps(
         summary.replace({np.nan: None}).to_dict(orient="records"), default=str
     )
-    stamp = date.today().isoformat()
+    stamp = build_stamp()
     path.write_text(HTML_TEMPLATE.replace("__DATA__", payload).replace("__DATE__", stamp))
 
 
@@ -3120,7 +3155,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <header>
   <h1>Price / Sales vs. its own history</h1>
   <div class="sub">Multiples built from as-filed SEC revenue and split-adjusted share
-  counts, sampled monthly. Built __DATE__.</div>
+  counts, sampled monthly.<br>__DATE__</div>
 </header>
 
 <div class="controls">
