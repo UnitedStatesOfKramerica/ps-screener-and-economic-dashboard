@@ -5,7 +5,7 @@ AMD
 FLAGGED FOR:
   - the share count moved +35% in one step on 2022-05-04, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 18.40 | 5y med 8.99 | 10y med 7.82 | Z 1.6594875338105137 | years 10.0
+P/S now 18.40 | 5y med 8.99 | 10y med 7.82 | Z 1.6594874884827773 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -25,9 +25,9 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, SalesRevenueGoodsNet, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (62 periods, newest 2026-06-27)
-    Revenues: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueNet: merged at 1.002x (rescaled by 1.000)
-    SalesRevenueGoodsNet: merged at 1.002x (rescaled by 1.000)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.002x the anchor (rescaled by 1.000)
+    SalesRevenueGoodsNet: merged at 1.002x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-29  reported $     6.475B   4 quarters sum $     6.475B
@@ -135,7 +135,7 @@ ALB
 FLAGGED FOR:
   - the share count moved +43% in one step on 2015-03-02, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.74 | 5y med 2.76 | 10y med 3.20 | Z -0.2924146287808383 | years 10.0
+P/S now 2.74 | 5y med 2.76 | 10y med 3.20 | Z -0.29241462049408884 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -150,7 +150,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: Revenues, SalesRevenueNet
   anchor: Revenues (60 periods, newest 2026-06-30)
-    SalesRevenueNet: merged at 1.000x (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     3.375B   4 quarters sum $     3.375B
@@ -258,7 +258,7 @@ AMCR
 FLAGGED FOR:
   - the share count moved +60% in one step on 2025-08-15, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.92 | 5y med 1.09 | 10y med 1.19 | Z -1.402113640345705 | years 7.0
+P/S now 0.92 | 5y med 1.09 | 10y med 1.19 | Z -1.4021138532654946 | years 7.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -269,7 +269,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (49 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2019-06-30  reported $     9.458B   4 quarters sum $     9.458B
@@ -372,7 +372,7 @@ ADI
 FLAGGED FOR:
   - the share count moved +43% in one step on 2021-12-03, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 12.63 | 5y med 10.21 | 10y med 7.61 | Z 1.520305736385842 | years 10.0
+P/S now 12.63 | 5y med 10.21 | 10y med 7.61 | Z 1.5203057243181095 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -392,9 +392,9 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (56 periods, newest 2026-08-01)
-    Revenues: merged at 0.985x (rescaled by 1.000)
-    SalesRevenueNet: merged at 0.969x (rescaled by 1.000)
-    SalesRevenueGoodsNet: no comparable overlap, not merged
+    Revenues: merged at 0.985x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 0.969x the anchor (rescaled by 1.000)
+    SalesRevenueGoodsNet: merged at 1.000x merged history (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-11-03  reported $     6.225B   4 quarters sum $     6.225B
@@ -520,9 +520,9 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   CHOSEN: Revenues
   anchor: Revenues (122 periods, newest 2026-06-30)
     RevenueFromContractWithCustomerExcludingAssessedTax: REFUSED, runs 0.69x the anchor where they overlap
-    RevenueFromContractWithCustomerIncludingAssessedTax: no comparable overlap, not merged
     SalesRevenueNet: REFUSED, runs 0.53x the anchor where they overlap
     OperatingLeaseLeaseIncome: REFUSED, runs 0.02x the anchor where they overlap
+    RevenueFromContractWithCustomerIncludingAssessedTax: no comparable overlap, not merged
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $   247.837B   4 quarters sum $   247.837B
@@ -720,7 +720,7 @@ BMY
 FLAGGED FOR:
   - the share count moved +39% in one step on 2020-02-24, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.77 | 5y med 2.52 | 10y med 3.34 | Z -0.5783943692174793 | years 10.0
+P/S now 2.77 | 5y med 2.52 | 10y med 3.34 | Z -0.5783942760311125 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -740,9 +740,9 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: Revenues, SalesRevenueNet
   anchor: Revenues (60 periods, newest 2026-06-30)
-    SalesRevenueNet: merged at 1.000x (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
     SalesRevenueServicesNet: REFUSED, runs 0.01x the anchor where they overlap
-    SalesRevenueGoodsNet: merged at 0.919x (rescaled by 1.088)
+    SalesRevenueGoodsNet: merged at 0.919x the anchor (rescaled by 1.088)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $    22.561B   4 quarters sum $    22.561B
@@ -850,7 +850,7 @@ BLDR
 FLAGGED FOR:
   - the share count moved +77% in one step on 2021-02-26, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.50 | 5y med 0.79 | 10y med 0.52 | Z 0.010637322192615381 | years 10.0
+P/S now 0.50 | 5y med 0.79 | 10y med 0.52 | Z 0.010637352660680836 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -863,7 +863,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (62 periods, newest 2026-06-30)
-    SalesRevenueNet: merged at 1.000x (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     7.725B   4 quarters sum $     7.725B
@@ -1070,7 +1070,7 @@ COF
 FLAGGED FOR:
   - the share count moved +67% in one step on 2025-07-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.29 | 5y med 1.60 | 10y med 1.57 | Z 1.2070972992187996 | years 10.0
+P/S now 2.29 | 5y med 1.60 | 10y med 1.57 | Z 1.2070972696519844 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1199,7 +1199,7 @@ FLAGGED FOR:
   - trailing revenue falls 85% around 2021-02-28, 86x this company's usual move between filings, at the exact point the source concept changes from reported-annual to RevenueFromContractWithCustomerExcludingAssessedTax
   - the share count moved +35% in one step on 2021-04-07, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.24 | 5y med 1.13 | 10y med 1.29 | Z -0.32069596338531065 | years 9.2
+P/S now 1.24 | 5y med 1.13 | 10y med 1.29 | Z -0.32069595633432313 | years 9.2
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1216,7 +1216,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (52 periods, newest 2026-05-31)
-    Revenues: merged at 1.000x (rescaled by 1.000)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2017-11-30  reported $    17.510B   4 quarters sum $    17.510B
@@ -1324,7 +1324,7 @@ CBOE
 FLAGGED FOR:
   - the share count moved +38% in one step on 2017-05-11, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 6.41 | 5y med 4.98 | 10y med 4.83 | Z 0.8190214761851533 | years 10.0
+P/S now 6.41 | 5y med 4.98 | 10y med 4.83 | Z 0.8190215954534754 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1344,7 +1344,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerIncludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerIncludingAssessedTax (58 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     2.769B   4 quarters sum $     2.769B
@@ -1471,8 +1471,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (57 periods, newest 2026-06-30)
-    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.099x (rescaled by 0.910)
-    Revenues: merged at 1.069x (rescaled by 0.935)
+    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.099x the anchor (rescaled by 0.910)
+    Revenues: merged at 1.069x the anchor (rescaled by 0.935)
     SalesRevenueServicesNet: REFUSED, runs 0.05x the anchor where they overlap
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
@@ -1580,7 +1580,7 @@ SCHW
 FLAGGED FOR:
   - the share count moved +41% in one step on 2025-02-26, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 7.32 | 5y med 5.26 | 10y med 5.97 | Z 0.8974889872441415 | years 10.0
+P/S now 7.32 | 5y med 5.26 | 10y med 5.97 | Z 0.8974891174010642 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1706,7 +1706,7 @@ CB
 FLAGGED FOR:
   - the share count moved +42% in one step on 2016-02-26, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.17 | 5y med 2.04 | 10y med 2.04 | Z 0.8800174732109918 | years 10.0
+P/S now 2.17 | 5y med 2.04 | 10y med 2.04 | Z 0.8800179017176002 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1833,7 +1833,7 @@ COHR
 FLAGGED FOR:
   - the share count is 26% higher than a year ago, on 2019-11-12 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 7.68 | 5y med 2.10 | 10y med 2.18 | Z 2.666606427087716 | years 10.0
+P/S now 7.68 | 5y med 2.10 | 10y med 2.18 | Z 2.6666065217864574 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1848,8 +1848,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (59 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueNet: no comparable overlap, not merged
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 0.975x merged history (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2019-06-30  reported $     1.362B   4 quarters sum $     1.362B
@@ -1969,12 +1969,12 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, RevenueFromContractWithCustomerIncludingAssessedTax
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (23 periods, newest 2026-06-30)
-    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.127x (rescaled by 0.888)
-    Revenues: merged at 1.139x (rescaled by 0.878)
+    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.070x the anchor (rescaled by 0.935)
+    Revenues: merged at 1.139x the anchor (rescaled by 0.878)
     OperatingLeaseLeaseIncome: REFUSED, runs 0.00x the anchor where they overlap
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
-  2020-12-31  reported $    14.549B   4 quarters sum $     0.000B
+  2020-12-31  reported $    15.320B   4 quarters sum $     0.000B
   2021-12-31  reported $    17.254B   4 quarters sum $    17.254B
   2022-12-31  reported $    21.571B   4 quarters sum $    21.571B
   2023-12-31  reported $    20.841B   4 quarters sum $    20.843B
@@ -2054,8 +2054,8 @@ SPLITS: {}
 CORPORATE ACTIONS: []
 
 P/S SERIES, YEARLY SAMPLE
-  2022-12-31  price     86.21  shares        327M  cap $     28.2B  rev $   14.55B  P/S     1.94
-  2023-12-31  price    116.89  shares        319M  cap $     37.3B  rev $   22.38B  P/S     1.67
+  2022-12-31  price     86.21  shares        327M  cap $     28.2B  rev $   15.32B  P/S     1.84
+  2023-12-31  price    116.89  shares        319M  cap $     37.3B  rev $   21.58B  P/S     1.73
   2024-12-31  price    223.71  shares        313M  cap $     70.0B  rev $   19.43B  P/S     3.60
   2025-12-31  price    353.27  shares        312M  cap $    110.3B  rev $   21.50B  P/S     5.13
   2026-12-31  price    276.75  shares        354M  cap $     98.1B  rev $   24.78B  P/S     3.96
@@ -2067,7 +2067,7 @@ CPAY
 FLAGGED FOR:
   - the share count moved -30% in one step on 2019-03-01, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 5.33 | 5y med 5.39 | 10y med 6.96 | Z -0.9038412048002235 | years 10.0
+P/S now 5.33 | 5y med 5.39 | 10y med 6.96 | Z -0.9038411616298945 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2079,8 +2079,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: Revenues, SalesRevenueNet
   anchor: Revenues (63 periods, newest 2026-06-30)
-    RevenueFromContractWithCustomerExcludingAssessedTax: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueNet: merged at 1.000x (rescaled by 1.000)
+    RevenueFromContractWithCustomerExcludingAssessedTax: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     2.433B   4 quarters sum $     2.433B
@@ -2287,10 +2287,9 @@ DVN
 ==============================================================================
 
 FLAGGED FOR:
-  - trailing revenue jumps 109% around 2018-03-31, 10x this company's usual move between filings, at the exact point the source concept changes from reported-annual to mixed
   - the share count moved +76% in one step on 2021-02-17, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.49 | 5y med 1.79 | 10y med 1.76 | Z -0.4258347635188921 | years 9.5
+P/S now 1.49 | 5y med 1.79 | 10y med 1.75 | Z -0.3667350762905328 | years 8.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2307,13 +2306,13 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   SalesAndTransfersOfOilAndGasProducedNetOfProduction    2.9    2.4    3.3      -      -      -      -      -      -      -      -     24
   DecreaseDueToSalesOfMineralsInPlace                    0.1    0.6    0.0      -      -      -      -      -      -      -      -     24
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
+  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (53 periods, newest 2026-06-30)
-    Revenues: merged at 1.016x (rescaled by 1.000)
+    Revenues: REFUSED, runs 2.44x the anchor where they overlap
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
-  2018-12-31  reported $     8.439B   4 quarters sum $     6.787B  <-- MISMATCH
-  2019-12-31  reported $     6.674B   4 quarters sum $     5.639B  <-- MISMATCH
+  2018-12-31  reported $     8.439B   4 quarters sum $     3.257B  <-- MISMATCH
+  2019-12-31  reported $     6.674B   4 quarters sum $     5.755B  <-- MISMATCH
   2020-12-31  reported $     4.673B   4 quarters sum $     4.673B
   2021-12-31  reported $    13.750B   4 quarters sum $    13.750B
   2022-12-31  reported $    19.827B   4 quarters sum $    19.827B
@@ -2381,7 +2380,7 @@ TTM SERIES (last 10)
   period 2025-12-31  available 2026-02-18  $    16.786B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2026-03-31  available 2026-05-06  $    16.744B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2026-06-30  available 2026-08-05  $    19.699B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  annual reconciliation: 3 mismatches of 19 year-ends checked
+  annual reconciliation: 1 mismatches of 9 year-ends checked
 
 SHARE COUNTS AS COLLECTED (last 8)
   2025-02-19         649,000,000
@@ -2393,16 +2392,12 @@ SHARE COUNTS AS COLLECTED (last 8)
   2026-05-06         621,400,000
   2026-08-05       1,100,000,000
 SPLITS: {}
-CORPORATE ACTIONS: [('2016-05-04', 0.187), ('2021-02-17', 0.76)]
+CORPORATE ACTIONS: [('2021-02-17', 0.76)]
 
 P/S SERIES, YEARLY SAMPLE
-  2014-12-31  price     61.21  shares        409M  cap $     25.0B  rev $   16.20B  P/S     1.55
-  2015-12-31  price     32.00  shares        411M  cap $     13.2B  rev $   16.25B  P/S     0.81
-  2016-12-31  price     45.67  shares        524M  cap $     23.9B  rev $   13.14B  P/S     1.82
-  2017-12-31  price     41.40  shares        526M  cap $     21.8B  rev $    2.77B  P/S     7.85
   2018-12-31  price     22.54  shares        468M  cap $     10.6B  rev $    3.51B  P/S     3.00
-  2019-12-31  price     25.97  shares        384M  cap $     10.0B  rev $    7.58B  P/S     1.32
-  2020-12-31  price     15.81  shares        382M  cap $      6.0B  rev $    4.87B  P/S     1.24
+  2019-12-31  price     25.97  shares        384M  cap $     10.0B  rev $    8.44B  P/S     1.18
+  2020-12-31  price     15.81  shares        382M  cap $      6.0B  rev $    4.98B  P/S     1.21
   2021-12-31  price     44.05  shares        677M  cap $     29.8B  rev $   10.90B  P/S     2.74
   2022-12-31  price     61.51  shares        654M  cap $     40.2B  rev $   19.73B  P/S     2.04
   2023-12-31  price     45.30  shares        641M  cap $     29.0B  rev $   15.67B  P/S     1.85
@@ -2417,7 +2412,7 @@ FANG
 FLAGGED FOR:
   - the share count moved +64% in one step on 2024-11-07, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.24 | 5y med 3.35 | 10y med 3.39 | Z -0.07695633370097853 | years 7.5
+P/S now 3.24 | 5y med 3.35 | 10y med 3.39 | Z -0.07695635818889036 | years 7.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2437,8 +2432,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerIncludingAssessedTax, Revenues
   anchor: Revenues (54 periods, newest 2026-06-30)
-    RevenueFromContractWithCustomerExcludingAssessedTax: merged at 0.981x (rescaled by 1.000)
-    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.000x (rescaled by 1.000)
+    RevenueFromContractWithCustomerExcludingAssessedTax: merged at 0.981x the anchor (rescaled by 1.000)
+    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.000x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     2.176B   4 quarters sum $     2.176B
@@ -2541,7 +2536,7 @@ D
 FLAGGED FOR:
   - the derived quarters disagreed with the company's own reported annual total at 10 of 19 year ends; the reported figures have been used instead, but the quarterly series is unreliable
 
-P/S now 3.31 | 5y med 3.34 | 10y med 4.07 | Z -0.8450842461420135 | years 10.0
+P/S now 3.31 | 5y med 3.34 | 10y med 4.07 | Z -0.8450840114730794 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2561,10 +2556,10 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, RevenueFromContractWithCustomerIncludingAssessedTax, Revenues, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (44 periods, newest 2026-03-31)
-    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.000x (rescaled by 1.000)
-    Revenues: merged at 1.024x (rescaled by 1.000)
-    SalesRevenueNet: merged at 1.156x (rescaled by 0.865)
-    RegulatedAndUnregulatedOperatingRevenue: merged at 1.024x (rescaled by 1.000)
+    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.000x the anchor (rescaled by 1.000)
+    Revenues: merged at 1.029x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.156x the anchor (rescaled by 0.865)
+    RegulatedAndUnregulatedOperatingRevenue: merged at 1.024x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $    10.891B   4 quarters sum $    12.992B  <-- MISMATCH
@@ -2672,7 +2667,7 @@ EQT
 FLAGGED FOR:
   - the share count moved +53% in one step on 2018-02-15, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.58 | 5y med 3.46 | 10y med 2.08 | Z 0.7158373864193117 | years 9.5
+P/S now 3.58 | 5y med 3.46 | 10y med 2.08 | Z 0.7158373790848875 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2692,7 +2687,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: Revenues
   anchor: Revenues (61 periods, newest 2026-06-30)
-    RevenueFromContractWithCustomerExcludingAssessedTax: merged at 0.950x (rescaled by 1.053)
+    RevenueFromContractWithCustomerExcludingAssessedTax: merged at 0.950x the anchor (rescaled by 1.053)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     4.558B   4 quarters sum $     4.558B
@@ -2797,7 +2792,7 @@ EXE
 FLAGGED FOR:
   - the share count moved +901% in one step on 2021-03-01, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.64 | 5y med 1.84 | 10y med 1.64 | Z -0.04744923472733008 | years 5.5
+P/S now 1.64 | 5y med 1.84 | 10y med 1.64 | Z -0.04744918439599458 | years 5.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2817,8 +2812,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: Revenues
   anchor: Revenues (117 periods, newest 2026-03-31)
-    RevenueFromContractWithCustomerExcludingAssessedTax: no comparable overlap, not merged
     RevenueFromContractWithCustomerIncludingAssessedTax: REFUSED, runs 0.52x the anchor where they overlap
+    RevenueFromContractWithCustomerExcludingAssessedTax: no comparable overlap, not merged
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2017-12-31  reported $    10.039B   4 quarters sum $    10.039B
@@ -2919,7 +2914,7 @@ EXR
 FLAGGED FOR:
   - the share count moved +56% in one step on 2023-08-09, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 8.76 | 5y med 11.14 | 10y med 10.66 | Z -1.2114329858605086 | years 10.0
+P/S now 8.76 | 5y med 11.14 | 10y med 10.66 | Z -1.211432854045893 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2940,7 +2935,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   CHOSEN: RealEstateRevenueNet, Revenues
   anchor: Revenues (59 periods, newest 2026-06-30)
     RevenueFromContractWithCustomerExcludingAssessedTax: REFUSED, runs 0.04x the anchor where they overlap
-    RealEstateRevenueNet: merged at 1.000x (rescaled by 1.000)
+    RealEstateRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     1.197B   4 quarters sum $     1.197B
@@ -3046,7 +3041,7 @@ FERG
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 263 days ago, so the denominator is stale
+  - newest revenue figure was filed 264 days ago, so the denominator is stale
   - 11 of the months in the window are valued on a revenue figure that was already up to 615 days old, and there is not enough history left to measure without them, so the median rests on them
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -3140,7 +3135,7 @@ FIS
 FLAGGED FOR:
   - the share count moved +90% in one step on 2019-08-06, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.75 | 5y med 4.13 | 10y med 4.18 | Z -2.4565923617814485 | years 10.0
+P/S now 1.75 | 5y med 4.13 | 10y med 4.18 | Z -2.4565924494081597 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -3157,7 +3152,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, SalesRevenueServicesNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (62 periods, newest 2026-06-30)
-    SalesRevenueServicesNet: merged at 1.049x (rescaled by 1.000)
+    SalesRevenueServicesNet: merged at 1.049x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     8.423B   4 quarters sum $     8.423B
@@ -3282,8 +3277,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: OperatingLeaseLeaseIncome, OperatingLeasesIncomeStatementLeaseRevenue
   anchor: OperatingLeaseLeaseIncome (45 periods, newest 2026-06-30)
-    RevenueFromContractWithCustomerIncludingAssessedTax: REFUSED, runs 3.99x the anchor where they overlap
-    OperatingLeasesIncomeStatementLeaseRevenue: merged at 1.000x (rescaled by 1.000)
+    RevenueFromContractWithCustomerIncludingAssessedTax: REFUSED, runs 6.54x the anchor where they overlap
+    OperatingLeasesIncomeStatementLeaseRevenue: merged at 1.000x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     0.084B   4 quarters sum $     0.000B
@@ -3391,7 +3386,7 @@ FISV
 FLAGGED FOR:
   - the share count moved +73% in one step on 2019-11-07, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.36 | 5y med 4.07 | 10y med 4.67 | Z -3.0308323119415075 | years 10.0
+P/S now 1.36 | 5y med 4.07 | 10y med 4.67 | Z -3.030832297301846 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -3411,8 +3406,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (39 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueServicesNet: merged at 0.851x (rescaled by 1.174)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueServicesNet: merged at 0.851x the anchor (rescaled by 1.174)
     SalesRevenueGoodsNet: REFUSED, runs 0.15x the anchor where they overlap
     OperatingLeaseLeaseIncome: REFUSED, runs 0.02x the anchor where they overlap
 
@@ -3530,7 +3525,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (37 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2019-06-30  reported $    11.389B   4 quarters sum $    11.389B
@@ -3634,7 +3629,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (37 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2019-06-30  reported $    11.389B   4 quarters sum $    11.389B
@@ -3729,7 +3724,7 @@ GE
 FLAGGED FOR:
   - the derived quarters disagreed with the company's own reported annual total at 11 of 19 year ends; the reported figures have been used instead, but the quarterly series is unreliable
 
-P/S now 7.02 | 5y med 3.82 | 10y med 1.11 | Z 1.67437740600133 | years 10.0
+P/S now 7.02 | 5y med 3.82 | 10y med 1.11 | Z 1.674377363839801 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -3749,9 +3744,9 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: Revenues
   anchor: Revenues (122 periods, newest 2026-06-30)
-    RevenueFromContractWithCustomerExcludingAssessedTax: merged at 1.118x (rescaled by 0.895)
-    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 0.951x (rescaled by 1.000)
-    SalesRevenueNet: merged at 0.918x (rescaled by 1.090)
+    RevenueFromContractWithCustomerExcludingAssessedTax: merged at 1.118x the anchor (rescaled by 0.895)
+    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 0.951x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 0.918x the anchor (rescaled by 1.090)
     SalesRevenueServicesNet: REFUSED, runs 0.25x the anchor where they overlap
     SalesRevenueGoodsNet: REFUSED, runs 0.63x the anchor where they overlap
     OperatingLeaseLeaseIncome: REFUSED, runs 0.04x the anchor where they overlap
@@ -4060,9 +4055,9 @@ GEN
 ==============================================================================
 
 FLAGGED FOR:
-  - trailing revenue falls 46% around 2018-03-30, 27x this company's usual move between filings, at the exact point the source concept changes from mixed to RevenueFromContractWithCustomerExcludingAssessedTax
+  - trailing revenue falls 46% around 2018-03-30, 31x this company's usual move between filings, at the exact point the source concept changes from mixed to RevenueFromContractWithCustomerExcludingAssessedTax
 
-P/S now 3.66 | 5y med 4.18 | 10y med 4.66 | Z -0.8787445646319016 | years 10.0
+P/S now 3.66 | 5y med 4.18 | 10y med 4.55 | Z -0.8301755646847276 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4080,11 +4075,11 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   IncreaseDecreaseInDeferredRevenue                      0.0    0.1    0.5      -      -      -      -      -      -      -      -     81
   DeferredSalesInducementsAmortizationExpense              -      -      -      -      -      -      -      -      -      -      -     13
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, RevenueFromContractWithCustomerIncludingAssessedTax, SalesRevenueNet
+  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, RevenueFromContractWithCustomerIncludingAssessedTax, Revenues, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (56 periods, newest 2026-07-03)
-    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.445x (rescaled by 0.692)
-    Revenues: no comparable overlap, not merged
-    SalesRevenueNet: merged at 1.000x (rescaled by 1.000)
+    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
+    Revenues: merged at 1.000x merged history (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2019-03-29  reported $     2.456B   4 quarters sum $     3.000B  <-- MISMATCH
@@ -4155,7 +4150,7 @@ TTM SERIES (last 10)
   period 2026-01-02  available 2026-02-06  $     4.727B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2026-04-03  available 2026-05-21  $     5.000B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2026-07-03  available 2026-08-07  $     5.079B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  annual reconciliation: 2 mismatches of 14 year-ends checked
+  annual reconciliation: 2 mismatches of 19 year-ends checked
 
 SHARE COUNTS AS COLLECTED (last 8)
   2024-10-31         616,204,970
@@ -4172,7 +4167,7 @@ CORPORATE ACTIONS: []
 P/S SERIES, YEARLY SAMPLE
   2014-12-31  price     25.66  shares        690M  cap $     17.7B  rev $    4.19B  P/S     4.23
   2015-12-31  price     21.00  shares        676M  cap $     14.2B  rev $    3.69B  P/S     3.85
-  2016-12-31  price     23.89  shares        623M  cap $     14.9B  rev $    2.54B  P/S     5.87
+  2016-12-31  price     23.89  shares        623M  cap $     14.9B  rev $    3.65B  P/S     4.09
   2017-12-31  price     28.06  shares        620M  cap $     17.4B  rev $    4.57B  P/S     3.81
   2018-12-31  price     18.90  shares        639M  cap $     12.1B  rev $    1.91B  P/S     6.32
   2019-12-31  price     25.52  shares        623M  cap $     15.9B  rev $    2.49B  P/S     6.39
@@ -4191,7 +4186,7 @@ GPN
 FLAGGED FOR:
   - the share count moved +92% in one step on 2019-10-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.37 | 5y med 3.34 | 10y med 4.13 | Z -1.445462596188424 | years 10.0
+P/S now 2.37 | 5y med 3.34 | 10y med 4.13 | Z -1.4454626037844456 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4201,10 +4196,10 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
  *SalesRevenueNet                                          -      -      -      -      -      -      -      -      -      -      -      3
   ContractWithCustomerLiabilityRevenueRecognized           -      -      -    0.1    0.1    0.2    0.2    0.2    0.2    0.2    0.2    100
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
+  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (65 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueNet: no comparable overlap, not merged
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.000x merged history (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     3.366B   4 quarters sum $     3.366B
@@ -4275,7 +4270,7 @@ TTM SERIES (last 10)
   period 2025-12-31  available 2026-02-20  $     7.730B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2026-03-31  available 2026-05-08  $     8.879B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2026-06-30  available 2026-08-05  $    10.231B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  annual reconciliation: 1 mismatches of 17 year-ends checked
+  annual reconciliation: 1 mismatches of 18 year-ends checked
 
 SHARE COUNTS AS COLLECTED (last 8)
   2024-10-31         254,494,835
@@ -4311,7 +4306,7 @@ HBAN
 FLAGGED FOR:
   - the share count is 39% higher than a year ago, on 2021-08-06 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 20.38 | 5y med 15.92 | 10y med 15.85 | Z 1.2098602687358189 | years 7.5
+P/S now 20.38 | 5y med 15.92 | 10y med 15.85 | Z 1.2098602882157166 | years 7.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4434,7 +4429,7 @@ IFF
 FLAGGED FOR:
   - the share count moved +133% in one step on 2021-02-22, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.25 | 5y med 1.92 | 10y med 2.61 | Z -0.4103172555659359 | years 10.0
+P/S now 2.25 | 5y med 1.92 | 10y med 2.61 | Z -0.4103173530532681 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4448,8 +4443,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues, SalesRevenueGoodsNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (53 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueGoodsNet: merged at 1.000x (rescaled by 1.000)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueGoodsNet: merged at 1.000x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     3.978B   4 quarters sum $     3.978B
@@ -4557,7 +4552,7 @@ IP
 FLAGGED FOR:
   - the share count moved +51% in one step on 2025-02-21, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.86 | 5y med 0.89 | 10y med 0.91 | Z -0.1427901948328839 | years 10.0
+P/S now 0.86 | 5y med 0.89 | 10y med 0.91 | Z -0.14279006654561074 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4573,8 +4568,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, RevenueFromContractWithCustomerIncludingAssessedTax, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (55 periods, newest 2026-06-30)
-    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueNet: merged at 1.000x (rescaled by 1.000)
+    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $    23.306B   4 quarters sum $    23.306B
@@ -4681,7 +4676,7 @@ INVH
 FLAGGED FOR:
   - the share count moved +67% in one step on 2018-03-29, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 6.05 | 5y med 8.55 | 10y med 8.69 | Z -1.7814828339832811 | years 8.4
+P/S now 6.05 | 5y med 8.55 | 10y med 8.69 | Z -1.7814828730898753 | years 8.4
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4697,9 +4692,9 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   CHOSEN: OperatingLeaseLeaseIncome, OperatingLeasesIncomeStatementLeaseRevenue, RealEstateRevenueNet, Revenues
   anchor: Revenues (59 periods, newest 2026-06-30)
     RevenueFromContractWithCustomerExcludingAssessedTax: REFUSED, runs 0.06x the anchor where they overlap
-    OperatingLeaseLeaseIncome: merged at 0.998x (rescaled by 1.000)
-    OperatingLeasesIncomeStatementLeaseRevenue: merged at 0.944x (rescaled by 1.060)
-    RealEstateRevenueNet: merged at 1.000x (rescaled by 1.000)
+    OperatingLeaseLeaseIncome: merged at 0.998x the anchor (rescaled by 1.000)
+    OperatingLeasesIncomeStatementLeaseRevenue: merged at 0.944x the anchor (rescaled by 1.060)
+    RealEstateRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     1.723B   4 quarters sum $     1.723B
@@ -4804,7 +4799,7 @@ IQV
 FLAGGED FOR:
   - the share count moved +108% in one step on 2016-11-03, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.63 | 5y med 2.62 | 10y med 2.61 | Z 0.08925146531940971 | years 10.0
+P/S now 2.63 | 5y med 2.62 | 10y med 2.61 | Z 0.08789274452509625 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4818,10 +4813,10 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   PaymentsToAcquireAvailableForSaleSecuritiesEquity        -      -      -      -      -      -      -      -      -      -      -      6
   OtherThanTemporaryImpairmentLossesInvestmentsAvaila      -      -      -      -      -      -      -      -      -      -      -      1
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues, SalesRevenueServicesNet
+  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (60 periods, newest 2026-03-31)
-    Revenues: merged at 1.007x (rescaled by 1.000)
-    SalesRevenueServicesNet: merged at 0.809x (rescaled by 1.236)
+    Revenues: merged at 1.007x the anchor (rescaled by 1.000)
+    SalesRevenueServicesNet: REFUSED, runs 0.79x the anchor where they overlap
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $    10.412B   4 quarters sum $    10.412B
@@ -4892,7 +4887,7 @@ TTM SERIES (last 10)
   period 2025-09-30  available 2025-10-28  $    15.904B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2025-12-31  available 2026-02-17  $    16.310B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2026-03-31  available 2026-05-05  $    16.632B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  annual reconciliation: 4 mismatches of 15 year-ends checked
+  annual reconciliation: 0 mismatches of 15 year-ends checked
 
 SHARE COUNTS AS COLLECTED (last 8)
   2024-07-22         182,300,000
@@ -4907,10 +4902,10 @@ SPLITS: {}
 CORPORATE ACTIONS: [('2016-11-03', 1.078)]
 
 P/S SERIES, YEARLY SAMPLE
-  2014-12-31  price     58.87  shares        128M  cap $      7.5B  rev $    5.29B  P/S     1.42
-  2015-12-31  price     68.66  shares        123M  cap $      8.5B  rev $    5.53B  P/S     1.53
-  2016-12-31  price     76.05  shares        246M  cap $     18.7B  rev $    5.94B  P/S     3.15
-  2017-12-31  price     97.90  shares        211M  cap $     20.7B  rev $    9.60B  P/S     2.16
+  2014-12-31  price     58.87  shares        128M  cap $      7.5B  rev $    5.43B  P/S     1.39
+  2015-12-31  price     68.66  shares        123M  cap $      8.5B  rev $    5.63B  P/S     1.50
+  2016-12-31  price     76.05  shares        246M  cap $     18.7B  rev $    6.06B  P/S     3.09
+  2017-12-31  price     97.90  shares        211M  cap $     20.7B  rev $    9.46B  P/S     2.19
   2018-12-31  price    116.17  shares        202M  cap $     23.5B  rev $   10.24B  P/S     2.29
   2019-12-31  price    154.51  shares        194M  cap $     30.0B  rev $   10.88B  P/S     2.76
   2020-12-31  price    179.17  shares        192M  cap $     34.4B  rev $   10.96B  P/S     3.14
@@ -4928,7 +4923,7 @@ JCI
 FLAGGED FOR:
   - the share count moved +120% in one step on 2016-11-23, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.49 | 5y med 2.24 | 10y med 1.84 | Z 1.6350852612890423 | years 10.0
+P/S now 3.49 | 5y med 2.24 | 10y med 1.84 | Z 1.6350851894424663 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4948,10 +4943,10 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, SalesRevenueGoodsNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (52 periods, newest 2026-03-31)
-    Revenues: no comparable overlap, not merged
     SalesRevenueNet: REFUSED, runs 1.33x the anchor where they overlap
     SalesRevenueServicesNet: REFUSED, runs 0.26x the anchor where they overlap
-    SalesRevenueGoodsNet: merged at 1.069x (rescaled by 0.935)
+    SalesRevenueGoodsNet: merged at 1.069x the anchor (rescaled by 0.935)
+    Revenues: REFUSED, runs 1.78x merged history where they overlap
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-09-30  reported $    23.400B   4 quarters sum $    23.400B
@@ -5155,7 +5150,7 @@ KDP
 FLAGGED FOR:
   - the share count moved +671% in one step on 2018-08-07, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.18 | 5y med 3.07 | 10y med 3.60 | Z -1.8312336446192223 | years 8.8
+P/S now 2.18 | 5y med 3.07 | 10y med 3.60 | Z -1.831233609735971 | years 8.8
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -5277,7 +5272,7 @@ KIM
 FLAGGED FOR:
   - the share count moved +42% in one step on 2021-11-05, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 7.29 | 5y med 7.36 | 10y med 7.09 | Z 0.12385887745246818 | years 10.0
+P/S now 7.29 | 5y med 7.36 | 10y med 7.09 | Z 0.12385900557067675 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -5298,9 +5293,9 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   CHOSEN: OperatingLeaseLeaseIncome, RealEstateRevenueNet, Revenues
   anchor: Revenues (98 periods, newest 2026-06-30)
     RevenueFromContractWithCustomerIncludingAssessedTax: REFUSED, runs 0.01x the anchor where they overlap
-    OperatingLeaseLeaseIncome: merged at 0.989x (rescaled by 1.000)
-    OperatingLeasesIncomeStatementLeaseRevenue: merged at 0.986x (rescaled by 1.000)
-    RealEstateRevenueNet: merged at 0.961x (rescaled by 1.000)
+    OperatingLeaseLeaseIncome: merged at 0.989x the anchor (rescaled by 1.000)
+    OperatingLeasesIncomeStatementLeaseRevenue: merged at 0.986x the anchor (rescaled by 1.000)
+    RealEstateRevenueNet: merged at 0.961x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     1.165B   4 quarters sum $     1.165B
@@ -5408,7 +5403,7 @@ KMI
 FLAGGED FOR:
   - the share count moved +107% in one step on 2015-02-23, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.32 | 5y med 2.95 | 10y med 3.23 | Z 1.3147065956915356 | years 10.0
+P/S now 4.32 | 5y med 2.95 | 10y med 3.21 | Z 1.3445770281659852 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -5428,7 +5423,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (51 periods, newest 2026-06-30)
-    Revenues: merged at 1.104x (rescaled by 0.906)
+    Revenues: merged at 1.078x the anchor (rescaled by 0.928)
     SalesRevenueServicesNet: REFUSED, runs 0.59x the anchor where they overlap
     OperatingLeaseLeaseIncome: REFUSED, runs 0.09x the anchor where they overlap
 
@@ -5517,11 +5512,11 @@ SPLITS: {}
 CORPORATE ACTIONS: [('2015-02-23', 1.072)]
 
 P/S SERIES, YEARLY SAMPLE
-  2014-12-31  price     42.31  shares      1,028M  cap $     43.5B  rev $   14.63B  P/S     2.97
-  2015-12-31  price     14.92  shares      2,232M  cap $     33.3B  rev $   13.33B  P/S     2.50
-  2016-12-31  price     20.71  shares      2,232M  cap $     46.2B  rev $   12.05B  P/S     3.84
-  2017-12-31  price     18.07  shares      2,233M  cap $     40.4B  rev $   12.20B  P/S     3.31
-  2018-12-31  price     15.38  shares      2,207M  cap $     33.9B  rev $   13.21B  P/S     2.57
+  2014-12-31  price     42.31  shares      1,028M  cap $     43.5B  rev $   14.98B  P/S     2.90
+  2015-12-31  price     14.92  shares      2,232M  cap $     33.3B  rev $   13.66B  P/S     2.44
+  2016-12-31  price     20.71  shares      2,232M  cap $     46.2B  rev $   12.35B  P/S     3.74
+  2017-12-31  price     18.07  shares      2,233M  cap $     40.4B  rev $   12.49B  P/S     3.23
+  2018-12-31  price     15.38  shares      2,207M  cap $     33.9B  rev $   13.29B  P/S     2.55
   2019-12-31  price     21.17  shares      2,265M  cap $     47.9B  rev $   12.49B  P/S     3.84
   2020-12-31  price     13.67  shares      2,264M  cap $     30.9B  rev $   10.34B  P/S     2.99
   2021-12-31  price     15.86  shares      2,267M  cap $     36.0B  rev $   14.76B  P/S     2.44
@@ -5538,7 +5533,7 @@ KKR
 FLAGGED FOR:
   - the share count moved +45% in one step on 2022-08-05, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.58 | 5y med 4.98 | 10y med 4.96 | Z -0.23010469648412385 | years 9.5
+P/S now 4.58 | 5y med 4.98 | 10y med 4.96 | Z -0.2301046885054888 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -5656,10 +5651,10 @@ LHX
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 303 days ago, so the denominator is stale
+  - newest revenue figure was filed 304 days ago, so the denominator is stale
   - the share count moved +89% in one step on 2019-08-22, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.25 | 5y med 2.26 | 10y med 2.45 | Z -0.5022032842042747 | years 9.6
+P/S now 2.25 | 5y med 2.26 | 10y med 2.45 | Z -0.5022031771812724 | years 9.6
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -5679,8 +5674,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (59 periods, newest 2026-07-03)
-    Revenues: merged at 1.001x (rescaled by 1.000)
-    SalesRevenueNet: merged at 1.002x (rescaled by 1.000)
+    Revenues: merged at 1.001x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.002x the anchor (rescaled by 1.000)
     SalesRevenueServicesNet: REFUSED, runs 0.21x the anchor where they overlap
     SalesRevenueGoodsNet: REFUSED, runs 0.79x the anchor where they overlap
 
@@ -5790,7 +5785,7 @@ LDOS
 FLAGGED FOR:
   - the share count moved +107% in one step on 2016-11-04, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.00 | 5y med 1.05 | 10y med 1.06 | Z -0.41057279542770525 | years 9.5
+P/S now 1.00 | 5y med 1.05 | 10y med 1.06 | Z -0.41057262582621057 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -5810,7 +5805,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (57 periods, newest 2026-07-03)
-    Revenues: merged at 1.005x (rescaled by 1.000)
+    Revenues: merged at 1.005x the anchor (rescaled by 1.000)
     OperatingLeaseLeaseIncome: REFUSED, runs 0.00x the anchor where they overlap
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
@@ -5919,7 +5914,7 @@ LYV
 FLAGGED FOR:
   - trailing revenue falls 58% around 2021-03-31, 31x this company's usual move between filings, at the exact point the source concept changes from reported-annual to Revenues
 
-P/S now 1.63 | 5y med 1.37 | 10y med 1.14 | Z 0.11379754706244562 | years 10.0
+P/S now 1.63 | 5y med 1.37 | 10y med 1.14 | Z 0.1137975054405926 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6043,7 +6038,7 @@ LITE
 FLAGGED FOR:
   - the share count is 28% higher than a year ago, on 2019-02-07 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 26.64 | 5y med 3.42 | 10y med 3.39 | Z 3.072913557495215 | years 9.0
+P/S now 26.64 | 5y med 3.42 | 10y med 3.29 | Z 3.3556489980973856 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6059,11 +6054,11 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   ContractWithCustomerLiabilityRevenueRecognized           -      -      -      -      -    0.0    0.0    0.0    0.0    0.0    0.0     11
   DeferredRevenueRevenueRecognized1                        -      -      -      -    0.0    0.0      -      -      -      -      -      2
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, RevenueFromContractWithCustomerIncludingAssessedTax
+  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, RevenueFromContractWithCustomerIncludingAssessedTax, Revenues, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (24 periods, newest 2026-06-27)
-    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.000x (rescaled by 1.000)
-    Revenues: no comparable overlap, not merged
-    SalesRevenueNet: no comparable overlap, not merged
+    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.000x the anchor (rescaled by 1.000)
+    Revenues: merged at 1.000x merged history (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.000x merged history (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2019-06-29  reported $     1.565B   4 quarters sum $     1.565B
@@ -6134,7 +6129,7 @@ TTM SERIES (last 10)
   period 2025-12-27  available 2026-02-04  $     2.105B  [mixed]
   period 2026-03-28  available 2026-05-06  $     2.488B  [mixed]
   period 2026-06-27  available 2026-08-17  $     3.014B  [mixed]
-  annual reconciliation: 0 mismatches of 10 year-ends checked
+  annual reconciliation: 0 mismatches of 14 year-ends checked
 
 SHARE COUNTS AS COLLECTED (last 8)
   2024-11-08          68,700,000
@@ -6149,7 +6144,9 @@ SPLITS: {}
 CORPORATE ACTIONS: [('2019-02-07', 0.2), ('2026-08-17', 0.256)]
 
 P/S SERIES, YEARLY SAMPLE
-  2017-12-31  price     48.90  shares         62M  cap $      3.0B  rev $    1.00B  P/S     3.03
+  2015-12-31  price     22.02  shares         59M  cap $      1.3B  rev $    0.83B  P/S     1.56
+  2016-12-31  price     38.65  shares         60M  cap $      2.3B  rev $    0.95B  P/S     2.45
+  2017-12-31  price     48.90  shares         62M  cap $      3.0B  rev $    0.99B  P/S     3.07
   2018-12-31  price     42.01  shares         63M  cap $      2.7B  rev $    1.36B  P/S     1.96
   2019-12-31  price     79.30  shares         77M  cap $      6.1B  rev $    1.66B  P/S     3.69
   2020-12-31  price     94.80  shares         76M  cap $      7.2B  rev $    1.68B  P/S     4.26
@@ -6184,7 +6181,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (21 periods, newest 2026-06-30)
-    Revenues: REFUSED, runs 5.93x the anchor where they overlap
+    Revenues: REFUSED, runs 5.36x the anchor where they overlap
     OperatingLeaseLeaseIncome: REFUSED, runs 0.03x the anchor where they overlap
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
@@ -6280,7 +6277,7 @@ MPC
 FLAGGED FOR:
   - the share count moved +53% in one step on 2018-11-05, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.67 | 5y med 0.38 | 10y med 0.37 | Z 2.311140822427404 | years 9.5
+P/S now 0.67 | 5y med 0.38 | 10y med 0.37 | Z 2.3111406851143133 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6298,11 +6295,11 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   RevenuesFromTransactionsWithOtherOperatingSegmentsO      -      -      -      -      -      -      -      -      -      -      -     21
   ExciseAndSalesTaxes                                    7.7    7.5    7.8      -      -      -      -      -      -      -      -     89
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, RevenueFromContractWithCustomerIncludingAssessedTax, Revenues
+  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, RevenueFromContractWithCustomerIncludingAssessedTax, Revenues, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (53 periods, newest 2026-06-30)
-    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 0.868x (rescaled by 1.152)
-    Revenues: merged at 1.001x (rescaled by 1.000)
-    SalesRevenueNet: no comparable overlap, not merged
+    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 0.868x the anchor (rescaled by 1.152)
+    Revenues: merged at 1.001x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.000x merged history (rescaled by 1.000)
     OperatingLeaseLeaseIncome: REFUSED, runs 0.00x the anchor where they overlap
     OperatingLeasesIncomeStatementLeaseRevenue: REFUSED, runs 0.00x the anchor where they overlap
 
@@ -6376,7 +6373,7 @@ TTM SERIES (last 10)
   period 2025-12-31  available 2026-02-26  $   132.699B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2026-03-31  available 2026-05-05  $   135.382B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2026-06-30  available 2026-08-04  $   153.577B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  annual reconciliation: 3 mismatches of 13 year-ends checked
+  annual reconciliation: 3 mismatches of 17 year-ends checked
 
 SHARE COUNTS AS COLLECTED (last 8)
   2024-11-05         321,388,952
@@ -6412,7 +6409,7 @@ MAR
 FLAGGED FOR:
   - the share count moved +53% in one step on 2016-11-09, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.40 | 5y med 2.92 | 10y med 2.59 | Z 0.8161790967244279 | years 10.0
+P/S now 3.40 | 5y med 2.92 | 10y med 2.59 | Z 0.8161789784579032 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6538,7 +6535,7 @@ MLM
 FLAGGED FOR:
   - the share count moved +46% in one step on 2015-05-05, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.77 | 5y med 5.12 | 10y med 3.79 | Z 0.5781873428036158 | years 10.0
+P/S now 4.77 | 5y med 5.12 | 10y med 3.79 | Z 0.5781872580167552 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6555,8 +6552,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (60 periods, newest 2026-06-30)
-    SalesRevenueNet: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueGoodsNet: merged at 0.938x (rescaled by 1.067)
+    SalesRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueGoodsNet: merged at 0.938x the anchor (rescaled by 1.067)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     4.244B   4 quarters sum $     4.244B
@@ -6639,7 +6636,7 @@ SHARE COUNTS AS COLLECTED (last 8)
   2026-04-30          60,045,900
   2026-07-30          60,065,839
 SPLITS: {}
-CORPORATE ACTIONS: [('2015-02-24', -0.314)]
+CORPORATE ACTIONS: [('2015-05-05', -0.314)]
 
 P/S SERIES, YEARLY SAMPLE
   2014-12-31  price    110.32  shares         67M  cap $      7.4B  rev $    2.65B  P/S     2.80
@@ -6663,7 +6660,7 @@ MRVL
 FLAGGED FOR:
   - 9 of the months in the window are valued on a revenue figure that was already up to 710 days old, and there is not enough history left to measure without them, so the median rests on them
 
-P/S now 21.74 | 5y med 10.20 | 10y med 10.33 | Z 1.5797558646785674 | years 5.2
+P/S now 21.74 | 5y med 10.20 | 10y med 10.33 | Z 1.5797558108582905 | years 5.2
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6771,7 +6768,7 @@ MAA
 FLAGGED FOR:
   - the share count moved +50% in one step on 2017-02-24, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 6.81 | 5y med 8.23 | 10y med 8.23 | Z -1.1244957040731323 | years 8.5
+P/S now 6.81 | 5y med 8.23 | 10y med 8.23 | Z -1.1244956814798763 | years 8.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6788,8 +6785,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: Revenues
   anchor: Revenues (90 periods, newest 2026-03-31)
-    OperatingLeasesIncomeStatementLeaseRevenue: merged at 0.919x (rescaled by 1.088)
-    RealEstateRevenueNet: merged at 0.998x (rescaled by 1.000)
+    OperatingLeasesIncomeStatementLeaseRevenue: merged at 0.919x the anchor (rescaled by 1.088)
+    RealEstateRevenueNet: merged at 0.998x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     1.571B   4 quarters sum $     1.185B  <-- MISMATCH
@@ -6897,7 +6894,7 @@ MRNA
 FLAGGED FOR:
   - trailing revenue jumps 132% around 2020-09-30, 5x this company's usual move between filings, at the exact point the source concept changes from mixed to Revenues
 
-P/S now 28.34 | 5y med 3.37 | 10y med 6.79 | Z 0.33540389126141446 | years 7.4
+P/S now 28.34 | 5y med 3.37 | 10y med 6.79 | Z 0.335403913414301 | years 7.4
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6915,7 +6912,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (31 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2016-12-31  reported $     0.108B   4 quarters sum $     0.000B
@@ -7017,7 +7014,7 @@ NEM
 FLAGGED FOR:
   - the share count moved +54% in one step on 2019-04-25, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 5.23 | 5y med 3.50 | 10y med 3.77 | Z 1.5545156033013194 | years 9.5
+P/S now 5.23 | 5y med 3.50 | 10y med 3.77 | Z 1.5545157177482223 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7037,7 +7034,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (61 periods, newest 2026-06-30)
-    Revenues: merged at 1.005x (rescaled by 1.000)
+    Revenues: merged at 1.005x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     7.253B   4 quarters sum $     7.253B
@@ -7145,7 +7142,7 @@ NCLH
 FLAGGED FOR:
   - trailing revenue falls 97% around 2021-03-31, 100x this company's usual move between filings, at the exact point the source concept changes from reported-annual to RevenueFromContractWithCustomerIncludingAssessedTax
 
-P/S now 0.75 | 5y med 1.11 | 10y med 1.79 | Z -0.7739116369945918 | years 10.0
+P/S now 0.75 | 5y med 1.11 | 10y med 1.79 | Z -0.7739116526330215 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7158,7 +7155,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerIncludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerIncludingAssessedTax (63 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
     OperatingLeaseLeaseIncome: REFUSED, runs 0.00x the anchor where they overlap
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
@@ -7266,7 +7263,7 @@ NXPI
 FLAGGED FOR:
   - the share count moved +37% in one step on 2016-02-26, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.47 | 5y med 4.34 | 10y med 4.28 | Z 0.14313448063764478 | years 9.5
+P/S now 4.47 | 5y med 4.34 | 10y med 4.28 | Z 0.14313452498563448 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7286,8 +7283,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (48 periods, newest 2026-03-29)
-    SalesRevenueNet: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueGoodsNet: no comparable overlap, not merged
+    SalesRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueGoodsNet: merged at 0.994x merged history (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     9.407B   4 quarters sum $     4.848B  <-- MISMATCH
@@ -7394,7 +7391,7 @@ OMC
 FLAGGED FOR:
   - the share count is 47% higher than a year ago, on 2026-02-20 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 1.27 | 5y med 1.12 | 10y med 1.12 | Z 0.9909992544595025 | years 10.0
+P/S now 1.27 | 5y med 1.12 | 10y med 1.12 | Z 0.9909991574022267 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7509,7 +7506,7 @@ OKE
 FLAGGED FOR:
   - the share count moved +80% in one step on 2017-08-02, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.52 | 5y med 1.70 | 10y med 1.94 | Z -0.6920500437440171 | years 10.0
+P/S now 1.52 | 5y med 1.70 | 10y med 1.94 | Z -0.6920499660880005 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7529,10 +7526,10 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (25 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueNet: no comparable overlap, not merged
-    SalesRevenueServicesNet: no comparable overlap, not merged
-    SalesRevenueGoodsNet: no comparable overlap, not merged
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.000x merged history (rescaled by 1.000)
+    SalesRevenueServicesNet: REFUSED, runs 0.12x merged history where they overlap
+    SalesRevenueGoodsNet: merged at 0.879x merged history (rescaled by 1.137)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $    12.593B   4 quarters sum $    12.593B
@@ -7708,7 +7705,7 @@ PCG
 FLAGGED FOR:
   - the share count moved +266% in one step on 2020-07-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.72 | 5y med 1.79 | 10y med 1.57 | Z 0.5351916229541311 | years 10.0
+P/S now 1.72 | 5y med 1.79 | 10y med 1.57 | Z 0.5351916643201721 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7727,7 +7724,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: Revenues (101 periods, newest 2026-06-30)
-    RevenueFromContractWithCustomerExcludingAssessedTax: merged at 1.000x (rescaled by 1.000)
+    RevenueFromContractWithCustomerExcludingAssessedTax: merged at 1.000x the anchor (rescaled by 1.000)
     ElectricUtilityRevenue: REFUSED, runs 0.78x the anchor where they overlap
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
@@ -7836,7 +7833,7 @@ PRU
 FLAGGED FOR:
   - trailing revenue jumps 68% around 2012-12-31, 16x this company's usual move between filings, at the exact point the source concept changes from Revenues to reported-annual
 
-P/S now 0.64 | 5y med 0.61 | 10y med 0.62 | Z 0.18708154899911258 | years 10.0
+P/S now 0.64 | 5y med 0.61 | 10y med 0.62 | Z 0.18708158992505386 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8044,7 +8041,7 @@ RTX
 FLAGGED FOR:
   - the share count moved +76% in one step on 2020-07-29, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.05 | 5y med 2.13 | 10y med 2.06 | Z 1.9500720797428264 | years 9.5
+P/S now 3.05 | 5y med 2.13 | 10y med 2.01 | Z 2.037499835178984 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8062,12 +8059,12 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   DefinedBenefitPlanPurchasesSalesAndSettlements           -      -      -      -      -      -      -      -      -    0.1   -0.2      2
   OtherComprehensiveIncomeAvailableForSaleSecuritiesA      -      -      -      -      -      -      -      -      -      -      -     27
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
+  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (25 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueNet: no comparable overlap, not merged
-    SalesRevenueServicesNet: no comparable overlap, not merged
-    SalesRevenueGoodsNet: no comparable overlap, not merged
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 0.995x merged history (rescaled by 1.000)
+    SalesRevenueServicesNet: REFUSED, runs 0.29x merged history where they overlap
+    SalesRevenueGoodsNet: REFUSED, runs 0.71x merged history where they overlap
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $    34.701B   4 quarters sum $    66.501B  <-- MISMATCH
@@ -8138,7 +8135,7 @@ TTM SERIES (last 10)
   period 2025-12-31  available 2026-02-06  $    88.603B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2026-03-31  available 2026-04-21  $    90.373B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2026-06-30  available 2026-07-23  $    93.500B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  annual reconciliation: 1 mismatches of 13 year-ends checked
+  annual reconciliation: 4 mismatches of 19 year-ends checked
 
 SHARE COUNTS AS COLLECTED (last 8)
   2024-10-22       1,331,016,397
@@ -8153,10 +8150,10 @@ SPLITS: {'2020-04-03': (1.589, 'rescaled')}
 CORPORATE ACTIONS: [('2020-05-07', -0.37)]
 
 P/S SERIES, YEARLY SAMPLE
-  2014-12-31  price     72.37  shares      1,449M  cap $    104.8B  rev $   53.61B  P/S     1.96
-  2015-12-31  price     60.46  shares      1,409M  cap $     85.2B  rev $   53.61B  P/S     1.59
-  2016-12-31  price     68.99  shares      1,308M  cap $     90.3B  rev $   53.61B  P/S     1.68
-  2017-12-31  price     80.28  shares      1,269M  cap $    101.9B  rev $   57.24B  P/S     1.78
+  2014-12-31  price     72.37  shares      1,449M  cap $    104.8B  rev $   63.31B  P/S     1.66
+  2015-12-31  price     60.46  shares      1,409M  cap $     85.2B  rev $   56.78B  P/S     1.50
+  2016-12-31  price     68.99  shares      1,308M  cap $     90.3B  rev $   56.88B  P/S     1.59
+  2017-12-31  price     80.28  shares      1,269M  cap $    101.9B  rev $   58.82B  P/S     1.73
   2018-12-31  price     67.01  shares      1,273M  cap $     85.3B  rev $   64.14B  P/S     1.33
   2019-12-31  price     94.25  shares      1,372M  cap $    129.3B  rev $   51.70B  P/S     2.50
   2020-12-31  price     71.51  shares      1,519M  cap $    108.6B  rev $   51.86B  P/S     2.09
@@ -8174,7 +8171,7 @@ O
 FLAGGED FOR:
   - the share count moved +46% in one step on 2022-02-23, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 9.69 | 5y med 10.96 | 10y med 12.69 | Z -1.4134436952481566 | years 10.0
+P/S now 9.69 | 5y med 10.96 | 10y med 12.69 | Z -1.4134437344505826 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8190,9 +8187,9 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: OperatingLeasesIncomeStatementLeaseRevenue, RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: Revenues (74 periods, newest 2026-06-30)
-    RevenueFromContractWithCustomerExcludingAssessedTax: merged at 1.000x (rescaled by 1.000)
-    OperatingLeasesIncomeStatementLeaseRevenue: merged at 0.971x (rescaled by 1.000)
-    RealEstateRevenueNet: merged at 0.979x (rescaled by 1.000)
+    RevenueFromContractWithCustomerExcludingAssessedTax: merged at 1.000x the anchor (rescaled by 1.000)
+    OperatingLeasesIncomeStatementLeaseRevenue: merged at 0.971x the anchor (rescaled by 1.000)
+    RealEstateRevenueNet: merged at 0.979x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     1.328B   4 quarters sum $     1.328B
@@ -8300,7 +8297,7 @@ REG
 FLAGGED FOR:
   - the share count moved +62% in one step on 2017-05-10, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 8.72 | 5y med 8.94 | 10y med 9.02 | Z -0.11295930044026 | years 7.5
+P/S now 8.72 | 5y med 8.94 | 10y med 9.02 | Z -0.11295960207887067 | years 7.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8427,7 +8424,7 @@ RCL
 FLAGGED FOR:
   - trailing revenue falls 90% around 2021-03-31, 101x this company's usual move between filings, at the exact point the source concept changes from reported-annual to RevenueFromContractWithCustomerExcludingAssessedTax
 
-P/S now 4.00 | 5y med 3.60 | 10y med 2.71 | Z 0.04286885809505801 | years 10.0
+P/S now 4.00 | 5y med 3.60 | 10y med 2.71 | Z 0.04286887008807226 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8444,7 +8441,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (61 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     9.494B   4 quarters sum $     9.494B
@@ -8552,7 +8549,7 @@ SPGI
 FLAGGED FOR:
   - the share count moved +41% in one step on 2022-05-04, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 8.33 | 5y med 10.44 | 10y med 9.66 | Z -0.3239816554384901 | years 10.0
+P/S now 8.33 | 5y med 10.44 | 10y med 9.66 | Z -0.3239815213168078 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8572,10 +8569,10 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (60 periods, newest 2026-03-31)
-    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.000x (rescaled by 1.000)
-    Revenues: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueServicesNet: no comparable overlap, not merged
-    SalesRevenueGoodsNet: no comparable overlap, not merged
+    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.000x the anchor (rescaled by 1.000)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueServicesNet: merged at 0.615x merged history (rescaled by 1.625)
+    SalesRevenueGoodsNet: REFUSED, runs 0.41x merged history where they overlap
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     6.258B   4 quarters sum $     6.258B
@@ -8959,7 +8956,7 @@ TMUS
 FLAGGED FOR:
   - the share count moved +44% in one step on 2020-05-06, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.11 | 5y med 2.31 | 10y med 2.11 | Z 0.18959502048604673 | years 10.0
+P/S now 2.11 | 5y med 2.31 | 10y med 2.11 | Z 0.18959493718495463 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8979,8 +8976,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (61 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueNet: no comparable overlap, not merged
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueNet: REFUSED, runs 0.24x merged history where they overlap
     SalesRevenueServicesNet: REFUSED, runs 0.74x the anchor where they overlap
     SalesRevenueGoodsNet: REFUSED, runs 0.23x the anchor where they overlap
 
@@ -9089,7 +9086,7 @@ TTWO
 FLAGGED FOR:
   - the share count moved +44% in one step on 2022-08-09, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 6.58 | 5y med 5.27 | 10y med 5.33 | Z 0.8626111507144818 | years 10.0
+P/S now 6.58 | 5y med 5.27 | 10y med 5.33 | Z 0.8626111403630464 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9108,8 +9105,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, SalesRevenueGoodsNet, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (59 periods, newest 2026-06-30)
-    SalesRevenueNet: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueGoodsNet: merged at 0.877x (rescaled by 1.140)
+    SalesRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueGoodsNet: merged at 0.877x the anchor (rescaled by 1.140)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2019-03-31  reported $     2.668B   4 quarters sum $     2.668B
@@ -9215,7 +9212,7 @@ TFC
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 3043 days ago, so the denominator is stale
+  - newest revenue figure was filed 3044 days ago, so the denominator is stale
   - 108 of the months in the window are valued on a revenue figure that was already up to 3042 days old, and there is not enough history left to measure without them, so the median rests on them
   - a P/S of 419 is not a valuation, it is a broken denominator
   - the share count moved +75% in one step on 2020-03-03, which no split explains -- the multiples either side of it are measuring different companies
@@ -9438,7 +9435,7 @@ FLAGGED FOR:
   - trailing revenue falls 77% around 2020-03-31, 71x this company's usual move between filings, at the exact point the source concept changes from reported-annual to RevenueFromContractWithCustomerExcludingAssessedTax
   - the share count moved +1207082524% in one step on 2021-03-01, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.28 | 5y med 0.85 | 10y med 0.83 | Z 0.4122452503800048 | years 6.3
+P/S now 1.28 | 5y med 0.85 | 10y med 0.83 | Z 0.41224525239399334 | years 6.3
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9451,7 +9448,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (52 periods, newest 2026-06-30)
-    Revenues: merged at 1.004x (rescaled by 1.000)
+    Revenues: merged at 1.004x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $    11.269B   4 quarters sum $     0.000B
@@ -9540,7 +9537,7 @@ WAB
 FLAGGED FOR:
   - the share count moved +69% in one step on 2019-05-09, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.12 | 5y med 2.58 | 10y med 2.23 | Z 2.2216301772659377 | years 10.0
+P/S now 4.12 | 5y med 2.58 | 10y med 2.23 | Z 2.221630322095744 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9554,8 +9551,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (60 periods, newest 2026-06-30)
-    Revenues: no comparable overlap, not merged
-    SalesRevenueNet: merged at 1.000x (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
+    Revenues: merged at 1.000x merged history (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     4.364B   4 quarters sum $     4.363B
@@ -9663,7 +9660,7 @@ WAT
 FLAGGED FOR:
   - the share count is 65% higher than a year ago, on 2026-02-23 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 8.77 | 5y med 6.87 | 10y med 6.54 | Z 1.7494742527976221 | years 10.0
+P/S now 8.77 | 5y med 6.87 | 10y med 6.54 | Z 1.7494742891469175 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9683,8 +9680,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (91 periods, newest 2026-07-04)
-    Revenues: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueNet: merged at 1.000x (rescaled by 1.000)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
     SalesRevenueServicesNet: REFUSED, runs 0.33x the anchor where they overlap
     SalesRevenueGoodsNet: REFUSED, runs 0.67x the anchor where they overlap
 
@@ -9794,7 +9791,7 @@ WEC
 FLAGGED FOR:
   - the share count moved +40% in one step on 2015-08-05, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.41 | 5y med 3.55 | 10y med 3.48 | Z 0.22396108331006476 | years 10.0
+P/S now 3.41 | 5y med 3.55 | 10y med 3.48 | Z 0.22396115348152407 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9921,7 +9918,7 @@ WFC
 FLAGGED FOR:
   - the share count moved -51% in one step on 2023-08-01, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.02 | 5y med 3.18 | 10y med 4.10 | Z -0.6628518464951672 | years 9.5
+P/S now 3.02 | 5y med 3.18 | 10y med 4.10 | Z -0.6628517659741799 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9941,7 +9938,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: Revenues, RevenuesNetOfInterestExpense
   anchor: RevenuesNetOfInterestExpense (41 periods, newest 2026-06-30)
-    Revenues: merged at 0.990x (rescaled by 1.000)
+    Revenues: merged at 0.990x the anchor (rescaled by 1.000)
     OperatingLeaseLeaseIncome: REFUSED, runs 0.01x the anchor where they overlap
     OperatingLeasesIncomeStatementLeaseRevenue: REFUSED, runs 0.02x the anchor where they overlap
 
@@ -10048,7 +10045,7 @@ WY
 FLAGGED FOR:
   - the share count moved +46% in one step on 2016-05-06, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.49 | 5y med 2.71 | 10y med 2.93 | Z -0.9330113165311702 | years 10.0
+P/S now 2.49 | 5y med 2.71 | 10y med 2.93 | Z -0.9330114576514477 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -10067,7 +10064,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: Revenues, SalesRevenueNet
   anchor: Revenues (65 periods, newest 2026-06-30)
-    SalesRevenueNet: merged at 1.000x (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2018-12-31  reported $     7.476B   4 quarters sum $     7.476B
@@ -10175,7 +10172,7 @@ WMB
 FLAGGED FOR:
   - the share count moved +46% in one step on 2018-11-01, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 5.84 | 5y med 3.82 | 10y med 3.25 | Z 1.8512764044919747 | years 10.0
+P/S now 5.84 | 5y med 3.82 | 10y med 3.29 | Z 1.868555429045127 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -10195,7 +10192,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (51 periods, newest 2026-06-30)
-    Revenues: merged at 0.870x (rescaled by 1.149)
+    Revenues: merged at 1.009x the anchor (rescaled by 1.000)
     SalesRevenueServicesNet: REFUSED, runs 0.65x the anchor where they overlap
     SalesRevenueGoodsNet: REFUSED, runs 0.31x the anchor where they overlap
 
@@ -10284,11 +10281,11 @@ SPLITS: {}
 CORPORATE ACTIONS: [('2018-11-01', 0.462)]
 
 P/S SERIES, YEARLY SAMPLE
-  2014-12-31  price     44.94  shares        747M  cap $     33.6B  rev $    8.22B  P/S     4.09
-  2015-12-31  price     25.70  shares        750M  cap $     19.3B  rev $    8.61B  P/S     2.24
-  2016-12-31  price     31.14  shares        751M  cap $     23.4B  rev $    8.40B  P/S     2.78
-  2017-12-31  price     30.49  shares        827M  cap $     25.2B  rev $    9.19B  P/S     2.74
-  2018-12-31  price     22.05  shares      1,211M  cap $     26.7B  rev $    8.98B  P/S     2.97
+  2014-12-31  price     44.94  shares        747M  cap $     33.6B  rev $    7.16B  P/S     4.69
+  2015-12-31  price     25.70  shares        750M  cap $     19.3B  rev $    7.50B  P/S     2.57
+  2016-12-31  price     31.14  shares        751M  cap $     23.4B  rev $    7.31B  P/S     3.20
+  2017-12-31  price     30.49  shares        827M  cap $     25.2B  rev $    8.00B  P/S     3.15
+  2018-12-31  price     22.05  shares      1,211M  cap $     26.7B  rev $    8.65B  P/S     3.09
   2019-12-31  price     23.72  shares      1,212M  cap $     28.7B  rev $    8.22B  P/S     3.50
   2020-12-31  price     20.05  shares      1,214M  cap $     24.3B  rev $    7.68B  P/S     3.17
   2021-12-31  price     26.04  shares      1,215M  cap $     31.6B  rev $   10.72B  P/S     2.95
@@ -10305,7 +10302,7 @@ XYL
 FLAGGED FOR:
   - the share count moved +33% in one step on 2023-08-04, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.85 | 5y med 3.63 | 10y med 3.37 | Z -0.7705544190810785 | years 9.5
+P/S now 2.85 | 5y med 3.63 | 10y med 3.17 | Z -0.602823453315639 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -10323,11 +10320,11 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   SalesTypeLeaseLeaseIncome                                -      -      -      -      -      -    0.0    0.0    0.0      -      -      3
   CashFlowHedgeGainLossReclassifiedToCostOfSalesNet        -      -      -      -      -      -      -      -      -      -      -     21
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, RevenueFromContractWithCustomerIncludingAssessedTax, Revenues
+  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, RevenueFromContractWithCustomerIncludingAssessedTax, Revenues, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (25 periods, newest 2026-06-30)
-    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 0.962x (rescaled by 1.000)
-    Revenues: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueNet: no comparable overlap, not merged
+    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 0.962x the anchor (rescaled by 1.000)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.000x merged history (rescaled by 1.000)
     OperatingLeaseLeaseIncome: REFUSED, runs 0.04x the anchor where they overlap
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
@@ -10399,7 +10396,7 @@ TTM SERIES (last 10)
   period 2025-12-31  available 2026-02-25  $     9.035B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2026-03-31  available 2026-04-28  $     9.091B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2026-06-30  available 2026-07-28  $     9.126B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  annual reconciliation: 0 mismatches of 10 year-ends checked
+  annual reconciliation: 0 mismatches of 17 year-ends checked
 
 SHARE COUNTS AS COLLECTED (last 8)
   2024-10-31         242,944,703
@@ -10414,7 +10411,10 @@ SPLITS: {}
 CORPORATE ACTIONS: [('2023-08-04', 0.333)]
 
 P/S SERIES, YEARLY SAMPLE
-  2017-12-31  price     68.20  shares        180M  cap $     12.2B  rev $    3.77B  P/S     3.25
+  2014-12-31  price     38.07  shares        182M  cap $      6.9B  rev $    3.91B  P/S     1.77
+  2015-12-31  price     36.50  shares        179M  cap $      6.5B  rev $    3.70B  P/S     1.77
+  2016-12-31  price     49.52  shares        179M  cap $      8.9B  rev $    3.67B  P/S     2.42
+  2017-12-31  price     68.20  shares        180M  cap $     12.2B  rev $    4.53B  P/S     2.71
   2018-12-31  price     66.72  shares        180M  cap $     12.0B  rev $    4.92B  P/S     2.44
   2019-12-31  price     78.79  shares        180M  cap $     14.2B  rev $    5.08B  P/S     2.80
   2020-12-31  price    101.79  shares        180M  cap $     18.3B  rev $    4.73B  P/S     3.88
@@ -10520,6 +10520,8 @@ WDC    2025-02-24      1.3230   reported share count went 1.00x, not 1.32x
 WY     2010-11-05      2.5327   SPLIT ADDED from EDGAR: count 211,612,907 -> 535,942,371 with revenue flat through it; Yahoo has no record of it
 WTW    2016-01-05      0.3775   reported share count went 0.77x, not 0.38x
 YUM    2016-11-01      1.3910   reported share count went 0.85x, not 1.39x
+ZTS    2019-08-06      0.0508   SPLIT ADDED from EDGAR: count 478,656,189 -> 24,333,301; Yahoo has no record of it
+ZTS    2019-08-09     19.6257   SPLIT ADDED from EDGAR: count 24,333,301 -> 477,557,942 with revenue flat through it; Yahoo has no record of it
 ==============================================================================
 MA
 ==============================================================================
@@ -10527,7 +10529,7 @@ MA
 FLAGGED FOR:
   - market cap differs from Yahoo by +40%
 
-P/S now 20.79 | 5y med 21.47 | 10y med 20.94 | Z 0.13738030081923985
+P/S now 20.79 | 5y med 21.47 | 10y med 20.94 | Z 0.13738020433031406
   my revenue  $     35.08B   Yahoo $     35.08B
   my mktcap   $    729.42B   Yahoo $    521.49B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -10550,7 +10552,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   CHOSEN: Revenues, SalesRevenueNet
   anchor: Revenues (113 periods, newest 2026-06-30)
     RevenueFromContractWithCustomerExcludingAssessedTax: REFUSED, runs 1.51x the anchor where they overlap
-    SalesRevenueNet: merged at 0.998x (rescaled by 1.000)
+    SalesRevenueNet: merged at 0.998x the anchor (rescaled by 1.000)
 
 ==============================================================================
 CMCSA
@@ -10559,7 +10561,7 @@ CMCSA
 FLAGGED FOR:
   - market cap differs from Yahoo by +16%
 
-P/S now 0.89 | 5y med 1.23 | 10y med 1.50 | Z -1.9671086627541838
+P/S now 0.89 | 5y med 1.23 | 10y med 1.50 | Z -1.9671087451890739
   my revenue  $    124.91B   Yahoo $    124.90B
   my mktcap   $    111.65B   Yahoo $     96.03B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -10578,8 +10580,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (22 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueServicesNet: no comparable overlap, not merged
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueServicesNet: merged at 1.000x merged history (rescaled by 1.000)
 
 ==============================================================================
 BX
@@ -10588,7 +10590,7 @@ BX
 FLAGGED FOR:
   - market cap differs from Yahoo by -37%
 
-P/S now 6.63 | 5y med 7.93 | 10y med 5.47 | Z 0.2856106847979759
+P/S now 6.63 | 5y med 7.93 | 10y med 5.47 | Z 0.28561067641561727
   my revenue  $     16.11B   Yahoo $     15.48B
   my mktcap   $    106.88B   Yahoo $    170.20B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -10611,7 +10613,7 @@ ICE
 FLAGGED FOR:
   - revenue differs from Yahoo by +27%
 
-P/S now 6.79 | 5y med 7.42 | 10y med 7.38 | Z -0.5691222245364781
+P/S now 6.79 | 5y med 7.42 | 10y med 7.38 | Z -0.5578467259108076
   my revenue  $     13.43B   Yahoo $     10.56B
   my mktcap   $     91.13B   Yahoo $     91.13B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -10631,9 +10633,9 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   DeferredRevenuePeriodIncreaseDecrease                    -      -      -      -      -      -      -      -      -      -      -      2
   ContractWithCustomerLiabilityChangeInTimeframePerfo      -      -    0.1    0.1    0.1    0.1    0.2    0.2    0.2    0.2    0.2     78
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
+  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (58 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
+    Revenues: REFUSED, runs 1.40x the anchor where they overlap
 
 ==============================================================================
 UPS
@@ -10642,7 +10644,7 @@ UPS
 FLAGGED FOR:
   - market cap differs from Yahoo by -16%
 
-P/S now 0.84 | 5y med 1.15 | 10y med 1.20 | Z -1.5407070863643213
+P/S now 0.84 | 5y med 1.15 | 10y med 1.20 | Z -1.5407070044178517
   my revenue  $     89.93B   Yahoo $     89.93B
   my mktcap   $     75.20B   Yahoo $     89.61B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -10662,7 +10664,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (56 periods, newest 2026-06-30)
-    Revenues: merged at 0.989x (rescaled by 1.000)
+    Revenues: merged at 0.989x the anchor (rescaled by 1.000)
 
 ==============================================================================
 HLT
@@ -10671,7 +10673,7 @@ HLT
 FLAGGED FOR:
   - revenue differs from Yahoo by +145%
 
-P/S now 5.80 | 5y med 5.23 | 10y med 4.33 | Z 0.7971781250885605
+P/S now 5.80 | 5y med 5.23 | 10y med 4.33 | Z 0.7971781698884521
   my revenue  $     12.48B   Yahoo $      5.10B
   my mktcap   $     72.44B   Yahoo $     72.44B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -10693,7 +10695,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (61 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
 
 ==============================================================================
 NKE
@@ -10702,7 +10704,7 @@ NKE
 FLAGGED FOR:
   - market cap differs from Yahoo by +15%
 
-P/S now 1.46 | 5y med 3.19 | 10y med 3.49 | Z -2.6005061277295036
+P/S now 1.46 | 5y med 3.19 | 10y med 3.49 | Z -2.6005062433867248
   my revenue  $     46.40B   Yahoo $     46.40B
   my mktcap   $     67.74B   Yahoo $     58.75B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -10719,8 +10721,8 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, SalesRevenueNet
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (52 periods, newest 2026-05-31)
-    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.000x (rescaled by 1.000)
-    SalesRevenueNet: merged at 1.000x (rescaled by 1.000)
+    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
 
 ==============================================================================
 NDAQ
@@ -10729,7 +10731,7 @@ NDAQ
 FLAGGED FOR:
   - revenue differs from Yahoo by +56%
 
-P/S now 6.34 | 5y med 5.60 | 10y med 4.36 | Z 1.424658840949693
+P/S now 6.34 | 5y med 5.60 | 10y med 4.36 | Z 1.4246587397560468
   my revenue  $      8.75B   Yahoo $      5.61B
   my mktcap   $     55.51B   Yahoo $     55.51B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -10751,7 +10753,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (57 periods, newest 2026-06-30)
-    Revenues: merged at 1.000x (rescaled by 1.000)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
 
 ==============================================================================
 PAYX
@@ -10760,7 +10762,7 @@ PAYX
 FLAGGED FOR:
   - revenue differs from Yahoo by +59%
 
-P/S now 7.17 | 5y med 8.93 | 10y med 8.19 | Z -0.7245189939451459
+P/S now 7.17 | 5y med 8.93 | 10y med 8.19 | Z -0.724518951677127
   my revenue  $      6.30B   Yahoo $      3.97B
   my mktcap   $     45.19B   Yahoo $     45.19B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -10782,9 +10784,9 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (58 periods, newest 2026-05-31)
-    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.000x (rescaled by 1.000)
-    Revenues: merged at 1.021x (rescaled by 1.000)
-    SalesRevenueServicesNet: merged at 1.000x (rescaled by 1.000)
+    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.000x the anchor (rescaled by 1.000)
+    Revenues: merged at 1.021x the anchor (rescaled by 1.000)
+    SalesRevenueServicesNet: merged at 1.000x the anchor (rescaled by 1.000)
 
 ==============================================================================
 CME
@@ -10793,7 +10795,7 @@ CME
 FLAGGED FOR:
   - market cap differs from Yahoo by -81%
 
-P/S now 2.81 | 5y med 2.68 | 10y med 2.70 | Z 0.4537480286038089
+P/S now 2.81 | 5y med 2.68 | 10y med 2.70 | Z 0.4537476849659795
   my revenue  $      6.77B   Yahoo $      6.76B
   my mktcap   $     19.05B   Yahoo $    102.77B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -10823,7 +10825,7 @@ DD
 FLAGGED FOR:
   - revenue differs from Yahoo by +18%
 
-P/S now 2.24 | 5y med 1.59 | 10y med 1.55 | Z 1.1777284634114606
+P/S now 2.24 | 5y med 1.59 | 10y med 1.55 | Z 1.1777283742603986
   my revenue  $      8.27B   Yahoo $      6.99B
   my mktcap   $     18.50B   Yahoo $     18.50B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -10842,9 +10844,9 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (42 periods, newest 2026-06-30)
-    Revenues: REFUSED, runs 1.61x the anchor where they overlap
-    SalesRevenueNet: no comparable overlap, not merged
+    Revenues: REFUSED, runs 1.39x the anchor where they overlap
     OperatingLeaseLeaseIncome: REFUSED, runs 0.01x the anchor where they overlap
+    SalesRevenueNet: no comparable overlap, not merged
 
 ==============================================================================
 CHTR
@@ -10853,7 +10855,7 @@ CHTR
 FLAGGED FOR:
   - market cap differs from Yahoo by -17%
 
-P/S now 0.32 | 5y med 0.74 | 10y med 0.90 | Z -2.5146976527219573
+P/S now 0.32 | 5y med 0.74 | 10y med 0.90 | Z -2.5146977284999363
   my revenue  $     54.40B   Yahoo $     54.40B
   my mktcap   $     17.28B   Yahoo $     20.70B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -10875,7 +10877,7 @@ IBKR
 FLAGGED FOR:
   - market cap differs from Yahoo by -90%
 
-P/S now 2.36 | 5y med 1.18 | 10y med 1.16 | Z 2.4384119023326285
+P/S now 2.36 | 5y med 1.18 | 10y med 1.16 | Z 2.4384117549626194
   my revenue  $      6.86B   Yahoo $      6.83B
   my mktcap   $     16.19B   Yahoo $    163.29B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -10893,7 +10895,7 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   CHOSEN: Revenues, RevenuesNetOfInterestExpense
   anchor: RevenuesNetOfInterestExpense (69 periods, newest 2026-06-30)
     RevenueFromContractWithCustomerExcludingAssessedTax: REFUSED, runs 0.46x the anchor where they overlap
-    Revenues: merged at 1.101x (rescaled by 0.909)
+    Revenues: merged at 1.057x the anchor (rescaled by 0.946)
 
 ==============================================================================
 ARES
@@ -10902,7 +10904,7 @@ ARES
 FLAGGED FOR:
   - market cap differs from Yahoo by -69%
 
-P/S now 2.46 | 5y med 2.92 | 10y med 2.47 | Z 0.015766821783827857
+P/S now 2.46 | 5y med 2.92 | 10y med 2.58 | Z -0.2075610133150957
   my revenue  $      5.99B   Yahoo $      5.99B
   my mktcap   $     14.73B   Yahoo $     47.01B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -10914,9 +10916,9 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   EquityMethodInvestmentSummarizedFinancialInformatio    0.8    1.4    0.9    1.2    1.4      -      -      -      -      -      -      9
   AdministrativeServicesRevenue                            -    0.0    0.0      -      -      -      -      -      -      -      -     11
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
+  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax
   anchor: RevenueFromContractWithCustomerExcludingAssessedTax (56 periods, newest 2026-06-30)
-    Revenues: merged at 0.891x (rescaled by 1.122)
+    Revenues: REFUSED, runs 0.73x the anchor where they overlap
 
 ==============================================================================
 CPT
@@ -10925,7 +10927,7 @@ CPT
 FLAGGED FOR:
   - market cap differs from Yahoo by -13%
 
-P/S now 6.82 | 5y med 7.86 | 10y med 8.66 | Z -1.2949518640173712
+P/S now 6.82 | 5y med 7.86 | 10y med 8.66 | Z -1.2949519310697506
   my revenue  $      1.57B   Yahoo $      1.58B
   my mktcap   $     10.69B   Yahoo $     12.31B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -10945,10 +10947,10 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
   AvailableForSaleSecuritiesChangeInNetUnrealizedHold      -      -      -      -      -      -      -      -      -      -      -      4
   OtherComprehensiveIncomeReclassificationAdjustmentF      -      -      -      -      -      -      -      -      -      -      -      3
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: OperatingLeaseLeaseIncome, RealEstateRevenueNet
+  CHOSEN: OperatingLeaseLeaseIncome, RealEstateRevenueNet, RevenueFromContractWithCustomerExcludingAssessedTax
   anchor: OperatingLeaseLeaseIncome (54 periods, newest 2026-06-30)
-    RevenueFromContractWithCustomerExcludingAssessedTax: REFUSED, runs 0.01x the anchor where they overlap
-    RealEstateRevenueNet: merged at 1.000x (rescaled by 1.000)
+    RevenueFromContractWithCustomerExcludingAssessedTax: merged at 1.000x the anchor (rescaled by 1.000)
+    RealEstateRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
 
 
 ==============================================================================
@@ -10961,7 +10963,7 @@ COF    Financials                      58.7B      134.2B      +22%       +1%
 CMCSA  Communication Services         124.9B      111.7B       +0%      +16%
 BX     Financials                      16.1B      106.9B       +4%      -37%
 KKR    Financials                      21.3B       97.6B      -18%       -3%
-MAR    Consumer Discretionary          26.9B       91.5B     +264%       +0%
+MAR    Consumer Discretionary          26.9B       91.5B     +264%       -0%
 ICE    Financials                      13.4B       91.1B      +27%       +0%
 WMB    Energy                          15.4B       90.2B      +25%       -0%
 UPS    Industrials                     89.9B       75.2B       +0%      -16%
