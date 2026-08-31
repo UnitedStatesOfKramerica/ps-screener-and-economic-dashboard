@@ -848,7 +848,22 @@ def derive_quarters(periods: list[Period], smooth: bool = True) -> list[Period]:
             for i, longer in enumerate(group):
                 for shorter in group[:i]:
                     gap = (longer.end - shorter.end).days
-                    if not (QUARTER_DAYS[0] <= gap <= QUARTER_DAYS[1]):
+                    # Normally the gap between two same-start periods must be one
+                    # calendar quarter to be a derivable quarter. But a 52/53-week
+                    # retailer's FINAL quarter is 16 weeks, not 13: Costco closes
+                    # its year with a Jun-Aug quarter of ~119 days, so backing it
+                    # out as (annual - nine months) leaves a 119-day gap the
+                    # 80-100 window rejected -- and with Q4 missing every year, no
+                    # four consecutive quarters existed and the trailing twelve
+                    # was empty. Where the LONGER period is a full year, allow the
+                    # final stub to run up to 130 days so that Q4 can be recovered.
+                    # The widening is gated on the longer period being annual so a
+                    # stray long gap between two interior periods is still
+                    # rejected, and the size and reconciliation guards below still
+                    # discard the result if the backed-out value is implausible.
+                    longer_is_annual = ANNUAL_DAYS[0] <= longer.days <= ANNUAL_DAYS[1]
+                    hi = 130 if longer_is_annual else QUARTER_DAYS[1]
+                    if not (QUARTER_DAYS[0] <= gap <= hi):
                         continue
                     # Differencing across concepts USED to be banned outright,
                     # which cost ~148 companies a full year of quarters at the
