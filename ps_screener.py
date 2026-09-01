@@ -2397,7 +2397,19 @@ def _cagr(series: pd.DataFrame, years: int) -> float | None:
     # year and Salesforce at 208% purely because their profit three years ago
     # rounded to nothing. Both are true and both are noise; the UI says
     # "from near zero" instead, which is the fact that actually matters.
-    if start < 0.10 * end:
+    #
+    # But "near zero" has to mean actually near zero, not merely small RELATIVE
+    # to an enormous present. NVIDIA three years ago had ~$28.6bn of trailing
+    # revenue and ~$4.8bn of profit -- 9% and 7% of today's, so the pure ratio
+    # test suppressed both, yet neither is remotely near zero. The base being a
+    # tiny FRACTION of today is the signature of explosive real growth, which is
+    # exactly what this column exists to show. So the relative floor only
+    # applies when the starting value is also small in absolute terms; a base
+    # above the threshold is a real number and its CAGR is reported however
+    # large. $0.5bn clears Insulet/Salesforce's rounding-to-nothing starts while
+    # admitting NVIDIA's multi-billion base.
+    NEAR_ZERO_ABS = 0.5e9
+    if start < 0.10 * end and start < NEAR_ZERO_ABS:
         return None
     return float(((end / start) ** (1 / span) - 1) * 100)
 
@@ -4116,11 +4128,14 @@ def main():
             # spin-off (FDXF) and Honeywell's break-up (HONA) appeared this way,
             # with real filings still under the parents FDX and HON. Saying so
             # keeps a routine index artefact from reading like a data fault.
-            revenue_concepts = [c for c in facts.get("facts", {}).get("us-gaap", {})
-                                if "Revenue" in c or "Sales" in c]
-            if not periods and not revenue_concepts:
+            # Zero PERIODS -- not zero concepts -- is the phantom signature. A
+            # when-issued ticker can carry an empty revenue concept shell in its
+            # filing skeleton yet report no actual period, so keying on periods
+            # (FedEx freight FDXF, Honeywell break-up HONA) is what separates a
+            # not-yet-trading entity from a real collection fault.
+            if not periods:
                 dropped.append((t, "not yet filing",
-                                "reports no revenue of any kind -- typically a "
+                                "reports no revenue period of any kind -- typically a "
                                 "when-issued or spin-off ticker the index list added "
                                 "before the entity began filing with the SEC"))
             else:
