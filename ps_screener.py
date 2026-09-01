@@ -4348,6 +4348,51 @@ def main():
             block.append(f"{tk:<8}{stage:<24}{why}")
         diagnostics.insert(0, "\n".join(block))
 
+    # A standing reliability report, built from the cross-check that already
+    # runs: every published row whose market cap -- computed here as SEC shares
+    # x Yahoo price -- disagrees with Yahoo's own reported market cap by more
+    # than the tolerance. Two independent derivations of the same number, so a
+    # gap is real evidence something is off (a stale or wrong share count, a
+    # multi-class miscount), not noise. Collected in one place and sorted by
+    # size so the figure can be watched run to run instead of hunted for a row
+    # at a time -- this is the free "double check" a paid second market-cap feed
+    # would have provided, using data already fetched.
+    if "xc_mktcap_diff" in summary and "xc_revenue_diff" in summary:
+        MKTCAP_TOL, REV_TOL = 12.0, 15.0
+        cap_off = summary[summary["xc_mktcap_diff"].abs() > MKTCAP_TOL].copy()
+        rev_off = summary[summary["xc_revenue_diff"].abs() > REV_TOL].copy()
+        checked = int((summary["xc_verdict"] != "unchecked").sum())
+        lines = ["=" * 78,
+                 "RELIABILITY: WHERE OUR NUMBERS DISAGREE WITH YAHOO",
+                 "=" * 78,
+                 f"{checked} rows cross-checked against Yahoo's independently "
+                 f"reported figures.",
+                 f"{len(cap_off)} disagree on market cap by more than {MKTCAP_TOL:.0f}%, "
+                 f"{len(rev_off)} on revenue by more than {REV_TOL:.0f}%.",
+                 "A market-cap gap points at the share count; a revenue gap at the "
+                 "concept merge.", ""]
+        if len(cap_off):
+            lines.append("MARKET CAP (ours = SEC shares x Yahoo price, vs Yahoo's own):")
+            cap_off = cap_off.reindex(cap_off["xc_mktcap_diff"].abs()
+                                      .sort_values(ascending=False).index)
+            for _, r in cap_off.iterrows():
+                lines.append(f"  {r['ticker']:<7}{r['xc_mktcap_diff']:+6.0f}%   "
+                             f"ours ${r.get('mktcap_b', float('nan')):,.1f}B")
+            lines.append("")
+        if len(rev_off):
+            lines.append("REVENUE (ours = trailing twelve from filings, vs Yahoo's):")
+            rev_off = rev_off.reindex(rev_off["xc_revenue_diff"].abs()
+                                      .sort_values(ascending=False).index)
+            for _, r in rev_off.iterrows():
+                lines.append(f"  {r['ticker']:<7}{r['xc_revenue_diff']:+6.0f}%")
+            lines.append("")
+        # Print a one-line summary to the run log too, so the number is visible
+        # without opening the file.
+        print(f"\n  reliability: {len(cap_off)} market-cap and {len(rev_off)} "
+              f"revenue disagreements with Yahoo beyond tolerance "
+              f"(of {checked} checked)")
+        diagnostics.insert(0, "\n".join(lines))
+
     if suppressed:
         print(f"\n  {len(suppressed)} row(s) dropped as unusable rather than shown "
               f"with a fabricated rank:")
