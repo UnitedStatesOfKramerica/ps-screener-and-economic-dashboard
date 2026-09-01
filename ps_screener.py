@@ -753,6 +753,72 @@ def _screen_annuals(periods: list[Period], lower: float = 0.12,
     return [p for p in periods if (p.start, p.end) not in rejects]
 
 
+def _normalize_share_splits(series: list[tuple[date, float]], jump: float = 3.0
+                            ) -> list[tuple[date, float]]:
+    """Put a share-count series on ONE split basis, the newest.
+
+    A raw share concept spanning a split carries pre-split and post-split
+    counts on different bases -- Alphabet's CommonStockSharesOutstanding reads
+    ~680M through 2020 and ~13,240M from 2021 after its 20-for-1. Walking from
+    newest to oldest, wherever an adjacent pair jumps by >=3x with no economic
+    cause, every older point is rescaled by the rounded ratio so the whole
+    series is expressed in current shares. A series with no split is unchanged.
+    """
+    if len(series) < 2:
+        return series
+    out = [list(x) for x in sorted(series)]
+    for i in range(len(out) - 1, 0, -1):
+        newer, older = out[i][1], out[i - 1][1]
+        if older > 0:
+            r = newer / older
+            if r >= jump:
+                fac = round(r)
+                for j in range(i):
+                    out[j][1] *= fac
+            elif r <= 1.0 / jump:
+                fac = round(1.0 / r)
+                for j in range(i):
+                    out[j][1] /= fac
+    return [(dt, v) for dt, v in out]
+
+
+def _splice_share_history(chosen: list[tuple[date, float]], chosen_src: str,
+                          facts: dict) -> list[tuple[date, float]]:
+    """Extend a short diluted history backward from a longer concept.
+
+    Weighted-average diluted is the right consolidated count but for some
+    filers it is only tagged from ~2022, which truncated Alphabet's P/S history
+    below the five-year minimum and dropped it entirely. Where a longer concept
+    exists, split-normalise it, scale it to diluted on their overlap (absorbing
+    the small multi-class offset), and backfill only the years diluted lacks.
+    The overlap for these filers is post-split, so the scale is a clean ~1.0
+    and the join introduces no step. Only fires when diluted was chosen and a
+    materially longer concept is present, so nothing else is touched.
+    """
+    if "Diluted" not in chosen_src or not chosen:
+        return chosen
+    start = chosen[0][0]
+    best = None
+    for alt in ("CommonStockSharesOutstanding",
+                "WeightedAverageNumberOfSharesOutstandingBasic"):
+        raw = collect_instants(facts, "us-gaap", [alt])
+        if raw and raw[0][0] < start - timedelta(days=200):
+            if best is None or raw[0][0] < best[0][0]:
+                best = _normalize_share_splits(raw)
+    if best is None:
+        return chosen
+    ad = {dt.year: v for dt, v in best}
+    cd = {dt.year: v for dt, v in chosen}
+    overlap = [y for y in cd if y in ad and ad[y] > 0]
+    if len(overlap) < 2:
+        return chosen
+    scale = float(np.median([cd[y] / ad[y] for y in overlap]))
+    if not (0.5 <= scale <= 2.0):     # refuse an implausible join
+        return chosen
+    backfill = [(dt, v * scale) for dt, v in best if dt < start]
+    return sorted(backfill + list(chosen))
+
+
 def collect_instants(facts: dict, taxonomy: str, tags: list[str]) -> list[tuple[date, float]]:
     """
     Pull instant facts (share counts), merging every listed tag.
@@ -4041,6 +4107,11 @@ def main():
             if got and (date.today() - got[-1][0]).days <= SHARE_STALE_DAYS:
                 shares, share_src = got, concept
                 break
+        if shares is not None:
+            # Diluted is often only tagged from ~2022; extend it backward from a
+            # longer concept so a decade-old filer is not dropped for want of
+            # five years of share history (the Alphabet case).
+            shares = _splice_share_history(shares, share_src, facts)
         if shares is None:
             dei_got = collect_instants(facts, "dei", SHARE_TAGS_DEI)
             if dei_got and (date.today() - dei_got[-1][0]).days <= SHARE_STALE_DAYS:
