@@ -1,4 +1,37 @@
 ==============================================================================
+RELIABILITY: WHERE OUR NUMBERS DISAGREE WITH YAHOO
+==============================================================================
+467 rows cross-checked against Yahoo's independently reported figures.
+11 disagree on market cap by more than 12%, 11 on revenue by more than 15%.
+A market-cap gap points at the share count; a revenue gap at the concept merge.
+
+MARKET CAP (ours = SEC shares x Yahoo price, vs Yahoo's own):
+  BKNG      -96%   ours $6.5B
+  IBKR      -74%   ours $43.8B
+  WAT       -39%   ours $24.8B
+  CVNA      -33%   ours $54.4B
+  BX        -33%   ours $114.6B
+  ECHO      +21%   ours $30.4B
+  LITE      -17%   ours $68.2B
+  ALB       +15%   ours $18.4B
+  MLM       -15%   ours $31.3B
+  DVN       -15%   ours $45.6B
+  SPG       -15%   ours $68.9B
+
+REVENUE (ours = trailing twelve from filings, vs Yahoo's):
+  MAR      +264%
+  HLT      +145%
+  HBAN      -82%
+  LHX       +69%
+  PAYX      +59%
+  NDAQ      +56%
+  ICE       +27%
+  WMB       +25%
+  COF       +22%
+  DD        +18%
+  KKR       -18%
+
+==============================================================================
 CONSTITUENTS THAT NEVER REACHED THE SCREEN
 ==============================================================================
 
