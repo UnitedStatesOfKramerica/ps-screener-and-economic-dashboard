@@ -920,7 +920,14 @@ def derive_quarters(periods: list[Period], smooth: bool = True) -> list[Period]:
     falls out.
     """
     have = {(p.start, p.end): p for p in periods}
-    quarters = {k: p for k, p in have.items() if QUARTER_DAYS[0] <= p.days <= QUARTER_DAYS[1]}
+    # A quarter is normally 13 weeks (~91 days), but a 52/53-week retailer runs a
+    # 16-week quarter -- Kroger's Q1 is 111 days, Costco's Q4 ~119. Capping the
+    # quarter set at 100 days dropped those quarters, left a hole in the year,
+    # and no four consecutive quarters could span a trailing twelve. Accept up to
+    # 120 days, which admits a 16-week quarter while staying well clear of a
+    # half-year (183 days), so a cumulative stub still cannot masquerade as one.
+    QUARTER_MAX = 120
+    quarters = {k: p for k, p in have.items() if QUARTER_DAYS[0] <= p.days <= QUARTER_MAX}
 
     for _ in range(6):  # converges in 2-3 passes; bounded to avoid pathological data
         added = False
@@ -4102,9 +4109,25 @@ def main():
         quarters = derive_quarters(periods)
         ttm = trailing_twelve(quarters, periods)
         if ttm.empty:
-            dropped.append((t, "no revenue series",
-                            f"{len(periods)} period(s) and {len(quarters)} quarter(s) survived "
-                            f"collection, which was not enough to form a trailing twelve"))
+            # Zero periods is a different situation from "revenue exists but did
+            # not form a series". A constituent that reports NO revenue of any
+            # kind is usually a when-issued ticker Wikipedia lists during a
+            # corporate action before the entity files -- FedEx's freight
+            # spin-off (FDXF) and Honeywell's break-up (HONA) appeared this way,
+            # with real filings still under the parents FDX and HON. Saying so
+            # keeps a routine index artefact from reading like a data fault.
+            revenue_concepts = [c for c in facts.get("facts", {}).get("us-gaap", {})
+                                if "Revenue" in c or "Sales" in c]
+            if not periods and not revenue_concepts:
+                dropped.append((t, "not yet filing",
+                                "reports no revenue of any kind -- typically a "
+                                "when-issued or spin-off ticker the index list added "
+                                "before the entity began filing with the SEC"))
+            else:
+                dropped.append((t, "no revenue series",
+                                f"{len(periods)} period(s) and {len(quarters)} quarter(s) "
+                                f"survived collection from {len(revenue_concepts)} revenue "
+                                f"concept(s), not enough to form a trailing twelve"))
             continue
 
         # Pick ONE concept whole, in priority order, and never blend two.
