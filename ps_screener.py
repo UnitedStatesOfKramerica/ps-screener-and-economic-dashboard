@@ -769,7 +769,11 @@ def _normalize_share_splits(series: list[tuple[date, float]], jump: float = 3.0
     out = [list(x) for x in sorted(series)]
     for i in range(len(out) - 1, 0, -1):
         newer, older = out[i][1], out[i - 1][1]
-        if older > 0:
+        # BOTH sides must be a real positive count. A zero share value -- some
+        # filers report CommonStockSharesOutstanding as 0 in a stub period
+        # (Carvana, Datadog, Robinhood) -- is not a 20-for-1 split, and dividing
+        # by the resulting zero ratio is what crashed the full run.
+        if older > 0 and newer > 0:
             r = newer / older
             if r >= jump:
                 fac = round(r)
@@ -848,6 +852,8 @@ def collect_instants(facts: dict, taxonomy: str, tags: list[str]) -> list[tuple[
                     when, val = _d(stamp), float(r["val"])
                 except (ValueError, TypeError):
                     continue
+                if val <= 0:
+                    continue      # a zero/negative share count is a stub, not data
                 # The dei count is stated on the filing's cover page, current as
                 # of a date near FILING, not as of the period end EDGAR files it
                 # under. Dating it to the period end put pre-split labels on
