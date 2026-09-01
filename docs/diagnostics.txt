@@ -1,15 +1,14 @@
 ==============================================================================
 RELIABILITY: WHERE OUR NUMBERS DISAGREE WITH YAHOO
 ==============================================================================
-467 rows cross-checked against Yahoo's independently reported figures.
-11 disagree on market cap by more than 12%, 11 on revenue by more than 15%.
+466 rows cross-checked against Yahoo's independently reported figures.
+10 disagree on market cap by more than 12%, 11 on revenue by more than 15%.
 A market-cap gap points at the share count; a revenue gap at the concept merge.
 
 MARKET CAP (ours = SEC shares x Yahoo price, vs Yahoo's own):
   BKNG      -96%   ours $6.5B
   IBKR      -74%   ours $43.8B
   WAT       -39%   ours $24.8B
-  CVNA      -33%   ours $54.4B
   BX        -33%   ours $114.6B
   ECHO      +21%   ours $30.4B
   LITE      -17%   ours $68.2B
@@ -54,6 +53,7 @@ GEV     no summary row          summarize() returned nothing -- usually fewer th
 HONA    not yet filing          reports no revenue period of any kind -- typically a when-issued or spin-off ticker the index list added before the entity began filing with the SEC
 KVUE    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 MTB     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
+ORLY    share count stale       the newest consolidated share count is 519 days old (2025-03-31); a current one is only filed per share class, which companyfacts omits
 PSKY    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 Q       no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 RDDT    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
@@ -1490,9 +1490,9 @@ CVNA
 
 FLAGGED FOR:
   - share count jumps +52% in one day on 2024-12-31 with no split or corporate action to explain it
-  - the share count moved +89% in one step on 2024-01-02, which no split explains -- the multiples either side of it are measuring different companies
+  - the share count is 70% higher than a year ago, on 2024-01-02 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 2.17 | 5y med 1.89 | 10y med 2.06 | Z 0.49128243148929757 | years 6.7
+P/S now 3.29 | 5y med 1.91 | 10y med 2.09 | Z 0.7955476523679232 | years 6.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1581,6 +1581,7 @@ TTM SERIES (last 10)
   annual reconciliation: 0 mismatches of 10 year-ends checked
 
 SHARE COUNTS AS COLLECTED (last 8)  [concept: WeightedAverageNumberOfDilutedSharesOutstanding]
+  2021-12-31          82,805,000
   2022-06-30         101,450,000
   2022-12-31         100,828,000
   2023-06-30         106,222,000
@@ -1588,7 +1589,6 @@ SHARE COUNTS AS COLLECTED (last 8)  [concept: WeightedAverageNumberOfDilutedShar
   2024-12-31         132,206,000
   2025-06-30         716,153,000
   2025-12-31         224,277,000
-  2026-06-30         740,174,000
 SPLITS: {'2026-05-08': (5.0, 'rescaled')}
 CORPORATE ACTIONS: [('2020-09-30', 0.494), ('2022-06-30', 0.225), ('2024-01-02', 0.888)]
 
@@ -1600,7 +1600,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     10.59  shares        531M  cap $      5.6B  rev $   11.18B  P/S     0.50
   2024-12-31  price     40.67  shares        661M  cap $     26.9B  rev $   12.55B  P/S     2.14
   2025-12-31  price     84.40  shares      1,121M  cap $     94.6B  rev $   18.27B  P/S     5.18
-  2026-12-31  price     73.46  shares        740M  cap $     54.4B  rev $   25.06B  P/S     2.17
+  2026-12-31  price     73.46  shares      1,121M  cap $     82.4B  rev $   25.06B  P/S     3.29
 
 ==============================================================================
 CNC
@@ -11495,7 +11495,7 @@ WRB
 FLAGGED FOR:
   - the share count moved -33% in one step on 2024-09-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.78 | 5y med 1.83 | 10y med 1.68 | Z 0.5005336179541795 | years 10.0
+P/S now 1.78 | 5y med 1.83 | 10y med 1.68 | Z 0.5005336179541799 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12648,7 +12648,6 @@ HLT    Consumer Discretionary          12.5B       72.7B     +145%       +2%
 SPG    Real Estate                      6.9B       68.9B       +0%      -15%
 LITE   Information Technology           3.0B       68.2B       -0%      -17%
 NDAQ   Financials                       8.8B       56.2B      +56%       +2%
-CVNA   Consumer Discretionary          25.1B       54.4B       -0%      -33%
 LHX    Industrials                     21.7B       50.0B      +69%       +1%
 PAYX   Industrials                      6.3B       45.8B      +59%       +1%
 DVN    Energy                          19.7B       45.6B       +5%      -15%
