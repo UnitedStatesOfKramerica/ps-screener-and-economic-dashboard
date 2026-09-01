@@ -8161,7 +8161,7 @@ MRNA
 FLAGGED FOR:
   - trailing revenue jumps 132% around 2020-09-30, 5x this company's usual move between filings, at the exact point the source concept changes from mixed to Revenues
 
-P/S now 28.73 | 5y med 3.56 | 10y med 6.80 | Z 0.34218099215488224 | years 7.4
+P/S now 28.73 | 5y med 3.56 | 10y med 6.80 | Z 0.34232103904612954 | years 7.4
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -11463,7 +11463,7 @@ WRB
 FLAGGED FOR:
   - the share count moved -33% in one step on 2024-09-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.78 | 5y med 1.83 | 10y med 1.68 | Z 0.5005336179541795 | years 10.0
+P/S now 1.78 | 5y med 1.83 | 10y med 1.68 | Z 0.5005336179541799 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12237,9 +12237,7 @@ here with the evidence.
 tkr    date             ratio   why
 AOS    2013-03-31      2.0016   SPLIT ADDED from EDGAR: count 46,554,061 -> 93,184,890 with revenue flat through it; Yahoo has no record of it
 A      2014-11-03      1.3980   reported share count went 1.00x, not 1.40x
-GOOGL  2022-07-18     20.0000   reported share count went 0.97x, not 20.00x
 GOOG   2015-04-27      1.0027   no share counts either side, and not a ratio boards announce
-GOOG   2022-07-18     20.0000   reported share count went 0.97x, not 20.00x
 AMCR   2026-01-15      0.2000   reported share count went 0.32x, not 0.20x
 AMCR   2024-09-28      0.0817   SPLIT ADDED from EDGAR: count 1,441,000,000 -> 117,700,000; Yahoo has no record of it
 AMCR   2025-12-31      0.2003   SPLIT ADDED from EDGAR: count 2,315,000,000 -> 463,800,000; Yahoo has no record of it
