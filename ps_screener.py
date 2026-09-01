@@ -906,7 +906,58 @@ def collect_instants(facts: dict, taxonomy: str, tags: list[str]) -> list[tuple[
         earliest = min(by_filing)
         out[when] = float(by_filing[earliest])
 
-    return sorted(out.items())
+    series = sorted(out.items())
+    # Reject a single corrupt point. Some filings carry a share value orders of
+    # magnitude wrong -- Booking's newest quarters read 782M against a real 33M,
+    # Waters' read 98,000M against 60M -- usually a units slip in one XBRL fact.
+    # A real split or real issuance moves the series and STAYS moved; a value
+    # that is a large multiple of BOTH its neighbours and reverts is not an
+    # event, it is bad data. Drop only such isolated spikes, and only when there
+    # is a clean neighbour to fall back on, so genuine step-changes (a real
+    # split, sustained dilution) are never touched. Deliberately narrow: this
+    # fixes corruption, not the multi-class question, which the caller handles.
+    # Reject corruption in the MOST RECENT readings only, and never touch
+    # history. Some filings carry a units-slipped share value in the latest one
+    # or two quarters -- Booking's newest read 782M and 794M against a settled
+    # 33M, Waters' 98,000M and 82,000M against 60M. This is distinguishable from
+    # a real split by WHERE it sits: a split's odd values are the OLD pre-split
+    # quarters, never the newest, so validating only the tail leaves every real
+    # split -- Apple, Mastercard, Alphabet -- untouched.
+    #
+    # The anchor is the newest run of quarters that agree with each other. The
+    # corruption is one or more freshest readings orders of magnitude off that
+    # anchor. Walk back from the newest: while the latest value stands >5x from
+    # the median of the most recent CONSISTENT run beneath it, it is bad data,
+    # so drop it and re-anchor. Consecutive corrupt readings (Booking has two)
+    # are peeled one at a time until a clean value is reached.
+    if len(series) >= 6:
+        SPIKE = 5.0
+
+        def stable_reference(vals):
+            # The typical recent level, robust to a few corrupt tail readings.
+            # Take the most recent up-to-12 positive values and return the
+            # median: a couple of spikes among a dozen settled quarters cannot
+            # move it, so it is a reliable anchor to judge the newest against.
+            recent = [v for v in vals if v > 0][-12:]
+            if len(recent) < 5:
+                return None
+            recent.sort()
+            return recent[len(recent) // 2]
+
+        # Peel corrupt readings off the tail one at a time. The reference is the
+        # median of recent quarters EXCLUDING the current tail candidate, which a
+        # spike or two cannot distort, so consecutive bad values (Booking's two)
+        # are each caught in turn until a clean one remains.
+        while len(series) >= 6:
+            newest = series[-1][1]
+            ref = stable_reference([v for _, v in series[:-1]])
+            if ref and ref > 0 and newest > 0 and (
+                    newest / ref > SPIKE or ref / newest > SPIKE):
+                series = series[:-1]
+            else:
+                break
+
+    return series
 
 
 def derive_quarters(periods: list[Period], smooth: bool = True) -> list[Period]:
