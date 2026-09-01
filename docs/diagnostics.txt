@@ -2,7 +2,7 @@
 CONSTITUENTS THAT NEVER REACHED THE SCREEN
 ==============================================================================
 
-APA     no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
+APA     no revenue series       0 period(s) and 0 quarter(s) survived collection from 2 revenue concept(s), not enough to form a trailing twelve
 APO     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 ARES    share count stale       the newest consolidated share count is 609 days old (2024-12-31); a current one is only filed per share class, which companyfacts omits
 BG      no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
@@ -14,28 +14,27 @@ COIN    no summary row          summarize() returned nothing -- usually fewer th
 CRH     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 DASH    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 ERIE    share count stale       the newest consolidated share count is 1889 days old (2021-06-30); a current one is only filed per share class, which companyfacts omits
-FDXF    no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
+FDXF    no revenue series       0 period(s) and 0 quarter(s) survived collection from 1 revenue concept(s), not enough to form a trailing twelve
 FERG    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 GEHC    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 GEV     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-HONA    no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
-KR      no revenue series       125 period(s) and 54 quarter(s) survived collection, which was not enough to form a trailing twelve
+HONA    no revenue series       0 period(s) and 0 quarter(s) survived collection from 3 revenue concept(s), not enough to form a trailing twelve
 KVUE    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 MTB     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 PSKY    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 Q       no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 RDDT    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 REG     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-RF      no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
+RF      no revenue series       0 period(s) and 0 quarter(s) survived collection from 13 revenue concept(s), not enough to form a trailing twelve
 SNDK    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 SOLV    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 STZ     no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
 SW      no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-SYF     no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
+SYF     no revenue series       0 period(s) and 0 quarter(s) survived collection from 1 revenue concept(s), not enough to form a trailing twelve
 TKO     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 V       share count stale       the newest consolidated share count is 6054 days old (2010-02-03); a current one is only filed per share class, which companyfacts omits
 VLTO    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-XOM     no revenue series       0 period(s) and 0 quarter(s) survived collection, which was not enough to form a trailing twelve
+XOM     no revenue series       0 period(s) and 0 quarter(s) survived collection from 2 revenue concept(s), not enough to form a trailing twelve
 ==============================================================================
 ABNB
 ==============================================================================
@@ -11463,7 +11462,7 @@ WRB
 FLAGGED FOR:
   - the share count moved -33% in one step on 2024-09-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.78 | 5y med 1.83 | 10y med 1.68 | Z 0.5005336179541799 | years 10.0
+P/S now 1.78 | 5y med 1.83 | 10y med 1.68 | Z 0.5005336179541795 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
