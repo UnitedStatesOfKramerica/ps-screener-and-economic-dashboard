@@ -808,15 +808,28 @@ def _splice_share_history(chosen: list[tuple[date, float]], chosen_src: str,
         raw = collect_instants(facts, "us-gaap", [alt])
         if raw and raw[0][0] < start - timedelta(days=200):
             if best is None or raw[0][0] < best[0][0]:
-                best = _normalize_share_splits(raw)
+                best = raw
     if best is None:
         return chosen
+    # Scale the backfill onto the diluted basis using ONLY overlap years where
+    # both are on the same split basis. The overlap is recent (diluted starts
+    # ~2022, post-split), so any pre-split years in the backfill keep their raw
+    # basis and the pipeline's own split detection lifts them by the factor
+    # afterwards -- exactly as it does for a single-concept series like Nike's.
+    # We must NOT normalise the split out here: the reconciliation downstream
+    # validates Yahoo's declared split against the reported count, and a
+    # pre-adjusted count reads flat across the split date and gets the real
+    # split wrongly rejected. Splicing raw and letting one machinery own the
+    # split keeps the two from fighting.
     ad = {dt.year: v for dt, v in best}
     cd = {dt.year: v for dt, v in chosen}
-    overlap = [y for y in cd if y in ad and ad[y] > 0]
+    # Overlap ratio from the most recent shared years only, so a split sitting
+    # inside the backfill span cannot distort the scale.
+    overlap = sorted(y for y in cd if y in ad and ad[y] > 0)
     if len(overlap) < 2:
         return chosen
-    scale = float(np.median([cd[y] / ad[y] for y in overlap]))
+    recent = overlap[-3:]
+    scale = float(np.median([cd[y] / ad[y] for y in recent]))
     if not (0.5 <= scale <= 2.0):     # refuse an implausible join
         return chosen
     backfill = [(dt, v * scale) for dt, v in best if dt < start]
