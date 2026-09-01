@@ -2,7 +2,7 @@
 CONSTITUENTS THAT NEVER REACHED THE SCREEN
 ==============================================================================
 
-APA     no revenue series       0 period(s) and 0 quarter(s) survived collection from 2 revenue concept(s), not enough to form a trailing twelve
+APA     not yet filing          reports no revenue period of any kind -- typically a when-issued or spin-off ticker the index list added before the entity began filing with the SEC
 APO     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 ARES    share count stale       the newest consolidated share count is 609 days old (2024-12-31); a current one is only filed per share class, which companyfacts omits
 BG      no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
@@ -14,27 +14,27 @@ COIN    no summary row          summarize() returned nothing -- usually fewer th
 CRH     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 DASH    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 ERIE    share count stale       the newest consolidated share count is 1889 days old (2021-06-30); a current one is only filed per share class, which companyfacts omits
-FDXF    no revenue series       0 period(s) and 0 quarter(s) survived collection from 1 revenue concept(s), not enough to form a trailing twelve
+FDXF    not yet filing          reports no revenue period of any kind -- typically a when-issued or spin-off ticker the index list added before the entity began filing with the SEC
 FERG    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 GEHC    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 GEV     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-HONA    no revenue series       0 period(s) and 0 quarter(s) survived collection from 3 revenue concept(s), not enough to form a trailing twelve
+HONA    not yet filing          reports no revenue period of any kind -- typically a when-issued or spin-off ticker the index list added before the entity began filing with the SEC
 KVUE    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 MTB     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 PSKY    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 Q       no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 RDDT    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 REG     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-RF      no revenue series       0 period(s) and 0 quarter(s) survived collection from 13 revenue concept(s), not enough to form a trailing twelve
+RF      not yet filing          reports no revenue period of any kind -- typically a when-issued or spin-off ticker the index list added before the entity began filing with the SEC
 SNDK    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 SOLV    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 STZ     no share count          no consolidated share concept is reported; the count exists only as per-class dimensioned facts
 SW      no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-SYF     no revenue series       0 period(s) and 0 quarter(s) survived collection from 1 revenue concept(s), not enough to form a trailing twelve
+SYF     not yet filing          reports no revenue period of any kind -- typically a when-issued or spin-off ticker the index list added before the entity began filing with the SEC
 TKO     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 V       share count stale       the newest consolidated share count is 6054 days old (2010-02-03); a current one is only filed per share class, which companyfacts omits
 VLTO    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-XOM     no revenue series       0 period(s) and 0 quarter(s) survived collection from 2 revenue concept(s), not enough to form a trailing twelve
+XOM     not yet filing          reports no revenue period of any kind -- typically a when-issued or spin-off ticker the index list added before the entity began filing with the SEC
 ==============================================================================
 ABNB
 ==============================================================================
