@@ -1,0 +1,24 @@
+name: Build split fixture
+on:
+  workflow_dispatch:
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install requests pandas numpy yfinance lxml
+      - name: Probe the split offenders
+        env:
+          SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
+        run: python build_split_fixture.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: split
+          path: split.json.gz
+          retention-days: 14
+          if-no-files-found: error
