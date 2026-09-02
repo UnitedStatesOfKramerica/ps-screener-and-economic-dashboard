@@ -1,0 +1,84 @@
+name: Refresh prices
+
+# Runs often during the trading day, but only actually reprices when the US
+# market is open. GitHub cron is UTC and cannot express "market hours", and
+# scheduled runs are best-effort (5-30 min late is normal, and a slot can be
+# skipped when the queue is busy), so this fires at :05 and :35 past the hour
+# across the widest UTC span the NYSE session can occupy, and a gate inside the
+# job decides whether to proceed. A skipped or late slot just means the next one
+# catches up.
+on:
+  schedule:
+    # 13:05 UTC .. 21:35 UTC covers 9:30am-4:00pm ET in both DST and standard
+    # time. The in-job gate trims the edges to the real session.
+    - cron: "5,35 13-21 * * 1-5"
+  workflow_dispatch:   # manual reprice on demand
+
+permissions:
+  contents: write
+
+# Never let two reprice runs overlap or queue up behind each other; the latest
+# price is the only one that matters, so cancel an in-progress one.
+concurrency:
+  group: refresh-prices
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Is the US market open right now?
+        id: gate
+        run: |
+          python3 - <<'PY'
+          import datetime, zoneinfo, os, sys
+          now = datetime.datetime.now(zoneinfo.ZoneInfo("America/New_York"))
+          open_ = False
+          if now.weekday() < 5:                      # Mon-Fri
+              # NYSE full-day holidays 2026 (no half-days handled here; on an
+              # early-close afternoon the refresh simply reprices a static close)
+              holidays = {
+                  "2026-01-01", "2026-01-19", "2026-02-16", "2026-04-03",
+                  "2026-05-25", "2026-06-19", "2026-07-03", "2026-09-07",
+                  "2026-11-26", "2026-12-25",
+              }
+              if now.strftime("%Y-%m-%d") not in holidays:
+                  mins = now.hour * 60 + now.minute
+                  if 9 * 60 + 30 <= mins <= 16 * 60:   # 9:30am - 4:00pm ET
+                      open_ = True
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write(f"open={'true' if open_ else 'false'}\n")
+          print("market open" if open_ else f"market closed at {now:%Y-%m-%d %H:%M %Z}; skipping")
+          PY
+
+      - name: Check out the repository
+        if: steps.gate.outputs.open == 'true'
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        if: steps.gate.outputs.open == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        if: steps.gate.outputs.open == 'true'
+        run: pip install yfinance pandas numpy
+
+      - name: Reprice on today's quotes
+        if: steps.gate.outputs.open == 'true'
+        run: python ps_screener.py --refresh-prices
+
+      - name: Publish the repriced page
+        if: steps.gate.outputs.open == 'true'
+        run: |
+          mkdir -p docs
+          cp ps_screen.html docs/index.html
+          cp ps_screen.csv docs/screen.csv || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs
+          git diff --staged --quiet || git commit -m "Reprice $(date -u +'%Y-%m-%d %H:%M')"
+          git push
