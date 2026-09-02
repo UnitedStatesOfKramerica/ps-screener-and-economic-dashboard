@@ -5983,7 +5983,7 @@ FLAGGED FOR:
   - share count jumps +53% in one day on 2016-03-28 with no split or corporate action to explain it
   - the share count moved -37% in one step on 2014-12-26, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.50 | 5y med 2.27 | 10y med 1.86 | Z 1.559965990837399 | years 10.0
+P/S now 3.50 | 5y med 2.27 | 10y med 1.86 | Z 1.5599659908373988 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
