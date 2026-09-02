@@ -2471,7 +2471,8 @@ def _cagr(series: pd.DataFrame, years: int) -> float | None:
 
 
 def research(ticker: str, facts: dict, hist: pd.DataFrame,
-             ttm_rev: pd.DataFrame, mktcap_b: float | None = None) -> dict:
+             ttm_rev: pd.DataFrame, mktcap_b: float | None = None,
+             sector: str = "") -> dict:
     """
     The second pass: balance-sheet strength, growth quality, and dilution.
 
@@ -2482,6 +2483,17 @@ def research(ticker: str, facts: dict, hist: pd.DataFrame,
     only describes -- every number here is a fact from a filing, not a verdict.
     """
     out: dict = {"ticker": ticker}
+    # For a bank "revenue" is net interest income plus fees, filed under
+    # concepts the standard merge does not pick cleanly -- Huntington's Revenues
+    # tag reads $1.7B against a true ~$9B -- and for a landlord it is rent. So
+    # any figure whose denominator is revenue (gross margin, net margin, revenue
+    # growth, net-debt-to-sales) is unreliable for these two sectors and is
+    # suppressed rather than shown wrong. Everything built on PROFIT, EQUITY or
+    # the BALANCE SHEET -- P/E, ROE, net income, debt, dilution, free cash flow,
+    # profit growth -- is perfectly valid for a bank or REIT and is kept. This
+    # is what un-blanks the panel these sectors used to show empty, while not
+    # publishing the revenue-based numbers that made the blanking seem sensible.
+    revenue_unreliable = sector in EXCLUDED_SECTORS
 
     ca = _latest_instant(facts, CURRENT_ASSETS_TAGS)
     cl = _latest_instant(facts, CURRENT_LIAB_TAGS)
@@ -2518,11 +2530,15 @@ def research(ticker: str, facts: dict, hist: pd.DataFrame,
             # from years of buybacks. Leaving the field blank looked like missing
             # data; it is a fact about the balance sheet and worth saying.
             out["negative_equity"] = True
-        if not ttm_rev.empty and float(ttm_rev["ttm"].iloc[-1]) > 0:
+        if (not revenue_unreliable and not ttm_rev.empty
+                and float(ttm_rev["ttm"].iloc[-1]) > 0):
             out["net_debt_to_sales"] = round((debt - liquid) / float(ttm_rev["ttm"].iloc[-1]), 2)
 
-    gp = _ttm(facts, GROSS_PROFIT_TAGS)
-    if gp.empty:
+    gp = _ttm(facts, GROSS_PROFIT_TAGS) if not revenue_unreliable else pd.DataFrame()
+    gp_val = None
+    if revenue_unreliable:
+        pass  # gross margin needs a cost of goods sold these sectors do not file
+    elif gp.empty:
         cost = _ttm(facts, COST_TAGS)
         if not cost.empty and not ttm_rev.empty:
             gp_val = float(ttm_rev["ttm"].iloc[-1]) - float(cost["ttm"].iloc[-1])
@@ -2572,7 +2588,7 @@ def research(ticker: str, facts: dict, hist: pd.DataFrame,
                     # beats a blank, as long as its date is on the label.
                     out["net_income_b"] = round(newest.val / 1e9, 2)
                     out["net_income_asof"] = str(newest.end)
-                    if rev_now > 0:
+                    if rev_now > 0 and not revenue_unreliable:
                         out["net_margin"] = round(newest.val / rev_now * 100, 1)
                         out["net_margin_stale"] = True
         # A company cannot earn more than it sells. Outside banking and property
@@ -2585,7 +2601,7 @@ def research(ticker: str, facts: dict, hist: pd.DataFrame,
         # than you sell; you can very easily lose more than you sell, which is
         # what Moderna did when its revenue collapsed and its spending did not.
         # Testing magnitude and ignoring sign withheld a real loss.
-        if rev_now > 0 and latest_ni > 1.5 * rev_now:
+        if rev_now > 0 and not revenue_unreliable and latest_ni > 1.5 * rev_now:
             out["net_income_unusable"] = (
                 f"reported profit of ${latest_ni/1e9:,.1f}B against ${rev_now/1e9:,.1f}B "
                 f"of sales, which cannot be right")
@@ -2593,7 +2609,7 @@ def research(ticker: str, facts: dict, hist: pd.DataFrame,
             pass
         else:
             out["net_income_b"] = round(latest_ni / 1e9, 2)
-            if rev_now > 0:
+            if rev_now > 0 and not revenue_unreliable:
                 out["net_margin"] = round(latest_ni / rev_now * 100, 1)
         out["income_cagr_3y"] = _cagr(ni, 3)
         out["income_cagr_5y"] = _cagr(ni, 5)
@@ -2608,8 +2624,9 @@ def research(ticker: str, facts: dict, hist: pd.DataFrame,
             and not out.get("thin_equity")):
         out["roe"] = round(out["net_income_b"] * 1e9 / eq_now[1] * 100, 1)
 
-    out["revenue_cagr_3y"] = _cagr(ttm_rev, 3)
-    out["revenue_cagr_5y"] = _cagr(ttm_rev, 5)
+    if not revenue_unreliable:
+        out["revenue_cagr_3y"] = _cagr(ttm_rev, 3)
+        out["revenue_cagr_5y"] = _cagr(ttm_rev, 5)
 
     ocf = _ttm(facts, OPER_CASH_TAGS)
     capex = _ttm(facts, CAPEX_TAGS)
@@ -4459,25 +4476,18 @@ def main():
         row = summarize(t, meta.loc[t, "name"], meta.loc[t, "sector"],
                         hist, m_now, m_then, growth, pct_off_52w_high(closes[t]),
                         actions, audit)
-        if meta.loc[t, "sector"] in EXCLUDED_SECTORS:
-            # Excluded from the default view, and every measure here is built on
-            # revenue, which means something different for a bank or a landlord.
-            # Computing it produces figures nobody uses and warnings nobody wants.
-            research_rows[t] = {"ticker": t}
-            if audit or t in watch:
-                diagnostics.append(diagnose(t, facts, periods, quarters, ttm, hist,
-                                            shares, hist.attrs.get("splits", {}),
-                                            actions, audit, row))
-            if row:
-                results.append(row); series[t] = hist
-            else:
-                dropped.append((t, "no summary row",
-                                "summarize() returned nothing -- usually fewer than "
-                                f"{MIN_MONTHS_FOR_STATS} usable months in the window"))
-            continue
+        # Financials and Real Estate stay out of the default P/S view -- a
+        # bank's price-to-sales is not comparable to an industrial's -- but the
+        # research panel is not blanked any more. research() is run with the
+        # sector so it shows the figures that ARE valid for a bank or REIT
+        # (P/E, ROE, net income, debt, dilution, free cash flow, profit growth)
+        # and suppresses only the revenue-based ones. This is the same code path
+        # as every other sector below, just with the sector passed through, so
+        # the previously empty panels now populate.
         try:
             rsch = research(t, facts, hist, ttm,
-                            row.get('mktcap_b') if row else None)
+                            row.get('mktcap_b') if row else None,
+                            sector=meta.loc[t, "sector"])
             rsch["research_audit"] = "; ".join(audit_research(rsch)) or None
             research_rows[t] = rsch
         except Exception as e:
