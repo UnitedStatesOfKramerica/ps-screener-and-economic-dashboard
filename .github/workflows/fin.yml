@@ -1,0 +1,24 @@
+name: Build fin fixture
+on:
+  workflow_dispatch:
+jobs:
+  fin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install requests pandas numpy yfinance lxml
+      - name: Probe financials/REITs
+        env:
+          SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
+        run: python build_fin_fixture.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fin
+          path: fin.json.gz
+          retention-days: 14
+          if-no-files-found: error
