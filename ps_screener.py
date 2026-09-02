@@ -786,6 +786,52 @@ def _normalize_share_splits(series: list[tuple[date, float]], jump: float = 3.0
     return [(dt, v) for dt, v in out]
 
 
+def _correct_units_error(shares: list[tuple[date, float]], facts: dict
+                         ) -> list[tuple[date, float]]:
+    """Fix a share reading that slipped by a power of ten, and ONLY that.
+
+    A filing can tag a share count off by a round factor of ten -- Waters'
+    post-merger diluted count reads 98,204M against a true 98.2M (x1000), while
+    its shares-outstanding and dei cover-page both carry the correct 98.2M. The
+    fix fires only under strict confirmation, because a naive version corrupted
+    good data: it must be a power-of-ten off the concept's OWN recent median
+    (so AutoZone's clean diluted is never touched even though AutoZone's
+    shares-outstanding is itself corrupt in 2009), AND an independent concept
+    near that date must sit at the RESCALED value and NOT at the raw one (so a
+    real split, which moves every concept together, is never rescaled). Anything
+    that does not clear both tests is left alone for the reliability report to
+    flag rather than silently altered.
+    """
+    if len(shares) < 6:
+        return shares
+    own = sorted(v for _, v in shares if v > 0)
+    med = own[len(own) // 2] if own else 0.0
+    if med <= 0:
+        return shares
+    cross = (collect_instants(facts, "us-gaap", ["CommonStockSharesOutstanding"])
+             or collect_instants(facts, "dei", ["EntityCommonStockSharesOutstanding"]))
+    out = []
+    for d, v in shares:
+        acted = False
+        if v > 0:
+            r = v / med
+            if r > 50 or r < 1 / 50:
+                p10 = 10 ** round(math.log10(r)) if r > 0 else 1
+                cand = v / p10 if p10 else v
+                near = [cv for cd, cv in cross
+                        if abs((cd - d).days) <= 100 and cv > 0] if cross else []
+                if near and p10 not in (0, 1):
+                    cm = float(np.median(near))
+                    # independent concept confirms the RESCALED value, not the raw
+                    if (0.5 <= cand / cm <= 2.0 and not (0.5 <= v / cm <= 2.0)
+                            and 0.3 <= cand / med <= 3.0):
+                        out.append((d, cand))
+                        acted = True
+        if not acted:
+            out.append((d, v))
+    return out
+
+
 def _splice_share_history(chosen: list[tuple[date, float]], chosen_src: str,
                           facts: dict) -> list[tuple[date, float]]:
     """Extend a short diluted history backward from a longer concept.
@@ -4175,6 +4221,9 @@ def main():
                 shares, share_src = got, concept
                 break
         if shares is not None:
+            # Repair a power-of-ten units slip confirmed by an independent
+            # concept (Waters' 1000x post-merger count) before it is trusted.
+            shares = _correct_units_error(shares, facts)
             # Diluted is often only tagged from ~2022; extend it backward from a
             # longer concept so a decade-old filer is not dropped for want of
             # five years of share history (the Alphabet case).
