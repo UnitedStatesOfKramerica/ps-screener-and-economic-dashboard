@@ -3381,7 +3381,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <header>
   <h1>Price / Sales vs. its own history</h1>
   <div class="sub">Multiples built from as-filed SEC revenue and split-adjusted share
-  counts, sampled monthly.<br>__DATE__</div>
+  counts, sampled monthly.<br>__DATE__
+  &middot; <a href="dashboard.html" style="color:#58a6ff">macro dashboard &rarr;</a></div>
 </header>
 
 <div class="controls">
