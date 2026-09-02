@@ -4077,6 +4077,175 @@ render();
 # Main
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+#  Intraday price refresh
+#
+#  The nightly run does the whole job -- SEC filings, revenue, share counts,
+#  the ten-year P/S history -- and is the only thing that reads EDGAR. But a
+#  large intraday move (CRM dropped 15% in a day once) changes today's price,
+#  and with it market cap, P/S, the z-score and a couple of research figures,
+#  while everything historical is unchanged. Re-running the full pipeline every
+#  30 minutes to catch that would hammer EDGAR for no reason.
+#
+#  So the nightly run saves each company's finished daily P/S history and its
+#  static fields to state.json in docs/. The light refresh loads that, fetches
+#  ONLY today's price in one bulk call, and recomputes exactly the fields a
+#  price moves: price, market cap, ps_now, vs-median, z-score, percentile, and
+#  the extremes if today set one. The share basis was resolved last night, so
+#  ps_now is just yesterday's ps scaled by the price change -- which sidesteps
+#  the entire share-count question. ~90 seconds, no EDGAR, no recompute of
+#  anything a price cannot touch.
+# ---------------------------------------------------------------------------
+
+def save_state(summary: pd.DataFrame, series: dict[str, pd.DataFrame], path: Path):
+    """Everything the intraday refresh needs and nothing it does not.
+
+    Per company: the daily P/S and price arrays that the z-score, percentile and
+    medians are built from (so the refresh recomputes them identically, not off
+    a lossy monthly resample), the last price the history was built at, and the
+    static summary row. Written once by the nightly run.
+    """
+    cutoff = pd.Timestamp(date.today()) - pd.DateOffset(years=10)
+    state = {"built": str(date.today()), "companies": {}}
+    rows = {r["ticker"]: r for r in summary.to_dict(orient="records")}
+    for t, df in series.items():
+        if t not in rows:
+            continue
+        d = df.sort_values("date")
+        d10 = d[d["date"] >= cutoff]
+        if len(d10) < 200:
+            d10 = d
+        state["companies"][t] = {
+            "row": rows[t],
+            "last_price": float(d["price"].iloc[-1]),
+            "last_ps": float(d["ps"].iloc[-1]),
+            # the ten-year daily P/S distribution the stats rest on, and the
+            # matching dates so the five-year window can still be cut
+            "ps_hist": [round(float(v), 6) for v in d10["ps"].values],
+            "ps_dates": [str(pd.Timestamp(x).date()) for x in d10["date"].values],
+        }
+    path.write_text(json.dumps(state))
+    print(f"  wrote {path.name} for {len(state['companies'])} companies "
+          f"({path.stat().st_size/1e6:.1f} MB)")
+
+
+def _latest_prices(tickers: list[str]) -> dict[str, float]:
+    """Today's price per ticker, one bulk download, no cache.
+
+    Uses the most recent close (or live intraday last) from a single yfinance
+    call. Yahoo is ~15 minutes delayed, so "now" means a quarter-hour behind --
+    which is stated on the page, not hidden.
+    """
+    import yfinance as yf
+    out = {}
+    CHUNK = 100
+    for i in range(0, len(tickers), CHUNK):
+        batch = tickers[i:i + CHUNK]
+        try:
+            data = yf.download(batch, period="2d", interval="1d",
+                               auto_adjust=False, progress=False, threads=True)
+        except Exception as exc:
+            print(f"  price batch {i//CHUNK} failed: {exc}")
+            continue
+        close = data["Close"] if "Close" in data else data
+        if isinstance(close, pd.Series):          # single ticker returns a Series
+            close = close.to_frame(batch[0])
+        for t in batch:
+            if t in close.columns:
+                col = close[t].dropna()
+                if len(col):
+                    out[t] = float(col.iloc[-1])
+    return out
+
+
+def refresh_prices(tag: str = ""):
+    """Load state, reprice on today's quotes, rewrite the outputs. No EDGAR."""
+    state_path = OUT / f"docs/state{tag}.json"
+    if not state_path.exists():
+        state_path = OUT / f"state{tag}.json"
+    if not state_path.exists():
+        raise SystemExit("No state file. The nightly run writes docs/state.json; "
+                         "it must run once before an intraday refresh can reprice.")
+    state = json.loads(state_path.read_text())
+    companies = state["companies"]
+    tickers = sorted(companies)
+    print(f"Repricing {len(tickers)} companies from {state_path.name} "
+          f"(built {state.get('built')})...")
+
+    prices = _latest_prices(tickers)
+    print(f"  got {len(prices)} live prices")
+
+    rows = []
+    moved = 0
+    for t in tickers:
+        c = companies[t]
+        row = dict(c["row"])
+        new_px = prices.get(t)
+        if new_px and c.get("last_price"):
+            factor = new_px / c["last_price"]
+            if abs(factor - 1) > 1e-4:
+                moved += 1
+            # scale the price-driven fields; the share basis is fixed from last
+            # night, so market cap and P/S move exactly with the price
+            row["price"] = new_px
+            if row.get("mktcap_b") is not None:
+                row["mktcap_b"] = float(row["mktcap_b"]) * factor
+            new_ps = float(c["last_ps"]) * factor
+            row["ps_now"] = new_ps
+            # recompute everything that depends on where today sits in the
+            # distribution, against the saved ten-year P/S array
+            hist = np.array(c["ps_hist"], dtype=float)
+            dates = pd.to_datetime(c["ps_dates"])
+            if len(hist) >= 200:
+                last10 = hist
+                cut5 = dates.max() - pd.DateOffset(years=5)
+                last5 = hist[dates >= cut5]
+                med10 = float(np.median(last10))
+                med5 = float(np.median(last5)) if len(last5) >= 400 else None
+                row["ps_med_10y"] = med10
+                row["ps_med_5y"] = med5
+                row["vs_10y_pct"] = (new_ps / med10 - 1) * 100 if med10 else None
+                row["vs_5y_pct"] = (new_ps / med5 - 1) * 100 if med5 else None
+                logs = np.log(last10[last10 > 0])
+                spread = float(logs.std(ddof=1)) if len(logs) > 1 else 0.0
+                row["zscore"] = (float((math.log(new_ps) - logs.mean()) / spread)
+                                 if spread > 1e-9 and new_ps > 0 else None)
+                row["percentile"] = float((last10 < new_ps).mean() * 100)
+                row["ps_min"] = float(min(last10.min(), new_ps))
+                row["ps_max"] = float(max(last10.max(), new_ps))
+            # Research figures that are themselves price-driven must move too, or
+            # the panel shows a fresh price beside a stale P/E. P/E is
+            # market-cap over profit and profit is fixed overnight, so it scales
+            # with the price exactly like market cap does. The analyst-target
+            # upside and the dividend yield are both measured against the price,
+            # so they are recomputed from the new one. Everything else in the
+            # row -- margins, growth, debt, revenue, the audit -- a price cannot
+            # touch, and is carried through unchanged.
+            if row.get("pe") is not None:
+                row["pe"] = round(float(row["pe"]) * factor, 1)
+            if row.get("target_price") not in (None, "", 0) and new_px:
+                try:
+                    row["target_upside"] = (float(row["target_price"]) / new_px - 1) * 100
+                except (TypeError, ValueError):
+                    pass
+            if row.get("dividend_per_share") not in (None, "", 0) and new_px:
+                try:
+                    row["dividend_yield"] = float(row["dividend_per_share"]) / new_px * 100
+                except (TypeError, ValueError):
+                    pass
+        rows.append(row)
+
+    summary = pd.DataFrame(rows)
+    print(f"  {moved} prices moved since the state was built")
+
+    # stamp the refresh time so the page shows prices are live
+    os.environ["PRICE_REFRESH_AT"] = _now_et()
+
+    summary.to_csv(OUT / f"ps_screen{tag}.csv", index=False)
+    write_html(summary, OUT / f"ps_screen{tag}.html")
+    print(f"  repriced and rewrote ps_screen.html / ps_screen.csv")
+
+
 def main():
     ap = argparse.ArgumentParser()
     # The scheduled run supplies this as the SEC_EMAIL environment variable, not
@@ -4100,9 +4269,19 @@ def main():
     ap.add_argument("--years", type=int, default=HISTORY_YEARS)
     ap.add_argument("--watch", default="",
                     help="Comma-separated tickers to diagnose even if they pass every check.")
+    ap.add_argument("--refresh-prices", action="store_true",
+                    help="Intraday mode: reprice from docs/state.json on today's "
+                         "quotes and rewrite the outputs. No EDGAR, no recompute "
+                         "of anything a price cannot move.")
     ap.add_argument("--verify", type=int, default=10_000,
                     help="Cross-check the N cheapest rows against Yahoo. Default: all. 0 to skip.")
     args = ap.parse_args()
+
+    # Intraday refresh is a separate, lightweight path: it never touches EDGAR
+    # and returns as soon as the outputs are rewritten.
+    if getattr(args, "refresh_prices", False):
+        refresh_prices(f"_{args.tag}" if args.tag else "")
+        return
 
     if "@" not in (args.email or ""):
         ap.error(
@@ -4356,6 +4535,10 @@ def main():
     summary.to_csv(OUT / f"ps_screen{tag}.csv", index=False)
     write_sqlite(summary, series, OUT / f"ps_screen{tag}.db")
     write_html(summary, OUT / f"ps_screen{tag}.html")
+    # Save the state the intraday refresh reprices from. Written into docs/ so
+    # the publish step commits it alongside the page.
+    (OUT / "docs").mkdir(exist_ok=True)
+    save_state(summary, series, OUT / f"docs/state{tag}.json")
 
     audited = summary["audit"].notna().sum()
     xc_bad = (~summary["xc_verdict"].isin(["agrees", "unchecked"])).sum()
