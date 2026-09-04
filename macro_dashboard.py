@@ -145,7 +145,7 @@ DRILLDOWNS = {
                  "are quietly cutting labour input -- a lead on hiring, then payrolls, "
                  "weakening next."},
         {"id": "CCSA", "label": "Continued jobless claims", "kind": "level",
-         "units": "K", "worry": "up", "start": "1990-01-01",
+         "units": "K", "worry": "up", "start": "1990-01-01", "scale": 0.001,
          "note": "Rising continued claims mean the newly unemployed take longer to "
                  "find work -- a hardening market even while layoffs stay low. Weekly, "
                  "so the timeliest hard-data labour signal on the page."},
@@ -263,6 +263,9 @@ def panel_for(ind, percentile_state=False):
     raw = fetch(ind["id"], ind["start"])
     if not raw:
         return None, (ind["id"], ind["label"])
+    scale = ind.get("scale")
+    if scale:
+        raw = [(d, v * scale) for d, v in raw]
     series = yoy(raw) if ind["kind"] == "yoy" else raw
     if not series:
         return None, (ind["id"], ind["label"] + " (empty after transform)")
