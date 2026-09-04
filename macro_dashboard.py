@@ -134,7 +134,7 @@ THEMES = {
 DRILLDOWNS = {
     "Labor market": [
         {"id": "TEMPHELPS", "label": "Temporary-help employment", "kind": "level",
-         "units": "K", "worry": "down", "start": "1990-01-01",
+         "units": "K", "worry": "down", "start": "1990-01-01", "fmt": "count",
          "note": "Staffing firms shed temps before cutting permanent staff, so this "
                  "turns down first. A sustained decline is an early cyclical-risk "
                  "flag -- lighten high-beta, economically-sensitive exposure before "
@@ -145,7 +145,7 @@ DRILLDOWNS = {
                  "are quietly cutting labour input -- a lead on hiring, then payrolls, "
                  "weakening next."},
         {"id": "CCSA", "label": "Continued jobless claims", "kind": "level",
-         "units": "K", "worry": "up", "start": "1990-01-01", "scale": 0.001,
+         "units": "K", "worry": "up", "start": "1990-01-01", "scale": 0.001, "fmt": "count",
          "note": "Rising continued claims mean the newly unemployed take longer to "
                  "find work -- a hardening market even while layoffs stay low. Weekly, "
                  "so the timeliest hard-data labour signal on the page."},
@@ -155,17 +155,17 @@ DRILLDOWNS = {
                  "when they turn cautious. A falling quits rate leads wage growth "
                  "down -- supports easing off wage-inflation-sensitive positioning."},
         {"id": "LNS13026638", "label": "Permanent job losers", "kind": "level",
-         "units": "K", "worry": "up", "start": "1990-01-01",
+         "units": "K", "worry": "up", "start": "1990-01-01", "fmt": "count",
          "note": "The structural, slow-to-reverse kind of job loss (vs temporary "
                  "layoff). Rising permanent losers is a more serious deterioration "
                  "signal than a temp-layoff blip -- watch this one against the next."},
         {"id": "LNS13023653", "label": "Temporary layoffs", "kind": "level",
-         "units": "K", "worry": "up", "start": "1990-01-01",
+         "units": "K", "worry": "up", "start": "1990-01-01", "fmt": "count",
          "note": "Job losers on temporary layoff -- the reversible kind, and often "
                  "noisy (one-off shutdowns). The question is whether a rise here is "
                  "truly temporary or feeds through into permanent losers, which is worse."},
         {"id": "LNS12032194", "label": "Part-time for economic reasons", "kind": "level",
-         "units": "K", "worry": "up", "start": "1990-01-01",
+         "units": "K", "worry": "up", "start": "1990-01-01", "fmt": "count",
          "note": "People who want full-time work but are stuck part-time because "
                  "business is slow. Rising involuntary part-time is hidden slack the "
                  "headline unemployment rate misses -- an early read on softening "
@@ -281,6 +281,7 @@ def panel_for(ind, percentile_state=False):
     panel = {
         "label": ind["label"], "series_id": ind["id"], "units": ind["units"],
         "worry": ind["worry"], "note": ind["note"], "state": st,
+        "fmt": ind.get("fmt"),
         "caution": ind.get("caution"), "alert": ind.get("alert"),
         "latest": round(latest, 2), "latest_date": series[-1][0],
         "trend": tr, "deteriorating": deteriorating,
@@ -429,7 +430,7 @@ PAGE = r"""<!DOCTYPE html>
   .val small { font-size:13px; color:var(--dim); font-weight:500; }
   .move { font-size:12px; font-weight:600; }
   .asof { color:var(--dim); font-size:11px; }
-  .cbox { height:130px; margin-top:10px; }
+  .cbox { height:130px; margin-top:10px; position:relative; }
   .note { color:var(--dim); font-size:11.5px; margin-top:9px; line-height:1.45; }
   .calm{color:var(--calm);} .caution{color:var(--caution);} .alert{color:var(--alert);} .neutral{color:var(--neutral);} .dim{color:var(--dim);}
   .bg-calm{background:rgba(63,185,80,.15);color:var(--calm);}
@@ -454,6 +455,26 @@ PAGE = r"""<!DOCTYPE html>
   .dd-col .card { margin-bottom:14px; }
   .dd-col .card:last-child { margin-bottom:0; }
   .dd-empty { color:var(--dim); font-size:12px; font-style:italic; padding-left:10px; }
+  .expand { position:absolute; top:6px; right:6px; width:24px; height:24px; border:1px solid var(--line);
+            background:rgba(13,16,23,.7); color:var(--dim); border-radius:6px; cursor:pointer;
+            font-size:12px; line-height:1; display:flex; align-items:center; justify-content:center;
+            opacity:0; transition:opacity .12s; }
+  .card:hover .expand { opacity:1; }
+  .expand:hover { color:var(--ink); border-color:var(--neutral); }
+  @media(hover:none){ .expand{ opacity:.65; } }
+  .modal { position:fixed; inset:0; background:rgba(3,5,10,.72); display:none; z-index:50;
+           align-items:center; justify-content:center; padding:24px; }
+  .modal.open { display:flex; }
+  .modal-inner { background:var(--card); border:1px solid var(--line); border-radius:14px;
+                 width:min(1000px,96vw); max-height:92vh; overflow:auto; padding:20px 22px; }
+  .modal-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .modal-head h3 { margin:0; font-size:18px; }
+  #modal-close { background:none; border:none; color:var(--dim); font-size:20px; cursor:pointer; line-height:1; padding:0 4px; }
+  #modal-close:hover { color:var(--ink); }
+  .modal-meta { margin:10px 0 2px; font-size:13px; color:var(--dim); display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .modal-meta .m-val { font-size:22px; font-weight:700; }
+  .modal-cbox { height:60vh; min-height:320px; margin:12px 0 12px; }
+  .modal-note { color:var(--dim); font-size:13px; line-height:1.5; }
   .fail { color:var(--alert); font-size:13px; margin:14px 0; }
 </style></head>
 <body>
@@ -467,6 +488,17 @@ PAGE = r"""<!DOCTYPE html>
 <div class="gauges" id="gauges"></div>
 <div class="score" id="score"></div>
 <div id="themes"></div>
+</div>
+<div id="modal" class="modal">
+  <div class="modal-inner">
+    <div class="modal-head">
+      <div><h3 id="modal-title"></h3><div class="sid" id="modal-sid"></div></div>
+      <button id="modal-close" aria-label="Close">&#10005;</button>
+    </div>
+    <div class="modal-meta" id="modal-meta"></div>
+    <div class="modal-cbox"><canvas id="modal-cv"></canvas></div>
+    <div class="modal-note" id="modal-note"></div>
+  </div>
 </div>
 <script>
 const D = __DATA__;
@@ -516,43 +548,108 @@ document.getElementById('score').innerHTML = scHTML;
 
 const tRoot = document.getElementById('themes');
 const drillReg = {};
+const PANELS = {};
+let modalChart = null;
+
+// Adaptive number formatting. Person-counts (fmt='count') live in thousands in
+// the data; show them in millions once they cross 1,000 (2,519.5 -> 2.52M) but
+// keep small 6-month moves in K so early changes keep their resolution.
+function dispVU(v, p){
+  if(p && p.fmt==='count'){
+    const a = Math.abs(v);
+    if(a >= 1000) return {t:(v/1000).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}), u:'M'};
+    return {t:v.toLocaleString('en-US',{maximumFractionDigits:1}), u:'K'};
+  }
+  const u = p ? p.units : '';
+  const dec = Math.abs(v) < 10 ? 2 : 1;
+  return {t:v.toLocaleString('en-US',{maximumFractionDigits:dec}), u:u};
+}
+function axisTick(val, p){
+  if(p && p.fmt==='count'){
+    const a = Math.abs(val);
+    if(a >= 1000) return (val/1000).toLocaleString('en-US',{maximumFractionDigits:1})+'M';
+    return val.toLocaleString('en-US',{maximumFractionDigits:0})+'K';
+  }
+  return val.toLocaleString('en-US',{maximumFractionDigits:1});
+}
+
+// Dashed vertical crosshair at the hovered point (FRED-style).
+const crosshair = {
+  id:'crosshair',
+  afterDraw(chart){
+    const act = chart.tooltip && chart.tooltip.getActiveElements ? chart.tooltip.getActiveElements() : [];
+    if(!act.length) return;
+    const x = act[0].element.x, {top,bottom} = chart.chartArea, ctx = chart.ctx;
+    ctx.save(); ctx.beginPath(); ctx.moveTo(x,top); ctx.lineTo(x,bottom);
+    ctx.lineWidth = 1; ctx.setLineDash([3,3]); ctx.strokeStyle = css('--dim'); ctx.stroke(); ctx.restore();
+  }
+};
 
 function moveInfo(p){
   const mv = p.trend; let moveTxt='', moveCls='dim';
-  if(mv){ const d=mv.delta, sign=d>0?'+':'';
-    moveTxt = `${sign}${Math.abs(d)<10?d.toFixed(2):d.toFixed(0)} ${p.units} over 6mo`;
+  if(mv){ const d=mv.delta, sign = d>0?'+':d<0?'-':'';
+    const ad = dispVU(Math.abs(d), p);
+    moveTxt = `${sign}${ad.t} ${ad.u} over 6mo`;
     if(p.worry==='up') moveCls=d>0?'alert':'calm';
     else if(p.worry==='down') moveCls=d<0?'alert':'calm'; }
   return {mv,moveTxt,moveCls};
 }
 function makeCard(p,cid){
+  PANELS[cid] = p;
   const {mv,moveTxt,moveCls} = moveInfo(p);
   const pctTxt = mv ? ` &middot; ${mv.pct_of_range.toFixed(0)}th pctile of its range` : '';
+  const dv = dispVU(p.latest, p);
   const card = document.createElement('div'); card.className='card';
   card.innerHTML = `<div class="top"><div><h4>${p.label}</h4><div class="sid">${p.series_id}</div></div>
     <span class="badge bg-${p.state}">${p.state}</span></div>
-    <div class="row"><span class="val ${p.state}">${p.latest}<small> ${p.units}</small></span>
+    <div class="row"><span class="val ${p.state}">${dv.t}<small> ${dv.u}</small></span>
     ${mv?`<span class="move ${moveCls}">${p.deteriorating?'&#9650; ':''}${moveTxt}</span>`:''}</div>
     <div class="asof">as of ${p.latest_date}${pctTxt}</div>
-    <div class="cbox"><canvas id="cv-${cid}"></canvas></div>
+    <div class="cbox"><canvas id="cv-${cid}"></canvas><button class="expand" data-cid="${cid}" title="Expand chart" aria-label="Expand chart">&#10530;</button></div>
     <div class="note">${p.note}</div>`;
   return card;
 }
-function paintChart(p,cid){
-  const pts = p.points, step = Math.max(1,Math.floor(pts.length/500));
+function drawSeries(canvasId, p, opts){
+  opts = opts || {}; const big = !!opts.big;
+  const cap = opts.maxPts || (big?4000:500);
+  const pts = p.points, step = Math.max(1,Math.floor(pts.length/cap));
   const thin = pts.filter((_,k)=>k%step===0);
   const ds = [{ data: thin.map(x=>({x:x[0],y:x[1]})), borderColor:css('--neutral'),
-                borderWidth:1.5, pointRadius:0, tension:0.08, fill:false }];
+                borderWidth: big?2:1.5, pointRadius:0, pointHoverRadius: big?5:4,
+                pointHoverBackgroundColor:css('--neutral'), pointHoverBorderColor:css('--bg'),
+                pointHoverBorderWidth:2, tension:0.08, fill:false }];
   function refLine(val,cv){ if(val===null||val===undefined) return;
     ds.push({ data:[{x:thin[0][0],y:val},{x:thin[thin.length-1][0],y:val}],
-      borderColor:css(cv), borderWidth:1, borderDash:[4,4], pointRadius:0, fill:false }); }
+      borderColor:css(cv), borderWidth:1, borderDash:[4,4], pointRadius:0, pointHoverRadius:0, fill:false }); }
   refLine(p.caution,'--caution'); refLine(p.alert,'--alert');
-  new Chart(document.getElementById('cv-'+cid),{ type:'line', data:{datasets:ds},
+  return new Chart(document.getElementById(canvasId),{ type:'line', data:{datasets:ds}, plugins:[crosshair],
     options:{ responsive:true, maintainAspectRatio:false, animation:false,
-      plugins:{legend:{display:false}, tooltip:{intersect:false,mode:'index',
-        callbacks:{title:i=>i[0].raw.x, label:i=>i.raw.y+' '+p.units}}},
-      scales:{ x:{type:'time',time:{unit:'year'},ticks:{color:css('--dim'),font:{size:9},maxTicksLimit:6},grid:{color:css('--grid')}},
-               y:{ticks:{color:css('--dim'),font:{size:10},maxTicksLimit:4},grid:{color:css('--grid')}} } } });
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false}, tooltip:{position:'nearest',intersect:false,mode:'index',displayColors:false,
+        padding: big?10:8, titleFont:{size: big?13:11}, bodyFont:{size: big?14:12},
+        callbacks:{title:i=>i[0].raw.x, label:i=>{const d=dispVU(i.raw.y,p); return d.t+' '+d.u;}}}},
+      scales:{ x:{type:'time',time:{unit:'year'},ticks:{color:css('--dim'),font:{size:big?11:9},maxTicksLimit:big?12:6},grid:{color:css('--grid')}},
+               y:{ticks:{color:css('--dim'),font:{size:big?12:10},maxTicksLimit:big?6:4,callback:(val)=>axisTick(val,p)},grid:{color:css('--grid')}} } } });
+}
+function paintChart(p,cid){ drawSeries('cv-'+cid, p); }
+
+function openModal(cid){
+  const p = PANELS[cid]; if(!p) return;
+  document.getElementById('modal-title').textContent = p.label;
+  document.getElementById('modal-sid').textContent = p.series_id;
+  const mv = p.trend, dv = dispVU(p.latest, p);
+  let meta = `<span class="m-val ${p.state}">${dv.t} ${dv.u}</span><span class="badge bg-${p.state}">${p.state}</span><span>as of ${p.latest_date}`;
+  if(mv) meta += ` &middot; ${mv.pct_of_range.toFixed(0)}th pctile of its range`;
+  meta += `</span>`;
+  document.getElementById('modal-meta').innerHTML = meta;
+  document.getElementById('modal-note').textContent = p.note;
+  document.getElementById('modal').classList.add('open');
+  if(modalChart){ modalChart.destroy(); modalChart = null; }
+  requestAnimationFrame(()=>{ modalChart = drawSeries('modal-cv', p, {big:true}); });
+}
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  if(modalChart){ modalChart.destroy(); modalChart = null; }
 }
 function toggleDrill(key){
   const dd=document.getElementById('dd-'+key), chev=document.getElementById('chev-'+key);
@@ -597,6 +694,17 @@ Object.keys(D.themes).forEach(theme=>{
     sec.querySelector('.theme-head').addEventListener('click', ()=>toggleDrill(key));
   }
 });
+
+// Expand-to-fullscreen: click a chart (or its corner button) to open it large.
+document.addEventListener('click',(e)=>{
+  const btn = e.target.closest('.expand');
+  if(btn){ e.stopPropagation(); openModal(btn.dataset.cid); return; }
+  const box = e.target.closest('.cbox');
+  if(box){ const b = box.querySelector('.expand'); if(b) openModal(b.dataset.cid); }
+});
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('modal').addEventListener('click',(e)=>{ if(e.target.id==='modal') closeModal(); });
+document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closeModal(); });
 </script>
 </body></html>"""
 
