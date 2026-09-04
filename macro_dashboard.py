@@ -123,6 +123,56 @@ THEMES = {
                  "accompanied tightening cycles."},
     ],
 }
+
+# Drill-down sub-indicators: the signals that move BEFORE the headline in each
+# theme. Same schema as THEMES. State for these is derived from where the latest
+# reading sits in its OWN historical range (see substate_of) rather than invented
+# absolute thresholds, so caution/alert are intentionally omitted. Every entry has
+# a `worry` direction, which drives both the coloured 6-month move and the
+# for/against split rendered under the theme. Only "Labor market" is populated for
+# now; the same pattern extends to the other three themes.
+DRILLDOWNS = {
+    "Labor market": [
+        {"id": "TEMPHELPS", "label": "Temporary-help employment", "kind": "level",
+         "units": "K", "worry": "down", "start": "1990-01-01",
+         "note": "Staffing firms shed temps before cutting permanent staff, so this "
+                 "turns down first. A sustained decline is an early cyclical-risk "
+                 "flag -- lighten high-beta, economically-sensitive exposure before "
+                 "the headline confirms."},
+        {"id": "AWHAETP", "label": "Average weekly hours", "kind": "level",
+         "units": "hrs", "worry": "down", "start": "2006-03-01",
+         "note": "Employers trim hours before headcount. Falling hours mean firms "
+                 "are quietly cutting labour input -- a lead on hiring, then payrolls, "
+                 "weakening next."},
+        {"id": "CCSA", "label": "Continued jobless claims", "kind": "level",
+         "units": "K", "worry": "up", "start": "1990-01-01",
+         "note": "Rising continued claims mean the newly unemployed take longer to "
+                 "find work -- a hardening market even while layoffs stay low. Weekly, "
+                 "so the timeliest hard-data labour signal on the page."},
+        {"id": "JTSQUR", "label": "Quits rate", "kind": "level",
+         "units": "%", "worry": "down", "start": "2000-12-01",
+         "note": "Workers quit when confident of something better; the rate falls "
+                 "when they turn cautious. A falling quits rate leads wage growth "
+                 "down -- supports easing off wage-inflation-sensitive positioning."},
+        {"id": "LNS13026638", "label": "Permanent job losers", "kind": "level",
+         "units": "K", "worry": "up", "start": "1990-01-01",
+         "note": "The structural, slow-to-reverse kind of job loss (vs temporary "
+                 "layoff). Rising permanent losers is a more serious deterioration "
+                 "signal than a temp-layoff blip -- watch this one against the next."},
+        {"id": "LNS13023653", "label": "Temporary layoffs", "kind": "level",
+         "units": "K", "worry": "up", "start": "1990-01-01",
+         "note": "Job losers on temporary layoff -- the reversible kind, and often "
+                 "noisy (one-off shutdowns). The question is whether a rise here is "
+                 "truly temporary or feeds through into permanent losers, which is worse."},
+        {"id": "LNS12032194", "label": "Part-time for economic reasons", "kind": "level",
+         "units": "K", "worry": "up", "start": "1990-01-01",
+         "note": "People who want full-time work but are stuck part-time because "
+                 "business is slow. Rising involuntary part-time is hidden slack the "
+                 "headline unemployment rate misses -- an early read on softening "
+                 "labour demand."},
+    ],
+}
+
 COINCIDENT_ID = "RECPROUSM156N"
 
 
@@ -192,6 +242,49 @@ def state_of(worry, latest, caution, alert):
     return "alert" if latest <= alert else "caution" if latest <= caution else "calm"
 
 
+def substate_of(worry, pct):
+    """State for drill-down sub-indicators, from position in the series' OWN range.
+
+    Avoids inventing absolute thresholds for levels (temp-help, hours, claims,
+    job-loser counts) that scale with the labour force. worry='up': near the top
+    of its own history is the worrying end; worry='down': near the bottom is.
+    """
+    if worry is None or pct is None:
+        return "neutral"
+    if worry == "up":
+        return "alert" if pct >= 85 else "caution" if pct >= 65 else "calm"
+    return "alert" if pct <= 15 else "caution" if pct <= 35 else "calm"
+
+
+def panel_for(ind, percentile_state=False):
+    """Fetch one indicator and build its panel dict. Returns (panel, None) on
+    success or (None, fail_tuple) on failure. Shared by the main themes and the
+    drill-down sub-indicators so both get identical treatment."""
+    raw = fetch(ind["id"], ind["start"])
+    if not raw:
+        return None, (ind["id"], ind["label"])
+    series = yoy(raw) if ind["kind"] == "yoy" else raw
+    if not series:
+        return None, (ind["id"], ind["label"] + " (empty after transform)")
+    latest = series[-1][1]
+    tr = trend(series)
+    if percentile_state:
+        st = substate_of(ind["worry"], tr["pct_of_range"] if tr else None)
+    else:
+        st = state_of(ind["worry"], latest, ind.get("caution"), ind.get("alert"))
+    deteriorating = bool(tr and ind["worry"] and (
+        (ind["worry"] == "up" and tr["delta"] > 0) or
+        (ind["worry"] == "down" and tr["delta"] < 0)))
+    panel = {
+        "label": ind["label"], "series_id": ind["id"], "units": ind["units"],
+        "worry": ind["worry"], "note": ind["note"], "state": st,
+        "caution": ind.get("caution"), "alert": ind.get("alert"),
+        "latest": round(latest, 2), "latest_date": series[-1][0],
+        "trend": tr, "deteriorating": deteriorating,
+        "points": [[d, round(v, 3)] for d, v in series]}
+    return panel, None
+
+
 def build():
     print("Building recession-risk dashboard from FRED...")
     failed = []
@@ -215,30 +308,31 @@ def build():
     for theme, inds in THEMES.items():
         panels = []
         for ind in inds:
-            raw = fetch(ind["id"], ind["start"])
-            if not raw:
-                failed.append((ind["id"], ind["label"])); continue
-            series = yoy(raw) if ind["kind"] == "yoy" else raw
-            if not series:
-                failed.append((ind["id"], ind["label"] + " (empty after transform)")); continue
-            latest = series[-1][1]
-            tr = trend(series)
-            st = state_of(ind["worry"], latest, ind.get("caution"), ind.get("alert"))
-            deteriorating = bool(tr and ind["worry"] and (
-                (ind["worry"] == "up" and tr["delta"] > 0) or
-                (ind["worry"] == "down" and tr["delta"] < 0)))
-            panels.append({
-                "label": ind["label"], "series_id": ind["id"], "units": ind["units"],
-                "worry": ind["worry"], "note": ind["note"], "state": st,
-                "caution": ind.get("caution"), "alert": ind.get("alert"),
-                "latest": round(latest, 2), "latest_date": series[-1][0],
-                "trend": tr, "deteriorating": deteriorating,
-                "points": [[d, round(v, 3)] for d, v in series]})
+            panel, fail = panel_for(ind)
+            if panel is None:
+                failed.append(fail); continue
+            panels.append(panel)
             scorecard.append({"theme": theme, "label": ind["label"],
-                              "state": st, "deteriorating": deteriorating})
-            print(f"  {ind['id']:<14} {len(series):>5} pts  latest {latest:.2f}  "
-                  f"state={st} {'worse' if deteriorating else 'ok'}")
+                              "state": panel["state"],
+                              "deteriorating": panel["deteriorating"]})
+            print(f"  {ind['id']:<14} {len(panel['points']):>5} pts  "
+                  f"latest {panel['latest']:.2f}  state={panel['state']} "
+                  f"{'worse' if panel['deteriorating'] else 'ok'}")
         themes_out[theme] = panels
+
+    drill_out = {}
+    for theme, inds in DRILLDOWNS.items():
+        subs = []
+        for ind in inds:
+            panel, fail = panel_for(ind, percentile_state=True)
+            if panel is None:
+                failed.append(fail); continue
+            subs.append(panel)
+            print(f"  [drill] {ind['id']:<12} {len(panel['points']):>5} pts  "
+                  f"latest {panel['latest']:.2f}  state={panel['state']} "
+                  f"{'worse' if panel['deteriorating'] else 'ok'}")
+        if subs:
+            drill_out[theme] = subs
 
     order = {"alert": 3, "caution": 2, "calm": 1, "neutral": 0}
     theme_states = {}
@@ -258,7 +352,8 @@ def build():
         "ny": {"latest": ny_latest, "trend": ny_trend, "points": ny_series},
         "coincident": {"latest": (coin[-1] if coin else None),
                        "points": [[d, round(v, 1)] for d, v in coin]},
-        "themes": themes_out, "theme_states": theme_states, "scorecard": scorecard}
+        "themes": themes_out, "theme_states": theme_states, "scorecard": scorecard,
+        "drilldowns": drill_out}
     html = PAGE.replace("__DATA__", json.dumps(payload)) \
                .replace("__FAILED__", json.dumps(failed)) \
                .replace("__STAMP__", _now_et_local())
@@ -338,6 +433,24 @@ PAGE = r"""<!DOCTYPE html>
   .bg-caution{background:rgba(210,153,34,.15);color:var(--caution);}
   .bg-alert{background:rgba(248,81,73,.15);color:var(--alert);}
   .bg-neutral{background:rgba(88,166,255,.13);color:var(--neutral);}
+  .theme-head.expandable { cursor:pointer; user-select:none; }
+  .theme-head.expandable:hover h2 { color:var(--neutral); }
+  .chev { display:inline-block; transition:transform .15s; color:var(--dim); font-size:12px; margin-right:2px; }
+  .chev.open { transform:rotate(90deg); }
+  .lead { color:var(--dim); }
+  .drilldown { display:none; margin-top:16px; padding:18px; border:1px solid var(--line);
+               border-radius:11px; background:rgba(88,166,255,.03); }
+  .drilldown.open { display:block; }
+  .dd-intro { color:var(--dim); font-size:12px; margin:0 0 15px; line-height:1.45; }
+  .dd-cols { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media(max-width:820px){ .dd-cols{ grid-template-columns:1fr; } }
+  .dd-col h5 { margin:0 0 12px; font-size:12px; text-transform:uppercase; letter-spacing:.04em;
+               padding-left:10px; }
+  .dd-col.for h5 { border-left:3px solid var(--alert); color:var(--alert); }
+  .dd-col.against h5 { border-left:3px solid var(--calm); color:var(--calm); }
+  .dd-col .card { margin-bottom:14px; }
+  .dd-col .card:last-child { margin-bottom:0; }
+  .dd-empty { color:var(--dim); font-size:12px; font-style:italic; padding-left:10px; }
   .fail { color:var(--alert); font-size:13px; margin:14px 0; }
 </style></head>
 <body>
@@ -399,49 +512,87 @@ scHTML += `</div>`;
 document.getElementById('score').innerHTML = scHTML;
 
 const tRoot = document.getElementById('themes');
+const drillReg = {};
+
+function moveInfo(p){
+  const mv = p.trend; let moveTxt='', moveCls='dim';
+  if(mv){ const d=mv.delta, sign=d>0?'+':'';
+    moveTxt = `${sign}${Math.abs(d)<10?d.toFixed(2):d.toFixed(0)} ${p.units} over 6mo`;
+    if(p.worry==='up') moveCls=d>0?'alert':'calm';
+    else if(p.worry==='down') moveCls=d<0?'alert':'calm'; }
+  return {mv,moveTxt,moveCls};
+}
+function makeCard(p,cid){
+  const {mv,moveTxt,moveCls} = moveInfo(p);
+  const pctTxt = mv ? ` &middot; ${mv.pct_of_range.toFixed(0)}th pctile of its range` : '';
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `<div class="top"><div><h4>${p.label}</h4><div class="sid">${p.series_id}</div></div>
+    <span class="badge bg-${p.state}">${p.state}</span></div>
+    <div class="row"><span class="val ${p.state}">${p.latest}<small> ${p.units}</small></span>
+    ${mv?`<span class="move ${moveCls}">${p.deteriorating?'&#9650; ':''}${moveTxt}</span>`:''}</div>
+    <div class="asof">as of ${p.latest_date}${pctTxt}</div>
+    <div class="cbox"><canvas id="cv-${cid}"></canvas></div>
+    <div class="note">${p.note}</div>`;
+  return card;
+}
+function paintChart(p,cid){
+  const pts = p.points, step = Math.max(1,Math.floor(pts.length/500));
+  const thin = pts.filter((_,k)=>k%step===0);
+  const ds = [{ data: thin.map(x=>({x:x[0],y:x[1]})), borderColor:css('--neutral'),
+                borderWidth:1.5, pointRadius:0, tension:0.08, fill:false }];
+  function refLine(val,cv){ if(val===null||val===undefined) return;
+    ds.push({ data:[{x:thin[0][0],y:val},{x:thin[thin.length-1][0],y:val}],
+      borderColor:css(cv), borderWidth:1, borderDash:[4,4], pointRadius:0, fill:false }); }
+  refLine(p.caution,'--caution'); refLine(p.alert,'--alert');
+  new Chart(document.getElementById('cv-'+cid),{ type:'line', data:{datasets:ds},
+    options:{ responsive:true, maintainAspectRatio:false, animation:false,
+      plugins:{legend:{display:false}, tooltip:{intersect:false,mode:'index',
+        callbacks:{title:i=>i[0].raw.x, label:i=>i.raw.y+' '+p.units}}},
+      scales:{ x:{type:'time',time:{unit:'year'},ticks:{color:css('--dim'),font:{size:9},maxTicksLimit:6},grid:{color:css('--grid')}},
+               y:{ticks:{color:css('--dim'),font:{size:10},maxTicksLimit:4},grid:{color:css('--grid')}} } } });
+}
+function toggleDrill(key){
+  const dd=document.getElementById('dd-'+key), chev=document.getElementById('chev-'+key);
+  const open=dd.classList.toggle('open'); if(chev) chev.classList.toggle('open',open);
+  const reg=drillReg[key];
+  if(open && reg && !reg.drawn){ reg.paints.forEach(a=>paintChart(a[0],a[1])); reg.drawn=true; }
+}
+
 Object.keys(D.themes).forEach(theme=>{
   const panels = D.themes[theme]; if(!panels.length) return;
   const ts = D.theme_states[theme] || {state:'neutral',deteriorating:0,total:panels.length};
+  const key = theme.replace(/[^a-z]/gi,'');
+  const subs = (D.drilldowns && D.drilldowns[theme]) || [];
+  const forSubs = subs.filter(s=>s.deteriorating);
+  const againstSubs = subs.filter(s=>!s.deteriorating);
   const sec = document.createElement('div'); sec.className='theme';
   const detTxt = ts.deteriorating>0 ? `${ts.deteriorating} of ${ts.total} deteriorating` : 'stable';
-  sec.innerHTML = `<div class="theme-head"><h2>${theme}</h2>
+  const lead = subs.length ? ` &middot; <span class="lead">${forSubs.length}/${subs.length} leading signals worsening</span>` : '';
+  const chev = subs.length ? `<span class="chev" id="chev-${key}">&#9656;</span>` : '';
+  sec.innerHTML = `<div class="theme-head${subs.length?' expandable':''}">${chev}<h2>${theme}</h2>
     <span class="theme-state bg-${ts.state}">${ts.state}</span>
-    <span class="theme-note">${detTxt}</span></div><div class="cards"></div>`;
+    <span class="theme-note">${detTxt}${lead}</span></div><div class="cards"></div>`;
   tRoot.appendChild(sec);
   const cardsEl = sec.querySelector('.cards');
-  panels.forEach((p,idx)=>{
-    const cid = theme.replace(/[^a-z]/gi,'')+idx;
-    const mv = p.trend;
-    let moveTxt='', moveCls='dim';
-    if(mv){ const d=mv.delta, sign=d>0?'+':'';
-      moveTxt = `${sign}${Math.abs(d)<10?d.toFixed(2):d.toFixed(0)} ${p.units} over 6mo`;
-      if(p.worry==='up') moveCls=d>0?'alert':'calm';
-      else if(p.worry==='down') moveCls=d<0?'alert':'calm'; }
-    const pctTxt = mv ? ` &middot; ${mv.pct_of_range.toFixed(0)}th pctile of its range` : '';
-    const card = document.createElement('div'); card.className='card';
-    card.innerHTML = `<div class="top"><div><h4>${p.label}</h4><div class="sid">${p.series_id}</div></div>
-      <span class="badge bg-${p.state}">${p.state}</span></div>
-      <div class="row"><span class="val ${p.state}">${p.latest}<small> ${p.units}</small></span>
-      ${mv?`<span class="move ${moveCls}">${p.deteriorating?'&#9650; ':''}${moveTxt}</span>`:''}</div>
-      <div class="asof">as of ${p.latest_date}${pctTxt}</div>
-      <div class="cbox"><canvas id="cv-${cid}"></canvas></div>
-      <div class="note">${p.note}</div>`;
-    cardsEl.appendChild(card);
-    const pts = p.points, step = Math.max(1,Math.floor(pts.length/500));
-    const thin = pts.filter((_,k)=>k%step===0);
-    const ds = [{ data: thin.map(x=>({x:x[0],y:x[1]})), borderColor:css('--neutral'),
-                  borderWidth:1.5, pointRadius:0, tension:0.08, fill:false }];
-    function refLine(val,cv){ if(val===null||val===undefined) return;
-      ds.push({ data:[{x:thin[0][0],y:val},{x:thin[thin.length-1][0],y:val}],
-        borderColor:css(cv), borderWidth:1, borderDash:[4,4], pointRadius:0, fill:false }); }
-    refLine(p.caution,'--caution'); refLine(p.alert,'--alert');
-    new Chart(document.getElementById('cv-'+cid),{ type:'line', data:{datasets:ds},
-      options:{ responsive:true, maintainAspectRatio:false, animation:false,
-        plugins:{legend:{display:false}, tooltip:{intersect:false,mode:'index',
-          callbacks:{title:i=>i[0].raw.x, label:i=>i.raw.y+' '+p.units}}},
-        scales:{ x:{type:'time',time:{unit:'year'},ticks:{color:css('--dim'),font:{size:9},maxTicksLimit:6},grid:{color:css('--grid')}},
-                 y:{ticks:{color:css('--dim'),font:{size:10},maxTicksLimit:4},grid:{color:css('--grid')}} } } });
-  });
+  panels.forEach((p,idx)=>{ const cid=key+idx; cardsEl.appendChild(makeCard(p,cid)); paintChart(p,cid); });
+
+  if(subs.length){
+    const dd = document.createElement('div'); dd.className='drilldown'; dd.id='dd-'+key;
+    dd.innerHTML = `<p class="dd-intro">Leading signals that move before the headline, split by what they're arguing right now. Left is the case for deterioration; right is genuine contrary evidence, so the panel isn't a one-way read.</p>
+      <div class="dd-cols">
+        <div class="dd-col for"><h5>Arguing for deterioration &middot; ${forSubs.length}</h5><div class="dd-for"></div></div>
+        <div class="dd-col against"><h5>Arguing against &middot; ${againstSubs.length}</h5><div class="dd-against"></div></div>
+      </div>`;
+    sec.appendChild(dd);
+    const forEl = dd.querySelector('.dd-for'), againstEl = dd.querySelector('.dd-against');
+    const paints = [];
+    if(!forSubs.length) forEl.innerHTML = '<div class="dd-empty">Nothing currently deteriorating.</div>';
+    if(!againstSubs.length) againstEl.innerHTML = '<div class="dd-empty">Nothing currently stable or improving.</div>';
+    forSubs.forEach((s,i)=>{ const cid=key+'-df-'+i; forEl.appendChild(makeCard(s,cid)); paints.push([s,cid]); });
+    againstSubs.forEach((s,i)=>{ const cid=key+'-da-'+i; againstEl.appendChild(makeCard(s,cid)); paints.push([s,cid]); });
+    drillReg[key] = {paints, drawn:false};
+    sec.querySelector('.theme-head').addEventListener('click', ()=>toggleDrill(key));
+  }
 });
 </script>
 </body></html>"""
