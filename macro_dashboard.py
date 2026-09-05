@@ -549,89 +549,57 @@ def substate_of(worry, pct):
 
 
 SHILLER_CAPE_URLS = [
-    "http://www.econ.yale.edu/~shiller/data/ie_data.xls",
+    "https://www.multpl.com/shiller-pe/table/by-month",
 ]
+_CAPE_MONTHS = {m: i for i, m in enumerate(
+    ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], 1)}
 
 
 def fetch_cape(start):
-    """Shiller CAPE (10-year cyclically-adjusted P/E) from his ie_data.xls.
-    Defensive: locates the 'CAPE' column by header text, parses the fractional
-    Shiller date (2026.1 == Oct 2026), and fails safe -- any error returns []
-    so the dashboard still builds without CAPE."""
-    try:
-        import xlrd
-    except Exception:
-        print("  [cape] xlrd not installed -- skipping CAPE"); return []
-    book = None
+    """Shiller CAPE (10-year cyclically-adjusted P/E) from multpl's by-month
+    table -- Robert Shiller's data, kept current (the old Yale ie_data.xls is a
+    frozen 2023 copy). Parses the HTML table with the standard library, keeps
+    only plausible CAPE values, and fails safe -- any error returns [] so the
+    dashboard still builds without CAPE."""
     ua = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                         "AppleWebKit/537.36 (KHTML, like Gecko) "
                         "Chrome/124.0 Safari/537.36"}
+    html = None
     for url in SHILLER_CAPE_URLS:
         try:
-            r = requests.get(url, timeout=60, headers=ua, allow_redirects=True)
+            r = requests.get(url, timeout=60, headers=ua)
             r.raise_for_status()
-            book = xlrd.open_workbook(file_contents=r.content)
+            html = r.text
             break
         except Exception as exc:
             print(f"  [cape] {url} failed ({exc})")
-    if book is None:
+    if not html:
         return []
     try:
-        sheet = None
-        for nm in book.sheet_names():
-            if nm.strip().lower() == "data":
-                sheet = book.sheet_by_name(nm); break
-        if sheet is None:
-            sheet = book.sheet_by_index(0)
-
-        def col_letter(ci):
-            s, ci = "", ci + 1
-            while ci:
-                ci, r = divmod(ci - 1, 26); s = chr(65 + r) + s
-            return s
-
-        # Collect every column whose header names CAPE / P/E10 (never TR-CAPE,
-        # excess-yield, etc.), then pick the one that actually yields plausible
-        # CAPE values -- so a mislabelled or price/earnings column can't sneak in.
-        candidates = []
-        for ri in range(min(15, sheet.nrows)):
-            for ci in range(sheet.ncols):
-                v = sheet.cell_value(ri, ci)
-                if not isinstance(v, str):
-                    continue
-                t = " ".join(v.split()).upper()
-                named = ("CAPE" in t or "P/E10" in t or "PE10" in t)
-                if named and "TR" not in t and "EXCESS" not in t and "YIELD" not in t:
-                    candidates.append((ci, ri, v.strip()))
-        candidates.sort(key=lambda c: (c[2].strip().upper() != "CAPE", c[0]))
-        if not candidates:
-            print("  [cape] no CAPE column found in header"); return []
-
+        import re
         start_year = int(start[:4])
-        out = chosen = None
-        for ci, hr, htext in candidates:
-            series = []
-            for ri in range(hr + 1, sheet.nrows):
-                dv = sheet.cell_value(ri, 0)
-                cv = sheet.cell_value(ri, ci)
-                if not isinstance(dv, (int, float)) or not (1800 < dv < 2100):
-                    continue
-                if not isinstance(cv, (int, float)) or not (3.0 <= cv <= 80.0):
-                    continue
-                year = int(dv)
-                month = int(round((dv - year) * 100))
-                if month < 1 or month > 12 or year < start_year:
-                    continue
-                series.append((f"{year:04d}-{month:02d}-01", float(cv)))
-            if series:
-                out, chosen = series, (ci, hr, htext); break
-
-        if not out:
-            print("  [cape] CAPE header found but no plausible values; candidates: "
-                  f"{[(col_letter(c[0]), c[2]) for c in candidates]}"); return []
-        ci, hr, htext = chosen
-        print(f"  [cape] using column {col_letter(ci)} '{htext}' -> {len(out)} pts; "
-              f"last 3: {out[-3:]}")
+        out, seen = [], set()
+        for row in re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.S):
+            dm = re.search(r"([A-Z][a-z]{2})\s+\d{1,2},\s+(\d{4})", row)
+            vm = re.search(r"(\d{1,3}\.\d+)", row)
+            if not dm or not vm:
+                continue
+            mon = _CAPE_MONTHS.get(dm.group(1))
+            year = int(dm.group(2))
+            val = float(vm.group(1))
+            if not mon or year < start_year or not (3.0 <= val <= 80.0):
+                continue
+            key = f"{year:04d}-{mon:02d}-01"
+            if key in seen:          # newest-first table: keep the first per month
+                continue
+            seen.add(key)
+            out.append((key, val))
+        out.sort()
+        if out:
+            print(f"  [cape] multpl -> {len(out)} pts; last 3: {out[-3:]}")
+        else:
+            print("  [cape] no rows parsed from multpl")
         return out
     except Exception as exc:
         print(f"  [cape] parse error: {exc}"); return []
