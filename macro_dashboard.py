@@ -100,6 +100,38 @@ THEMES = {
          "note": "University of Michigan survey. Weak and falling sentiment "
                  "precedes pullbacks in consumer spending."},
     ],
+    "Consumer": [
+        {"id": "RRSFS", "label": "Real retail sales (YoY)", "kind": "yoy",
+         "units": "%", "worry": "down", "start": "1993-01-01",
+         "caution": 1.0, "alert": 0.0,
+         "note": "Inflation-adjusted spending. Growth slowing toward zero means the "
+                 "consumer -- two-thirds of GDP -- is pulling back; a direct read on "
+                 "consumer-discretionary exposure."},
+        {"id": "PSAVERT", "label": "Personal saving rate", "kind": "level",
+         "units": "%", "worry": "down", "start": "1990-01-01",
+         "caution": 4.0, "alert": 3.0,
+         "note": "A very low saving rate means households are spending beyond their "
+                 "cushion -- fine while jobs hold, fragile if they don't. Low and "
+                 "falling is late-cycle behaviour."},
+        {"id": "TDSP", "label": "Household debt-service ratio", "kind": "level",
+         "units": "%", "worry": "up", "start": "1990-01-01",
+         "caution": 11.5, "alert": 13.0,
+         "note": "Required debt payments as a share of disposable income. Rising "
+                 "toward the mid-13s (the 2007 peak) is where debt burdens start to "
+                 "break spending."},
+        {"id": "DRCCLACBS", "label": "Credit-card delinquency", "kind": "level",
+         "units": "%", "worry": "up", "start": "1991-01-01",
+         "caution": 3.5, "alert": 5.0,
+         "note": "The first crack in consumer credit -- cards go bad before autos "
+                 "and mortgages. Rising delinquency is early evidence the low-end "
+                 "consumer is stretched."},
+        {"id": "DRSFRMACBS", "label": "Mortgage delinquency", "kind": "level",
+         "units": "%", "worry": "up", "start": "1991-01-01",
+         "caution": 3.0, "alert": 5.0,
+         "note": "Single-family mortgage delinquency -- slower-moving but higher "
+                 "stakes than cards. A sustained rise is a housing-stress and "
+                 "financial-stability signal."},
+    ],
     "Inflation & policy": [
         {"id": "CPIAUCSL", "label": "CPI inflation (YoY)", "kind": "yoy",
          "units": "%", "worry": "up", "start": "1990-01-01",
@@ -121,6 +153,23 @@ THEMES = {
          "caution": None, "alert": None,
          "note": "Money-supply growth. Sharp contraction is unusual and has "
                  "accompanied tightening cycles."},
+    ],
+    "Valuation": [
+        {"id": "NCBEILQ027S / GDP", "label": "Buffett indicator (market cap / GDP)",
+         "compute": "ratio", "num": "NCBEILQ027S", "den": "GDP", "ratio_scale": 0.1,
+         "kind": "level", "units": "%", "worry": "up", "start": "1990-01-01",
+         "note": "Total US equity market value against the size of the economy -- "
+                 "Buffett's 'best single measure' of what you are paying for American "
+                 "business. It does not time tops, but extreme readings mean future "
+                 "returns are being pulled forward. Read against its own history: near "
+                 "the top of the range is priced for perfection."},
+        {"id": "CP / GDP", "label": "Corporate profit share of GDP",
+         "compute": "ratio", "num": "CP", "den": "GDP", "ratio_scale": 100,
+         "kind": "level", "units": "%", "worry": "up", "start": "1990-01-01",
+         "note": "After-tax corporate profits as a share of GDP. Margins mean-revert "
+                 "-- high profits draw competition, labour and regulation -- so a "
+                 "historically elevated share flatters earnings the market may be "
+                 "extrapolating. The valuation risk a simple P/E hides."},
     ],
 }
 
@@ -170,8 +219,158 @@ DRILLDOWNS = {
                  "business is slow. Rising involuntary part-time is hidden slack the "
                  "headline unemployment rate misses -- an early read on softening "
                  "labour demand."},
+        {"id": "CIVPART", "label": "Labor-force participation", "kind": "level",
+         "units": "%", "worry": "down", "start": "1990-01-01",
+         "note": "The share of working-age people in the labour force. A falling "
+                 "participation rate can flatter the unemployment rate (people "
+                 "leaving the workforce), so read the two together."},
+        {"id": "U6RATE", "label": "Underemployment (U-6)", "kind": "level",
+         "units": "%", "worry": "up", "start": "1994-01-01",
+         "note": "The broad rate -- adds discouraged workers and involuntary "
+                 "part-timers to the headline U-3. U-6 rising while U-3 is flat is "
+                 "hidden softening the headline misses."},
+    ],
+    "Inflation & policy": [
+        {"id": "T5YIE", "label": "5-year breakeven inflation", "kind": "level",
+         "units": "%", "worry": "up", "start": "2003-01-01",
+         "note": "What the bond market prices for average inflation over the next "
+                 "five years, in real time. Rising breakevens are the earliest sign "
+                 "expectations are drifting up -- the trigger to tilt toward "
+                 "energy/value and TIPS, away from long-duration bonds and growth."},
+        {"id": "T5YIFR", "label": "5y5y forward inflation", "kind": "level",
+         "units": "%", "worry": "up", "start": "2003-01-01",
+         "note": "The Fed's preferred long-run gauge -- expected inflation in years "
+                 "six to ten, stripped of near-term shocks. Drift up here means the "
+                 "market is doubting the 2% anchor itself: a more durable signal for "
+                 "the value/energy tilt than spot CPI."},
+        {"id": "CORESTICKM159SFRBATL", "label": "Sticky-price CPI (core)", "kind": "level",
+         "units": "%", "worry": "up", "start": "1990-01-01",
+         "note": "The slow-to-reprice part of the basket -- rent, insurance, "
+                 "services. It is the persistent core of inflation; while it stays "
+                 "high the Fed stays higher-for-longer, keeping pressure on "
+                 "long-duration assets regardless of headline CPI."},
+        {"id": "FRBATLWGT3MMAWMHWGO", "label": "Wage growth tracker", "kind": "level",
+         "units": "%", "worry": "up", "start": "1997-01-01",
+         "note": "Median wage growth feeds services inflation, the stickiest "
+                 "component. Re-accelerating wages make the last mile of disinflation "
+                 "hard and keep the Fed cautious -- reinforces staying underweight "
+                 "long-duration."},
+        {"id": "PPIFIS", "label": "Producer prices (final demand)", "kind": "yoy",
+         "units": "%", "worry": "up", "start": "2009-11-01",
+         "note": "Producer prices sit upstream of consumer prices, so pressure here "
+                 "shows up in CPI months later. An early read on whether goods "
+                 "disinflation is stalling or reversing."},
+        {"id": "IR", "label": "Import prices", "kind": "yoy",
+         "units": "%", "worry": "up", "start": "1990-01-01",
+         "note": "Import prices capture globally-sourced and FX-driven cost pressure "
+                 "before it reaches shelves. A weaker dollar or global cost-push "
+                 "lands here first -- a channel headline CPI picks up only later."},
+        {"id": "DCOILWTICO", "label": "WTI crude oil", "kind": "level",
+         "units": "$", "worry": "up", "start": "1990-01-01",
+         "note": "Real-time energy cost -- feeds headline inflation within weeks and "
+                 "is the clearest 'add to energy' trigger. Rising crude is "
+                 "inflationary and a tailwind for energy equities; it doubles as a "
+                 "growth/demand signal, so read a spike alongside the Growth theme."},
+    ],
+    "Financial conditions": [
+        {"id": "STLFSI4", "label": "Financial stress index", "kind": "level",
+         "units": "", "worry": "up", "start": "1994-01-01",
+         "note": "The St. Louis Fed's 18-input stress gauge, centred at zero. Above "
+                 "zero and rising means market stress is building -- an early, broad "
+                 "risk-off trigger before spreads blow out."},
+        {"id": "NFCIRISK", "label": "NFCI risk subindex", "kind": "level",
+         "units": "", "worry": "up", "start": "1990-01-01",
+         "note": "The volatility and funding-risk piece of financial conditions. "
+                 "Turns up first when markets get jumpy -- the leading limb of the "
+                 "headline NFCI."},
+        {"id": "NFCICREDIT", "label": "NFCI credit subindex", "kind": "level",
+         "units": "", "worry": "up", "start": "1990-01-01",
+         "note": "The credit-conditions piece -- lending standards and spreads. "
+                 "Tightening here is the channel that chokes off cyclical and "
+                 "small-cap financing."},
+        {"id": "NFCILEVERAGE", "label": "NFCI leverage subindex", "kind": "level",
+         "units": "", "worry": "up", "start": "1990-01-01",
+         "note": "Debt and equity leverage in the system. Elevated leverage is dry "
+                 "tinder -- it amplifies any shock, so a high reading raises the "
+                 "stakes of everything else."},
+        {"id": "VIXCLS", "label": "Volatility (VIX)", "kind": "level",
+         "units": "", "worry": "up", "start": "1990-01-01",
+         "note": "Equity-market fear. Spikes are contrarian short-term, but a "
+                 "sustained rise off lows is a genuine risk-off signal -- a timing "
+                 "input more than a trend-setter."},
+    ],
+    "Growth": [
+        {"id": "NEWORDER", "label": "Core capital-goods orders (YoY)", "kind": "yoy",
+         "units": "%", "worry": "down", "start": "1993-01-01",
+         "note": "Non-defence capital goods ex-aircraft -- what businesses order "
+                 "when confident. It leads capex and manufacturing; rolling over is "
+                 "an early cyclical-downturn tell."},
+        {"id": "PERMIT", "label": "Building permits", "kind": "level",
+         "units": "K", "worry": "down", "start": "1990-01-01", "fmt": "count",
+         "note": "Permits lead housing starts, which lead the cycle -- the earliest "
+                 "point in the most rate-sensitive part of the economy. Watch it "
+                 "ahead of the starts headline you already track."},
+        {"id": "HTRUCKSSAAR", "label": "Heavy truck sales", "kind": "level",
+         "units": "M", "worry": "down", "start": "1990-01-01",
+         "note": "A classic recession lead: fleet buyers cut heavy-truck orders "
+                 "before the downturn shows up elsewhere. A sustained drop off the "
+                 "highs is a reliable late-cycle warning."},
+        {"id": "CFNAI", "label": "National activity index", "kind": "level",
+         "units": "", "worry": "down", "start": "1990-01-01",
+         "note": "An 85-indicator composite of US activity, centred at zero -- zero "
+                 "is trend growth, negative is below-trend. A broad confirmation "
+                 "that ties the single-series growth signals together."},
     ],
 }
+
+# ---- Allocation layer ---------------------------------------------------------
+# Buckets the dashboard forms a lean on, in display order.
+ALLOC_BUCKETS = [
+    "Long-duration Treasuries", "Broad equity risk", "Value over Growth",
+    "Energy", "Defensive equities", "Cyclicals & small caps",
+    "High-yield credit", "Gold & real assets",
+]
+# What each signal argues for when it is ACTIVE (moving its worrying way over six
+# months, or sitting at a caution/alert level). OW/UW = over/underweight. Curated
+# to a balanced, high-signal subset so no one theme dominates by sheer count.
+ALLOC = {
+    "T5YIE": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"),
+              ("Energy", "OW"), ("Gold & real assets", "OW")],
+    "CORESTICKM159SFRBATL": [("Long-duration Treasuries", "UW"),
+                             ("Value over Growth", "OW"), ("Gold & real assets", "OW")],
+    "FRBATLWGT3MMAWMHWGO": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW")],
+    "DCOILWTICO": [("Energy", "OW"), ("Value over Growth", "OW"),
+                   ("Gold & real assets", "OW"), ("Long-duration Treasuries", "UW")],
+    "BAMLH0A0HYM2": [("Broad equity risk", "UW"), ("High-yield credit", "UW"),
+                     ("Defensive equities", "OW"), ("Long-duration Treasuries", "OW")],
+    "NFCI": [("Broad equity risk", "UW"), ("Cyclicals & small caps", "UW"),
+             ("Defensive equities", "OW")],
+    "VIXCLS": [("Broad equity risk", "UW"), ("Defensive equities", "OW")],
+    "T10Y3M": [("Broad equity risk", "UW"), ("Long-duration Treasuries", "OW"),
+               ("Defensive equities", "OW"), ("Cyclicals & small caps", "UW")],
+    "SAHMREALTIME": [("Broad equity risk", "UW"), ("Defensive equities", "OW"),
+                     ("Cyclicals & small caps", "UW"), ("Long-duration Treasuries", "OW")],
+    "IC4WSA": [("Broad equity risk", "UW"), ("Cyclicals & small caps", "UW"),
+               ("Defensive equities", "OW")],
+    "TEMPHELPS": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "CFNAI": [("Broad equity risk", "UW"), ("Cyclicals & small caps", "UW"),
+              ("Defensive equities", "OW")],
+    "NEWORDER": [("Cyclicals & small caps", "UW"), ("Broad equity risk", "UW")],
+    "DRCCLACBS": [("Broad equity risk", "UW"), ("Cyclicals & small caps", "UW"),
+                  ("Defensive equities", "OW")],
+    "RRSFS": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+}
+
+# CES supersectors (thousands of persons, SA) for the jobs-by-sector breakdown.
+SECTOR_JOBS = [
+    ("USMINE", "Mining & logging"), ("USCONS", "Construction"),
+    ("MANEMP", "Manufacturing"), ("USTPU", "Trade, transport & utilities"),
+    ("USINFO", "Information"), ("USFIRE", "Financial activities"),
+    ("USPBS", "Professional & business svcs"), ("USEHS", "Education & health"),
+    ("USLAH", "Leisure & hospitality"), ("USSERV", "Other services"),
+    ("USGOVT", "Government"),
+]
+
 
 COINCIDENT_ID = "RECPROUSM156N"
 
@@ -256,11 +455,37 @@ def substate_of(worry, pct):
     return "alert" if pct <= 15 else "caution" if pct <= 35 else "calm"
 
 
+def fetch_ratio(num_id, den_id, start, scale=1.0):
+    """Ratio of two FRED series (e.g. market cap / GDP). The denominator, often
+    lower-frequency (quarterly GDP), is aligned to each numerator date by taking
+    its most recent value on or before that date. Returns (date, ratio*scale)."""
+    num = fetch(num_id, start)
+    den = fetch(den_id, start)
+    if not num or not den:
+        return []
+    dd = sorted((datetime.strptime(d, "%Y-%m-%d").date(), v) for d, v in den)
+    out = []
+    for d, nv in num:
+        dt = datetime.strptime(d, "%Y-%m-%d").date()
+        dv = None
+        for dday, dval in dd:
+            if dday <= dt:
+                dv = dval
+            else:
+                break
+        if dv:
+            out.append((d, nv / dv * scale))
+    return out
+
+
 def panel_for(ind, percentile_state=False):
     """Fetch one indicator and build its panel dict. Returns (panel, None) on
     success or (None, fail_tuple) on failure. Shared by the main themes and the
     drill-down sub-indicators so both get identical treatment."""
-    raw = fetch(ind["id"], ind["start"])
+    if ind.get("compute") == "ratio":
+        raw = fetch_ratio(ind["num"], ind["den"], ind["start"], ind.get("ratio_scale", 1.0))
+    else:
+        raw = fetch(ind["id"], ind["start"])
     if not raw:
         return None, (ind["id"], ind["label"])
     scale = ind.get("scale")
@@ -311,8 +536,9 @@ def build():
     themes_out, scorecard = {}, []
     for theme, inds in THEMES.items():
         panels = []
+        pctile = theme == "Valuation"   # value cards read vs their own history
         for ind in inds:
-            panel, fail = panel_for(ind)
+            panel, fail = panel_for(ind, percentile_state=pctile)
             if panel is None:
                 failed.append(fail); continue
             panels.append(panel)
@@ -352,12 +578,66 @@ def build():
         for sid, lbl in failed:
             print(f"    {sid}: {lbl}")
 
+    # ---- Allocation read: fold active signals into bucket leans ----
+    all_panels = []
+    for pls in themes_out.values():
+        all_panels += pls
+    for pls in drill_out.values():
+        all_panels += pls
+    votes = {b: {"OW": [], "UW": []} for b in ALLOC_BUCKETS}
+    for p in all_panels:
+        if not (p["deteriorating"] or p["state"] in ("caution", "alert")):
+            continue
+        for bucket, lean in ALLOC.get(p["series_id"], []):
+            votes[bucket][lean].append(p["label"])
+    allocation = []
+    for b in ALLOC_BUCKETS:
+        ow, uw = votes[b]["OW"], votes[b]["UW"]
+        net = len(ow) - len(uw)
+        lean = "Overweight" if net > 0 else "Underweight" if net < 0 else "Neutral"
+        mag = abs(net)
+        conviction = ("strong" if mag >= 3 else "moderate" if mag == 2
+                      else "slight" if mag == 1 else "none")
+        allocation.append({"bucket": b, "lean": lean, "ow": ow, "uw": uw,
+                           "net": net, "conviction": conviction})
+    n_active = sum(1 for p in all_panels
+                   if p["deteriorating"] or p["state"] in ("caution", "alert"))
+    print(f"  [alloc] {n_active} active signals -> "
+          f"{sum(1 for a in allocation if a['lean'] != 'Neutral')} non-neutral tilts")
+
+    # ---- Jobs by sector: payroll change (thousands) over 12 and 3 months ----
+    def _change_over(series, days):
+        if len(series) < 2:
+            return None
+        dts = [datetime.strptime(d, "%Y-%m-%d").date() for d, _ in series]
+        target = dts[-1] - timedelta(days=days)
+        near = min(range(len(dts)), key=lambda i: abs((dts[i] - target).days))
+        if abs((dts[near] - target).days) > 45:
+            return None
+        return series[-1][1] - series[near][1]
+    sectors, jobs_asof = [], None
+    for sid, lbl in SECTOR_JOBS:
+        s = fetch(sid, "2015-01-01")
+        if not s:
+            failed.append((sid, lbl)); continue
+        jobs_asof = s[-1][0]
+        c12, c3 = _change_over(s, 365), _change_over(s, 92)
+        if c12 is None:
+            continue
+        sectors.append({"label": lbl, "chg12": round(c12, 1),
+                        "chg3": round(c3, 1) if c3 is not None else None,
+                        "latest": round(s[-1][1], 1)})
+        print(f"  [jobs] {sid:<8} 12m {c12:+6.0f}k  "
+              f"3m {('%+.0f' % c3) if c3 is not None else '   na'}k")
+    sectors.sort(key=lambda x: x["chg12"], reverse=True)
+    jobs = {"asof": jobs_asof, "sectors": sectors}
+
     payload = {
         "ny": {"latest": ny_latest, "trend": ny_trend, "points": ny_series},
         "coincident": {"latest": (coin[-1] if coin else None),
                        "points": [[d, round(v, 1)] for d, v in coin]},
         "themes": themes_out, "theme_states": theme_states, "scorecard": scorecard,
-        "drilldowns": drill_out}
+        "drilldowns": drill_out, "allocation": allocation, "jobs": jobs}
     html = PAGE.replace("__DATA__", json.dumps(payload)) \
                .replace("__FAILED__", json.dumps(failed)) \
                .replace("__STAMP__", _now_et_local())
@@ -437,6 +717,37 @@ PAGE = r"""<!DOCTYPE html>
   .bg-caution{background:rgba(210,153,34,.15);color:var(--caution);}
   .bg-alert{background:rgba(248,81,73,.15);color:var(--alert);}
   .bg-neutral{background:rgba(88,166,255,.13);color:var(--neutral);}
+  .alloc-h { font-size:18px; margin:6px 0 4px; }
+  .alloc-sub { color:var(--dim); font-size:12px; margin:0 0 15px; line-height:1.5; max-width:860px; }
+  .alloc-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:13px; margin-bottom:30px; }
+  .alloc-card { background:var(--card); border:1px solid var(--line); border-radius:11px; padding:14px 16px; }
+  .alloc-top { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:9px; }
+  .alloc-top h4 { margin:0; font-size:14px; }
+  .lean { font-size:10.5px; font-weight:700; padding:4px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:.04em; white-space:nowrap; }
+  .alloc-why { font-size:12px; color:var(--dim); line-height:1.5; }
+  .alloc-why .side { margin:4px 0; }
+  .s-ow { color:var(--calm); font-weight:600; }
+  .s-uw { color:var(--alert); font-weight:600; }
+  .alloc-badge { display:flex; align-items:center; gap:7px; }
+  .conv { display:inline-flex; gap:3px; }
+  .conv .seg { width:6px; height:12px; border-radius:2px; background:var(--line); }
+  .conv .seg.on.calm { background:var(--calm); }
+  .conv .seg.on.alert { background:var(--alert); }
+  .conv .seg.on.neutral { background:var(--neutral); }
+  .alloc-tally { font-size:10.5px; color:var(--dim); text-transform:uppercase; letter-spacing:.03em; margin:-3px 0 8px; }
+  .jobs-h { font-size:18px; margin:6px 0 4px; }
+  .jobs-sub { color:var(--dim); font-size:12px; margin:0 0 15px; max-width:860px; line-height:1.5; }
+  .jobs-list { margin-bottom:30px; }
+  .jobs-row { display:flex; align-items:center; gap:10px; margin:5px 0; }
+  .jl { width:170px; font-size:12px; color:var(--ink); flex-shrink:0; text-align:right; }
+  .jtrack { position:relative; flex:1; height:20px; background:var(--card); border-radius:4px; overflow:hidden; }
+  .jcenter { position:absolute; left:50%; top:0; bottom:0; width:1px; background:var(--dim); opacity:.5; }
+  .jb { position:absolute; top:3px; bottom:3px; border-radius:3px; }
+  .jb.pos { background:var(--calm); }
+  .jb.neg { background:var(--alert); }
+  .jv { width:60px; font-size:12px; font-variant-numeric:tabular-nums; flex-shrink:0; }
+  .jv.pos { color:var(--calm); }
+  .jv.neg { color:var(--alert); }
   .theme-head.expandable { cursor:pointer; user-select:none; }
   .theme-head.expandable:hover h2 { color:var(--neutral); }
   .chev { display:inline-block; transition:transform .15s; color:var(--dim); font-size:12px; margin-right:2px; }
@@ -487,7 +798,9 @@ PAGE = r"""<!DOCTYPE html>
 <div id="fail" class="fail"></div>
 <div class="gauges" id="gauges"></div>
 <div class="score" id="score"></div>
+<div id="alloc"></div>
 <div id="themes"></div>
+<div id="jobs"></div>
 </div>
 <div id="modal" class="modal">
   <div class="modal-inner">
@@ -545,6 +858,58 @@ let scHTML = `<h3>Signal scorecard &middot; ${nAlert} alert, ${nCaution} caution
 sc.forEach(x=>{ scHTML += `<span class="chip"><span class="dot" style="background:${css('--'+x.state)}"></span>${x.label}${x.deteriorating?' <span class="arrow">&#9650;</span>':''}</span>`; });
 scHTML += `</div>`;
 document.getElementById('score').innerHTML = scHTML;
+
+// ---- Allocation read ----
+const allocEl = document.getElementById('alloc');
+if (D.allocation && D.allocation.length){
+  const acls = l => l==='Overweight'?'calm':l==='Underweight'?'alert':'neutral';
+  let ah = `<h2 class="alloc-h">Allocation read</h2>
+    <p class="alloc-sub">A rules-based read of what the currently-active macro signals lean toward &mdash; not advice, and every driver is shown so you can judge for yourself. A signal counts as &ldquo;active&rdquo; when it is moving its worrying way or sitting at a caution/alert level; buckets with no active driver stay neutral.</p>
+    <div class="alloc-grid">`;
+  D.allocation.forEach(a=>{
+    const lc = acls(a.lean);
+    const fill = {strong:3, moderate:2, slight:1, none:0}[a.conviction];
+    let meter = '<span class="conv">';
+    for (let i=0;i<3;i++) meter += `<span class="seg ${i<fill?('on '+lc):''}"></span>`;
+    meter += '</span>';
+    let why = '';
+    if (a.ow.length) why += `<div class="side"><span class="s-ow">Argues overweight</span> &middot; ${a.ow.join(', ')}</div>`;
+    if (a.uw.length) why += `<div class="side"><span class="s-uw">Argues underweight</span> &middot; ${a.uw.join(', ')}</div>`;
+    if (!a.ow.length && !a.uw.length) why = `<div class="side dim">No active signals right now.</div>`;
+    const tally = (a.ow.length||a.uw.length)
+      ? `<div class="alloc-tally">${a.conviction} conviction &middot; ${a.ow.length} for, ${a.uw.length} against</div>` : '';
+    ah += `<div class="alloc-card"><div class="alloc-top"><h4>${a.bucket}</h4>`
+        + `<span class="alloc-badge"><span class="lean bg-${lc}">${a.lean}</span>${a.lean!=='Neutral'?meter:''}</span></div>`
+        + tally
+        + `<div class="alloc-why">${why}</div></div>`;
+  });
+  ah += `</div>`;
+  allocEl.innerHTML = ah;
+}
+
+// ---- Where the jobs are (sector payroll change) ----
+const jobsEl = document.getElementById('jobs');
+if (D.jobs && D.jobs.sectors && D.jobs.sectors.length){
+  const mx = Math.max(...D.jobs.sectors.map(s=>Math.abs(s.chg12))) || 1;
+  const fmtk = v => (v>=0?'+':'') + Math.round(v).toLocaleString() + 'k';
+  let jh = `<h2 class="jobs-h">Where the jobs are</h2>
+    <p class="jobs-sub">Change in payrolls by sector over the last 12 months, largest gains to largest losses. As of ${D.jobs.asof||''}. Hover a bar for the 3-month change.</p>
+    <div class="jobs-list">`;
+  D.jobs.sectors.forEach(s=>{
+    const pos = s.chg12 >= 0;
+    const w = Math.abs(s.chg12)/mx*50;
+    const bar = pos
+      ? `<div class="jb pos" style="left:50%;width:${w}%"></div>`
+      : `<div class="jb neg" style="left:${50-w}%;width:${w}%"></div>`;
+    const t3 = (s.chg3===null||s.chg3===undefined) ? 'n/a' : fmtk(s.chg3);
+    jh += `<div class="jobs-row" title="3-month change: ${t3}">`
+        + `<div class="jl">${s.label}</div>`
+        + `<div class="jtrack"><div class="jcenter"></div>${bar}</div>`
+        + `<div class="jv ${pos?'pos':'neg'}">${fmtk(s.chg12)}</div></div>`;
+  });
+  jh += `</div>`;
+  jobsEl.innerHTML = jh;
+}
 
 const tRoot = document.getElementById('themes');
 const drillReg = {};
