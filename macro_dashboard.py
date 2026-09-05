@@ -113,24 +113,12 @@ THEMES = {
          "note": "A very low saving rate means households are spending beyond their "
                  "cushion -- fine while jobs hold, fragile if they don't. Low and "
                  "falling is late-cycle behaviour."},
-        {"id": "TDSP", "label": "Household debt-service ratio", "kind": "level",
-         "units": "%", "worry": "up", "start": "1990-01-01",
-         "caution": 11.5, "alert": 13.0,
-         "note": "Required debt payments as a share of disposable income. Rising "
-                 "toward the mid-13s (the 2007 peak) is where debt burdens start to "
-                 "break spending."},
         {"id": "DRCCLACBS", "label": "Credit-card delinquency", "kind": "level",
          "units": "%", "worry": "up", "start": "1991-01-01",
          "caution": 3.5, "alert": 5.0,
          "note": "The first crack in consumer credit -- cards go bad before autos "
                  "and mortgages. Rising delinquency is early evidence the low-end "
                  "consumer is stretched."},
-        {"id": "DRSFRMACBS", "label": "Mortgage delinquency", "kind": "level",
-         "units": "%", "worry": "up", "start": "1991-01-01",
-         "caution": 3.0, "alert": 5.0,
-         "note": "Single-family mortgage delinquency -- slower-moving but higher "
-                 "stakes than cards. A sustained rise is a housing-stress and "
-                 "financial-stability signal."},
     ],
     "Inflation & policy": [
         {"id": "CPIAUCSL", "label": "CPI inflation (YoY)", "kind": "yoy",
@@ -321,18 +309,66 @@ DRILLDOWNS = {
                  "is trend growth, negative is below-trend. A broad confirmation "
                  "that ties the single-series growth signals together."},
     ],
+    "Consumer": [
+        {"id": "DSPIC96", "label": "Real disposable income (YoY)", "kind": "yoy",
+         "units": "%", "worry": "down", "start": "1990-01-01",
+         "note": "Inflation-adjusted take-home pay -- the fuel for spending. When "
+                 "real income growth stalls, retail sales follow, and any spending "
+                 "above it is coming out of savings or credit."},
+        {"id": "TDSP", "label": "Household debt-service ratio", "kind": "level",
+         "units": "%", "worry": "up", "start": "1990-01-01",
+         "note": "Required debt payments as a share of disposable income. Near the "
+                 "top of its own range is where debt burdens start to crowd out "
+                 "spending -- the 2007 peak was the warning."},
+        {"id": "REVOLSL", "label": "Revolving credit (YoY)", "kind": "yoy",
+         "units": "%", "worry": "up", "start": "1990-01-01",
+         "note": "Credit-card balances growing fast, especially while the saving "
+                 "rate falls, means households are leaning on cards to keep "
+                 "spending. Acceleration off a low base is the tell."},
+        {"id": "DRSFRMACBS", "label": "Mortgage delinquency", "kind": "level",
+         "units": "%", "worry": "up", "start": "1991-01-01",
+         "note": "Single-family mortgage delinquency -- slower-moving but higher "
+                 "stakes than cards. A sustained rise off historic lows is a "
+                 "housing-stress and financial-stability signal."},
+    ],
+    "Valuation": [
+        {"id": "(NCBEILQ027S+FBCELLQ027S) / GDP", "label": "Buffett indicator (full market)",
+         "compute": "ratio", "nums": ["NCBEILQ027S", "FBCELLQ027S"], "den": "GDP",
+         "ratio_scale": 0.1, "kind": "level", "units": "%", "worry": "up",
+         "start": "1990-01-01",
+         "note": "The complete market-cap-to-GDP, adding financial-sector equities "
+                 "to the non-financial headline above -- the ~200% figure most sites "
+                 "quote. Same message, fuller coverage."},
+        {"id": "NCBEILQ027S / CP", "label": "Aggregate market P/E (proxy)",
+         "compute": "ratio", "num": "NCBEILQ027S", "den": "CP", "ratio_scale": 0.001,
+         "kind": "level", "units": "x", "worry": "up", "start": "1990-01-01",
+         "note": "A rough economy-wide price-to-earnings: total equity value against "
+                 "after-tax corporate profits. Not the S&P's trailing P/E -- read it "
+                 "against its own history, where the top of the range is expensive."},
+    ],
 }
 
 # ---- Allocation layer ---------------------------------------------------------
 # Buckets the dashboard forms a lean on, in display order.
 ALLOC_BUCKETS = [
-    "Long-duration Treasuries", "Broad equity risk", "Value over Growth",
+    "Long-duration Treasuries", "Overall equity exposure", "Value over Growth",
     "Energy", "Defensive equities", "Cyclicals & small caps",
     "High-yield credit", "Gold & real assets",
 ]
 # What each signal argues for when it is ACTIVE (moving its worrying way over six
 # months, or sitting at a caution/alert level). OW/UW = over/underweight. Curated
 # to a balanced, high-signal subset so no one theme dominates by sheer count.
+BUCKET_DEF = {
+    "Long-duration Treasuries": "Long-dated US government bonds (10y+). Overweight adds duration -- it gains when growth and inflation fall and the Fed cuts, and loses when inflation runs hot.",
+    "Overall equity exposure": "How much to hold in stocks at all, versus cash and bonds. Overweight leans risk-on; underweight de-risks toward cash and quality as conditions tighten.",
+    "Value over Growth": "Cheap, low-multiple stocks (energy, financials, industrials) versus expensive long-duration growth (tech). Tilts to value when inflation and rates rise.",
+    "Energy": "Oil, gas and energy equities. Overweight when inflation and crude are rising -- a direct inflation hedge that also tracks demand.",
+    "Defensive equities": "Stable-demand sectors -- staples, utilities, healthcare -- that hold up in downturns regardless of price. This is about earnings stability, not cheapness (that is Value).",
+    "Cyclicals & small caps": "Economically-sensitive stocks -- industrials, materials, discretionary, small caps -- that need growth and easy credit. Underweight when the cycle turns down.",
+    "High-yield credit": "Below-investment-grade corporate bonds. Underweight when spreads widen or credit conditions tighten, because default risk and drawdowns rise together.",
+    "Gold & real assets": "Gold, commodities and real assets. Overweight as an inflation and tail-risk hedge when real yields fall or stress builds.",
+}
+
 ALLOC = {
     "T5YIE": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"),
               ("Energy", "OW"), ("Gold & real assets", "OW")],
@@ -341,23 +377,27 @@ ALLOC = {
     "FRBATLWGT3MMAWMHWGO": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW")],
     "DCOILWTICO": [("Energy", "OW"), ("Value over Growth", "OW"),
                    ("Gold & real assets", "OW"), ("Long-duration Treasuries", "UW")],
-    "BAMLH0A0HYM2": [("Broad equity risk", "UW"), ("High-yield credit", "UW"),
+    "BAMLH0A0HYM2": [("Overall equity exposure", "UW"), ("High-yield credit", "UW"),
                      ("Defensive equities", "OW"), ("Long-duration Treasuries", "OW")],
-    "NFCI": [("Broad equity risk", "UW"), ("Cyclicals & small caps", "UW"),
+    "NFCI": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"),
              ("Defensive equities", "OW")],
-    "VIXCLS": [("Broad equity risk", "UW"), ("Defensive equities", "OW")],
-    "T10Y3M": [("Broad equity risk", "UW"), ("Long-duration Treasuries", "OW"),
+    "VIXCLS": [("Overall equity exposure", "UW"), ("Defensive equities", "OW")],
+    "T10Y3M": [("Overall equity exposure", "UW"), ("Long-duration Treasuries", "OW"),
                ("Defensive equities", "OW"), ("Cyclicals & small caps", "UW")],
-    "SAHMREALTIME": [("Broad equity risk", "UW"), ("Defensive equities", "OW"),
+    "SAHMREALTIME": [("Overall equity exposure", "UW"), ("Defensive equities", "OW"),
                      ("Cyclicals & small caps", "UW"), ("Long-duration Treasuries", "OW")],
-    "IC4WSA": [("Broad equity risk", "UW"), ("Cyclicals & small caps", "UW"),
+    "IC4WSA": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"),
                ("Defensive equities", "OW")],
     "TEMPHELPS": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
-    "CFNAI": [("Broad equity risk", "UW"), ("Cyclicals & small caps", "UW"),
+    "CFNAI": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"),
               ("Defensive equities", "OW")],
-    "NEWORDER": [("Cyclicals & small caps", "UW"), ("Broad equity risk", "UW")],
-    "DRCCLACBS": [("Broad equity risk", "UW"), ("Cyclicals & small caps", "UW"),
+    "NEWORDER": [("Cyclicals & small caps", "UW"), ("Overall equity exposure", "UW")],
+    "DRCCLACBS": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"),
                   ("Defensive equities", "OW")],
+    "STLFSI4": [("Overall equity exposure", "UW"), ("High-yield credit", "UW"),
+                ("Defensive equities", "OW"), ("Long-duration Treasuries", "OW")],
+    "NFCICREDIT": [("High-yield credit", "UW"), ("Cyclicals & small caps", "UW"),
+                   ("Overall equity exposure", "UW")],
     "RRSFS": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
 }
 
@@ -455,12 +495,22 @@ def substate_of(worry, pct):
     return "alert" if pct <= 15 else "caution" if pct <= 35 else "calm"
 
 
-def fetch_ratio(num_id, den_id, start, scale=1.0):
-    """Ratio of two FRED series (e.g. market cap / GDP). The denominator, often
-    lower-frequency (quarterly GDP), is aligned to each numerator date by taking
-    its most recent value on or before that date. Returns (date, ratio*scale)."""
-    num = fetch(num_id, start)
-    den = fetch(den_id, start)
+def fetch_sum(ids, start):
+    """Sum several FRED series on their common dates (e.g. non-financial +
+    financial corporate equities). Returns [] if any input is missing."""
+    series = [fetch(i, start) for i in ids]
+    if any(not s for s in series):
+        return []
+    maps = [dict(s) for s in series]
+    common = set(maps[0])
+    for m in maps[1:]:
+        common &= set(m)
+    return sorted((d, sum(m[d] for m in maps)) for d in common)
+
+
+def ratio_align(num, den, scale=1.0):
+    """Numerator series over a (possibly lower-frequency) denominator, aligning
+    each numerator date to the most recent denominator value on or before it."""
     if not num or not den:
         return []
     dd = sorted((datetime.strptime(d, "%Y-%m-%d").date(), v) for d, v in den)
@@ -478,12 +528,21 @@ def fetch_ratio(num_id, den_id, start, scale=1.0):
     return out
 
 
+def fetch_ratio(num_id, den_id, start, scale=1.0):
+    return ratio_align(fetch(num_id, start), fetch(den_id, start), scale)
+
+
 def panel_for(ind, percentile_state=False):
     """Fetch one indicator and build its panel dict. Returns (panel, None) on
     success or (None, fail_tuple) on failure. Shared by the main themes and the
     drill-down sub-indicators so both get identical treatment."""
     if ind.get("compute") == "ratio":
-        raw = fetch_ratio(ind["num"], ind["den"], ind["start"], ind.get("ratio_scale", 1.0))
+        if ind.get("nums"):
+            num_series = fetch_sum(ind["nums"], ind["start"])
+        else:
+            num_series = fetch(ind["num"], ind["start"])
+        raw = ratio_align(num_series, fetch(ind["den"], ind["start"]),
+                          ind.get("ratio_scale", 1.0))
     else:
         raw = fetch(ind["id"], ind["start"])
     if not raw:
@@ -578,30 +637,48 @@ def build():
         for sid, lbl in failed:
             print(f"    {sid}: {lbl}")
 
-    # ---- Allocation read: fold active signals into bucket leans ----
+    # ---- Capital allocation: fold active signals into bucket leans ----
     all_panels = []
     for pls in themes_out.values():
         all_panels += pls
     for pls in drill_out.values():
         all_panels += pls
-    votes = {b: {"OW": [], "UW": []} for b in ALLOC_BUCKETS}
-    for p in all_panels:
-        if not (p["deteriorating"] or p["state"] in ("caution", "alert")):
-            continue
-        for bucket, lean in ALLOC.get(p["series_id"], []):
-            votes[bucket][lean].append(p["label"])
+    by_id = {p["series_id"]: p for p in all_panels}
+    bucket_signals = {b: [] for b in ALLOC_BUCKETS}
+    for sid, imps in ALLOC.items():
+        for bucket, lean in imps:
+            bucket_signals[bucket].append((sid, lean))
+
+    def _active(p):
+        return bool(p["deteriorating"] or p["state"] in ("caution", "alert"))
+
     allocation = []
     for b in ALLOC_BUCKETS:
-        ow, uw = votes[b]["OW"], votes[b]["UW"]
-        net = len(ow) - len(uw)
+        ow = uw = 0
+        drivers = []
+        for sid, lean in bucket_signals[b]:
+            p = by_id.get(sid)
+            if not p:
+                continue
+            act = _active(p)
+            if act:
+                ow += (lean == "OW")
+                uw += (lean == "UW")
+            drivers.append({"label": p["label"], "lean": lean,
+                            "active": act, "state": p["state"]})
+        drivers.sort(key=lambda d: (not d["active"], d["lean"]))
+        net = ow - uw
         lean = "Overweight" if net > 0 else "Underweight" if net < 0 else "Neutral"
         mag = abs(net)
         conviction = ("strong" if mag >= 3 else "moderate" if mag == 2
                       else "slight" if mag == 1 else "none")
-        allocation.append({"bucket": b, "lean": lean, "ow": ow, "uw": uw,
-                           "net": net, "conviction": conviction})
-    n_active = sum(1 for p in all_panels
-                   if p["deteriorating"] or p["state"] in ("caution", "alert"))
+        allocation.append({
+            "bucket": b, "definition": BUCKET_DEF.get(b, ""),
+            "lean": lean, "conviction": conviction, "net": net,
+            "ow": [d["label"] for d in drivers if d["active"] and d["lean"] == "OW"],
+            "uw": [d["label"] for d in drivers if d["active"] and d["lean"] == "UW"],
+            "drivers": drivers})
+    n_active = sum(1 for p in all_panels if _active(p))
     print(f"  [alloc] {n_active} active signals -> "
           f"{sum(1 for a in allocation if a['lean'] != 'Neutral')} non-neutral tilts")
 
@@ -735,6 +812,24 @@ PAGE = r"""<!DOCTYPE html>
   .conv .seg.on.alert { background:var(--alert); }
   .conv .seg.on.neutral { background:var(--neutral); }
   .alloc-tally { font-size:10.5px; color:var(--dim); text-transform:uppercase; letter-spacing:.03em; margin:-3px 0 8px; }
+  .sc-legend { display:flex; flex-wrap:wrap; gap:14px; margin:6px 0 12px; font-size:12px; color:var(--dim); }
+  .sc-key { display:inline-flex; align-items:center; gap:6px; }
+  .sc-key .dot { width:9px; height:9px; border-radius:50%; }
+  .sc-key .arrow { color:var(--neutral); font-size:10px; }
+  .sc-total { opacity:.75; }
+  .alloc-card.expandable { cursor:pointer; }
+  .alloc-hl { display:flex; align-items:center; gap:6px; }
+  .alloc-hl .chev { margin:0; }
+  .alloc-detail { display:none; margin-top:11px; padding-top:11px; border-top:1px solid var(--line); }
+  .alloc-card.open .alloc-detail { display:block; }
+  .alloc-def { font-size:12px; color:var(--dim); line-height:1.5; margin:0 0 11px; }
+  .asig-h { font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); margin-bottom:7px; }
+  .drow { display:flex; align-items:center; gap:8px; font-size:12px; margin:5px 0; }
+  .drow.off { opacity:.4; }
+  .drow .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .drow-l { flex:1; color:var(--ink); }
+  .drow-t { font-size:10px; text-transform:uppercase; letter-spacing:.03em; }
+  .drow-s { font-size:10px; color:var(--dim); width:56px; text-align:right; text-transform:capitalize; }
   .jobs-h { font-size:18px; margin:6px 0 4px; }
   .jobs-sub { color:var(--dim); font-size:12px; margin:0 0 15px; max-width:860px; line-height:1.5; }
   .jobs-list { margin-bottom:30px; }
@@ -800,7 +895,6 @@ PAGE = r"""<!DOCTYPE html>
 <div class="score" id="score"></div>
 <div id="alloc"></div>
 <div id="themes"></div>
-<div id="jobs"></div>
 </div>
 <div id="modal" class="modal">
   <div class="modal-inner">
@@ -853,43 +947,65 @@ if (co && co.latest){
 const sc = D.scorecard || [];
 const nAlert = sc.filter(x=>x.state==='alert').length;
 const nCaution = sc.filter(x=>x.state==='caution').length;
+const nCalm = sc.filter(x=>x.state==='calm').length;
+const nNeutral = sc.filter(x=>x.state==='neutral').length;
 const nDet = sc.filter(x=>x.deteriorating).length;
-let scHTML = `<h3>Signal scorecard &middot; ${nAlert} alert, ${nCaution} caution, ${nDet} deteriorating of ${sc.length}</h3><div class="chips">`;
+const scKey = (v,label,color) => `<span class="sc-key"><span class="dot" style="background:${color}"></span>${v} ${label}</span>`;
+let scHTML = `<h3>Signal scorecard</h3><div class="sc-legend">`
+  + scKey(nAlert,'alert',css('--alert'))
+  + scKey(nCaution,'caution',css('--caution'))
+  + scKey(nCalm,'calm',css('--calm'))
+  + scKey(nNeutral,'neutral',css('--neutral'))
+  + `<span class="sc-key"><span class="arrow">&#9650;</span>${nDet} deteriorating</span>`
+  + `<span class="sc-key sc-total">${sc.length} signals</span></div><div class="chips">`;
 sc.forEach(x=>{ scHTML += `<span class="chip"><span class="dot" style="background:${css('--'+x.state)}"></span>${x.label}${x.deteriorating?' <span class="arrow">&#9650;</span>':''}</span>`; });
 scHTML += `</div>`;
 document.getElementById('score').innerHTML = scHTML;
 
-// ---- Allocation read ----
+// ---- Capital Allocation ----
 const allocEl = document.getElementById('alloc');
 if (D.allocation && D.allocation.length){
   const acls = l => l==='Overweight'?'calm':l==='Underweight'?'alert':'neutral';
-  let ah = `<h2 class="alloc-h">Allocation read</h2>
-    <p class="alloc-sub">A rules-based read of what the currently-active macro signals lean toward &mdash; not advice, and every driver is shown so you can judge for yourself. A signal counts as &ldquo;active&rdquo; when it is moving its worrying way or sitting at a caution/alert level; buckets with no active driver stay neutral.</p>
+  let ah = `<h2 class="alloc-h">Capital Allocation</h2>
+    <p class="alloc-sub">A rules-based read of what the currently-active macro signals lean toward &mdash; not advice, and every driver is shown so you can judge for yourself. A signal counts as &ldquo;active&rdquo; when it is moving its worrying way or sitting at a caution/alert level; the meter shows conviction (how lopsided the evidence is). Tap a card for what the bucket means and every signal feeding it.</p>
     <div class="alloc-grid">`;
-  D.allocation.forEach(a=>{
+  D.allocation.forEach((a,ai)=>{
     const lc = acls(a.lean);
     const fill = {strong:3, moderate:2, slight:1, none:0}[a.conviction];
     let meter = '<span class="conv">';
     for (let i=0;i<3;i++) meter += `<span class="seg ${i<fill?('on '+lc):''}"></span>`;
     meter += '</span>';
-    let why = '';
-    if (a.ow.length) why += `<div class="side"><span class="s-ow">Argues overweight</span> &middot; ${a.ow.join(', ')}</div>`;
-    if (a.uw.length) why += `<div class="side"><span class="s-uw">Argues underweight</span> &middot; ${a.uw.join(', ')}</div>`;
-    if (!a.ow.length && !a.uw.length) why = `<div class="side dim">No active signals right now.</div>`;
     const tally = (a.ow.length||a.uw.length)
-      ? `<div class="alloc-tally">${a.conviction} conviction &middot; ${a.ow.length} for, ${a.uw.length} against</div>` : '';
-    ah += `<div class="alloc-card"><div class="alloc-top"><h4>${a.bucket}</h4>`
+      ? `<div class="alloc-tally">${a.conviction} conviction &middot; ${a.ow.length} for, ${a.uw.length} against</div>`
+      : `<div class="alloc-tally">no active signals</div>`;
+    let rows = '';
+    a.drivers.forEach(d=>{
+      rows += `<div class="drow ${d.active?'':'off'}"><span class="dot" style="background:${css('--'+d.state)}"></span>`
+           + `<span class="drow-l">${d.label}</span>`
+           + `<span class="drow-t ${d.lean==='OW'?'s-ow':'s-uw'}">${d.lean==='OW'?'overweight':'underweight'}</span>`
+           + `<span class="drow-s">${d.active?d.state:'inactive'}</span></div>`;
+    });
+    if (!a.drivers.length) rows = `<div class="drow off">No signals mapped to this bucket yet.</div>`;
+    const detail = `<div class="alloc-detail"><p class="alloc-def">${a.definition||''}</p>`
+                 + `<div class="asig-h">Signals feeding this bucket</div>${rows}</div>`;
+    ah += `<div class="alloc-card expandable"><div class="alloc-top">`
+        + `<span class="alloc-hl"><span class="chev" id="achev-${ai}">&#9656;</span><h4>${a.bucket}</h4></span>`
         + `<span class="alloc-badge"><span class="lean bg-${lc}">${a.lean}</span>${a.lean!=='Neutral'?meter:''}</span></div>`
-        + tally
-        + `<div class="alloc-why">${why}</div></div>`;
+        + tally + detail + `</div>`;
   });
   ah += `</div>`;
   allocEl.innerHTML = ah;
+  allocEl.querySelectorAll('.alloc-card.expandable').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      card.classList.toggle('open');
+      const ch = card.querySelector('.chev'); if(ch) ch.classList.toggle('open');
+    });
+  });
 }
 
-// ---- Where the jobs are (sector payroll change) ----
-const jobsEl = document.getElementById('jobs');
-if (D.jobs && D.jobs.sectors && D.jobs.sectors.length){
+// ---- Where the jobs are (sector payroll change) -- rendered under Labor ----
+function buildJobsHTML(){
+  if (!(D.jobs && D.jobs.sectors && D.jobs.sectors.length)) return '';
   const mx = Math.max(...D.jobs.sectors.map(s=>Math.abs(s.chg12))) || 1;
   const fmtk = v => (v>=0?'+':'') + Math.round(v).toLocaleString() + 'k';
   let jh = `<h2 class="jobs-h">Where the jobs are</h2>
@@ -908,7 +1024,7 @@ if (D.jobs && D.jobs.sectors && D.jobs.sectors.length){
         + `<div class="jv ${pos?'pos':'neg'}">${fmtk(s.chg12)}</div></div>`;
   });
   jh += `</div>`;
-  jobsEl.innerHTML = jh;
+  return jh;
 }
 
 const tRoot = document.getElementById('themes');
@@ -1057,6 +1173,12 @@ Object.keys(D.themes).forEach(theme=>{
     againstSubs.forEach((s,i)=>{ const cid=key+'-da-'+i; againstEl.appendChild(makeCard(s,cid)); paints.push([s,cid]); });
     drillReg[key] = {paints, drawn:false};
     sec.querySelector('.theme-head').addEventListener('click', ()=>toggleDrill(key));
+  }
+
+  if (theme === 'Labor market'){
+    const jh = buildJobsHTML();
+    if (jh){ const jsec = document.createElement('div'); jsec.className='theme jobs-sec';
+      jsec.innerHTML = jh; tRoot.appendChild(jsec); }
   }
 });
 
