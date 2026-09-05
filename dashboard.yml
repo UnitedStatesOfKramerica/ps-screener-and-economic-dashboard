@@ -1,0 +1,40 @@
+name: Build macro dashboard
+
+# FRED updates weekly/monthly, so once a day is plenty. Runs at 21:00 UTC, an
+# hour before the nightly screener, so the two never publish at the same moment.
+on:
+  schedule:
+    - cron: "0 21 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  dashboard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      # xlrd is used only to read Shiller's ie_data.xls for the CAPE ratio;
+      # if it or the download ever fails, the dashboard still builds without CAPE.
+      - run: pip install requests xlrd
+
+      - name: Build the dashboard
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python macro_dashboard.py
+
+      - name: Publish
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/dashboard.html
+          git diff --staged --quiet || git commit -m "Macro dashboard $(date -u +%Y-%m-%d)"
+          git push
