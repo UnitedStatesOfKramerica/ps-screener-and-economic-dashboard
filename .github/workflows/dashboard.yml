@@ -22,7 +22,9 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - run: pip install requests
+      # xlrd is used only to read Shiller's ie_data.xls for the CAPE ratio;
+      # if it or the download ever fails, the dashboard still builds without CAPE.
+      - run: pip install requests xlrd
 
       - name: Build the dashboard
         env:
