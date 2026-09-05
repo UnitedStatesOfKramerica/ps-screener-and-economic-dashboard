@@ -67,9 +67,9 @@ THEMES = {
          "caution": None, "alert": None,
          "note": "The level matters less than the TURN: unemployment rising off "
                  "its lows is the classic early recession tell."},
-        {"id": "ICSA", "label": "Initial jobless claims (4wk)", "kind": "level",
-         "units": "K", "worry": "up", "start": "1990-01-01",
-         "caution": 300000, "alert": 375000,
+        {"id": "IC4WSA", "label": "Initial jobless claims (4wk)", "kind": "level",
+         "units": "K", "worry": "up", "start": "1990-01-01", "scale": 0.001,
+         "fmt": "count", "caution": 300, "alert": 375,
          "note": "A four-week-average breakout above ~310k has led recessions by "
                  "2-4 months. The earliest hard-data labor signal."},
         {"id": "PAYEMS", "label": "Nonfarm payrolls (YoY)", "kind": "yoy",
@@ -90,7 +90,7 @@ THEMES = {
          "note": "Factory output. Cyclical and timely; turns down early because "
                  "manufacturing leads the broader economy."},
         {"id": "HOUST", "label": "Housing starts", "kind": "level",
-         "units": "K", "worry": "down", "start": "1990-01-01",
+         "units": "K", "worry": "down", "start": "1990-01-01", "fmt": "count",
          "caution": None, "alert": None,
          "note": "Homebuilding is rate-sensitive and turns before the cycle; "
                  "falling starts is an early-warning channel."},
