@@ -563,9 +563,12 @@ def fetch_cape(start):
     except Exception:
         print("  [cape] xlrd not installed -- skipping CAPE"); return []
     book = None
+    ua = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                        "AppleWebKit/537.36 (KHTML, like Gecko) "
+                        "Chrome/124.0 Safari/537.36"}
     for url in SHILLER_CAPE_URLS:
         try:
-            r = requests.get(url, timeout=60)
+            r = requests.get(url, timeout=60, headers=ua, allow_redirects=True)
             r.raise_for_status()
             book = xlrd.open_workbook(file_contents=r.content)
             break
@@ -580,41 +583,55 @@ def fetch_cape(start):
                 sheet = book.sheet_by_name(nm); break
         if sheet is None:
             sheet = book.sheet_by_index(0)
-        cape_col = header_row = None
-        for want_exact in (True, False):     # prefer exact "CAPE" over "TR CAPE"
-            for ri in range(min(15, sheet.nrows)):
-                for ci in range(sheet.ncols):
-                    v = sheet.cell_value(ri, ci)
-                    if not isinstance(v, str):
-                        continue
-                    t = v.strip().upper()
-                    hit = (t == "CAPE") if want_exact else ("CAPE" in t and "TR" not in t)
-                    if hit:
-                        cape_col, header_row = ci, ri; break
-                if cape_col is not None:
-                    break
-            if cape_col is not None:
-                break
-        if cape_col is None:
-            print("  [cape] CAPE column not found"); return []
+
+        def col_letter(ci):
+            s, ci = "", ci + 1
+            while ci:
+                ci, r = divmod(ci - 1, 26); s = chr(65 + r) + s
+            return s
+
+        # Collect every column whose header names CAPE / P/E10 (never TR-CAPE,
+        # excess-yield, etc.), then pick the one that actually yields plausible
+        # CAPE values -- so a mislabelled or price/earnings column can't sneak in.
+        candidates = []
+        for ri in range(min(15, sheet.nrows)):
+            for ci in range(sheet.ncols):
+                v = sheet.cell_value(ri, ci)
+                if not isinstance(v, str):
+                    continue
+                t = " ".join(v.split()).upper()
+                named = ("CAPE" in t or "P/E10" in t or "PE10" in t)
+                if named and "TR" not in t and "EXCESS" not in t and "YIELD" not in t:
+                    candidates.append((ci, ri, v.strip()))
+        candidates.sort(key=lambda c: (c[2].strip().upper() != "CAPE", c[0]))
+        if not candidates:
+            print("  [cape] no CAPE column found in header"); return []
+
         start_year = int(start[:4])
-        out = []
-        for ri in range(header_row + 1, sheet.nrows):
-            dv = sheet.cell_value(ri, 0)
-            cv = sheet.cell_value(ri, cape_col)
-            if not isinstance(dv, (int, float)) or dv <= 0:
-                continue
-            if not isinstance(cv, (int, float)) or cv <= 0:
-                continue
-            year = int(dv)
-            month = int(round((dv - year) * 100))
-            if month < 1 or month > 12 or year < start_year:
-                continue
-            out.append((f"{year:04d}-{month:02d}-01", float(cv)))
-        if out:
-            print(f"  [cape] loaded {len(out)} points, latest {out[-1][1]:.1f}x")
-        else:
-            print("  [cape] no rows parsed")
+        out = chosen = None
+        for ci, hr, htext in candidates:
+            series = []
+            for ri in range(hr + 1, sheet.nrows):
+                dv = sheet.cell_value(ri, 0)
+                cv = sheet.cell_value(ri, ci)
+                if not isinstance(dv, (int, float)) or not (1800 < dv < 2100):
+                    continue
+                if not isinstance(cv, (int, float)) or not (3.0 <= cv <= 80.0):
+                    continue
+                year = int(dv)
+                month = int(round((dv - year) * 100))
+                if month < 1 or month > 12 or year < start_year:
+                    continue
+                series.append((f"{year:04d}-{month:02d}-01", float(cv)))
+            if series:
+                out, chosen = series, (ci, hr, htext); break
+
+        if not out:
+            print("  [cape] CAPE header found but no plausible values; candidates: "
+                  f"{[(col_letter(c[0]), c[2]) for c in candidates]}"); return []
+        ci, hr, htext = chosen
+        print(f"  [cape] using column {col_letter(ci)} '{htext}' -> {len(out)} pts; "
+              f"last 3: {out[-3:]}")
         return out
     except Exception as exc:
         print(f"  [cape] parse error: {exc}"); return []
