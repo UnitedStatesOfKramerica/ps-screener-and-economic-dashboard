@@ -143,6 +143,13 @@ THEMES = {
                  "accompanied tightening cycles."},
     ],
     "Valuation": [
+        {"id": "Shiller CAPE", "label": "Shiller CAPE (10-yr P/E)", "compute": "cape",
+         "kind": "level", "units": "x", "worry": "up", "start": "1990-01-01",
+         "note": "Price divided by ten years of average real earnings -- the most-"
+                 "cited long-run valuation gauge, smoothing through the profit cycle "
+                 "that distorts a one-year P/E. Above ~30 has clustered around 1929, "
+                 "2000 and 2021. It says little about the next year but a lot about "
+                 "the next decade's returns."},
         {"id": "Market cap / GDP", "label": "Buffett indicator (market cap / GDP)",
          "compute": "ratio", "nums": ["NCBEILQ027S", "FBCELLQ027S"], "den": "GDP",
          "ratio_scale": 0.1, "kind": "level", "units": "%", "worry": "up",
@@ -357,8 +364,8 @@ DRILLDOWNS = {
 # Buckets the dashboard forms a lean on, in display order.
 ALLOC_BUCKETS = [
     "Long-duration Treasuries", "Overall equity exposure", "Value over Growth",
-    "Energy", "Defensive equities", "Cyclicals & small caps",
-    "High-yield credit", "Gold & real assets",
+    "Energy", "Real assets & commodities", "Defensive equities",
+    "Cyclicals & small caps", "High-yield credit", "Gold",
 ]
 # What each signal argues for when it is ACTIVE (moving its worrying way over six
 # months, or sitting at a caution/alert level). OW/UW = over/underweight. Curated
@@ -371,30 +378,31 @@ BUCKET_DEF = {
     "Defensive equities": "Stable-demand sectors -- staples, utilities, healthcare -- that hold up in downturns regardless of price. This is about earnings stability, not cheapness (that is Value).",
     "Cyclicals & small caps": "Economically-sensitive stocks -- industrials, materials, discretionary, small caps -- that need growth and easy credit. Underweight when the cycle turns down.",
     "High-yield credit": "Below-investment-grade corporate bonds. Underweight when spreads widen or credit conditions tighten, because default risk and drawdowns rise together.",
-    "Gold & real assets": "Gold, commodities and real assets. Overweight as an inflation and tail-risk hedge when real yields fall or stress builds.",
+    "Real assets & commodities": "Commodities, TIPS, real estate and infrastructure -- assets whose real value holds through inflation. Overweight when realised and expected inflation are rising.",
+    "Gold": "A monetary and tail hedge that tracks real interest rates and stress, not inflation itself. It rises when real yields fall or fear spikes, and stalls when real yields climb -- which is why it went nowhere in 2022 despite high inflation.",
 }
 
 ALLOC = {
     # Inflation complex running hot -> away from duration, toward energy/value
-    "T5YIE": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"), ("Energy", "OW")],
-    "T5YIFR": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"), ("Energy", "OW")],
+    "T5YIE": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"), ("Energy", "OW"), ("Real assets & commodities", "OW")],
+    "T5YIFR": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"), ("Energy", "OW"), ("Real assets & commodities", "OW")],
     "CORESTICKM159SFRBATL": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW")],
     "FRBATLWGT3MMAWMHWGO": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW")],
-    "PPIFIS": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"), ("Energy", "OW")],
-    "IR": [("Value over Growth", "OW"), ("Energy", "OW")],
-    "CPIAUCSL": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"), ("Energy", "OW")],
+    "PPIFIS": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"), ("Energy", "OW"), ("Real assets & commodities", "OW")],
+    "IR": [("Value over Growth", "OW"), ("Energy", "OW"), ("Real assets & commodities", "OW")],
+    "CPIAUCSL": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"), ("Energy", "OW"), ("Real assets & commodities", "OW")],
     "PCEPILFE": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW")],
-    "DCOILWTICO": [("Energy", "OW"), ("Value over Growth", "OW"), ("Long-duration Treasuries", "UW")],
+    "DCOILWTICO": [("Energy", "OW"), ("Value over Growth", "OW"), ("Long-duration Treasuries", "UW"), ("Real assets & commodities", "OW")],
     # Real yield: the discount rate. Rising real yields hurt gold and long bonds, favour value.
-    "DFII10": [("Gold & real assets", "UW"), ("Long-duration Treasuries", "UW"), ("Value over Growth", "OW")],
+    "DFII10": [("Gold", "UW"), ("Long-duration Treasuries", "UW"), ("Value over Growth", "OW")],
     # Financial stress / tightening -> risk-off, safe havens
     "BAMLH0A0HYM2": [("Overall equity exposure", "UW"), ("High-yield credit", "UW"),
                      ("Defensive equities", "OW"), ("Long-duration Treasuries", "OW")],
     "NFCI": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
     "NFCICREDIT": [("High-yield credit", "UW"), ("Cyclicals & small caps", "UW"), ("Overall equity exposure", "UW")],
     "STLFSI4": [("Overall equity exposure", "UW"), ("High-yield credit", "UW"), ("Defensive equities", "OW"),
-                ("Long-duration Treasuries", "OW"), ("Gold & real assets", "OW")],
-    "VIXCLS": [("Overall equity exposure", "UW"), ("Defensive equities", "OW"), ("Gold & real assets", "OW")],
+                ("Long-duration Treasuries", "OW"), ("Gold", "OW")],
+    "VIXCLS": [("Overall equity exposure", "UW"), ("Defensive equities", "OW"), ("Gold", "OW")],
     "T10Y3M": [("Overall equity exposure", "UW"), ("Long-duration Treasuries", "OW"),
                ("Defensive equities", "OW"), ("Cyclicals & small caps", "UW")],
     # Labour / growth / consumer weakening -> defensive, duration
@@ -406,6 +414,44 @@ ALLOC = {
     "NEWORDER": [("Cyclicals & small caps", "UW"), ("Overall equity exposure", "UW")],
     "DRCCLACBS": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
     "RRSFS": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+}
+
+# Per-signal weight in the allocation tally -- marquee signals count more than
+# minor ones. Default 1.0 for anything unlisted. Conviction is the weighted margin.
+SIGNAL_WEIGHT = {
+    "T10Y3M": 2.0, "SAHMREALTIME": 2.0,
+    "BAMLH0A0HYM2": 1.5, "DFII10": 1.5,
+    "T5YIE": 1.25, "T5YIFR": 1.25, "STLFSI4": 1.25, "NFCI": 1.25,
+    "CPIAUCSL": 1.25, "PCEPILFE": 1.25, "IC4WSA": 1.25, "CFNAI": 1.25,
+    "CORESTICKM159SFRBATL": 1.0, "VIXCLS": 1.0, "NFCICREDIT": 1.0,
+    "DCOILWTICO": 1.0, "TEMPHELPS": 1.0, "NEWORDER": 1.0, "DRCCLACBS": 1.0, "RRSFS": 1.0,
+    "FRBATLWGT3MMAWMHWGO": 0.75, "PPIFIS": 0.75, "IR": 0.5,
+}
+
+# ---- Regime classifier (growth x inflation) ----------------------------------
+# Signals whose 6-month direction defines momentum. Growth signals deteriorating
+# => growth decelerating; inflation signals deteriorating (rising) => accelerating.
+GROWTH_MOM = ["PAYEMS", "INDPRO", "GDPC1", "CFNAI", "NEWORDER", "RRSFS",
+              "UNRATE", "IC4WSA", "SAHMREALTIME"]
+INFLATION_MOM = ["CPIAUCSL", "PCEPILFE", "T5YIE", "T5YIFR",
+                 "CORESTICKM159SFRBATL", "PPIFIS"]
+REGIMES = {
+    ("accelerating", "accelerating"): ("Reflation",
+        "Growth and inflation both rising -- early-cycle. Historically favours "
+        "cyclicals, energy, value, commodities and small caps; underweight "
+        "long-duration bonds."),
+    ("accelerating", "decelerating"): ("Goldilocks",
+        "Growth rising while inflation cools -- the friendliest mix for markets. "
+        "Favours equities broadly, growth/tech and credit; the case for heavy "
+        "defensives and gold is weak."),
+    ("decelerating", "accelerating"): ("Stagflation",
+        "Growth slowing while inflation runs hot -- the hardest mix. Favours energy, "
+        "real assets, gold and TIPS alongside defensive equities; underweight "
+        "long-duration bonds, cyclicals and long-duration growth."),
+    ("decelerating", "decelerating"): ("Slowdown / Disinflation",
+        "Growth and inflation both falling -- late-cycle into contraction. Favours "
+        "long-duration Treasuries and quality/defensive equities; underweight "
+        "cyclicals, energy and commodities."),
 }
 
 # CES supersectors (thousands of persons, SA) for the jobs-by-sector breakdown.
@@ -502,6 +548,78 @@ def substate_of(worry, pct):
     return "alert" if pct <= 15 else "caution" if pct <= 35 else "calm"
 
 
+SHILLER_CAPE_URLS = [
+    "http://www.econ.yale.edu/~shiller/data/ie_data.xls",
+]
+
+
+def fetch_cape(start):
+    """Shiller CAPE (10-year cyclically-adjusted P/E) from his ie_data.xls.
+    Defensive: locates the 'CAPE' column by header text, parses the fractional
+    Shiller date (2026.1 == Oct 2026), and fails safe -- any error returns []
+    so the dashboard still builds without CAPE."""
+    try:
+        import xlrd
+    except Exception:
+        print("  [cape] xlrd not installed -- skipping CAPE"); return []
+    book = None
+    for url in SHILLER_CAPE_URLS:
+        try:
+            r = requests.get(url, timeout=60)
+            r.raise_for_status()
+            book = xlrd.open_workbook(file_contents=r.content)
+            break
+        except Exception as exc:
+            print(f"  [cape] {url} failed ({exc})")
+    if book is None:
+        return []
+    try:
+        sheet = None
+        for nm in book.sheet_names():
+            if nm.strip().lower() == "data":
+                sheet = book.sheet_by_name(nm); break
+        if sheet is None:
+            sheet = book.sheet_by_index(0)
+        cape_col = header_row = None
+        for want_exact in (True, False):     # prefer exact "CAPE" over "TR CAPE"
+            for ri in range(min(15, sheet.nrows)):
+                for ci in range(sheet.ncols):
+                    v = sheet.cell_value(ri, ci)
+                    if not isinstance(v, str):
+                        continue
+                    t = v.strip().upper()
+                    hit = (t == "CAPE") if want_exact else ("CAPE" in t and "TR" not in t)
+                    if hit:
+                        cape_col, header_row = ci, ri; break
+                if cape_col is not None:
+                    break
+            if cape_col is not None:
+                break
+        if cape_col is None:
+            print("  [cape] CAPE column not found"); return []
+        start_year = int(start[:4])
+        out = []
+        for ri in range(header_row + 1, sheet.nrows):
+            dv = sheet.cell_value(ri, 0)
+            cv = sheet.cell_value(ri, cape_col)
+            if not isinstance(dv, (int, float)) or dv <= 0:
+                continue
+            if not isinstance(cv, (int, float)) or cv <= 0:
+                continue
+            year = int(dv)
+            month = int(round((dv - year) * 100))
+            if month < 1 or month > 12 or year < start_year:
+                continue
+            out.append((f"{year:04d}-{month:02d}-01", float(cv)))
+        if out:
+            print(f"  [cape] loaded {len(out)} points, latest {out[-1][1]:.1f}x")
+        else:
+            print("  [cape] no rows parsed")
+        return out
+    except Exception as exc:
+        print(f"  [cape] parse error: {exc}"); return []
+
+
 def fetch_sum(ids, start):
     """Sum several FRED series on their common dates (e.g. non-financial +
     financial corporate equities). Returns [] if any input is missing."""
@@ -550,6 +668,8 @@ def panel_for(ind, percentile_state=False):
             num_series = fetch(ind["num"], ind["start"])
         raw = ratio_align(num_series, fetch(ind["den"], ind["start"]),
                           ind.get("ratio_scale", 1.0))
+    elif ind.get("compute") == "cape":
+        raw = fetch_cape(ind["start"])
     else:
         raw = fetch(ind["id"], ind["start"])
     if not raw:
@@ -661,41 +781,73 @@ def build():
 
     allocation = []
     for b in ALLOC_BUCKETS:
-        ow = uw = 0
+        ow = uw = 0.0
+        n_ow = n_uw = 0
         drivers = []
         for sid, lean in bucket_signals[b]:
             p = by_id.get(sid)
             if not p:
                 continue
+            w = SIGNAL_WEIGHT.get(sid, 1.0)
             act = _active(p)
             if act:
-                ow += (lean == "OW")
-                uw += (lean == "UW")
-            drivers.append({"label": p["label"], "lean": lean,
-                            "active": act, "state": p["state"]})
-        drivers.sort(key=lambda d: (not d["active"], d["lean"]))
+                if lean == "OW":
+                    ow += w; n_ow += 1
+                else:
+                    uw += w; n_uw += 1
+            drivers.append({"label": p["label"], "lean": lean, "active": act,
+                            "state": p["state"], "weight": w})
+        drivers.sort(key=lambda d: (not d["active"], -d["weight"], d["lean"]))
         net = ow - uw
         active_total = ow + uw
-        if net > 0:
+        if net > 1e-9:
             lean = "Overweight"
-        elif net < 0:
+        elif net < -1e-9:
             lean = "Underweight"
         elif active_total > 0:
-            lean = "Balanced"     # active signals on both sides cancel out
+            lean = "Balanced"
         else:
-            lean = "No signal"    # nothing mapped to this bucket is firing
+            lean = "No signal"
         mag = abs(net)
-        conviction = ("strong" if mag >= 3 else "moderate" if mag == 2
-                      else "slight" if mag == 1 else "none")
+        conviction = ("strong" if mag >= 3.0 else "moderate" if mag >= 1.5
+                      else "slight" if mag > 0 else "none")
         allocation.append({
             "bucket": b, "definition": BUCKET_DEF.get(b, ""),
-            "lean": lean, "conviction": conviction, "net": net,
+            "lean": lean, "conviction": conviction, "net": round(net, 2),
             "ow": [d["label"] for d in drivers if d["active"] and d["lean"] == "OW"],
             "uw": [d["label"] for d in drivers if d["active"] and d["lean"] == "UW"],
             "drivers": drivers})
     n_active = sum(1 for p in all_panels if _active(p))
     print(f"  [alloc] {n_active} active signals -> "
-          f"{sum(1 for a in allocation if a['lean'] != 'Neutral')} non-neutral tilts")
+          f"{sum(1 for a in allocation if a['lean'] in ('Overweight', 'Underweight'))} directional tilts")
+
+    # ---- Regime: growth x inflation, plus a valuation condition ----
+    def _decel(ids):
+        ps = [by_id[i] for i in ids if i in by_id]
+        det = sum(1 for p in ps if p["deteriorating"])
+        return det, len(ps)
+    g_det, g_tot = _decel(GROWTH_MOM)
+    i_det, i_tot = _decel(INFLATION_MOM)
+    growth = "decelerating" if (g_tot and g_det > g_tot / 2) else "accelerating"
+    inflation = "accelerating" if (i_tot and i_det > i_tot / 2) else "decelerating"
+    rname, rplay = REGIMES[(growth, inflation)]
+    val_panels = themes_out.get("Valuation", []) + drill_out.get("Valuation", [])
+    v_alert = sum(1 for p in val_panels if p["state"] == "alert")
+    v_tot = len(val_panels)
+    if v_tot and v_alert >= max(2, v_tot - 1):
+        valcond = "extreme"
+    elif v_alert >= 1:
+        valcond = "elevated"
+    else:
+        valcond = "normal"
+    cape_p = next((p for p in val_panels if p["label"].startswith("Shiller CAPE")), None)
+    valnote = (f"Shiller CAPE {cape_p['latest']:.0f}x" if cape_p
+               else "market cap/GDP and household equity allocation near records")
+    regime = {"name": rname, "growth": growth, "inflation": inflation,
+              "playbook": rplay, "valuation": valcond, "valnote": valnote}
+    print(f"  [regime] {rname} (growth {growth}, inflation {inflation}) "
+          f"| valuations {valcond} [{g_det}/{g_tot} growth decel, "
+          f"{i_det}/{i_tot} infl accel]")
 
     # ---- Jobs by sector: payroll change (thousands) over 12 and 3 months ----
     def _change_over(series, days):
@@ -729,7 +881,8 @@ def build():
         "coincident": {"latest": (coin[-1] if coin else None),
                        "points": [[d, round(v, 1)] for d, v in coin]},
         "themes": themes_out, "theme_states": theme_states, "scorecard": scorecard,
-        "drilldowns": drill_out, "allocation": allocation, "jobs": jobs}
+        "drilldowns": drill_out, "allocation": allocation, "jobs": jobs,
+        "regime": regime}
     html = PAGE.replace("__DATA__", json.dumps(payload)) \
                .replace("__FAILED__", json.dumps(failed)) \
                .replace("__STAMP__", _now_et_local())
@@ -809,6 +962,14 @@ PAGE = r"""<!DOCTYPE html>
   .bg-caution{background:rgba(210,153,34,.15);color:var(--caution);}
   .bg-alert{background:rgba(248,81,73,.15);color:var(--alert);}
   .bg-neutral{background:rgba(88,166,255,.13);color:var(--neutral);}
+  .regime-banner { background:var(--card); border:1px solid var(--line); border-radius:13px; padding:16px 18px; margin-bottom:18px; }
+  .regime-top { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .regime-tag { font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--dim); border:1px solid var(--line); border-radius:20px; padding:2px 9px; }
+  .regime-top h2 { margin:0; font-size:22px; }
+  .regime-sub { color:var(--dim); font-size:12.5px; }
+  .regime-play { color:var(--ink); font-size:13px; line-height:1.55; margin:9px 0 10px; max-width:900px; }
+  .regime-val { font-size:12px; color:var(--dim); display:flex; align-items:center; gap:8px; }
+  .regime-valnote { color:var(--dim); }
   .alloc-h { font-size:18px; margin:6px 0 4px; }
   .alloc-sub { color:var(--dim); font-size:12px; margin:0 0 15px; line-height:1.5; max-width:860px; }
   .alloc-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:13px; margin-bottom:30px; }
@@ -845,6 +1006,9 @@ PAGE = r"""<!DOCTYPE html>
   .drow-l { flex:1; color:var(--ink); }
   .drow-t { font-size:10px; text-transform:uppercase; letter-spacing:.03em; }
   .drow-s { font-size:10px; color:var(--dim); width:56px; text-align:right; text-transform:capitalize; }
+  .wchip { font-size:8.5px; text-transform:uppercase; letter-spacing:.04em; padding:1px 5px; border-radius:8px; margin-left:6px; vertical-align:middle; }
+  .wchip.key { background:rgba(88,166,255,.14); color:var(--neutral); }
+  .wchip.minor { background:var(--line); color:var(--dim); }
   .jobs-h { font-size:18px; margin:6px 0 4px; }
   .jobs-sub { color:var(--dim); font-size:12px; margin:0 0 15px; max-width:860px; line-height:1.5; }
   .jobs-list { margin-bottom:30px; }
@@ -906,6 +1070,7 @@ PAGE = r"""<!DOCTYPE html>
 </header>
 <div class="wrap">
 <div id="fail" class="fail"></div>
+<div id="regime"></div>
 <div class="gauges" id="gauges"></div>
 <div class="score" id="score"></div>
 <div id="alloc"></div>
@@ -927,6 +1092,20 @@ const D = __DATA__;
 const FAILED = __FAILED__;
 const css = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
 const stText = s => s==='alert' ? 'danger' : s;
+
+const R = D.regime;
+if (R){
+  const vcls = R.valuation==='extreme'?'alert':R.valuation==='elevated'?'caution':'calm';
+  document.getElementById('regime').innerHTML =
+    `<div class="regime-banner">
+       <div class="regime-top"><span class="regime-tag">Regime</span>`
+       + `<h2>${R.name}</h2>`
+       + `<span class="regime-sub">growth ${R.growth} &middot; inflation ${R.inflation}</span></div>`
+     + `<p class="regime-play">${R.playbook}</p>`
+     + `<div class="regime-val">Valuations <span class="badge bg-${vcls}">${R.valuation}</span>`
+       + `<span class="regime-valnote">${R.valnote}</span></div>`
+     + `</div>`;
+}
 if (FAILED.length) {
   document.getElementById('fail').textContent =
     FAILED.length + ' series could not be loaded from FRED: ' + FAILED.map(f=>f[1]).join(', ');
@@ -983,7 +1162,7 @@ const allocEl = document.getElementById('alloc');
 if (D.allocation && D.allocation.length){
   const acls = l => l==='Overweight'?'calm':l==='Underweight'?'alert':l==='Balanced'?'caution':'neutral';
   let ah = `<h2 class="alloc-h">Capital Allocation</h2>
-    <p class="alloc-sub">A rules-based read of what the currently-active macro signals lean toward &mdash; not advice, and every driver is shown so you can judge for yourself. A signal counts as &ldquo;active&rdquo; when it is moving its worrying way or sitting at a caution/danger level; the meter shows conviction (how lopsided the evidence is). <b>Balanced</b> means active signals pull both ways; <b>No signal</b> means nothing mapped here is firing. Tap a card for what the bucket means and every signal feeding it &mdash; dimmed rows are mapped but not currently active.</p>
+    <p class="alloc-sub">A rules-based read of what the currently-active macro signals lean toward &mdash; not advice, and every driver is shown so you can judge for yourself. A signal counts as &ldquo;active&rdquo; when it is moving its worrying way or sitting at a caution/danger level; the meter shows conviction &mdash; the <b>weighted</b> margin, so heavier signals (the yield curve, Sahm rule, credit spreads) move it more than minor ones. <b>Balanced</b> means active signals pull both ways; <b>No signal</b> means nothing mapped here is firing. Tap a card for what the bucket means and every signal feeding it &mdash; dimmed rows are mapped but not currently active.</p>
     <div class="alloc-grid">`;
   D.allocation.forEach((a,ai)=>{
     const lc = acls(a.lean);
@@ -999,8 +1178,10 @@ if (D.allocation && D.allocation.length){
       : `<div class="alloc-tally">${a.conviction} conviction &middot; ${a.ow.length} for, ${a.uw.length} against</div>`;
     let rows = '';
     a.drivers.forEach(d=>{
+      const wt = d.weight>=1.5 ? '<span class="wchip key">key</span>'
+               : d.weight<=0.75 ? '<span class="wchip minor">minor</span>' : '';
       rows += `<div class="drow ${d.active?'':'off'}"><span class="dot" style="background:${css('--'+d.state)}"></span>`
-           + `<span class="drow-l">${d.label}</span>`
+           + `<span class="drow-l">${d.label}${wt}</span>`
            + `<span class="drow-t ${d.lean==='OW'?'s-ow':'s-uw'}">${d.lean==='OW'?'overweight':'underweight'}</span>`
            + `<span class="drow-s">${d.active?stText(d.state):'inactive'}</span></div>`;
     });
