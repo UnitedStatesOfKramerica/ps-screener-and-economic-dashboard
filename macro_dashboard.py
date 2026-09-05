@@ -143,14 +143,15 @@ THEMES = {
                  "accompanied tightening cycles."},
     ],
     "Valuation": [
-        {"id": "NCBEILQ027S / GDP", "label": "Buffett indicator (market cap / GDP)",
-         "compute": "ratio", "num": "NCBEILQ027S", "den": "GDP", "ratio_scale": 0.1,
-         "kind": "level", "units": "%", "worry": "up", "start": "1990-01-01",
-         "note": "Total US equity market value against the size of the economy -- "
-                 "Buffett's 'best single measure' of what you are paying for American "
-                 "business. It does not time tops, but extreme readings mean future "
-                 "returns are being pulled forward. Read against its own history: near "
-                 "the top of the range is priced for perfection."},
+        {"id": "Market cap / GDP", "label": "Buffett indicator (market cap / GDP)",
+         "compute": "ratio", "nums": ["NCBEILQ027S", "FBCELLQ027S"], "den": "GDP",
+         "ratio_scale": 0.1, "kind": "level", "units": "%", "worry": "up",
+         "start": "1990-01-01",
+         "note": "Total US equity market value -- non-financial plus financial "
+                 "corporate equities -- against the size of the economy. Buffett's "
+                 "'best single measure' of what you are paying for American business. "
+                 "It does not time tops, but extreme readings pull future returns "
+                 "forward; read it against its own history."},
         {"id": "CP / GDP", "label": "Corporate profit share of GDP",
          "compute": "ratio", "num": "CP", "den": "GDP", "ratio_scale": 100,
          "kind": "level", "units": "%", "worry": "up", "start": "1990-01-01",
@@ -286,6 +287,12 @@ DRILLDOWNS = {
          "note": "Equity-market fear. Spikes are contrarian short-term, but a "
                  "sustained rise off lows is a genuine risk-off signal -- a timing "
                  "input more than a trend-setter."},
+        {"id": "DFII10", "label": "10-year real yield", "kind": "level",
+         "units": "%", "worry": "up", "start": "2003-01-01",
+         "note": "The 10-year TIPS yield -- interest rates after inflation, and the "
+                 "discount rate for every long-duration asset. Rising real yields "
+                 "compress valuations and are the true headwind for gold and long "
+                 "bonds; falling real yields are the tailwind."},
     ],
     "Growth": [
         {"id": "NEWORDER", "label": "Core capital-goods orders (YoY)", "kind": "yoy",
@@ -332,19 +339,17 @@ DRILLDOWNS = {
                  "housing-stress and financial-stability signal."},
     ],
     "Valuation": [
-        {"id": "(NCBEILQ027S+FBCELLQ027S) / GDP", "label": "Buffett indicator (full market)",
-         "compute": "ratio", "nums": ["NCBEILQ027S", "FBCELLQ027S"], "den": "GDP",
-         "ratio_scale": 0.1, "kind": "level", "units": "%", "worry": "up",
-         "start": "1990-01-01",
-         "note": "The complete market-cap-to-GDP, adding financial-sector equities "
-                 "to the non-financial headline above -- the ~200% figure most sites "
-                 "quote. Same message, fuller coverage."},
-        {"id": "NCBEILQ027S / CP", "label": "Aggregate market P/E (proxy)",
-         "compute": "ratio", "num": "NCBEILQ027S", "den": "CP", "ratio_scale": 0.001,
-         "kind": "level", "units": "x", "worry": "up", "start": "1990-01-01",
-         "note": "A rough economy-wide price-to-earnings: total equity value against "
-                 "after-tax corporate profits. Not the S&P's trailing P/E -- read it "
-                 "against its own history, where the top of the range is expensive."},
+        {"id": "BOGZ1FL153064486Q", "label": "Household equity allocation", "kind": "level",
+         "units": "%", "worry": "up", "start": "1990-01-01",
+         "note": "Share of household financial assets held in stocks. It peaks when "
+                 "the public is all-in -- it topped near the 2000 and 2021 highs -- "
+                 "and troughs at bottoms. A contrarian gauge: an extreme reading means "
+                 "little marginal buying power is left."},
+        {"id": "NCBCEPNW", "label": "Equities vs net worth (Tobin's Q)", "kind": "level",
+         "units": "%", "worry": "up", "start": "1990-01-01",
+         "note": "Corporate equity value against companies' net worth -- a Tobin's-Q "
+                 "proxy. Well above 100% the market prices firms far over the "
+                 "replacement cost of their assets; it mean-reverts over long horizons."},
     ],
 }
 
@@ -370,34 +375,36 @@ BUCKET_DEF = {
 }
 
 ALLOC = {
-    "T5YIE": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"),
-              ("Energy", "OW"), ("Gold & real assets", "OW")],
-    "CORESTICKM159SFRBATL": [("Long-duration Treasuries", "UW"),
-                             ("Value over Growth", "OW"), ("Gold & real assets", "OW")],
+    # Inflation complex running hot -> away from duration, toward energy/value
+    "T5YIE": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"), ("Energy", "OW")],
+    "T5YIFR": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"), ("Energy", "OW")],
+    "CORESTICKM159SFRBATL": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW")],
     "FRBATLWGT3MMAWMHWGO": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW")],
-    "DCOILWTICO": [("Energy", "OW"), ("Value over Growth", "OW"),
-                   ("Gold & real assets", "OW"), ("Long-duration Treasuries", "UW")],
+    "PPIFIS": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"), ("Energy", "OW")],
+    "IR": [("Value over Growth", "OW"), ("Energy", "OW")],
+    "CPIAUCSL": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"), ("Energy", "OW")],
+    "PCEPILFE": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW")],
+    "DCOILWTICO": [("Energy", "OW"), ("Value over Growth", "OW"), ("Long-duration Treasuries", "UW")],
+    # Real yield: the discount rate. Rising real yields hurt gold and long bonds, favour value.
+    "DFII10": [("Gold & real assets", "UW"), ("Long-duration Treasuries", "UW"), ("Value over Growth", "OW")],
+    # Financial stress / tightening -> risk-off, safe havens
     "BAMLH0A0HYM2": [("Overall equity exposure", "UW"), ("High-yield credit", "UW"),
                      ("Defensive equities", "OW"), ("Long-duration Treasuries", "OW")],
-    "NFCI": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"),
-             ("Defensive equities", "OW")],
-    "VIXCLS": [("Overall equity exposure", "UW"), ("Defensive equities", "OW")],
+    "NFCI": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "NFCICREDIT": [("High-yield credit", "UW"), ("Cyclicals & small caps", "UW"), ("Overall equity exposure", "UW")],
+    "STLFSI4": [("Overall equity exposure", "UW"), ("High-yield credit", "UW"), ("Defensive equities", "OW"),
+                ("Long-duration Treasuries", "OW"), ("Gold & real assets", "OW")],
+    "VIXCLS": [("Overall equity exposure", "UW"), ("Defensive equities", "OW"), ("Gold & real assets", "OW")],
     "T10Y3M": [("Overall equity exposure", "UW"), ("Long-duration Treasuries", "OW"),
                ("Defensive equities", "OW"), ("Cyclicals & small caps", "UW")],
+    # Labour / growth / consumer weakening -> defensive, duration
     "SAHMREALTIME": [("Overall equity exposure", "UW"), ("Defensive equities", "OW"),
                      ("Cyclicals & small caps", "UW"), ("Long-duration Treasuries", "OW")],
-    "IC4WSA": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"),
-               ("Defensive equities", "OW")],
+    "IC4WSA": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
     "TEMPHELPS": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
-    "CFNAI": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"),
-              ("Defensive equities", "OW")],
+    "CFNAI": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
     "NEWORDER": [("Cyclicals & small caps", "UW"), ("Overall equity exposure", "UW")],
-    "DRCCLACBS": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"),
-                  ("Defensive equities", "OW")],
-    "STLFSI4": [("Overall equity exposure", "UW"), ("High-yield credit", "UW"),
-                ("Defensive equities", "OW"), ("Long-duration Treasuries", "OW")],
-    "NFCICREDIT": [("High-yield credit", "UW"), ("Cyclicals & small caps", "UW"),
-                   ("Overall equity exposure", "UW")],
+    "DRCCLACBS": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
     "RRSFS": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
 }
 
@@ -668,7 +675,15 @@ def build():
                             "active": act, "state": p["state"]})
         drivers.sort(key=lambda d: (not d["active"], d["lean"]))
         net = ow - uw
-        lean = "Overweight" if net > 0 else "Underweight" if net < 0 else "Neutral"
+        active_total = ow + uw
+        if net > 0:
+            lean = "Overweight"
+        elif net < 0:
+            lean = "Underweight"
+        elif active_total > 0:
+            lean = "Balanced"     # active signals on both sides cancel out
+        else:
+            lean = "No signal"    # nothing mapped to this bucket is firing
         mag = abs(net)
         conviction = ("strong" if mag >= 3 else "moderate" if mag == 2
                       else "slight" if mag == 1 else "none")
@@ -911,6 +926,7 @@ PAGE = r"""<!DOCTYPE html>
 const D = __DATA__;
 const FAILED = __FAILED__;
 const css = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+const stText = s => s==='alert' ? 'danger' : s;
 if (FAILED.length) {
   document.getElementById('fail').textContent =
     FAILED.length + ' series could not be loaded from FRED: ' + FAILED.map(f=>f[1]).join(', ');
@@ -952,7 +968,7 @@ const nNeutral = sc.filter(x=>x.state==='neutral').length;
 const nDet = sc.filter(x=>x.deteriorating).length;
 const scKey = (v,label,color) => `<span class="sc-key"><span class="dot" style="background:${color}"></span>${v} ${label}</span>`;
 let scHTML = `<h3>Signal scorecard</h3><div class="sc-legend">`
-  + scKey(nAlert,'alert',css('--alert'))
+  + scKey(nAlert,'danger',css('--alert'))
   + scKey(nCaution,'caution',css('--caution'))
   + scKey(nCalm,'calm',css('--calm'))
   + scKey(nNeutral,'neutral',css('--neutral'))
@@ -965,32 +981,35 @@ document.getElementById('score').innerHTML = scHTML;
 // ---- Capital Allocation ----
 const allocEl = document.getElementById('alloc');
 if (D.allocation && D.allocation.length){
-  const acls = l => l==='Overweight'?'calm':l==='Underweight'?'alert':'neutral';
+  const acls = l => l==='Overweight'?'calm':l==='Underweight'?'alert':l==='Balanced'?'caution':'neutral';
   let ah = `<h2 class="alloc-h">Capital Allocation</h2>
-    <p class="alloc-sub">A rules-based read of what the currently-active macro signals lean toward &mdash; not advice, and every driver is shown so you can judge for yourself. A signal counts as &ldquo;active&rdquo; when it is moving its worrying way or sitting at a caution/alert level; the meter shows conviction (how lopsided the evidence is). Tap a card for what the bucket means and every signal feeding it.</p>
+    <p class="alloc-sub">A rules-based read of what the currently-active macro signals lean toward &mdash; not advice, and every driver is shown so you can judge for yourself. A signal counts as &ldquo;active&rdquo; when it is moving its worrying way or sitting at a caution/danger level; the meter shows conviction (how lopsided the evidence is). <b>Balanced</b> means active signals pull both ways; <b>No signal</b> means nothing mapped here is firing. Tap a card for what the bucket means and every signal feeding it &mdash; dimmed rows are mapped but not currently active.</p>
     <div class="alloc-grid">`;
   D.allocation.forEach((a,ai)=>{
     const lc = acls(a.lean);
+    const directional = (a.lean==='Overweight'||a.lean==='Underweight');
     const fill = {strong:3, moderate:2, slight:1, none:0}[a.conviction];
     let meter = '<span class="conv">';
     for (let i=0;i<3;i++) meter += `<span class="seg ${i<fill?('on '+lc):''}"></span>`;
     meter += '</span>';
-    const tally = (a.ow.length||a.uw.length)
-      ? `<div class="alloc-tally">${a.conviction} conviction &middot; ${a.ow.length} for, ${a.uw.length} against</div>`
-      : `<div class="alloc-tally">no active signals</div>`;
+    const tally = a.lean==='No signal'
+      ? `<div class="alloc-tally">no active signals</div>`
+      : a.lean==='Balanced'
+      ? `<div class="alloc-tally">signals conflict &middot; ${a.ow.length} for, ${a.uw.length} against</div>`
+      : `<div class="alloc-tally">${a.conviction} conviction &middot; ${a.ow.length} for, ${a.uw.length} against</div>`;
     let rows = '';
     a.drivers.forEach(d=>{
       rows += `<div class="drow ${d.active?'':'off'}"><span class="dot" style="background:${css('--'+d.state)}"></span>`
            + `<span class="drow-l">${d.label}</span>`
            + `<span class="drow-t ${d.lean==='OW'?'s-ow':'s-uw'}">${d.lean==='OW'?'overweight':'underweight'}</span>`
-           + `<span class="drow-s">${d.active?d.state:'inactive'}</span></div>`;
+           + `<span class="drow-s">${d.active?stText(d.state):'inactive'}</span></div>`;
     });
     if (!a.drivers.length) rows = `<div class="drow off">No signals mapped to this bucket yet.</div>`;
     const detail = `<div class="alloc-detail"><p class="alloc-def">${a.definition||''}</p>`
                  + `<div class="asig-h">Signals feeding this bucket</div>${rows}</div>`;
     ah += `<div class="alloc-card expandable"><div class="alloc-top">`
         + `<span class="alloc-hl"><span class="chev" id="achev-${ai}">&#9656;</span><h4>${a.bucket}</h4></span>`
-        + `<span class="alloc-badge"><span class="lean bg-${lc}">${a.lean}</span>${a.lean!=='Neutral'?meter:''}</span></div>`
+        + `<span class="alloc-badge"><span class="lean bg-${lc}">${a.lean}</span>${directional?meter:''}</span></div>`
         + tally + detail + `</div>`;
   });
   ah += `</div>`;
@@ -1082,7 +1101,7 @@ function makeCard(p,cid){
   const dv = dispVU(p.latest, p);
   const card = document.createElement('div'); card.className='card';
   card.innerHTML = `<div class="top"><div><h4>${p.label}</h4><div class="sid">${p.series_id}</div></div>
-    <span class="badge bg-${p.state}">${p.state}</span></div>
+    <span class="badge bg-${p.state}">${stText(p.state)}</span></div>
     <div class="row"><span class="val ${p.state}">${dv.t}<small> ${dv.u}</small></span>
     ${mv?`<span class="move ${moveCls}">${p.deteriorating?'&#9650; ':''}${moveTxt}</span>`:''}</div>
     <div class="asof">as of ${p.latest_date}${pctTxt}</div>
@@ -1119,7 +1138,7 @@ function openModal(cid){
   document.getElementById('modal-title').textContent = p.label;
   document.getElementById('modal-sid').textContent = p.series_id;
   const mv = p.trend, dv = dispVU(p.latest, p);
-  let meta = `<span class="m-val ${p.state}">${dv.t} ${dv.u}</span><span class="badge bg-${p.state}">${p.state}</span><span>as of ${p.latest_date}`;
+  let meta = `<span class="m-val ${p.state}">${dv.t} ${dv.u}</span><span class="badge bg-${p.state}">${stText(p.state)}</span><span>as of ${p.latest_date}`;
   if(mv) meta += ` &middot; ${mv.pct_of_range.toFixed(0)}th pctile of its range`;
   meta += `</span>`;
   document.getElementById('modal-meta').innerHTML = meta;
@@ -1151,7 +1170,7 @@ Object.keys(D.themes).forEach(theme=>{
   const lead = subs.length ? ` &middot; <span class="lead">${forSubs.length}/${subs.length} leading signals worsening</span>` : '';
   const chev = subs.length ? `<span class="chev" id="chev-${key}">&#9656;</span>` : '';
   sec.innerHTML = `<div class="theme-head${subs.length?' expandable':''}">${chev}<h2>${theme}</h2>
-    <span class="theme-state bg-${ts.state}">${ts.state}</span>
+    <span class="theme-state bg-${ts.state}">${stText(ts.state)}</span>
     <span class="theme-note">${detTxt}${lead}</span></div><div class="cards"></div>`;
   tRoot.appendChild(sec);
   const cardsEl = sec.querySelector('.cards');
