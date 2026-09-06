@@ -486,6 +486,11 @@ SIGNAL_WEIGHT = {
 # as "steady". Tunable: raise it if things still look jumpy, lower if too quiet.
 DEADBAND_K = 0.75
 
+# The regime only calls growth "decelerating" or inflation "accelerating" when
+# the worsening signals outnumber the improving ones by at least this margin --
+# a bare edge (2 vs 1) is noise and was flipping the regime to false stagflation.
+REGIME_MARGIN = 2
+
 GROWTH_MOM = ["PAYEMS", "INDPRO", "GDPC1", "CFNAI", "NEWORDER", "RRSFS",
               "UNRATE", "IC4WSA", "SAHMREALTIME", "WEI", "DRTSCILM"]
 INFLATION_MOM = ["CPIAUCSL", "PCEPILFE", "T5YIE", "T5YIFR",
@@ -915,8 +920,8 @@ def build():
         return worse, better
     g_worse, g_better = _mom(GROWTH_MOM)
     i_worse, i_better = _mom(INFLATION_MOM)
-    growth = "decelerating" if g_worse > g_better else "accelerating"
-    inflation = "accelerating" if i_worse > i_better else "decelerating"
+    growth = "decelerating" if (g_worse - g_better) >= REGIME_MARGIN else "accelerating"
+    inflation = "accelerating" if (i_worse - i_better) >= REGIME_MARGIN else "decelerating"
     rname, rplay = REGIMES[(growth, inflation)]
     val_panels = themes_out.get("Valuation", []) + drill_out.get("Valuation", [])
     v_alert = sum(1 for p in val_panels if p["state"] == "alert")

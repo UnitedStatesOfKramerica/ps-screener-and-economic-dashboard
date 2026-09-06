@@ -107,8 +107,10 @@ def _momentum(ids, as_of):
 def regime_at(as_of):
     g_worse, g_better = _momentum(md.GROWTH_MOM, as_of)
     i_worse, i_better = _momentum(md.INFLATION_MOM, as_of)
-    growth = "decelerating" if g_worse > g_better else "accelerating"
-    inflation = "accelerating" if i_worse > i_better else "decelerating"
+    growth = ("decelerating" if (g_worse - g_better) >= md.REGIME_MARGIN
+              else "accelerating")
+    inflation = ("accelerating" if (i_worse - i_better) >= md.REGIME_MARGIN
+                 else "decelerating")
     name = md.REGIMES[(growth, inflation)][0]
     return name, growth[:5], inflation[:5], g_worse, g_better, i_worse, i_better
 
@@ -137,15 +139,16 @@ def main():
     print("HISTORICAL CHECK -- latest-vintage data truncated to each date "
           "(revisions flatter this; not point-in-time).")
     print("=" * 100)
-    print(f"{'date':<12}{'regime':<26}{'grow':<6}{'infl':<6}"
-          f"{'recession flags':<34}{'valuation'}")
+    print(f"{'date':<12}{'regime':<24}{'momentum(w-b)':<16}"
+          f"{'recession flags':<30}{'valuation'}")
     print("-" * 100)
     for dt in DATES:
-        name, g, i, gd, gt, idn, it = regime_at(dt)
+        name, g, i, gw, gb, iw, ib = regime_at(dt)
         hot, tot = recession_flags(dt)
         vst, vval = valuation_at(dt)
         flags = f"{len(hot)}/{tot} " + ",".join(s[:5] for s in hot)
-        print(f"{dt:<12}{name:<26}{g:<6}{i:<6}{flags:<34}{vst} ({vval})")
+        mom = f"g{gw}-{gb} i{iw}-{ib}"
+        print(f"{dt:<12}{name:<24}{mom:<16}{flags:<30}{vst} ({vval})")
 
     print("\nDid the recession read fire BEFORE each onset "
           "(>=2 flags in any of the 6 months prior)?")
