@@ -143,11 +143,12 @@ THEMES = {
                  "part of the cycle; falling prices hit the wealth effect, "
                  "construction and mortgage credit together -- the channel that broke "
                  "in 2008."},
-        {"id": "EXHOSLUSM495S", "label": "Existing home sales", "kind": "level",
-         "units": "", "worry": "down", "start": "1999-01-01",
-         "note": "Volume of existing homes sold. Sales turn down before prices do, "
-                 "so it is an early read on housing demand and, through it, the "
-                 "broader rate-sensitive economy."},
+        {"id": "HSN1F", "label": "New home sales", "kind": "level",
+         "units": "K", "worry": "down", "start": "1990-01-01", "fmt": "count",
+         "note": "New single-family homes sold (Census). Recorded at contract "
+                 "signing, so it leads existing-home sales by a month or two -- an "
+                 "early read on housing demand and, through it, the rate-sensitive "
+                 "economy."},
         {"id": "HOUST", "label": "Housing starts", "kind": "level",
          "units": "K", "worry": "down", "start": "1990-01-01", "fmt": "count",
          "note": "Homebuilding is the most rate-sensitive part of the economy and "
@@ -193,7 +194,7 @@ THEMES = {
         {"id": "Market cap / GDP", "label": "Buffett indicator (market cap / GDP)",
          "compute": "ratio", "nums": ["NCBEILQ027S", "FBCELLQ027S"], "den": "GDP",
          "ratio_scale": 0.1, "kind": "level", "units": "%", "worry": "up",
-         "start": "1990-01-01", "caution": 150.0, "alert": 180.0,
+         "start": "1990-01-01", "pctile": True,
          "note": "Total US equity market value -- non-financial plus financial "
                  "corporate equities -- against the size of the economy. Buffett's "
                  "'best single measure' of what you are paying for American business. "
@@ -529,7 +530,7 @@ ALLOC = {
                ("Defensive equities", "OW")],
     "HPIPONM226S": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"),
                     ("Defensive equities", "OW"), ("Long-duration Treasuries", "OW")],
-    "EXHOSLUSM495S": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "HSN1F": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
     "PCETRIM12M159SFRBDAL": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"),
                              ("Real assets & commodities", "OW")],
 }
@@ -546,7 +547,7 @@ SIGNAL_WEIGHT = {
     "FRBATLWGT3MMAWMHWGO": 0.75, "PPIFIS": 0.75, "IR": 0.5,
     "WEI": 1.25, "DRTSCILM": 1.5, "DTWEXBGS": 1.0,
     "Net liquidity": 1.5, "WALCL": 1.0, "JTSJOL": 1.0,
-    "HPIPONM226S": 1.0, "EXHOSLUSM495S": 0.75, "PCETRIM12M159SFRBDAL": 1.25,
+    "HPIPONM226S": 1.0, "HSN1F": 0.75, "PCETRIM12M159SFRBDAL": 1.25,
 }
 
 # ---- Regime classifier (growth x inflation) ----------------------------------
@@ -898,7 +899,7 @@ def build():
         panels = []
         pctile = theme in ("Liquidity", "Housing")   # read vs own history
         for ind in inds:
-            panel, fail = panel_for(ind, percentile_state=pctile)
+            panel, fail = panel_for(ind, percentile_state=ind.get("pctile", pctile))
             if panel is None:
                 failed.append(fail); continue
             panels.append(panel)
