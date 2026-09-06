@@ -82,30 +82,35 @@ def eval_signal(sid, as_of, percentile_state):
         st = md.substate_of(ind["worry"], tr["pct_of_range"] if tr else None)
     else:
         st = md.state_of(ind["worry"], series[-1][1], ind.get("caution"), ind.get("alert"))
-    det = bool(tr and ind["worry"] and (
+    sig = bool(tr and tr.get("typical", 0) > 0
+               and abs(tr["delta"]) >= md.DEADBAND_K * tr["typical"])
+    moved_bad = bool(tr and ind["worry"] and (
         (ind["worry"] == "up" and tr["delta"] > 0) or
         (ind["worry"] == "down" and tr["delta"] < 0)))
-    return {"state": st, "det": det, "latest": series[-1][1]}
+    det = bool(sig and moved_bad)
+    imp = bool(sig and ind["worry"] and not moved_bad and tr["delta"] != 0)
+    return {"state": st, "det": det, "imp": imp, "latest": series[-1][1],
+            "worry": ind["worry"]}
 
 
 def _momentum(ids, as_of):
-    det = tot = 0
+    worse = better = 0
     for sid in ids:
         e = eval_signal(sid, as_of, percentile_state=(sid not in THEME_IDS))
         if e is None:
             continue
-        tot += 1
-        det += e["det"]
-    return det, tot
+        worse += e["det"]
+        better += e["imp"]
+    return worse, better
 
 
 def regime_at(as_of):
-    g_det, g_tot = _momentum(md.GROWTH_MOM, as_of)
-    i_det, i_tot = _momentum(md.INFLATION_MOM, as_of)
-    growth = "decelerating" if (g_tot and g_det > g_tot / 2) else "accelerating"
-    inflation = "accelerating" if (i_tot and i_det > i_tot / 2) else "decelerating"
+    g_worse, g_better = _momentum(md.GROWTH_MOM, as_of)
+    i_worse, i_better = _momentum(md.INFLATION_MOM, as_of)
+    growth = "decelerating" if g_worse > g_better else "accelerating"
+    inflation = "accelerating" if i_worse > i_better else "decelerating"
     name = md.REGIMES[(growth, inflation)][0]
-    return name, growth[:5], inflation[:5], g_det, g_tot, i_det, i_tot
+    return name, growth[:5], inflation[:5], g_worse, g_better, i_worse, i_better
 
 
 def recession_flags(as_of):
@@ -121,9 +126,9 @@ def recession_flags(as_of):
 
 
 def valuation_at(as_of):
-    e = eval_signal("Shiller CAPE", as_of, percentile_state=True)
+    e = eval_signal("Shiller CAPE", as_of, percentile_state=False)
     if e is None:
-        e = eval_signal("Market cap / GDP", as_of, percentile_state=True)
+        e = eval_signal("Market cap / GDP", as_of, percentile_state=False)
     return (e["state"], round(e["latest"], 1)) if e else ("n/a", None)
 
 

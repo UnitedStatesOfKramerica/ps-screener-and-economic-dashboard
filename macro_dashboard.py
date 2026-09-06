@@ -153,6 +153,7 @@ THEMES = {
     "Valuation": [
         {"id": "Shiller CAPE", "label": "Shiller CAPE (10-yr P/E)", "compute": "cape",
          "kind": "level", "units": "x", "worry": "up", "start": "1990-01-01",
+         "caution": 28.0, "alert": 33.0,
          "note": "Price divided by ten years of average real earnings -- the most-"
                  "cited long-run valuation gauge, smoothing through the profit cycle "
                  "that distorts a one-year P/E. Above ~30 has clustered around 1929, "
@@ -161,7 +162,7 @@ THEMES = {
         {"id": "Market cap / GDP", "label": "Buffett indicator (market cap / GDP)",
          "compute": "ratio", "nums": ["NCBEILQ027S", "FBCELLQ027S"], "den": "GDP",
          "ratio_scale": 0.1, "kind": "level", "units": "%", "worry": "up",
-         "start": "1990-01-01",
+         "start": "1990-01-01", "caution": 150.0, "alert": 180.0,
          "note": "Total US equity market value -- non-financial plus financial "
                  "corporate equities -- against the size of the economy. Buffett's "
                  "'best single measure' of what you are paying for American business. "
@@ -170,6 +171,7 @@ THEMES = {
         {"id": "CP / GDP", "label": "Corporate profit share of GDP",
          "compute": "ratio", "num": "CP", "den": "GDP", "ratio_scale": 100,
          "kind": "level", "units": "%", "worry": "up", "start": "1990-01-01",
+         "caution": 10.0, "alert": 12.0,
          "note": "After-tax corporate profits as a share of GDP. Margins mean-revert "
                  "-- high profits draw competition, labour and regulation -- so a "
                  "historically elevated share flatters earnings the market may be "
@@ -478,6 +480,12 @@ SIGNAL_WEIGHT = {
 # ---- Regime classifier (growth x inflation) ----------------------------------
 # Signals whose 6-month direction defines momentum. Growth signals deteriorating
 # => growth decelerating; inflation signals deteriorating (rising) => accelerating.
+# A signal only counts as "worsening" or "improving" if its 6-month move exceeds
+# this multiple of its own typical 6-month move -- filters noise so directions,
+# the regime, and the allocation stop reacting to every wiggle. Small moves read
+# as "steady". Tunable: raise it if things still look jumpy, lower if too quiet.
+DEADBAND_K = 0.75
+
 GROWTH_MOM = ["PAYEMS", "INDPRO", "GDPC1", "CFNAI", "NEWORDER", "RRSFS",
               "UNRATE", "IC4WSA", "SAHMREALTIME", "WEI", "DRTSCILM"]
 INFLATION_MOM = ["CPIAUCSL", "PCEPILFE", "T5YIE", "T5YIFR",
@@ -569,8 +577,21 @@ def trend(series, lookback_days=180):
     delta = latest - vals[pi]
     lo, hi = min(vals), max(vals)
     pct = (latest - lo) / (hi - lo) * 100 if hi > lo else 50.0
+    # Typical 6-month move (robust noise floor): median of |value now - value
+    # ~lookback ago| across history, so "worsening/improving" can require a move
+    # bigger than usual rather than any wiggle. Two-pointer keeps it O(n).
+    moves, j = [], 0
+    for i in range(len(dates)):
+        tgt = dates[i] - timedelta(days=lookback_days)
+        while j < i and dates[j] < tgt:
+            j += 1
+        cand = j - 1 if (j > 0 and abs((dates[j - 1] - tgt).days)
+                         <= abs((dates[j] - tgt).days)) else j
+        if cand < i:
+            moves.append(abs(vals[i] - vals[cand]))
+    typical = sorted(moves)[len(moves) // 2] if moves else 0.0
     return {"delta": round(delta, 3), "pct_of_range": round(pct, 1),
-            "prior": round(vals[pi], 3)}
+            "prior": round(vals[pi], 3), "typical": round(typical, 4)}
 
 
 def state_of(worry, latest, caution, alert):
@@ -718,10 +739,13 @@ def panel_for(ind, percentile_state=False):
         st = substate_of(ind["worry"], tr["pct_of_range"] if tr else None)
     else:
         st = state_of(ind["worry"], latest, ind.get("caution"), ind.get("alert"))
-    deteriorating = bool(tr and ind["worry"] and (
+    sig = bool(tr and tr.get("typical", 0) > 0
+               and abs(tr["delta"]) >= DEADBAND_K * tr["typical"])
+    moved_bad = bool(tr and ind["worry"] and (
         (ind["worry"] == "up" and tr["delta"] > 0) or
         (ind["worry"] == "down" and tr["delta"] < 0)))
-    improving = bool(tr and ind["worry"] and not deteriorating and tr["delta"] != 0)
+    deteriorating = bool(sig and moved_bad)
+    improving = bool(sig and ind["worry"] and not moved_bad and tr["delta"] != 0)
     direction = "worsening" if deteriorating else "improving" if improving else "steady"
     u = ind["units"]
     usuf = u if u in ("%", "x") else (" " + u if u else "")
@@ -779,7 +803,7 @@ def build():
     themes_out, scorecard = {}, []
     for theme, inds in THEMES.items():
         panels = []
-        pctile = theme == "Valuation"   # value cards read vs their own history
+        pctile = False   # Valuation headline now uses absolute thresholds
         for ind in inds:
             panel, fail = panel_for(ind, percentile_state=pctile)
             if panel is None:
@@ -880,21 +904,26 @@ def build():
           f"{sum(1 for a in allocation if a['lean'] in ('Overweight', 'Underweight'))} directional tilts")
 
     # ---- Regime: growth x inflation, plus a valuation condition ----
-    def _decel(ids):
-        ps = [by_id[i] for i in ids if i in by_id]
-        det = sum(1 for p in ps if p["deteriorating"])
-        return det, len(ps)
-    g_det, g_tot = _decel(GROWTH_MOM)
-    i_det, i_tot = _decel(INFLATION_MOM)
-    growth = "decelerating" if (g_tot and g_det > g_tot / 2) else "accelerating"
-    inflation = "accelerating" if (i_tot and i_det > i_tot / 2) else "decelerating"
+    def _mom(ids):
+        worse = better = 0
+        for sid in ids:
+            p = by_id.get(sid)
+            if not p:
+                continue
+            worse += p["deteriorating"]
+            better += p["improving"]
+        return worse, better
+    g_worse, g_better = _mom(GROWTH_MOM)
+    i_worse, i_better = _mom(INFLATION_MOM)
+    growth = "decelerating" if g_worse > g_better else "accelerating"
+    inflation = "accelerating" if i_worse > i_better else "decelerating"
     rname, rplay = REGIMES[(growth, inflation)]
     val_panels = themes_out.get("Valuation", []) + drill_out.get("Valuation", [])
     v_alert = sum(1 for p in val_panels if p["state"] == "alert")
-    v_tot = len(val_panels)
-    if v_tot and v_alert >= max(2, v_tot - 1):
+    v_hot = sum(1 for p in val_panels if p["state"] in ("alert", "caution"))
+    if v_alert >= 3:
         valcond = "extreme"
-    elif v_alert >= 1:
+    elif v_alert >= 1 or v_hot >= 3:
         valcond = "elevated"
     else:
         valcond = "normal"
@@ -904,8 +933,8 @@ def build():
     regime = {"name": rname, "growth": growth, "inflation": inflation,
               "playbook": rplay, "valuation": valcond, "valnote": valnote}
     print(f"  [regime] {rname} (growth {growth}, inflation {inflation}) "
-          f"| valuations {valcond} [{g_det}/{g_tot} growth decel, "
-          f"{i_det}/{i_tot} infl accel]")
+          f"| valuations {valcond} [growth {g_worse}w/{g_better}b, "
+          f"inflation {i_worse}w/{i_better}b]")
 
     # ---- Market confirmation: does the market's own risk pricing back the macro? ----
     def _mkt_status(sid, up_word):
