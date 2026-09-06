@@ -51,10 +51,6 @@ THEMES = {
          "caution": 0.0, "alert": 0.5,
          "note": "Chicago Fed index of overall financial stress. Above zero is "
                  "tighter than average; positive and rising is deterioration."},
-        {"id": "MORTGAGE30US", "label": "30-year mortgage rate", "kind": "level",
-         "units": "%", "worry": "up", "start": "1990-01-01",
-         "caution": None, "alert": None,
-         "note": "High mortgage rates throttle housing, an early-cycle channel."},
     ],
     "Labor market": [
         {"id": "SAHMREALTIME", "label": "Sahm rule", "kind": "level",
@@ -97,11 +93,6 @@ THEMES = {
          "caution": 0.0, "alert": -2.0,
          "note": "Factory output. Cyclical and timely; turns down early because "
                  "manufacturing leads the broader economy."},
-        {"id": "HOUST", "label": "Housing starts", "kind": "level",
-         "units": "K", "worry": "down", "start": "1990-01-01", "fmt": "count",
-         "caution": None, "alert": None,
-         "note": "Homebuilding is rate-sensitive and turns before the cycle; "
-                 "falling starts is an early-warning channel."},
         {"id": "UMCSENT", "label": "Consumer sentiment", "kind": "level",
          "units": "", "worry": "down", "start": "1990-01-01",
          "caution": 70, "alert": 60,
@@ -127,6 +118,46 @@ THEMES = {
          "note": "The first crack in consumer credit -- cards go bad before autos "
                  "and mortgages. Rising delinquency is early evidence the low-end "
                  "consumer is stretched."},
+    ],
+    "Liquidity": [
+        {"id": "Net liquidity", "label": "Net liquidity", "compute": "combine",
+         "parts": [["WALCL", 1.0], ["WTREGEN", -1.0], ["RRPONTSYD", -1000.0]],
+         "ratio_scale": 1e-6, "kind": "level", "units": "T", "worry": "down",
+         "start": "2003-01-01",
+         "note": "The Fed balance sheet minus the Treasury's cash account minus "
+                 "reverse repos -- the cash actually sloshing around markets. It "
+                 "tracks risk assets more tightly than almost anything: when it "
+                 "drains (QT, heavy Treasury issuance, RRP rising) risk assets lose "
+                 "their tailwind."},
+        {"id": "WALCL", "label": "Fed balance sheet (YoY)", "kind": "yoy",
+         "units": "%", "worry": "down", "start": "2003-01-01",
+         "note": "Growth in the Fed's assets -- QE (expanding) adds liquidity, QT "
+                 "(shrinking) drains it. The clearest single read on whether the Fed "
+                 "is the wind at markets' back or in their face."},
+    ],
+    "Housing": [
+        {"id": "HPIPONM226S", "label": "Home prices (FHFA, YoY)", "kind": "yoy",
+         "units": "%", "worry": "down", "start": "1991-01-01",
+         "note": "FHFA purchase-only house prices (the public-domain alternative to "
+                 "Case-Shiller). Housing is the most rate-sensitive, most-leading "
+                 "part of the cycle; falling prices hit the wealth effect, "
+                 "construction and mortgage credit together -- the channel that broke "
+                 "in 2008."},
+        {"id": "EXHOSLUSM495S", "label": "Existing home sales", "kind": "level",
+         "units": "", "worry": "down", "start": "1999-01-01",
+         "note": "Volume of existing homes sold. Sales turn down before prices do, "
+                 "so it is an early read on housing demand and, through it, the "
+                 "broader rate-sensitive economy."},
+        {"id": "HOUST", "label": "Housing starts", "kind": "level",
+         "units": "K", "worry": "down", "start": "1990-01-01", "fmt": "count",
+         "note": "Homebuilding is the most rate-sensitive part of the economy and "
+                 "turns before the broader cycle; falling starts is an early-warning "
+                 "channel."},
+        {"id": "MSACSR", "label": "Months' supply of homes", "kind": "level",
+         "units": "mo", "worry": "up", "start": "1990-01-01",
+         "note": "How many months to clear current inventory at the present sales "
+                 "pace. Rising supply means demand is fading faster than builders "
+                 "adjust -- above ~7 months has coincided with housing downturns."},
     ],
     "Inflation & policy": [
         {"id": "CPIAUCSL", "label": "CPI inflation (YoY)", "kind": "yoy",
@@ -235,6 +266,11 @@ DRILLDOWNS = {
          "note": "The broad rate -- adds discouraged workers and involuntary "
                  "part-timers to the headline U-3. U-6 rising while U-3 is flat is "
                  "hidden softening the headline misses."},
+        {"id": "JTSJOL", "label": "Job openings (JOLTS)", "kind": "level",
+         "units": "K", "worry": "down", "start": "2001-01-01", "fmt": "count",
+         "note": "Unfilled jobs -- the cleanest read on labour DEMAND. Openings "
+                 "roll over well before layoffs begin, so a sustained fall is an "
+                 "early sign the jobs market is cooling from the demand side."},
     ],
     "Inflation & policy": [
         {"id": "T5YIE", "label": "5-year breakeven inflation", "kind": "level",
@@ -277,6 +313,35 @@ DRILLDOWNS = {
                  "is the clearest 'add to energy' trigger. Rising crude is "
                  "inflationary and a tailwind for energy equities; it doubles as a "
                  "growth/demand signal, so read a spike alongside the Growth theme."},
+        {"id": "PCETRIM12M159SFRBDAL", "label": "Trimmed-mean PCE", "kind": "level",
+         "units": "%", "worry": "up", "start": "1990-01-01",
+         "note": "The Dallas Fed's trimmed-mean PCE -- it throws out the most "
+                 "extreme price moves each month to reveal the underlying trend. A "
+                 "cleaner core read than headline or ex-food-and-energy, and what "
+                 "several FOMC members actually watch."},
+    ],
+    "Liquidity": [
+        {"id": "RRPONTSYD", "label": "Reverse repo", "kind": "level",
+         "units": "B", "worry": "up", "start": "2013-01-01",
+         "note": "Cash parked overnight at the Fed instead of in markets. A high or "
+                 "rising balance means liquidity is being absorbed; it draining back "
+                 "out (2023-24) is a hidden tailwind. Read it inside net liquidity."},
+        {"id": "WTREGEN", "label": "Treasury cash account", "kind": "level",
+         "scale": 0.001, "units": "B", "worry": "up", "start": "2005-01-01",
+         "note": "The Treasury's checking account at the Fed. When it builds (heavy "
+                 "bill issuance) it pulls cash out of the banking system; when it is "
+                 "spent down it adds liquidity back."},
+    ],
+    "Housing": [
+        {"id": "PERMIT", "label": "Building permits", "kind": "level",
+         "units": "K", "worry": "down", "start": "1990-01-01", "fmt": "count",
+         "note": "Permits lead housing starts, which lead the cycle -- the earliest "
+                 "point in the most rate-sensitive part of the economy."},
+        {"id": "MORTGAGE30US", "label": "30-year mortgage rate", "kind": "level",
+         "units": "%", "worry": "up", "start": "1990-01-01",
+         "note": "The price of housing credit. High or rising mortgage rates throttle "
+                 "affordability and demand -- the transmission belt from Fed policy "
+                 "to the housing cycle."},
     ],
     "Financial conditions": [
         {"id": "STLFSI4", "label": "Financial stress index", "kind": "level",
@@ -330,11 +395,6 @@ DRILLDOWNS = {
          "note": "Non-defence capital goods ex-aircraft -- what businesses order "
                  "when confident. It leads capex and manufacturing; rolling over is "
                  "an early cyclical-downturn tell."},
-        {"id": "PERMIT", "label": "Building permits", "kind": "level",
-         "units": "K", "worry": "down", "start": "1990-01-01", "fmt": "count",
-         "note": "Permits lead housing starts, which lead the cycle -- the earliest "
-                 "point in the most rate-sensitive part of the economy. Watch it "
-                 "ahead of the starts headline you already track."},
         {"id": "HTRUCKSSAAR", "label": "Heavy truck sales", "kind": "level",
          "units": "M", "worry": "down", "start": "1990-01-01",
          "note": "A classic recession lead: fleet buyers cut heavy-truck orders "
@@ -462,6 +522,16 @@ ALLOC = {
                  ("Long-duration Treasuries", "OW"), ("Value over Growth", "UW")],
     "DTWEXBGS": [("Energy", "UW"), ("Real assets & commodities", "UW"), ("Gold", "UW")],
     "RRSFS": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "Net liquidity": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"),
+                      ("High-yield credit", "UW")],
+    "WALCL": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW")],
+    "JTSJOL": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"),
+               ("Defensive equities", "OW")],
+    "HPIPONM226S": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"),
+                    ("Defensive equities", "OW"), ("Long-duration Treasuries", "OW")],
+    "EXHOSLUSM495S": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "PCETRIM12M159SFRBDAL": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"),
+                             ("Real assets & commodities", "OW")],
 }
 
 # Per-signal weight in the allocation tally -- marquee signals count more than
@@ -475,6 +545,8 @@ SIGNAL_WEIGHT = {
     "DCOILWTICO": 1.0, "TEMPHELPS": 1.0, "NEWORDER": 1.0, "DRCCLACBS": 1.0, "RRSFS": 1.0,
     "FRBATLWGT3MMAWMHWGO": 0.75, "PPIFIS": 0.75, "IR": 0.5,
     "WEI": 1.25, "DRTSCILM": 1.5, "DTWEXBGS": 1.0,
+    "Net liquidity": 1.5, "WALCL": 1.0, "JTSJOL": 1.0,
+    "HPIPONM226S": 1.0, "EXHOSLUSM495S": 0.75, "PCETRIM12M159SFRBDAL": 1.25,
 }
 
 # ---- Regime classifier (growth x inflation) ----------------------------------
@@ -492,9 +564,10 @@ DEADBAND_K = 0.75
 REGIME_MARGIN = 2
 
 GROWTH_MOM = ["PAYEMS", "INDPRO", "GDPC1", "CFNAI", "NEWORDER", "RRSFS",
-              "UNRATE", "IC4WSA", "SAHMREALTIME", "WEI", "DRTSCILM"]
+              "UNRATE", "IC4WSA", "SAHMREALTIME", "WEI", "DRTSCILM",
+              "JTSJOL", "HPIPONM226S"]
 INFLATION_MOM = ["CPIAUCSL", "PCEPILFE", "T5YIE", "T5YIFR",
-                 "CORESTICKM159SFRBATL", "PPIFIS"]
+                 "CORESTICKM159SFRBATL", "PPIFIS", "PCETRIM12M159SFRBDAL"]
 REGIMES = {
     ("accelerating", "accelerating"): ("Reflation",
         "Growth and inflation both rising -- early-cycle. Historically favours "
@@ -712,6 +785,19 @@ def fetch_ratio(num_id, den_id, start, scale=1.0):
     return ratio_align(fetch(num_id, start), fetch(den_id, start), scale)
 
 
+def combine_series(parts, start, scale=1.0):
+    """Weighted sum of several series on their common dates -- e.g. net liquidity
+    = balance sheet - Treasury cash - reverse repo. parts: list of [id, coef]."""
+    fetched = [(coef, fetch(sid, start)) for sid, coef in parts]
+    if any(not s for _, s in fetched):
+        return []
+    maps = [(coef, dict(s)) for coef, s in fetched]
+    common = set(maps[0][1])
+    for _, m in maps[1:]:
+        common &= set(m)
+    return sorted((d, sum(coef * m[d] for coef, m in maps) * scale) for d in common)
+
+
 def panel_for(ind, percentile_state=False):
     """Fetch one indicator and build its panel dict. Returns (panel, None) on
     success or (None, fail_tuple) on failure. Shared by the main themes and the
@@ -723,6 +809,8 @@ def panel_for(ind, percentile_state=False):
             num_series = fetch(ind["num"], ind["start"])
         raw = ratio_align(num_series, fetch(ind["den"], ind["start"]),
                           ind.get("ratio_scale", 1.0))
+    elif ind.get("compute") == "combine":
+        raw = combine_series(ind["parts"], ind["start"], ind.get("ratio_scale", 1.0))
     elif ind.get("compute") == "cape":
         raw = fetch_cape(ind["start"])
     elif ind.get("compute") == "multpl":
@@ -808,7 +896,7 @@ def build():
     themes_out, scorecard = {}, []
     for theme, inds in THEMES.items():
         panels = []
-        pctile = False   # Valuation headline now uses absolute thresholds
+        pctile = theme in ("Liquidity", "Housing")   # read vs own history
         for ind in inds:
             panel, fail = panel_for(ind, percentile_state=pctile)
             if panel is None:
