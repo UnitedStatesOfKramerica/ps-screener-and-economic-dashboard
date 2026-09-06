@@ -902,6 +902,90 @@ def build():
           f"| valuations {valcond} [{g_det}/{g_tot} growth decel, "
           f"{i_det}/{i_tot} infl accel]")
 
+    # ---- Market confirmation: does the market's own risk pricing back the macro? ----
+    def _mkt_status(sid, up_word):
+        p = by_id.get(sid)
+        if not p:
+            return None, False
+        if p["deteriorating"]:
+            return up_word, True                     # moving the risk-off way
+        if p["state"] in ("caution", "alert"):
+            return "elevated", True                  # already at a risky level
+        return "calm", False
+    comps, n_hot = [], 0
+    for sid, lbl, up in [("BAMLH0A0HYM2", "Credit spreads", "widening"),
+                         ("VIXCLS", "Volatility", "rising"),
+                         ("STLFSI4", "Financial stress", "rising")]:
+        status, hot = _mkt_status(sid, up)
+        if status is not None:
+            comps.append({"label": lbl, "status": status, "hot": hot})
+            n_hot += hot
+
+    # Equity trend vs its 200-day average. S&P 500 index data is copyrighted
+    # (reproduction prohibited), so the raw values are used only to derive this
+    # verdict and are never written into the payload/page.
+    def _equity_trend():
+        try:
+            sp = fetch("SP500", "2015-01-01")
+            vals = [v for _, v in sp if isinstance(v, (int, float))]
+            if len(vals) < 230:
+                return None
+            sma_now = sum(vals[-200:]) / 200.0
+            sma_prev = sum(vals[-221:-21]) / 200.0     # ~1 trading month earlier
+            above, rising = vals[-1] > sma_now, sma_now > sma_prev
+            if above and rising:
+                status = "above 200-day, rising"
+            elif not above and not rising:
+                status = "below 200-day, falling"
+            elif above:
+                status = "above 200-day, flattening"
+            else:
+                status = "below 200-day"
+            return {"label": "Equity trend (200-day)", "status": status,
+                    "hot": (not above)}
+        except Exception as exc:
+            print(f"  [confirm] equity trend skipped ({exc})"); return None
+    et = _equity_trend()
+    if et:
+        comps.append(et); n_hot += et["hot"]
+
+    market_riskoff = n_hot >= 2
+    oee = next((a for a in allocation if a["bucket"] == "Overall equity exposure"), None)
+    macro = ("risk-off" if oee and oee["lean"] == "Underweight"
+             else "risk-on" if oee and oee["lean"] == "Overweight" else "neutral")
+    if macro == "risk-off" and market_riskoff:
+        verdict, tone = "Confirmed risk-off", "alert"
+        msg = ("Macro and the market agree -- the equity-risk read is underweight and "
+               "the market is pricing it too (see the gauges below). De-risking has "
+               "confirmation, not just a forecast.")
+    elif macro == "risk-off" and not market_riskoff:
+        verdict, tone = "Macro early -- not yet confirmed", "caution"
+        msg = ("The macro setup leans risk-off, but the market has not confirmed -- "
+               "its risk gauges are mostly still calm (see below). The setup usually "
+               "deteriorates ahead of price, so prepare and tighten stops, but the "
+               "market is not validating an aggressive move yet. Being early here is "
+               "the classic way to be wrong.")
+    elif macro == "risk-on" and market_riskoff:
+        verdict, tone = "Watch -- market pricing risk", "caution"
+        msg = ("Macro is benign but the market is starting to price risk (see the "
+               "gauges below). Either the macro catches down or this is a passing "
+               "scare -- credit and price usually lead, so respect it.")
+    elif macro == "risk-on":
+        verdict, tone = "Confirmed risk-on", "calm"
+        msg = ("Macro and the market agree -- conditions benign and the market calm. "
+               "Risk-on tilts have confirmation.")
+    else:
+        verdict = "Market pricing risk" if market_riskoff else "Market calm"
+        tone = "caution" if market_riskoff else "calm"
+        msg = ("The macro equity-risk read is balanced; " +
+               ("the market itself is starting to price stress (see below), which "
+                "often moves first." if market_riskoff else
+                "the market is calm, with risk gauges quiet."))
+    confirmation = {"verdict": verdict, "tone": tone, "macro": macro,
+                    "message": msg, "components": comps}
+    print(f"  [confirm] macro {macro} | market {'risk-off' if market_riskoff else 'calm'} "
+          f"-> {verdict}" + (f" | equity {et['status']}" if et else " | equity n/a"))
+
     # ---- Jobs by sector: payroll change (thousands) over 12 and 3 months ----
     def _change_over(series, days):
         if len(series) < 2:
@@ -935,7 +1019,7 @@ def build():
                        "points": [[d, round(v, 1)] for d, v in coin]},
         "themes": themes_out, "theme_states": theme_states, "scorecard": scorecard,
         "drilldowns": drill_out, "allocation": allocation, "jobs": jobs,
-        "regime": regime}
+        "regime": regime, "confirmation": confirmation}
     html = PAGE.replace("__DATA__", json.dumps(payload)) \
                .replace("__FAILED__", json.dumps(failed)) \
                .replace("__STAMP__", _now_et_local())
@@ -1023,6 +1107,18 @@ PAGE = r"""<!DOCTYPE html>
   .regime-play { color:var(--ink); font-size:13px; line-height:1.55; margin:9px 0 10px; max-width:900px; }
   .regime-val { font-size:12px; color:var(--dim); display:flex; align-items:center; gap:8px; }
   .regime-valnote { color:var(--dim); }
+  .confirm-banner { background:var(--card); border:1px solid var(--line); border-left-width:4px; border-radius:13px; padding:14px 18px; margin-bottom:18px; }
+  .confirm-banner.bd-alert { border-left-color:var(--alert); }
+  .confirm-banner.bd-caution { border-left-color:var(--caution); }
+  .confirm-banner.bd-calm { border-left-color:var(--calm); }
+  .cf-verdict { margin:0; font-size:16px; }
+  .cf-verdict.alert { color:var(--alert); } .cf-verdict.caution { color:var(--caution); } .cf-verdict.calm { color:var(--calm); }
+  .cf-msg { color:var(--ink); font-size:12.5px; line-height:1.55; margin:8px 0 10px; max-width:900px; }
+  .cf-row { font-size:12px; color:var(--dim); display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+  .cf-lab { color:var(--dim); }
+  .cf-sep { opacity:.5; }
+  .cf-comp { border:1px solid var(--line); border-radius:20px; padding:2px 9px; }
+  .cf-comp.hot { border-color:var(--alert); color:var(--ink); }
   .alloc-h { font-size:18px; margin:6px 0 4px; }
   .alloc-sub { color:var(--dim); font-size:12px; margin:0 0 15px; line-height:1.5; max-width:860px; }
   .alloc-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:13px; margin-bottom:30px; }
@@ -1130,6 +1226,7 @@ PAGE = r"""<!DOCTYPE html>
 <div class="wrap">
 <div id="fail" class="fail"></div>
 <div id="regime"></div>
+<div id="confirm"></div>
 <div class="gauges" id="gauges"></div>
 <div class="score" id="score"></div>
 <div id="alloc"></div>
@@ -1165,6 +1262,21 @@ if (R){
        + `<span class="regime-valnote">${R.valnote}</span></div>`
      + `</div>`;
 }
+
+const CF = D.confirmation;
+if (CF){
+  const comps = (CF.components||[]).map(c=>
+    `<span class="cf-comp ${c.hot?'hot':''}">${c.label}: <b>${c.status}</b></span>`).join('');
+  document.getElementById('confirm').innerHTML =
+    `<div class="confirm-banner bd-${CF.tone}">
+       <div class="regime-top"><span class="regime-tag">Market check</span>`
+       + `<h3 class="cf-verdict ${CF.tone}">${CF.verdict}</h3></div>`
+     + `<p class="cf-msg">${CF.message}</p>`
+     + `<div class="cf-row"><span class="cf-lab">Macro read:</span> <b>${CF.macro}</b>`
+       + `<span class="cf-sep">&middot;</span><span class="cf-lab">Market pricing:</span> ${comps}</div>`
+     + `</div>`;
+}
+
 if (FAILED.length) {
   document.getElementById('fail').textContent =
     FAILED.length + ' series could not be loaded from FRED: ' + FAILED.map(f=>f[1]).join(', ');
@@ -1213,10 +1325,10 @@ let scHTML = `<h3>Signal scorecard</h3><div class="sc-legend">`
   + scKey(nNeutral,'neutral',css('--neutral'),'Context only; not scored against a fixed threshold.')
   + scKey(nCalm,'calm',css('--calm'),'Level is in the healthy zone.')
   + `<span class="sc-div"></span><span class="sc-grouplabel">6-mo trend:</span>`
-  + `<span class="sc-key" title="A separate axis from the colour: the value has moved the worrying way over the last 6 months. It can happen at any level."><span class="arrow worse">&#9650;</span>${nWorse} worsening</span>`
-  + `<span class="sc-key" title="A separate axis from the colour: the value has moved the reassuring way over the last 6 months."><span class="arrow better">&#9660;</span>${nBetter} improving</span>`
+  + `<span class="sc-key" title="A separate axis from the colour: the value has moved the worrying way over the last 6 months. It can happen at any level."><span class="arrow worse">&#9660;</span>${nWorse} worsening</span>`
+  + `<span class="sc-key" title="A separate axis from the colour: the value has moved the reassuring way over the last 6 months."><span class="arrow better">&#9650;</span>${nBetter} improving</span>`
   + `<span class="sc-key sc-total">${sc.length} signals</span></div><div class="chips">`;
-sc.forEach(x=>{ const arw = x.direction==='worsening'?' <span class="arrow worse">&#9650;</span>':x.direction==='improving'?' <span class="arrow better">&#9660;</span>':'';
+sc.forEach(x=>{ const arw = x.direction==='worsening'?' <span class="arrow worse">&#9660;</span>':x.direction==='improving'?' <span class="arrow better">&#9650;</span>':'';
   scHTML += `<span class="chip" title="${(x.criteria||'').replace(/"/g,'&quot;')}"><span class="dot" style="background:${css('--'+x.state)}"></span>${x.label}${arw}</span>`; });
 scHTML += `</div>`;
 document.getElementById('score').innerHTML = scHTML;
@@ -1352,7 +1464,7 @@ function makeCard(p,cid){
   card.innerHTML = `<div class="top"><div><h4>${p.label}</h4><div class="sid">${p.series_id}</div></div>
     <span class="badge bg-${p.state}">${stText(p.state)}</span></div>
     <div class="row"><span class="val ${p.state}">${dv.t}<small> ${dv.u}</small></span>
-    ${mv?`<span class="move ${moveCls}">${p.direction==='worsening'?'&#9650; worsening':p.direction==='improving'?'&#9660; improving':'&#8213; steady'} &middot; ${moveTxt}</span>`:''}</div>
+    ${mv?`<span class="move ${moveCls}">${p.direction==='worsening'?'&#9660; worsening':p.direction==='improving'?'&#9650; improving':'&#8213; steady'} &middot; ${moveTxt}</span>`:''}</div>
     <div class="asof">as of ${p.latest_date}${pctTxt}</div>
     <div class="cbox"><canvas id="cv-${cid}"></canvas><button class="expand" data-cid="${cid}" title="Expand chart" aria-label="Expand chart">&#10530;</button></div>
     <div class="note">${p.note}</div>`;
