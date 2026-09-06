@@ -79,6 +79,14 @@ THEMES = {
                  "tracks the cycle turning down."},
     ],
     "Growth": [
+        {"id": "WEI", "label": "Weekly economic index", "kind": "level",
+         "units": "%", "worry": "down", "start": "2008-01-01",
+         "caution": 1.5, "alert": 0.0,
+         "note": "The NY/Dallas Fed real-time growth gauge -- ten weekly series "
+                 "(rail traffic, staffing, jobless claims, tax withholdings, steel, "
+                 "fuel, electricity) scaled to four-quarter GDP growth. It moves "
+                 "weeks ahead of the monthly data: the earliest read on whether "
+                 "growth is accelerating or slowing."},
         {"id": "GDPC1", "label": "Real GDP (YoY)", "kind": "yoy",
          "units": "%", "worry": "down", "start": "1990-01-01",
          "caution": 1.0, "alert": 0.0,
@@ -300,6 +308,19 @@ DRILLDOWNS = {
                  "discount rate for every long-duration asset. Rising real yields "
                  "compress valuations and are the true headwind for gold and long "
                  "bonds; falling real yields are the tailwind."},
+        {"id": "DTWEXBGS", "label": "US dollar (broad)", "kind": "level",
+         "units": "", "worry": "up", "start": "2006-01-01",
+         "note": "The trade-weighted dollar. A rising dollar tightens global "
+                 "conditions and is a direct headwind for commodities, energy, gold "
+                 "and emerging markets -- the mirror image of the reflation trade. "
+                 "Read it as the counterweight to the inflation complex, not a "
+                 "recession signal on its own."},
+        {"id": "DRTSCILM", "label": "Bank lending standards (C&I)", "kind": "level",
+         "units": "%", "worry": "up", "start": "1990-01-01",
+         "note": "Net share of banks tightening standards on business loans, from "
+                 "the Fed's Senior Loan Officer survey. One of the best leading "
+                 "recession signals there is: when banks pull back, credit-dependent "
+                 "cyclicals and small caps feel it months before the hard data."},
     ],
     "Growth": [
         {"id": "NEWORDER", "label": "Core capital-goods orders (YoY)", "kind": "yoy",
@@ -357,6 +378,20 @@ DRILLDOWNS = {
          "note": "Corporate equity value against companies' net worth -- a Tobin's-Q "
                  "proxy. Well above 100% the market prices firms far over the "
                  "replacement cost of their assets; it mean-reverts over long horizons."},
+        {"id": "SP500-PE", "label": "S&P 500 P/E (trailing)", "compute": "multpl",
+         "url": "https://www.multpl.com/s-p-500-pe-ratio/table/by-month",
+         "lo": 3.0, "hi": 150.0, "tag": "pe",
+         "kind": "level", "units": "x", "worry": "up", "start": "1990-01-01",
+         "note": "The plain trailing price-to-earnings of the S&P 500 -- what you "
+                 "asked for. Simpler than CAPE but noisier: it looks cheap at profit "
+                 "peaks and spikes when earnings collapse (2009), which is exactly "
+                 "why CAPE exists. Read the two together."},
+        {"id": "CP", "label": "Corporate profits (YoY)", "kind": "yoy",
+         "units": "%", "worry": "down", "start": "1990-01-01",
+         "note": "Growth in after-tax corporate profits -- the earnings that "
+                 "valuations rest on. Rising profits can justify high multiples; "
+                 "profits rolling over while prices stay high is the dangerous "
+                 "combination. An earnings recession usually precedes a price one."},
     ],
 }
 
@@ -413,6 +448,12 @@ ALLOC = {
     "CFNAI": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
     "NEWORDER": [("Cyclicals & small caps", "UW"), ("Overall equity exposure", "UW")],
     "DRCCLACBS": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "WEI": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"),
+            ("Defensive equities", "OW"), ("Long-duration Treasuries", "OW")],
+    "DRTSCILM": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"),
+                 ("High-yield credit", "UW"), ("Defensive equities", "OW"),
+                 ("Long-duration Treasuries", "OW")],
+    "DTWEXBGS": [("Energy", "UW"), ("Real assets & commodities", "UW"), ("Gold", "UW")],
     "RRSFS": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
 }
 
@@ -426,13 +467,14 @@ SIGNAL_WEIGHT = {
     "CORESTICKM159SFRBATL": 1.0, "VIXCLS": 1.0, "NFCICREDIT": 1.0,
     "DCOILWTICO": 1.0, "TEMPHELPS": 1.0, "NEWORDER": 1.0, "DRCCLACBS": 1.0, "RRSFS": 1.0,
     "FRBATLWGT3MMAWMHWGO": 0.75, "PPIFIS": 0.75, "IR": 0.5,
+    "WEI": 1.25, "DRTSCILM": 1.5, "DTWEXBGS": 1.0,
 }
 
 # ---- Regime classifier (growth x inflation) ----------------------------------
 # Signals whose 6-month direction defines momentum. Growth signals deteriorating
 # => growth decelerating; inflation signals deteriorating (rising) => accelerating.
 GROWTH_MOM = ["PAYEMS", "INDPRO", "GDPC1", "CFNAI", "NEWORDER", "RRSFS",
-              "UNRATE", "IC4WSA", "SAHMREALTIME"]
+              "UNRATE", "IC4WSA", "SAHMREALTIME", "WEI", "DRTSCILM"]
 INFLATION_MOM = ["CPIAUCSL", "PCEPILFE", "T5YIE", "T5YIFR",
                  "CORESTICKM159SFRBATL", "PPIFIS"]
 REGIMES = {
@@ -556,26 +598,19 @@ _CAPE_MONTHS = {m: i for i, m in enumerate(
      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], 1)}
 
 
-def fetch_cape(start):
-    """Shiller CAPE (10-year cyclically-adjusted P/E) from multpl's by-month
-    table -- Robert Shiller's data, kept current (the old Yale ie_data.xls is a
-    frozen 2023 copy). Parses the HTML table with the standard library, keeps
-    only plausible CAPE values, and fails safe -- any error returns [] so the
-    dashboard still builds without CAPE."""
+def fetch_multpl(url, start, lo=3.0, hi=80.0, tag="multpl"):
+    """Parse a multpl.com by-month table (Shiller data, kept current). Returns
+    monthly (date, value), keeping only values in [lo, hi]. Standard-library
+    only, and fails safe -- any error returns [] so the dashboard still builds."""
     ua = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                         "AppleWebKit/537.36 (KHTML, like Gecko) "
                         "Chrome/124.0 Safari/537.36"}
-    html = None
-    for url in SHILLER_CAPE_URLS:
-        try:
-            r = requests.get(url, timeout=60, headers=ua)
-            r.raise_for_status()
-            html = r.text
-            break
-        except Exception as exc:
-            print(f"  [cape] {url} failed ({exc})")
-    if not html:
-        return []
+    try:
+        r = requests.get(url, timeout=60, headers=ua)
+        r.raise_for_status()
+        html = r.text
+    except Exception as exc:
+        print(f"  [{tag}] {url} failed ({exc})"); return []
     try:
         import re
         start_year = int(start[:4])
@@ -588,21 +623,25 @@ def fetch_cape(start):
             mon = _CAPE_MONTHS.get(dm.group(1))
             year = int(dm.group(2))
             val = float(vm.group(1))
-            if not mon or year < start_year or not (3.0 <= val <= 80.0):
+            if not mon or year < start_year or not (lo <= val <= hi):
                 continue
             key = f"{year:04d}-{mon:02d}-01"
-            if key in seen:          # newest-first table: keep the first per month
+            if key in seen:
                 continue
             seen.add(key)
             out.append((key, val))
         out.sort()
         if out:
-            print(f"  [cape] multpl -> {len(out)} pts; last 3: {out[-3:]}")
+            print(f"  [{tag}] {url.split('/')[-3]} -> {len(out)} pts; last 3: {out[-3:]}")
         else:
-            print("  [cape] no rows parsed from multpl")
+            print(f"  [{tag}] no rows parsed from {url}")
         return out
     except Exception as exc:
-        print(f"  [cape] parse error: {exc}"); return []
+        print(f"  [{tag}] parse error: {exc}"); return []
+
+
+def fetch_cape(start):
+    return fetch_multpl(SHILLER_CAPE_URLS[0], start, 3.0, 80.0, tag="cape")
 
 
 def fetch_sum(ids, start):
@@ -655,6 +694,9 @@ def panel_for(ind, percentile_state=False):
                           ind.get("ratio_scale", 1.0))
     elif ind.get("compute") == "cape":
         raw = fetch_cape(ind["start"])
+    elif ind.get("compute") == "multpl":
+        raw = fetch_multpl(ind["url"], ind["start"], ind.get("lo", 3.0),
+                           ind.get("hi", 80.0), tag=ind.get("tag", "multpl"))
     else:
         raw = fetch(ind["id"], ind["start"])
     if not raw:
@@ -674,13 +716,38 @@ def panel_for(ind, percentile_state=False):
     deteriorating = bool(tr and ind["worry"] and (
         (ind["worry"] == "up" and tr["delta"] > 0) or
         (ind["worry"] == "down" and tr["delta"] < 0)))
+    improving = bool(tr and ind["worry"] and not deteriorating and tr["delta"] != 0)
+    direction = "worsening" if deteriorating else "improving" if improving else "steady"
+    u = ind["units"]
+    usuf = u if u in ("%", "x") else (" " + u if u else "")
+    w = ind["worry"]
+    if percentile_state:
+        if w == "up":
+            crit = ("Judged against its own history: danger in the top 15% of past "
+                    "readings, caution the top 35% (higher is worse).")
+        elif w == "down":
+            crit = ("Judged against its own history: danger in the bottom 15% of past "
+                    "readings, caution the bottom 35% (lower is worse).")
+        else:
+            crit = "Shown for context; not scored against a fixed threshold."
+    elif ind.get("caution") is not None and ind.get("alert") is not None and w:
+        c, a = ind["caution"], ind["alert"]
+        if w == "up":
+            crit = f"Danger at/above {a}{usuf}, caution at/above {c}{usuf} (higher is worse)."
+        else:
+            crit = f"Danger at/below {a}{usuf}, caution at/below {c}{usuf} (lower is worse)."
+    else:
+        crit = "Shown for context; not scored against a fixed threshold."
+    crit += (" Colour shows the level; the arrow shows 6-month direction "
+             "(worsening or improving) -- a separate axis, so a calm signal can be "
+             "worsening and a danger one improving.")
     panel = {
         "label": ind["label"], "series_id": ind["id"], "units": ind["units"],
         "worry": ind["worry"], "note": ind["note"], "state": st,
-        "fmt": ind.get("fmt"),
+        "fmt": ind.get("fmt"), "criteria": crit, "direction": direction,
         "caution": ind.get("caution"), "alert": ind.get("alert"),
         "latest": round(latest, 2), "latest_date": series[-1][0],
-        "trend": tr, "deteriorating": deteriorating,
+        "trend": tr, "deteriorating": deteriorating, "improving": improving,
         "points": [[d, round(v, 3)] for d, v in series]}
     return panel, None
 
@@ -714,7 +781,8 @@ def build():
                 failed.append(fail); continue
             panels.append(panel)
             scorecard.append({"theme": theme, "label": ind["label"],
-                              "state": panel["state"],
+                              "state": panel["state"], "criteria": panel["criteria"],
+                              "direction": panel["direction"],
                               "deteriorating": panel["deteriorating"]})
             print(f"  {ind['id']:<14} {len(panel['points']):>5} pts  "
                   f"latest {panel['latest']:.2f}  state={panel['state']} "
@@ -975,8 +1043,14 @@ PAGE = r"""<!DOCTYPE html>
   .alloc-tally { font-size:10.5px; color:var(--dim); text-transform:uppercase; letter-spacing:.03em; margin:-3px 0 8px; }
   .sc-legend { display:flex; flex-wrap:wrap; gap:14px; margin:6px 0 12px; font-size:12px; color:var(--dim); }
   .sc-key { display:inline-flex; align-items:center; gap:6px; }
+  .sc-key[title] { cursor:help; }
+  .chip[title] { cursor:help; }
   .sc-key .dot { width:9px; height:9px; border-radius:50%; }
-  .sc-key .arrow { color:var(--neutral); font-size:10px; }
+  .sc-key .arrow { font-size:10px; }
+  .arrow.worse { color:var(--alert); }
+  .arrow.better { color:var(--calm); }
+  .sc-grouplabel { font-size:11px; color:var(--dim); font-weight:600; margin-right:2px; }
+  .sc-div { display:inline-block; width:1px; height:15px; background:var(--line); margin:0 4px; vertical-align:middle; }
   .sc-total { opacity:.75; }
   .alloc-card.expandable { cursor:pointer; }
   .alloc-hl { display:flex; align-items:center; gap:6px; }
@@ -1129,16 +1203,21 @@ const nAlert = sc.filter(x=>x.state==='alert').length;
 const nCaution = sc.filter(x=>x.state==='caution').length;
 const nCalm = sc.filter(x=>x.state==='calm').length;
 const nNeutral = sc.filter(x=>x.state==='neutral').length;
-const nDet = sc.filter(x=>x.deteriorating).length;
-const scKey = (v,label,color) => `<span class="sc-key"><span class="dot" style="background:${color}"></span>${v} ${label}</span>`;
+const nWorse = sc.filter(x=>x.direction==='worsening').length;
+const nBetter = sc.filter(x=>x.direction==='improving').length;
+const scKey = (v,label,color,tip) => `<span class="sc-key" title="${tip||''}"><span class="dot" style="background:${color}"></span>${v} ${label}</span>`;
 let scHTML = `<h3>Signal scorecard</h3><div class="sc-legend">`
-  + scKey(nAlert,'danger',css('--alert'))
-  + scKey(nCaution,'caution',css('--caution'))
-  + scKey(nCalm,'calm',css('--calm'))
-  + scKey(nNeutral,'neutral',css('--neutral'))
-  + `<span class="sc-key"><span class="arrow">&#9650;</span>${nDet} deteriorating</span>`
+  + `<span class="sc-grouplabel">Level now:</span>`
+  + scKey(nAlert,'danger',css('--alert'),'Level is in the worst zone \u2014 past its danger threshold, or the extreme of its own history.')
+  + scKey(nCaution,'caution',css('--caution'),'Level is elevated \u2014 past the caution threshold but not yet danger.')
+  + scKey(nNeutral,'neutral',css('--neutral'),'Context only; not scored against a fixed threshold.')
+  + scKey(nCalm,'calm',css('--calm'),'Level is in the healthy zone.')
+  + `<span class="sc-div"></span><span class="sc-grouplabel">6-mo trend:</span>`
+  + `<span class="sc-key" title="A separate axis from the colour: the value has moved the worrying way over the last 6 months. It can happen at any level."><span class="arrow worse">&#9650;</span>${nWorse} worsening</span>`
+  + `<span class="sc-key" title="A separate axis from the colour: the value has moved the reassuring way over the last 6 months."><span class="arrow better">&#9660;</span>${nBetter} improving</span>`
   + `<span class="sc-key sc-total">${sc.length} signals</span></div><div class="chips">`;
-sc.forEach(x=>{ scHTML += `<span class="chip"><span class="dot" style="background:${css('--'+x.state)}"></span>${x.label}${x.deteriorating?' <span class="arrow">&#9650;</span>':''}</span>`; });
+sc.forEach(x=>{ const arw = x.direction==='worsening'?' <span class="arrow worse">&#9650;</span>':x.direction==='improving'?' <span class="arrow better">&#9660;</span>':'';
+  scHTML += `<span class="chip" title="${(x.criteria||'').replace(/"/g,'&quot;')}"><span class="dot" style="background:${css('--'+x.state)}"></span>${x.label}${arw}</span>`; });
 scHTML += `</div>`;
 document.getElementById('score').innerHTML = scHTML;
 
@@ -1255,7 +1334,11 @@ function moveInfo(p){
   const mv = p.trend; let moveTxt='', moveCls='dim';
   if(mv){ const d=mv.delta, sign = d>0?'+':d<0?'-':'';
     const ad = dispVU(Math.abs(d), p);
-    moveTxt = `${sign}${ad.t} ${ad.u} over 6mo`;
+    let unitTxt;
+    if(ad.u==='x' || ad.u==='') unitTxt='';       // multiples / unitless: change only
+    else if(ad.u==='%') unitTxt='%';              // attached, no space
+    else unitTxt=' '+ad.u;                         // "50 K", "5 M"
+    moveTxt = `${sign}${ad.t}${unitTxt} over 6 mo`;
     if(p.worry==='up') moveCls=d>0?'alert':'calm';
     else if(p.worry==='down') moveCls=d<0?'alert':'calm'; }
   return {mv,moveTxt,moveCls};
@@ -1269,7 +1352,7 @@ function makeCard(p,cid){
   card.innerHTML = `<div class="top"><div><h4>${p.label}</h4><div class="sid">${p.series_id}</div></div>
     <span class="badge bg-${p.state}">${stText(p.state)}</span></div>
     <div class="row"><span class="val ${p.state}">${dv.t}<small> ${dv.u}</small></span>
-    ${mv?`<span class="move ${moveCls}">${p.deteriorating?'&#9650; ':''}${moveTxt}</span>`:''}</div>
+    ${mv?`<span class="move ${moveCls}">${p.direction==='worsening'?'&#9650; worsening':p.direction==='improving'?'&#9660; improving':'&#8213; steady'} &middot; ${moveTxt}</span>`:''}</div>
     <div class="asof">as of ${p.latest_date}${pctTxt}</div>
     <div class="cbox"><canvas id="cv-${cid}"></canvas><button class="expand" data-cid="${cid}" title="Expand chart" aria-label="Expand chart">&#10530;</button></div>
     <div class="note">${p.note}</div>`;
@@ -1329,11 +1412,11 @@ Object.keys(D.themes).forEach(theme=>{
   const ts = D.theme_states[theme] || {state:'neutral',deteriorating:0,total:panels.length};
   const key = theme.replace(/[^a-z]/gi,'');
   const subs = (D.drilldowns && D.drilldowns[theme]) || [];
-  const forSubs = subs.filter(s=>s.deteriorating);
-  const againstSubs = subs.filter(s=>!s.deteriorating);
+  const flashSubs = subs.filter(s=>s.state==='alert'||s.state==='caution');
+  const okSubs = subs.filter(s=>!(s.state==='alert'||s.state==='caution'));
   const sec = document.createElement('div'); sec.className='theme';
   const detTxt = ts.deteriorating>0 ? `${ts.deteriorating} of ${ts.total} deteriorating` : 'stable';
-  const lead = subs.length ? ` &middot; <span class="lead">${forSubs.length}/${subs.length} leading signals worsening</span>` : '';
+  const lead = subs.length ? ` &middot; <span class="lead">${flashSubs.length}/${subs.length} leading signals flashing</span>` : '';
   const chev = subs.length ? `<span class="chev" id="chev-${key}">&#9656;</span>` : '';
   sec.innerHTML = `<div class="theme-head${subs.length?' expandable':''}">${chev}<h2>${theme}</h2>
     <span class="theme-state bg-${ts.state}">${stText(ts.state)}</span>
@@ -1344,18 +1427,18 @@ Object.keys(D.themes).forEach(theme=>{
 
   if(subs.length){
     const dd = document.createElement('div'); dd.className='drilldown'; dd.id='dd-'+key;
-    dd.innerHTML = `<p class="dd-intro">Leading signals that move before the headline, split by what they're arguing right now. Left is the case for deterioration; right is genuine contrary evidence, so the panel isn't a one-way read.</p>
+    dd.innerHTML = `<p class="dd-intro">Leading signals that move before the headline. Grouped by where each sits <b>right now</b> &mdash; <b>flashing</b> (elevated or extreme) vs <b>healthy</b> &mdash; and colour is the level. The arrow on each is a separate thing: its <b>6-month direction</b>, so a healthy signal can be worsening and a flashing one improving.</p>
       <div class="dd-cols">
-        <div class="dd-col for"><h5>Arguing for deterioration &middot; ${forSubs.length}</h5><div class="dd-for"></div></div>
-        <div class="dd-col against"><h5>Arguing against &middot; ${againstSubs.length}</h5><div class="dd-against"></div></div>
+        <div class="dd-col for"><h5>Flashing now &middot; ${flashSubs.length}</h5><div class="dd-for"></div></div>
+        <div class="dd-col against"><h5>Healthy now &middot; ${okSubs.length}</h5><div class="dd-against"></div></div>
       </div>`;
     sec.appendChild(dd);
     const forEl = dd.querySelector('.dd-for'), againstEl = dd.querySelector('.dd-against');
     const paints = [];
-    if(!forSubs.length) forEl.innerHTML = '<div class="dd-empty">Nothing currently deteriorating.</div>';
-    if(!againstSubs.length) againstEl.innerHTML = '<div class="dd-empty">Nothing currently stable or improving.</div>';
-    forSubs.forEach((s,i)=>{ const cid=key+'-df-'+i; forEl.appendChild(makeCard(s,cid)); paints.push([s,cid]); });
-    againstSubs.forEach((s,i)=>{ const cid=key+'-da-'+i; againstEl.appendChild(makeCard(s,cid)); paints.push([s,cid]); });
+    if(!flashSubs.length) forEl.innerHTML = '<div class="dd-empty">Nothing elevated right now.</div>';
+    if(!okSubs.length) againstEl.innerHTML = '<div class="dd-empty">Nothing in the healthy zone.</div>';
+    flashSubs.forEach((s,i)=>{ const cid=key+'-df-'+i; forEl.appendChild(makeCard(s,cid)); paints.push([s,cid]); });
+    okSubs.forEach((s,i)=>{ const cid=key+'-da-'+i; againstEl.appendChild(makeCard(s,cid)); paints.push([s,cid]); });
     drillReg[key] = {paints, drawn:false};
     sec.querySelector('.theme-head').addEventListener('click', ()=>toggleDrill(key));
   }
