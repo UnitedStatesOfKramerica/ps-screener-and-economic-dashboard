@@ -20,7 +20,7 @@ than charting nothing. Requires a free FRED_API_KEY.
 import json
 import math
 import os
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -988,6 +988,57 @@ def panel_for(ind, percentile_state=False):
     return panel, None
 
 
+def _compute_changes(history, all_panels, today):
+    """Deltas of the current snapshot vs history: scorecard counts ~a week ago,
+    signals whose STATE changed recently, allocation lean shifts, regime change."""
+    label_of = {p["series_id"]: p["label"] for p in all_panels}
+    cur, prior = history[-1], history[:-1]
+    td = datetime.strptime(today, "%Y-%m-%d")
+
+    def days_ago(d):
+        return (td - datetime.strptime(d, "%Y-%m-%d")).days
+
+    out = {"vs": None, "recently_changed": [], "alloc_changes": [], "regime_change": None}
+    for s in reversed(prior):                      # scorecard counts ~a week ago
+        if days_ago(s["date"]) >= 6:
+            out["vs"] = {"date": s["date"], "days": days_ago(s["date"]),
+                         "counts": s["counts"]}
+            break
+    for sid, sig in cur["signals"].items():        # signals whose state changed
+        for s in reversed(prior):
+            ps = s["signals"].get(sid)
+            if not ps:
+                continue
+            if ps[0] != sig[0]:
+                d = days_ago(s["date"])
+                if d <= 45:
+                    out["recently_changed"].append(
+                        {"label": label_of.get(sid, sid), "from": ps[0],
+                         "to": sig[0], "days": d})
+                break
+    out["recently_changed"].sort(key=lambda x: x["days"])
+    out["recently_changed"] = out["recently_changed"][:8]
+    for bucket, av in cur["alloc"].items():        # allocation lean shifts
+        for s in reversed(prior):
+            pa = s["alloc"].get(bucket)
+            if not pa:
+                continue
+            if pa[0] != av[0]:
+                d = days_ago(s["date"])
+                if d <= 45:
+                    out["alloc_changes"].append(
+                        {"bucket": bucket, "from": pa[0], "to": av[0], "days": d})
+                break
+    out["alloc_changes"].sort(key=lambda x: x["days"])
+    for s in reversed(prior):                      # regime change
+        if s.get("regime") != cur["regime"]:
+            d = days_ago(s["date"])
+            if d <= 90:
+                out["regime_change"] = {"from": s["regime"], "to": cur["regime"], "days": d}
+            break
+    return out
+
+
 def build():
     print("Building recession-risk dashboard from FRED...")
     failed = []
@@ -1254,13 +1305,50 @@ def build():
     sectors.sort(key=lambda x: x["chg12"], reverse=True)
     jobs = {"asof": jobs_asof, "sectors": sectors}
 
+    # ---- History & change tracking (docs/history.json accumulates over time) ----
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    counts = {k: sum(1 for x in scorecard if x["state"] == k)
+              for k in ("alert", "caution", "calm", "neutral")}
+    counts["worsening"] = sum(1 for x in scorecard if x["direction"] == "worsening")
+    counts["improving"] = sum(1 for x in scorecard if x["direction"] == "improving")
+    snapshot = {
+        "date": today,
+        "signals": {p["series_id"]: [p["state"], p["direction"]] for p in all_panels},
+        "counts": counts,
+        "alloc": {a["bucket"]: [a["lean"], a["conviction"]] for a in allocation},
+        "regime": regime["name"]}
+    (OUT / "docs").mkdir(exist_ok=True)
+    hist_path = OUT / "docs/history.json"
+    try:
+        history = json.loads(hist_path.read_text())
+        if not isinstance(history, list):
+            history = []
+    except Exception:
+        history = []
+    history = [s for s in history if s.get("date") != today]   # replace same-day re-run
+    history.append(snapshot)
+    history.sort(key=lambda s: s["date"])
+    if len(history) > 400:                                     # keep 400 daily, then monthly
+        recent, older, seen, keep = history[-400:], history[:-400], set(), []
+        for s in older:
+            if s["date"][:7] not in seen:
+                seen.add(s["date"][:7]); keep.append(s)
+        history = keep + recent
+    changes = _compute_changes(history, all_panels, today)
+    try:
+        hist_path.write_text(json.dumps(history))
+    except Exception as exc:
+        print(f"  [history] could not write history.json ({exc})")
+    print(f"  [history] {len(history)} snapshots | {len(changes['recently_changed'])} "
+          f"signal changes, {len(changes['alloc_changes'])} allocation shifts")
+
     payload = {
         "ny": {"latest": ny_latest, "trend": ny_trend, "points": ny_series},
         "coincident": {"latest": (coin[-1] if coin else None),
                        "points": [[d, round(v, 1)] for d, v in coin]},
         "themes": themes_out, "theme_states": theme_states, "scorecard": scorecard,
         "drilldowns": drill_out, "allocation": allocation, "jobs": jobs,
-        "regime": regime, "confirmation": confirmation}
+        "regime": regime, "confirmation": confirmation, "changes": changes}
     html = PAGE.replace("__DATA__", json.dumps(payload)) \
                .replace("__FAILED__", json.dumps(failed)) \
                .replace("__STAMP__", _now_et_local())
@@ -1389,6 +1477,18 @@ PAGE = r"""<!DOCTYPE html>
   .sc-grouplabel { font-size:11px; color:var(--dim); font-weight:600; margin-right:2px; }
   .sc-div { display:inline-block; width:1px; height:15px; background:var(--line); margin:0 4px; vertical-align:middle; }
   .sc-total { opacity:.75; }
+  .sc-since { font-size:11px; color:var(--dim); font-weight:400; }
+  .cdelta { font-size:10px; font-weight:700; }
+  .cdelta.good { color:var(--calm); }
+  .cdelta.bad { color:var(--alert); }
+  .rc-strip { display:flex; flex-wrap:wrap; align-items:center; gap:14px; margin:4px 0 14px; font-size:12px; }
+  .rc-lab { font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--dim); }
+  .rc-item { color:var(--dim); white-space:nowrap; }
+  .rc-item b { color:var(--ink); font-weight:600; }
+  .rc-from { text-transform:capitalize; }
+  .rc-days { color:var(--dim); font-size:10.5px; }
+  .alloc-chg { font-size:10.5px; color:var(--neutral); margin:-2px 0 8px; text-transform:capitalize; }
+  .regime-chg { font-size:11.5px; color:var(--neutral); }
   .alloc-card.expandable { cursor:pointer; }
   .alloc-hl { display:flex; align-items:center; gap:6px; }
   .alloc-hl .chev { margin:0; }
@@ -1513,11 +1613,13 @@ const stText = s => s==='alert' ? 'danger' : s;
 const R = D.regime;
 if (R){
   const vcls = R.valuation==='extreme'?'alert':R.valuation==='elevated'?'caution':'calm';
+  const rchg = D.changes && D.changes.regime_change;
+  const rchgTag = rchg ? `<span class="regime-chg">shifted from <b>${rchg.from}</b> ${rchg.days}d ago</span>` : '';
   document.getElementById('regime').innerHTML =
     `<div class="regime-banner">
        <div class="regime-top"><span class="regime-tag">Regime</span>`
        + `<h2>${R.name}</h2>`
-       + `<span class="regime-sub">growth ${R.growth} &middot; inflation ${R.inflation}</span></div>`
+       + `<span class="regime-sub">growth ${R.growth} &middot; inflation ${R.inflation}</span>${rchgTag}</div>`
      + `<p class="regime-play">${R.playbook}</p>`
      + `<div class="regime-val">Valuations <span class="badge bg-${vcls}">${R.valuation}</span>`
        + `<span class="regime-valnote">${R.valnote}</span></div>`
@@ -1578,17 +1680,34 @@ const nCalm = sc.filter(x=>x.state==='calm').length;
 const nNeutral = sc.filter(x=>x.state==='neutral').length;
 const nWorse = sc.filter(x=>x.direction==='worsening').length;
 const nBetter = sc.filter(x=>x.direction==='improving').length;
-const scKey = (v,label,color,tip) => `<span class="sc-key" title="${tip||''}"><span class="dot" style="background:${color}"></span>${v} ${label}</span>`;
-let scHTML = `<h3>Signal scorecard</h3><div class="sc-legend">`
+const CH = D.changes || {};
+const scPrev = (CH.vs && CH.vs.counts) || null;
+function cdelta(key, cur, goodUp){
+  if(!scPrev || scPrev[key]===undefined) return '';
+  const d = cur - scPrev[key]; if(d===0) return '';
+  const good = (d>0)===goodUp;
+  return ` <span class="cdelta ${good?'good':'bad'}">${d>0?'&#9650;':'&#9660;'}${d>0?'+':''}${d}</span>`;
+}
+const scKey = (v,label,color,tip,key,goodUp) => `<span class="sc-key" title="${tip||''}"><span class="dot" style="background:${color}"></span>${v} ${label}${key?cdelta(key,v,goodUp):''}</span>`;
+let scHTML = `<h3>Signal scorecard${scPrev?` <span class="sc-since">change vs ${CH.vs.days}d ago</span>`:''}</h3><div class="sc-legend">`
   + `<span class="sc-grouplabel">Level now:</span>`
-  + scKey(nAlert,'danger',css('--alert'),'Level is in the worst zone \u2014 past its danger threshold, or the extreme of its own history.')
-  + scKey(nCaution,'caution',css('--caution'),'Level is elevated \u2014 past the caution threshold but not yet danger.')
-  + scKey(nNeutral,'neutral',css('--neutral'),'Context only; not scored against a fixed threshold.')
-  + scKey(nCalm,'calm',css('--calm'),'Level is in the healthy zone.')
+  + scKey(nAlert,'danger',css('--alert'),'Level is in the worst zone \u2014 past its danger threshold, or the extreme of its own history.','alert',false)
+  + scKey(nCaution,'caution',css('--caution'),'Level is elevated \u2014 past the caution threshold but not yet danger.','caution',false)
+  + scKey(nNeutral,'neutral',css('--neutral'),'Context only; not scored against a fixed threshold.','neutral',true)
+  + scKey(nCalm,'calm',css('--calm'),'Level is in the healthy zone.','calm',true)
   + `<span class="sc-div"></span><span class="sc-grouplabel">6-mo trend:</span>`
-  + `<span class="sc-key" title="A separate axis from the colour: the value has moved the worrying way over the last 6 months. It can happen at any level."><span class="arrow worse">&#9660;</span>${nWorse} worsening</span>`
-  + `<span class="sc-key" title="A separate axis from the colour: the value has moved the reassuring way over the last 6 months."><span class="arrow better">&#9650;</span>${nBetter} improving</span>`
-  + `<span class="sc-key sc-total">${sc.length} signals</span></div><div class="chips">`;
+  + `<span class="sc-key" title="The value has moved the worrying way over the last 6 months."><span class="arrow worse">&#9660;</span>${nWorse} worsening${cdelta('worsening',nWorse,false)}</span>`
+  + `<span class="sc-key" title="The value has moved the reassuring way over the last 6 months."><span class="arrow better">&#9650;</span>${nBetter} improving${cdelta('improving',nBetter,true)}</span>`
+  + `<span class="sc-key sc-total">${sc.length} signals</span></div>`;
+if(CH.recently_changed && CH.recently_changed.length){
+  scHTML += `<div class="rc-strip"><span class="rc-lab">Recently changed</span>`
+    + CH.recently_changed.map(c=>`<span class="rc-item"><b>${c.label}</b> `
+        + `<span class="rc-from">${stText(c.from)}</span>&#8202;&rarr;&#8202;`
+        + `<span class="badge bg-${c.to}">${stText(c.to)}</span> `
+        + `<span class="rc-days">${c.days}d ago</span></span>`).join('')
+    + `</div>`;
+}
+scHTML += `<div class="chips">`;
 sc.forEach(x=>{ const arw = x.direction==='worsening'?' <span class="arrow worse">&#9660;</span>':x.direction==='improving'?' <span class="arrow better">&#9650;</span>':'';
   scHTML += `<span class="chip" title="${(x.criteria||'').replace(/"/g,'&quot;')}"><span class="dot" style="background:${css('--'+x.state)}"></span>${x.label}${arw}</span>`; });
 scHTML += `</div>`;
@@ -1601,6 +1720,7 @@ if (D.allocation && D.allocation.length){
   let ah = `<h2 class="alloc-h">Capital Allocation</h2>
     <p class="alloc-sub">A rules-based read of what the currently-active macro signals lean toward &mdash; not advice, and every driver is shown so you can judge for yourself. A signal counts as &ldquo;active&rdquo; when it is moving its worrying way or sitting at a caution/danger level; the meter shows conviction &mdash; the <b>weighted</b> margin, so heavier signals (the yield curve, Sahm rule, credit spreads) move it more than minor ones. <b>Balanced</b> means active signals pull both ways; <b>No signal</b> means nothing mapped here is firing. Tap a card for what the bucket means and every signal feeding it &mdash; dimmed rows are mapped but not currently active.</p>
     <div class="alloc-grid">`;
+  const allocCh = {}; (CH.alloc_changes||[]).forEach(c=>allocCh[c.bucket]=c);
   D.allocation.forEach((a,ai)=>{
     const lc = acls(a.lean);
     const directional = (a.lean==='Overweight'||a.lean==='Underweight');
@@ -1608,6 +1728,8 @@ if (D.allocation && D.allocation.length){
     let meter = '<span class="conv">';
     for (let i=0;i<3;i++) meter += `<span class="seg ${i<fill?('on '+lc):''}"></span>`;
     meter += '</span>';
+    const chg = allocCh[a.bucket];
+    const chgTag = chg ? `<div class="alloc-chg">changed &middot; ${chg.from} &rarr; <b>${chg.to}</b> ${chg.days}d ago</div>` : '';
     const tally = a.lean==='No signal'
       ? `<div class="alloc-tally">no active signals</div>`
       : a.lean==='Balanced'
@@ -1628,7 +1750,7 @@ if (D.allocation && D.allocation.length){
     ah += `<div class="alloc-card expandable"><div class="alloc-top">`
         + `<span class="alloc-hl"><span class="chev" id="achev-${ai}">&#9656;</span><h4>${a.bucket}</h4></span>`
         + `<span class="alloc-badge"><span class="lean bg-${lc}">${a.lean}</span>${directional?meter:''}</span></div>`
-        + tally + detail + `</div>`;
+        + chgTag + tally + detail + `</div>`;
   });
   ah += `</div>`;
   allocEl.innerHTML = ah;
