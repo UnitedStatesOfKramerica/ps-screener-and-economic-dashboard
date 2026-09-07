@@ -22,9 +22,9 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      # xlrd is used only to read Shiller's ie_data.xls for the CAPE ratio;
-      # if it or the download ever fails, the dashboard still builds without CAPE.
-      - run: pip install requests xlrd
+      # openpyxl is used only to read FINRA's margin-debt Excel; if it or the
+      # download ever fails, the dashboard still builds without that one signal.
+      - run: pip install requests openpyxl
 
       - name: Build the dashboard
         env:
