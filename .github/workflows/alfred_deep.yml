@@ -1,0 +1,26 @@
+name: Deep-vintage backtest
+
+# Run manually from the Actions tab. Prints its report to the build log -- it
+# publishes nothing. Rebuilds the read from raw point-in-time series and tests the
+# 2000 / 2008 / 2022 episodes through the lens that should have caught each.
+on:
+  workflow_dispatch:
+
+jobs:
+  deep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install requests
+
+      - name: Run deep-vintage backtest
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python alfred_deep.py
