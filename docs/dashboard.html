@@ -163,6 +163,13 @@
   .card:hover .expand { opacity:1; }
   .expand:hover { color:var(--ink); border-color:var(--neutral); }
   @media(hover:none){ .expand{ opacity:.65; } }
+  #rangebar { display:flex; align-items:center; gap:6px; margin:2px 0 16px; flex-wrap:wrap; }
+  .rangebar-lab { font-size:11px; color:var(--dim); text-transform:uppercase; letter-spacing:.05em; margin-right:4px; }
+  .rangebtn, .mrangebtn { background:var(--card); border:1px solid var(--line); color:var(--dim);
+     font-size:11px; font-weight:600; padding:4px 12px; border-radius:7px; cursor:pointer; }
+  .rangebtn:hover, .mrangebtn:hover { color:var(--ink); border-color:var(--neutral); }
+  .rangebtn.on, .mrangebtn.on { background:var(--neutral); color:var(--bg); border-color:var(--neutral); }
+  #modal-range { display:flex; gap:6px; margin:4px 0 10px; }
   .modal { position:fixed; inset:0; background:rgba(3,5,10,.72); display:none; z-index:50;
            align-items:center; justify-content:center; padding:24px; }
   .modal.open { display:flex; }
@@ -181,7 +188,7 @@
 <body>
 <header>
   <h1>Recession-risk dashboard</h1>
-  <div class="stamp">FRED data &middot; 6 Sep 2026 22:52 ET &middot;
+  <div class="stamp">FRED data &middot; 7 Sep 2026 11:39 ET &middot;
     <span class="nav"><a href="index.html">&larr; back to the screener</a></span></div>
 </header>
 <div class="wrap">
@@ -191,6 +198,13 @@
 <div class="gauges" id="gauges"></div>
 <div class="score" id="score"></div>
 <div id="alloc"></div>
+<div id="rangebar">
+  <span class="rangebar-lab">Chart window</span>
+  <button class="rangebtn" data-rg="6m">6M</button>
+  <button class="rangebtn" data-rg="1y">1Y</button>
+  <button class="rangebtn" data-rg="5y">5Y</button>
+  <button class="rangebtn on" data-rg="max">Max</button>
+</div>
 <div id="themes"></div>
 </div>
 <div id="modal" class="modal">
@@ -200,6 +214,12 @@
       <button id="modal-close" aria-label="Close">&#10005;</button>
     </div>
     <div class="modal-meta" id="modal-meta"></div>
+    <div id="modal-range">
+      <button class="mrangebtn" data-rg="6m">6M</button>
+      <button class="mrangebtn" data-rg="1y">1Y</button>
+      <button class="mrangebtn" data-rg="5y">5Y</button>
+      <button class="mrangebtn on" data-rg="max">Max</button>
+    </div>
     <div class="modal-cbox"><canvas id="modal-cv"></canvas></div>
     <div class="modal-note" id="modal-note"></div>
   </div>
@@ -368,6 +388,28 @@ const tRoot = document.getElementById('themes');
 const drillReg = {};
 const PANELS = {};
 let modalChart = null;
+let modalRange = 'max';
+let modalPanel = null;
+let chartRange = 'max';          // universal window for the small card charts
+const chartReg = {};             // canvasId -> {p} for redraw on range change
+function slicePts(pts, range){
+  if(range==='max' || !pts.length) return pts;
+  const days = {'6m':183,'1y':366,'5y':1827}[range] || 0;
+  if(!days) return pts;
+  const cut = new Date(pts[pts.length-1][0]); cut.setDate(cut.getDate()-days);
+  const kept = pts.filter(x => new Date(x[0]) >= cut);
+  return kept.length >= 2 ? kept : pts;   // never leave a chart with <2 points
+}
+function setRange(rg){
+  chartRange = rg;
+  document.querySelectorAll('#rangebar .rangebtn').forEach(b =>
+    b.classList.toggle('on', b.dataset.rg === rg));
+  Object.keys(chartReg).forEach(cv => {
+    const r = chartReg[cv];
+    if(r.chart) r.chart.destroy();
+    r.chart = drawSeries(cv, r.p);
+  });
+}
 
 // Adaptive number formatting. Person-counts (fmt='count') live in thousands in
 // the data; show them in millions once they cross 1,000 (2,519.5 -> 2.52M) but
@@ -434,7 +476,8 @@ function makeCard(p,cid){
 function drawSeries(canvasId, p, opts){
   opts = opts || {}; const big = !!opts.big;
   const cap = opts.maxPts || (big?4000:500);
-  const pts = p.points, step = Math.max(1,Math.floor(pts.length/cap));
+  const pts = slicePts(p.points, opts.range || (big ? 'max' : chartRange));
+  const step = Math.max(1,Math.floor(pts.length/cap));
   const thin = pts.filter((_,k)=>k%step===0);
   const ds = [{ data: thin.map(x=>({x:x[0],y:x[1]})), borderColor:css('--neutral'),
                 borderWidth: big?2:1.5, pointRadius:0, pointHoverRadius: big?5:4,
@@ -444,16 +487,22 @@ function drawSeries(canvasId, p, opts){
     ds.push({ data:[{x:thin[0][0],y:val},{x:thin[thin.length-1][0],y:val}],
       borderColor:css(cv), borderWidth:1, borderDash:[4,4], pointRadius:0, pointHoverRadius:0, fill:false }); }
   refLine(p.caution,'--caution'); refLine(p.alert,'--alert');
+  const rng = opts.range || (big ? 'max' : chartRange);
+  const xunit = (rng === '6m' || rng === '1y') ? 'month' : 'year';
   return new Chart(document.getElementById(canvasId),{ type:'line', data:{datasets:ds}, plugins:[crosshair],
     options:{ responsive:true, maintainAspectRatio:false, animation:false,
       interaction:{mode:'index',intersect:false},
       plugins:{legend:{display:false}, tooltip:{position:'nearest',intersect:false,mode:'index',displayColors:false,
         padding: big?10:8, titleFont:{size: big?13:11}, bodyFont:{size: big?14:12},
         callbacks:{title:i=>i[0].raw.x, label:i=>{const d=dispVU(i.raw.y,p); return d.t+' '+d.u;}}}},
-      scales:{ x:{type:'time',time:{unit:'year'},ticks:{color:css('--dim'),font:{size:big?11:9},maxTicksLimit:big?12:6},grid:{color:css('--grid')}},
+      scales:{ x:{type:'time',time:{unit:xunit},ticks:{color:css('--dim'),font:{size:big?11:9},maxTicksLimit:big?12:6},grid:{color:css('--grid')}},
                y:{ticks:{color:css('--dim'),font:{size:big?12:10},maxTicksLimit:big?6:4,callback:(val)=>axisTick(val,p)},grid:{color:css('--grid')}} } } });
 }
-function paintChart(p,cid){ drawSeries('cv-'+cid, p); }
+function paintChart(p,cid){
+  const cv = 'cv-'+cid;
+  if(chartReg[cv] && chartReg[cv].chart) chartReg[cv].chart.destroy();
+  chartReg[cv] = {p, chart: drawSeries(cv, p)};
+}
 
 function openModal(cid){
   const p = PANELS[cid]; if(!p) return;
@@ -467,7 +516,15 @@ function openModal(cid){
   document.getElementById('modal-note').textContent = p.note;
   document.getElementById('modal').classList.add('open');
   if(modalChart){ modalChart.destroy(); modalChart = null; }
-  requestAnimationFrame(()=>{ modalChart = drawSeries('modal-cv', p, {big:true}); });
+  modalPanel = p; modalRange = 'max';
+  document.querySelectorAll('#modal-range .mrangebtn').forEach(b=>b.classList.toggle('on', b.dataset.rg==='max'));
+  requestAnimationFrame(()=>{ modalChart = drawSeries('modal-cv', p, {big:true, range:modalRange}); });
+}
+function setModalRange(rg){
+  modalRange = rg;
+  document.querySelectorAll('#modal-range .mrangebtn').forEach(b=>b.classList.toggle('on', b.dataset.rg===rg));
+  if(modalPanel){ if(modalChart) modalChart.destroy();
+    modalChart = drawSeries('modal-cv', modalPanel, {big:true, range:rg}); }
 }
 function closeModal(){
   document.getElementById('modal').classList.remove('open');
@@ -533,5 +590,9 @@ document.addEventListener('click',(e)=>{
 document.getElementById('modal-close').addEventListener('click', closeModal);
 document.getElementById('modal').addEventListener('click',(e)=>{ if(e.target.id==='modal') closeModal(); });
 document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closeModal(); });
+document.querySelectorAll('#rangebar .rangebtn').forEach(b=>
+  b.addEventListener('click', ()=>setRange(b.dataset.rg)));
+document.querySelectorAll('#modal-range .mrangebtn').forEach(b=>
+  b.addEventListener('click', ()=>setModalRange(b.dataset.rg)));
 </script>
 </body></html>
