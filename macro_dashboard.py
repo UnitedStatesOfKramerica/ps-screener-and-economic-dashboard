@@ -172,10 +172,12 @@ THEMES = {
          "note": "The Fed's preferred gauge. Above target constrains rate cuts "
                  "even as growth slows."},
         {"id": "FEDFUNDS", "label": "Fed funds rate", "kind": "level",
-         "units": "%", "worry": None, "start": "1990-01-01",
-         "caution": None, "alert": None,
-         "note": "Policy rate. Restrictive policy held too long is the classic "
-                 "cause of a policy-induced recession."},
+         "units": "%", "worry": "up", "start": "1990-01-01",
+         "note": "The policy rate -- read the DIRECTION, not the level: rising means "
+                 "the Fed is tightening (removing accommodation), the classic pin "
+                 "that pops expensive markets and precedes recessions; falling means "
+                 "it is easing. Early-cycle hikes are healthy, so weigh this "
+                 "alongside where the cycle and valuations sit."},
         {"id": "M2SL", "label": "M2 money supply (YoY)", "kind": "yoy",
          "units": "%", "worry": None, "start": "1990-01-01",
          "caution": None, "alert": None,
@@ -188,9 +190,21 @@ THEMES = {
          "caution": 28.0, "alert": 33.0,
          "note": "Price divided by ten years of average real earnings -- the most-"
                  "cited long-run valuation gauge, smoothing through the profit cycle "
-                 "that distorts a one-year P/E. Above ~30 has clustered around 1929, "
-                 "2000 and 2021. It says little about the next year but a lot about "
-                 "the next decade's returns."},
+                 "that distorts a one-year P/E. Above ~30 clustered around 1929, 2000 "
+                 "and 2021. Read it as the STAKES -- how poor the next decade's returns "
+                 "are likely to be and how far a fall could go -- not a trigger: it "
+                 "stayed extreme from 1998 through 2000, so act only when the Market "
+                 "check confirms a turn, never on the level alone."},
+        {"id": "Excess CAPE yield", "label": "Excess CAPE yield", "compute": "ecy",
+         "kind": "level", "units": "%", "worry": "down", "start": "2003-01-01",
+         "caution": 1.0, "alert": 0.0,
+         "note": "Shiller's own fix for CAPE's blind spot to interest rates: the "
+                 "market earnings yield (1/CAPE) minus the 10-year REAL yield -- what "
+                 "stocks offer over safe inflation-protected bonds. In 2000 it was "
+                 "NEGATIVE (stocks yielded less than bonds -- absurd); today it is thin "
+                 "but positive, so 'expensive because rates are low', not a 2000-style "
+                 "bubble. Below zero is the danger zone; still, this is stakes, not a "
+                 "sell signal -- pair it with the Market check."},
         {"id": "Market cap / GDP", "label": "Buffett indicator (market cap / GDP)",
          "compute": "ratio", "nums": ["NCBEILQ027S", "FBCELLQ027S"], "den": "GDP",
          "ratio_scale": 0.1, "kind": "level", "units": "%", "worry": "up",
@@ -449,6 +463,14 @@ DRILLDOWNS = {
                  "asked for. Simpler than CAPE but noisier: it looks cheap at profit "
                  "peaks and spikes when earnings collapse (2009), which is exactly "
                  "why CAPE exists. Read the two together."},
+        {"id": "Margin debt (YoY)", "label": "Margin debt (YoY)", "compute": "margin",
+         "kind": "yoy", "units": "%", "worry": "up", "start": "1997-01-01",
+         "pctile": False, "caution": 20.0, "alert": 40.0,
+         "note": "Customer margin debt (FINRA) -- money borrowed against portfolios to "
+                 "buy more stock, the purest gauge of speculative leverage. Rapid "
+                 "year-over-year growth marked the 2000, 2007 and 2021 tops; when it "
+                 "rolls over, forced selling feeds on itself. Sourced from FINRA's own "
+                 "file (no API), so it can lag a few weeks or drop out on delays."},
         {"id": "CP", "label": "Corporate profits (YoY)", "kind": "yoy",
          "units": "%", "worry": "down", "start": "1990-01-01",
          "note": "Growth in after-tax corporate profits -- the earnings that "
@@ -523,6 +545,7 @@ ALLOC = {
                  ("Long-duration Treasuries", "OW"), ("Value over Growth", "UW")],
     "DTWEXBGS": [("Energy", "UW"), ("Real assets & commodities", "UW"), ("Gold", "UW")],
     "RRSFS": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "FEDFUNDS": [("Overall equity exposure", "UW")],
     "Net liquidity": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"),
                       ("High-yield credit", "UW")],
     "WALCL": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW")],
@@ -547,7 +570,7 @@ SIGNAL_WEIGHT = {
     "FRBATLWGT3MMAWMHWGO": 0.75, "PPIFIS": 0.75, "IR": 0.5,
     "WEI": 1.25, "DRTSCILM": 1.5, "DTWEXBGS": 1.0,
     "Net liquidity": 1.5, "WALCL": 1.0, "JTSJOL": 1.0,
-    "HPIPONM226S": 1.0, "HSN1F": 0.75, "PCETRIM12M159SFRBDAL": 1.25,
+    "HPIPONM226S": 1.0, "HSN1F": 0.75, "PCETRIM12M159SFRBDAL": 1.25, "FEDFUNDS": 0.75,
 }
 
 # ---- Regime classifier (growth x inflation) ----------------------------------
@@ -749,6 +772,92 @@ def fetch_cape(start):
     return fetch_multpl(SHILLER_CAPE_URLS[0], start, 3.0, 80.0, tag="cape")
 
 
+def fetch_ecy(start):
+    """Excess CAPE Yield (Shiller): the market earnings yield (100 / CAPE) minus the
+    10-year REAL yield. Positive = stocks beat safe real bonds; negative = 2000-like.
+    Rate-aware, so it distinguishes 'expensive because rates are low' from a bubble."""
+    cape = fetch_cape(start)
+    real = fetch("DFII10", start)
+    if not cape or not real:
+        return []
+    real_by_month = {}
+    for d, v in real:
+        real_by_month[d[:7]] = v          # last real yield seen in each month
+    out = []
+    for d, c in cape:
+        rm = real_by_month.get(d[:7])
+        if c and rm is not None:
+            out.append((d, round(100.0 / c - rm, 3)))
+    return out
+
+
+FINRA_MARGIN_URL = "https://www.finra.org/sites/default/files/2021-03/margin-statistics.xlsx"
+
+
+def _margin_date(cell):
+    if hasattr(cell, "year") and hasattr(cell, "month"):
+        return cell.year, cell.month
+    if isinstance(cell, str):
+        for fmt in ("%b-%y", "%b-%Y", "%B-%y", "%B-%Y", "%Y-%m", "%m/%Y", "%b %Y"):
+            try:
+                d = datetime.strptime(cell.strip(), fmt)
+                return d.year, d.month
+            except ValueError:
+                pass
+    return None
+
+
+def fetch_finra_margin(start):
+    """Customer margin debt (debit balances, $M) from FINRA's own Excel file -- the
+    only source (no API/feed). Scans for the 'debit' column, parses either text or
+    date cells, and fails safe: any error returns [] so the dashboard still builds."""
+    try:
+        import io
+        import openpyxl
+    except Exception:
+        print("  [margin] openpyxl not installed -- skipping margin debt"); return []
+    try:
+        r = requests.get(FINRA_MARGIN_URL, timeout=60, headers={"User-Agent": "Mozilla/5.0"})
+        r.raise_for_status()
+        wb = openpyxl.load_workbook(io.BytesIO(r.content), read_only=True, data_only=True)
+    except Exception as exc:
+        print(f"  [margin] download failed ({exc})"); return []
+    try:
+        rows = list(wb.active.iter_rows(values_only=True))
+        debit_col = header_row = None
+        for ri, row in enumerate(rows[:10]):
+            for ci, cell in enumerate(row):
+                if isinstance(cell, str) and "debit" in cell.lower():
+                    debit_col, header_row = ci, ri; break
+            if debit_col is not None:
+                break
+        if debit_col is None:
+            print("  [margin] debit column not found"); return []
+        start_year = int(start[:4])
+        out = []
+        for row in rows[header_row + 1:]:
+            if not row or len(row) <= debit_col:
+                continue
+            dt = _margin_date(row[0])
+            v = row[debit_col]
+            if not isinstance(v, (int, float)):
+                try:
+                    v = float(str(v).replace(",", ""))
+                except (ValueError, TypeError):
+                    continue
+            if dt is None or dt[0] < start_year or v <= 0:
+                continue
+            out.append((f"{dt[0]:04d}-{dt[1]:02d}-01", float(v)))
+        out.sort()
+        if out:
+            print(f"  [margin] FINRA -> {len(out)} pts; latest {out[-1][1]:,.0f} $M")
+        else:
+            print("  [margin] no rows parsed")
+        return out
+    except Exception as exc:
+        print(f"  [margin] parse error: {exc}"); return []
+
+
 def fetch_sum(ids, start):
     """Sum several FRED series on their common dates (e.g. non-financial +
     financial corporate equities). Returns [] if any input is missing."""
@@ -812,6 +921,10 @@ def panel_for(ind, percentile_state=False):
                           ind.get("ratio_scale", 1.0))
     elif ind.get("compute") == "combine":
         raw = combine_series(ind["parts"], ind["start"], ind.get("ratio_scale", 1.0))
+    elif ind.get("compute") == "margin":
+        raw = fetch_finra_margin(ind["start"])
+    elif ind.get("compute") == "ecy":
+        raw = fetch_ecy(ind["start"])
     elif ind.get("compute") == "cape":
         raw = fetch_cape(ind["start"])
     elif ind.get("compute") == "multpl":
@@ -916,7 +1029,7 @@ def build():
     for theme, inds in DRILLDOWNS.items():
         subs = []
         for ind in inds:
-            panel, fail = panel_for(ind, percentile_state=True)
+            panel, fail = panel_for(ind, percentile_state=ind.get("pctile", True))
             if panel is None:
                 failed.append(fail); continue
             subs.append(panel)
