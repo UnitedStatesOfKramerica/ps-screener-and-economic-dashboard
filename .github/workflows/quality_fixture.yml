@@ -1,0 +1,41 @@
+name: Build quality fixture
+
+# Manual only. Produces quality_fixture.json.gz (real filings for the
+# quality-score work) and uploads it as a downloadable artifact. Does not
+# commit anything to the repo and does not touch the nightly screen.
+on:
+  workflow_dispatch:
+
+jobs:
+  build-fixture:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          # belt-and-suspenders: these are what the probe needs, no-ops if
+          # requirements.txt already pins them.
+          pip install pandas numpy requests yfinance lxml
+
+      - name: Build the fixture
+        # SEC_EMAIL comes from the repository secret via env, so it is masked in
+        # the log -- never passed on the command line, where it would be echoed.
+        env:
+          SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
+        run: python build_quality_fixture.py
+
+      - name: Upload the fixture
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality_fixture
+          path: quality_fixture.json.gz
+          if-no-files-found: error
