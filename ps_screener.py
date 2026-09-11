@@ -2665,6 +2665,19 @@ def research(ticker: str, facts: dict, hist: pd.DataFrame,
                     out[f"share_base_near_zero_{yrs}y"] = True
                     continue
                 out[f"dilution_{yrs}y"] = round((now / base - 1) * 100, 1)
+
+    # Three derived figures the quality score reads. Every one comes from data
+    # already fetched above -- no new SEC concept, so FACTS_WE_READ and the cache
+    # key are untouched and the nightly run does not re-download. Kept here, where
+    # equity and revenue are already in scope.
+    if eq_now:
+        out["equity_b"] = round(eq_now[1] / 1e9, 2)
+    if not revenue_unreliable and not ttm_rev.empty:
+        rev_now = float(ttm_rev["ttm"].iloc[-1])
+        if rev_now > 0:
+            out["revenue_ttm_b"] = round(rev_now / 1e9, 2)
+            if out.get("fcf_b") is not None:
+                out["fcf_margin"] = round(out["fcf_b"] / (rev_now / 1e9) * 100, 1)
     return out
 
 
@@ -3161,6 +3174,204 @@ def rate_against_sector(summary: pd.DataFrame) -> pd.DataFrame:
     return summary
 
 
+def _qlin(x, pts):
+    """Monotonic piecewise-linear map through (input, score) points, clamped
+    0-100. None/NaN in gives None out, so a missing input never scores as zero --
+    it drops out of its pillar instead."""
+    if x is None:
+        return None
+    try:
+        x = float(x)
+    except (TypeError, ValueError):
+        return None
+    if x != x:                       # NaN
+        return None
+    xs = [p[0] for p in pts]
+    ys = [p[1] for p in pts]
+    if x <= xs[0]:
+        return ys[0]
+    if x >= xs[-1]:
+        return ys[-1]
+    for i in range(1, len(xs)):
+        if x <= xs[i]:
+            f = (x - xs[i - 1]) / (xs[i] - xs[i - 1])
+            return ys[i - 1] + f * (ys[i] - ys[i - 1])
+    return ys[-1]
+
+
+def _qwmean(pairs):
+    """Weighted mean over (score, weight) pairs, skipping None scores and
+    renormalising over what is present. None if nothing scored."""
+    num = den = 0.0
+    for s, w in pairs:
+        if s is None:
+            continue
+        num += s * w
+        den += w
+    return (num / den) if den else None
+
+
+def quality_score(summary: pd.DataFrame) -> pd.DataFrame:
+    """A 0-100 business-quality score, a SEPARATE axis from the Z-score.
+
+    The Z-score says only how cheap a stock is against its own past; it cannot
+    tell a genuinely cheap survivor from a value trap -- a business that is cheap
+    because it is deteriorating and the low multiple is deserved. This scores the
+    business itself, so a cheap name can be read as either a research candidate
+    (cheap AND sound) or a trap to avoid (cheap AND weak).
+
+    Built ONLY from figures research() already computes and audits -- no new SEC
+    concept, so nothing here can move the screen or the cache. Four pillars, each
+    with a causal reason, not data-mined:
+
+      balance-sheet resilience (30%): net debt against free cash flow and against
+          profit, gearing (with the thin/negative-equity flags as a hard cap),
+          liquidity, net debt against sales. A cheap, fragile balance sheet is
+          the classic trap -- leverage forces dilution or distress at the bottom.
+      profitability & returns (30%): net margin and return on equity. Durable
+          economics are the opposite of a melting business. Gross margin is
+          deliberately excluded: it is a sector-structure artefact (energy prints
+          ~86%, a distributor ~7%) that flatters and punishes by industry, not by
+          quality.
+      trajectory (25%): the direct value-trap filter -- are sales and profit
+          growing or shrinking, and are margins widening or compressing (profit
+          growing slower than sales is margin compression).
+      cash generation (15%): free-cash-flow margin and how much profit converts
+          to cash. Cash is what survives a trough without the capital markets.
+
+    Every breakpoint is a financial judgement whose behaviour was checked against
+    a fixture of real filings (build_quality_fixture.py); none is fitted to a
+    backtest. Banks and property companies (EXCLUDED_SECTORS) are not scored:
+    these measures do not translate to them, exactly as their revenue-based
+    figures are already suppressed. A name also scores None rather than a
+    fabricated number if it lacks a balance-sheet reading or has neither
+    profitability nor cash data.
+    """
+    def _g(r, k):
+        v = r.get(k)
+        if v is None:
+            return None
+        try:
+            v = float(v)
+        except (TypeError, ValueError):
+            return None
+        return None if v != v else v
+
+    def _flag(r, k):
+        # research() writes these only when True, so after the merge the column
+        # is True-or-NaN. bool(NaN) is True, which would silently invert every
+        # guard -- test identity/equality instead.
+        v = r.get(k)
+        return (v is True) or (v == 1)
+
+    def score_row(r):
+        blank = {"quality": None, "q_balance": None, "q_profit": None,
+                 "q_traj": None, "q_cash": None, "q_reason": None}
+        if r.get("sector") in EXCLUDED_SECTORS:
+            return pd.Series(blank)
+
+        nd = _g(r, "net_debt_b"); fcf = _g(r, "fcf_b"); ni = _g(r, "net_income_b")
+        nm = _g(r, "net_margin"); roe = _g(r, "roe"); fcfm = _g(r, "fcf_margin")
+        d2e = _g(r, "debt_to_equity"); cr = _g(r, "current_ratio")
+        nds = _g(r, "net_debt_to_sales")
+        rc3 = _g(r, "revenue_cagr_3y"); ic3 = _g(r, "income_cagr_3y")
+        rc5 = _g(r, "revenue_cagr_5y"); ic5 = _g(r, "income_cagr_5y")
+        thin = _flag(r, "thin_equity"); neg = _flag(r, "negative_equity")
+
+        # ---- balance-sheet resilience ----
+        if nd is None:
+            nd_fcf = None
+        elif fcf and fcf > 0:
+            nd_fcf = nd / fcf
+        else:
+            nd_fcf = 0.0 if nd <= 0 else 20.0   # net cash -> best; debt, no FCF -> worst
+        s_ndfcf = _qlin(nd_fcf, [(-1, 100), (0, 95), (2, 88), (3, 72), (5, 52), (8, 28), (12, 5)])
+        if nd is None:
+            nd_ni = None
+        elif ni and ni > 0:
+            nd_ni = nd / ni
+        else:
+            nd_ni = 0.0 if nd <= 0 else 20.0
+        s_ndni = _qlin(nd_ni, [(-1, 100), (0, 92), (2, 82), (4, 60), (6, 40), (10, 12)])
+        s_d2e = _qlin(d2e, [(0, 100), (0.5, 85), (1, 70), (2, 45), (3, 25), (5, 8)])
+        if neg or thin:
+            s_d2e = 5 if s_d2e is None else min(s_d2e, 10)
+        s_cr = _qlin(cr, [(0.5, 10), (1, 45), (1.3, 70), (1.8, 92), (2.5, 100)])
+        s_nds = _qlin(nds, [(-0.2, 100), (0.3, 80), (0.7, 62), (1.2, 42), (2, 20), (3, 4)])
+        bs = _qwmean([(s_ndfcf, 0.34), (s_ndni, 0.18), (s_d2e, 0.20),
+                      (s_cr, 0.14), (s_nds, 0.14)])
+
+        # ---- profitability & returns ----
+        s_nm = _qlin(nm, [(-10, 0), (0, 25), (5, 48), (10, 66), (20, 88), (30, 100)])
+        s_roe = None
+        if roe is not None and not (thin or neg):
+            # A return on equity above ~80% is a near-zero book value from
+            # buybacks, not a better business; it is capped, not rewarded.
+            s_roe = 70 if roe >= 80 else _qlin(roe, [(0, 20), (8, 50), (15, 72), (25, 92), (35, 100)])
+        prof = _qwmean([(s_nm, 0.60), (s_roe, 0.40)])
+
+        # ---- trajectory (the value-trap filter) ----
+        s_rc = _qlin(rc3 if rc3 is not None else rc5,
+                     [(-12, 0), (-5, 25), (0, 52), (5, 76), (12, 100)])
+        s_ic = _qlin(ic3 if ic3 is not None else ic5,
+                     [(-15, 0), (-6, 28), (0, 55), (6, 78), (15, 100)])
+        if s_ic is None and _flag(r, "income_from_near_zero"):
+            s_ic = 70   # explosive growth off a tiny base, not missing data
+        mdir = (ic3 - rc3) if (ic3 is not None and rc3 is not None) else None
+        s_md = _qlin(mdir, [(-12, 22), (-4, 45), (0, 62), (5, 82), (12, 100)])
+        traj = _qwmean([(s_rc, 0.40), (s_ic, 0.40), (s_md, 0.20)])
+
+        # ---- cash generation ----
+        s_fcfm = _qlin(fcfm, [(-10, 0), (0, 30), (5, 58), (10, 76), (20, 95), (30, 100)])
+        conv = None
+        if fcf is not None and ni is not None:
+            if ni > 0:
+                conv = _qlin(fcf / ni, [(-0.2, 10), (0.3, 40), (0.6, 62), (0.9, 82), (1.2, 100)])
+            elif _flag(r, "noncash_loss"):
+                conv = 70   # a loss beside strong cash is a non-cash charge, not a red flag
+        cash = _qwmean([(s_fcfm, 0.60), (conv, 0.40)])
+
+        if bs is None or (prof is None and cash is None):
+            q = None
+        else:
+            q = _qwmean([(bs, 0.30), (prof, 0.30), (traj, 0.25), (cash, 0.15)])
+            q = None if q is None else round(q)
+
+        # A short, honest reason -- the same figures, in words.
+        pos, negs = [], []
+        if nd is not None and nd < 0:
+            pos.append("net cash")
+        elif nd_fcf is not None and nd_fcf > 6:
+            negs.append(f"net debt {nd_fcf:.0f}x FCF")
+        if fcfm is not None and fcfm >= 15:
+            pos.append(f"{fcfm:.0f}% FCF margin")
+        elif fcfm is not None and fcfm < 0:
+            negs.append("burning cash")
+        if rc3 is not None and rc3 < -3:
+            negs.append(f"sales {rc3:+.0f}%/yr")
+        elif rc3 is not None and rc3 > 6:
+            pos.append(f"sales {rc3:+.0f}%/yr")
+        if mdir is not None and mdir < -4:
+            negs.append("margins compressing")
+        if nm is not None and nm > 18:
+            pos.append(f"{nm:.0f}% net margin")
+        reason = "; ".join((negs[:3] if negs else pos[:3])) or None
+
+        def _r(x):
+            return None if x is None else round(x)
+        return pd.Series({"quality": q, "q_balance": _r(bs), "q_profit": _r(prof),
+                          "q_traj": _r(traj), "q_cash": _r(cash), "q_reason": reason})
+
+    if summary.empty:
+        for c in ["quality", "q_balance", "q_profit", "q_traj", "q_cash", "q_reason"]:
+            summary[c] = pd.Series(dtype=object)
+        return summary
+    scored = summary.apply(score_row, axis=1)
+    for c in ["quality", "q_balance", "q_profit", "q_traj", "q_cash", "q_reason"]:
+        summary[c] = scored[c]
+    return summary
+
+
 def build_stamp() -> str:
     """When the code last changed, and when this data was gathered.
 
@@ -3390,6 +3601,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   <select id="sector"><option value="">All sectors</option></select>
   <select id="subsector"><option value="">All industries</option></select>
   <input id="mincap" type="number" placeholder="Min cap ($B)" size="10">
+  <input id="minqual" type="number" placeholder="Min quality" size="10">
+  <select id="quadrant">
+    <option value="">Cheap &amp; quality: any</option>
+    <option value="cheapsound">Cheap &amp; sound</option>
+    <option value="trap">Cheap &amp; weak (trap?)</option>
+  </select>
   <label class="chk"><input type="checkbox" id="growing"> Sales still growing</label>
   <label class="chk"><input type="checkbox" id="hideRestruct" checked> Hide restructured</label>
   <label class="chk"><input type="checkbox" id="hideShort" checked> Hide short history</label>
@@ -3410,6 +3627,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <th data-k="price" title="Current share price">Price</th>
     <th data-k="ps_now" title="Price-to-sales today: market value divided by the last 12 months of revenue">P/S</th>
     <th data-k="zscore" title="The discount scaled to how much this stock's multiple normally swings. Sort by this">Z</th>
+    <th data-k="quality" title="0-100 business quality, independent of Z: balance sheet, profitability, trajectory and cash. Cheap (low Z) AND high quality is a research candidate; cheap AND low quality is a possible value trap. Not scored for banks or property companies.">Quality</th>
     <th data-k="ps_med_5y" title="The P/S this stock has typically traded at over the last 5 years, and the share price that multiple implies on today's revenue">5y med</th>
     <th data-k="vs_5y_pct" title="How far today's P/S is from its 5-year normal">vs 5y</th>
     <th data-k="ps_med_10y" title="The P/S this stock has typically traded at over the last 10 years, and the share price that multiple implies on today's revenue">10y med</th>
@@ -3441,6 +3659,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <dt>vs 5y</dt><dd>Minus 40% means the stock is priced 40% cheaper per dollar of sales than it usually is.</dd>
     <dt>vs 10y</dt><dd>When this and the 5-year figure disagree, the multiple drifted over recent years rather than the stock suddenly getting cheap. When they agree, the discount is more believable.</dd>
     <dt>Z</dt><dd>The same discount, adjusted for volatility. A stock whose multiple always swings wildly needs a bigger drop to count as unusual. Below minus 2 is rare; minus 0.5 is noise. This is the most reliable column to sort by.</dd>
+    <dt>Quality</dt><dd>A 0&ndash;100 read on the business itself, kept deliberately separate from Z. Z tells you a stock is cheap against its own past; it cannot tell a sound company that fell out of favour from one that is cheap because it is quietly failing. Quality combines balance-sheet strength (net debt against free cash flow and profit, gearing, liquidity), profitability (net margin, return on equity), trajectory (are sales and profit growing or shrinking, and are margins widening or compressing) and cash generation (free-cash-flow margin, and how much profit turns into cash). Read it beside Z: a low Z with a high quality score is a research candidate; a low Z with a low one is a possible value trap. The <b>Cheap &amp; sound</b> and <b>Cheap &amp; weak</b> filters select those two corners directly. Green is 60 or above, red 40 or below, amber between; the tooltip breaks out the four parts. Gross margin is left out on purpose &mdash; it swings by sector structure, not by quality. Banks and property companies are not scored, because these measures do not fit their accounts.</dd>
     <dt>Percentile</dt><dd>Where today's multiple sits among the last <b>ten years</b>
     of its own readings — 5 means it has almost never been this cheap, 95 almost never
     this expensive. It ranks the price-to-sales multiple, not the share price: a stock
@@ -3515,7 +3734,14 @@ const hideEl = document.getElementById('hideFlagged');
 const restructEl = document.getElementById('hideRestruct');
 const shortEl = document.getElementById('hideShort');
 const finEl = document.getElementById('incFin');
+const minqualEl = document.getElementById('minqual');
+const quadEl = document.getElementById('quadrant');
 const countEl = document.getElementById('count');
+
+/* A stock is "cheap" on the same threshold the Z column colours green, and
+   "sound" / "weak" on the quality score. These drive the quadrant filter and
+   the cell colour, kept in one place so they cannot drift apart. */
+const CHEAP_Z = -0.5, SOUND_Q = 60, TRAP_Q = 40;
 
 const WEAK_SECTORS = ['Financials', 'Real Estate'];
 
@@ -3671,13 +3897,43 @@ function rangeBar(r) {
     <s style="left:${pos(r.ps_now)}%;background:${col}"></s></span>`;
 }
 
+function qualityTip(r){
+  const p = [];
+  if (r.q_balance != null) p.push('balance ' + r.q_balance);
+  if (r.q_profit  != null) p.push('profit ' + r.q_profit);
+  if (r.q_traj    != null) p.push('trajectory ' + r.q_traj);
+  if (r.q_cash    != null) p.push('cash ' + r.q_cash);
+  let s = 'Quality ' + r.quality + '/100 \u2014 ' + p.join(', ') + '.';
+  if (r.q_reason) s += ' ' + r.q_reason + '.';
+  return s;
+}
+/* The one number that says whether a cheap stock is worth researching or is a
+   trap. Green at or above SOUND_Q, red at or below TRAP_Q, amber between. Not
+   scored for banks or property companies, where these measures do not fit. */
+function qualityCell(r){
+  if (r.quality == null)
+    return '<span class="flat" title="Not scored: quality rests on profit, cash-flow and balance-sheet measures that are not comparable for banks or property companies in this version.">&mdash;</span>';
+  const q = r.quality;
+  const col = q >= SOUND_Q ? 'var(--cheap)' : q <= TRAP_Q ? 'var(--rich)' : 'var(--warn)';
+  return `<b style="color:${col}" title="${qualityTip(r)}">${q}</b>`;
+}
+
 function visible() {
   const q = qEl.value.trim().toLowerCase();
   const sec = secEl.value;
   const sub = subEl.value;
   const cap = parseFloat(capEl.value);
+  const minq = parseFloat(minqualEl.value);
+  const quad = quadEl.value;
   return rows.filter(r => {
     if (!finEl.checked && !sec && WEAK_SECTORS.includes(r.sector)) return false;
+    if (!Number.isNaN(minq) && (r.quality ?? -1) < minq) return false;
+    if (quad === 'cheapsound' &&
+        !(r.zscore != null && r.zscore <= CHEAP_Z && r.quality != null && r.quality >= SOUND_Q))
+      return false;
+    if (quad === 'trap' &&
+        !(r.zscore != null && r.zscore <= CHEAP_Z && r.quality != null && r.quality <= TRAP_Q))
+      return false;
     if (restructEl.checked && r._restructured) return false;
     if (shortEl.checked && r._short) return false;
     if (hideEl.checked && r._flagged) return false;
@@ -3712,6 +3968,7 @@ function render() {
     <td>${num(r.ps_now)}</td>
     <td class="${r.zscore == null ? 'flat' : r.zscore < -0.5 ? 'cheap' : r.zscore > 0.5 ? 'rich' : 'flat'}"
         title="${r.zscore == null ? 'This multiple has barely moved, so there is no basis for calling today unusual either way.' : ''}">${num(r.zscore)}</td>
+    <td>${qualityCell(r)}</td>
     <td>${num(r.ps_med_5y)}${implied(r, r.ps_med_5y)}</td>
     <td>${signed(r.vs_5y_pct)}</td>
     <td title="${medianNote(r)}">${num(r.ps_med_10y)}${implied(r, r.ps_med_10y)}</td>
@@ -4006,6 +4263,15 @@ function openDrawer(t) {
       ${(r.research_audit && !r.net_income_asof)
         ? `<div class="caution">${r.research_audit}.</div>` : ''}
 
+      ${r.quality != null ? `<div class="sect">
+        <h3>Quality ${r.quality}/100${r.q_reason
+          ? ` &middot; <span class="qr" style="color:${r.quality >= SOUND_Q ? 'var(--cheap)' : r.quality <= TRAP_Q ? 'var(--rich)' : 'var(--warn)'}">${r.q_reason}</span>` : ''}</h3>
+        ${plain('Balance sheet', r.q_balance == null ? '<span class="none">&mdash;</span>' : r.q_balance + ' / 100')}
+        ${plain('Profitability', r.q_profit == null ? '<span class="none">&mdash;</span>' : r.q_profit + ' / 100')}
+        ${plain('Trajectory', r.q_traj == null ? '<span class="none">&mdash;</span>' : r.q_traj + ' / 100')}
+        ${plain('Cash generation', r.q_cash == null ? '<span class="none">&mdash;</span>' : r.q_cash + ' / 100')}
+      </div>` : ''}
+
       <div class="sect">
         <h3>Can it pay its bills</h3>
         ${row(r, 'current_ratio', 'Current ratio', 2)}
@@ -4082,8 +4348,8 @@ scrim.addEventListener('click', closeDrawer);
 document.getElementById('closeDrawer').addEventListener('click', closeDrawer);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
 
-[qEl, secEl, subEl, capEl].forEach(el => el.addEventListener('input', render));
-[growEl, hideEl, finEl, restructEl, shortEl].forEach(el => el.addEventListener('change', render));
+[qEl, secEl, subEl, capEl, minqualEl].forEach(el => el.addEventListener('input', render));
+[growEl, hideEl, finEl, restructEl, shortEl, quadEl].forEach(el => el.addEventListener('change', render));
 render();
 </script>
 </body>
@@ -4541,6 +4807,10 @@ def main():
         summary = summary.merge(pd.DataFrame(research_rows.values()),
                                 on="ticker", how="left")
         summary = rate_against_sector(summary)
+    # A separate axis from Z, built only from the research figures merged above.
+    # Outside the if so the column always exists; it reads N/A where the inputs
+    # are absent.
+    summary = quality_score(summary)
 
     tag = f"_{args.tag}" if args.tag else ""
     summary.to_csv(OUT / f"ps_screen{tag}.csv", index=False)

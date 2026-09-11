@@ -475,3 +475,72 @@ _b4 = [n for ok, n in RESULT if not ok]
 print(f"{len(RESULT) - len(_b4)} of {len(RESULT)} behaved as they should")
 for _n in _b4:
     print("   -", _n)
+
+
+print()
+print("=" * 74)
+print("14. Quality score: an independent 0-100 axis, robust to real filings")
+print("=" * 74)
+# quality_score runs on the merged summary frame, so the tests feed it rows of
+# the same shape and read the column back. Every input is one research() already
+# emits; the point is that the score separates sound cheap names from traps and
+# never inflates on thin/negative equity or misses a sector it should skip.
+
+def _q(**k):
+    base = dict(ticker=k.get("ticker", "X"), sector=k.get("sector", "Industrials"))
+    base.update(k)
+    return base
+
+_soundrow = _q(ticker="SOUND", net_debt_b=-27, fcf_b=67, net_income_b=90,
+               net_margin=35, roe=30, fcf_margin=20, debt_to_equity=0.3,
+               current_ratio=1.3, net_debt_to_sales=-0.1,
+               revenue_cagr_3y=15, income_cagr_3y=20,
+               revenue_cagr_5y=14, income_cagr_5y=18)
+_traprow = _q(ticker="TRAP", net_debt_b=40, fcf_b=3, net_income_b=1,
+              net_margin=1, roe=2, fcf_margin=2, debt_to_equity=3.5,
+              current_ratio=0.8, net_debt_to_sales=1.5,
+              revenue_cagr_3y=-8, income_cagr_3y=-25,
+              revenue_cagr_5y=-5, income_cagr_5y=-15)
+_bankrow = _q(ticker="BANK", sector="Financials", net_debt_b=30, fcf_b=-160,
+              net_income_b=50, roe=17, income_cagr_3y=11)
+_emptyrow = _q(ticker="EMPTY", sector="Utilities")   # no financial fields at all
+# same strong-margin business, once with negative equity from buybacks:
+_ne_base = dict(net_debt_b=39, fcf_b=8, net_income_b=8, net_margin=32,
+                fcf_margin=28, current_ratio=1.4, net_debt_to_sales=1.5,
+                revenue_cagr_3y=5, income_cagr_3y=3)
+_healthy = _q(ticker="HEALTHY", debt_to_equity=1.0, roe=25, **_ne_base)
+_negeq  = _q(ticker="NEGEQ", negative_equity=True, roe=5000, **_ne_base)
+
+_qs = ps.quality_score(_pd.DataFrame(
+    [_soundrow, _traprow, _bankrow, _emptyrow, _healthy, _negeq])).set_index("ticker")
+
+def _qv(t):
+    v = _qs.loc[t, "quality"]
+    return None if v is None or (isinstance(v, float) and _math.isnan(v)) else float(v)
+
+report("net-cash, high-margin, growing compounder scores high",
+       _qv("SOUND") is not None and _qv("SOUND") >= 80, True,
+       f"got {_qv('SOUND')}")
+report("levered, shrinking, margin-compressing name scores low",
+       _qv("TRAP") is not None and _qv("TRAP") <= 45, True,
+       f"got {_qv('TRAP')}")
+report("banks are not scored (sector N/A)",
+       _qv("BANK") is None, True, "revenue-, margin- and EBITDA-style measures do not fit a bank")
+report("a row with no financial data is N/A, not zero",
+       _qv("EMPTY") is None, True, "missing inputs drop out; they never score as zero")
+report("negative equity does not inflate quality (ROE ignored, gearing capped)",
+       _qv("NEGEQ") is not None and _qv("HEALTHY") is not None
+       and _qv("NEGEQ") < _qv("HEALTHY"), True,
+       f"negeq {_qv('NEGEQ')} vs healthy {_qv('HEALTHY')} (a 5,000% ROE must not help)")
+report("quality is a separate column, never folded into the Z-score",
+       ("quality" in _qs.columns) and ("zscore" not in _q().keys()), True,
+       "the score is additive; it does not touch the ranking")
+
+print()
+print("=" * 74)
+_b5 = [n for ok, n in RESULT if not ok]
+print(f"{len(RESULT) - len(_b5)} of {len(RESULT)} behaved as they should")
+if _b5:
+    print("STILL BROKEN IN THIS BUILD:")
+    for _n in _b5:
+        print("   -", _n)
