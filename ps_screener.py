@@ -3372,6 +3372,49 @@ def quality_score(summary: pd.DataFrame) -> pd.DataFrame:
     return summary
 
 
+def opportunity_score(summary: pd.DataFrame) -> pd.DataFrame:
+    """Combine the discount (Z) with the quality score into one 0-100 read of how
+    worthwhile a name looks: cheap AND sound scores high; weakness on either axis
+    pulls it down.
+
+    Z and quality are near-orthogonal -- valuation against the stock's own
+    history versus the health of the business -- so they are NOT averaged: an
+    average lets a great business at a fair price and a poor one at a deep
+    discount land on the same number, the very confusion the score should
+    resolve. Instead Z becomes a 0-100 discount score (deep discount high, fairly
+    valued ~40, premium ~0) and is combined with quality as a GEOMETRIC mean,
+    which rewards having both and self-penalises an imbalance without hard cliffs.
+
+    Because this is a discount screener, a name at a premium scores low however
+    good the business -- the tool has no edge to offer on it. Names with no
+    quality (banks, property) or no Z (a barely-moved multiple) read N/A. This is
+    a research prioritiser, not advice.
+    """
+    def _op(r):
+        z = r.get("zscore")
+        q = r.get("quality")
+        try:
+            z = float(z)
+            q = float(q)
+        except (TypeError, ValueError):
+            return None
+        if z != z or q != q:                       # NaN on either axis
+            return None
+        # Cheap (negative Z) -> high discount score; premium -> ~0.
+        d = _qlin(z, [(-4, 100), (-3, 98), (-2, 85), (-1, 68), (-0.5, 55),
+                      (0, 40), (0.5, 25), (1.5, 0)])
+        if d is None:
+            return None
+        return round((d * q) ** 0.5)
+
+    if summary.empty or "quality" not in summary.columns or "zscore" not in summary.columns:
+        summary["opportunity"] = pd.Series([None] * len(summary),
+                                           index=summary.index, dtype=object)
+        return summary
+    summary["opportunity"] = summary.apply(_op, axis=1)
+    return summary
+
+
 def build_stamp() -> str:
     """When the code last changed, and when this data was gathered.
 
@@ -3628,6 +3671,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <th data-k="ps_now" title="Price-to-sales today: market value divided by the last 12 months of revenue">P/S</th>
     <th data-k="zscore" title="The discount scaled to how much this stock's multiple normally swings. Sort by this">Z</th>
     <th data-k="quality" title="0-100 business quality, independent of Z: balance sheet, profitability, trajectory and cash. Cheap (low Z) AND high quality is a research candidate; cheap AND low quality is a possible value trap. Not scored for banks or property companies.">Quality</th>
+    <th data-k="opportunity" title="Discount (Z) and quality combined into one 0-100 read of how worthwhile the setup is. Cheap AND sound scores high; a premium or a weak business scores low. A research prioritiser, not advice. Sort by this to see the cheap-and-sound names first.">Opportunity</th>
     <th data-k="ps_med_5y" title="The P/S this stock has typically traded at over the last 5 years, and the share price that multiple implies on today's revenue">5y med</th>
     <th data-k="vs_5y_pct" title="How far today's P/S is from its 5-year normal">vs 5y</th>
     <th data-k="ps_med_10y" title="The P/S this stock has typically traded at over the last 10 years, and the share price that multiple implies on today's revenue">10y med</th>
@@ -3660,6 +3704,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <dt>vs 10y</dt><dd>When this and the 5-year figure disagree, the multiple drifted over recent years rather than the stock suddenly getting cheap. When they agree, the discount is more believable.</dd>
     <dt>Z</dt><dd>The same discount, adjusted for volatility. A stock whose multiple always swings wildly needs a bigger drop to count as unusual. Below minus 2 is rare; minus 0.5 is noise. This is the most reliable column to sort by.</dd>
     <dt>Quality</dt><dd>A 0&ndash;100 read on the business itself, kept deliberately separate from Z. Z tells you a stock is cheap against its own past; it cannot tell a sound company that fell out of favour from one that is cheap because it is quietly failing. Quality combines balance-sheet strength (net debt against free cash flow and profit, gearing, liquidity), profitability (net margin, return on equity), trajectory (are sales and profit growing or shrinking, and are margins widening or compressing) and cash generation (free-cash-flow margin, and how much profit turns into cash). Read it beside Z: a low Z with a high quality score is a research candidate; a low Z with a low one is a possible value trap. The <b>Cheap &amp; sound</b> and <b>Cheap &amp; weak</b> filters select those two corners directly. Green is 60 or above, red 40 or below, amber between; the tooltip breaks out the four parts. Gross margin is left out on purpose &mdash; it swings by sector structure, not by quality. Banks and property companies are not scored, because these measures do not fit their accounts.</dd>
+    <dt>Opportunity</dt><dd>The discount and the quality in a single 0&ndash;100 number, for when you want one figure to sort by. It is not an average of the two &mdash; averaging would let a great business at a fair price and a poor one at a deep discount tie, which is the confusion to avoid. Instead Z becomes a discount score (deep discount high, fairly valued around 40, premium near 0) and is combined with quality as a geometric mean, so a name has to be cheap <b>and</b> sound to score well and a weakness on either side drags it down. Because this is a discount screener, a stock trading at a premium scores low however good it is &mdash; the tool has nothing to offer on it. Green is 65 or above, amber 40&ndash;65, dim below. Sort by this to bring the cheap-and-sound names to the top. It is a way to prioritise what to research, not a recommendation.</dd>
     <dt>Percentile</dt><dd>Where today's multiple sits among the last <b>ten years</b>
     of its own readings — 5 means it has almost never been this cheap, 95 almost never
     this expensive. It ranks the price-to-sales multiple, not the share price: a stock
@@ -3918,6 +3963,29 @@ function qualityCell(r){
   return `<b style="color:${col}" title="${qualityTip(r)}">${q}</b>`;
 }
 
+/* Price with the day's move beside it, green up / red down. The change is
+   stamped by the nightly build and by every intraday reprice, so it reads as of
+   this refresh. */
+function priceCell(r){
+  const p = r.price == null ? '<span class="flat">&mdash;</span>'
+                            : '$' + Number(r.price).toFixed(2);
+  const d = r.day_change_pct;
+  if (d == null || Number.isNaN(d)) return p;
+  const cls = d > 0.05 ? 'cheap' : d < -0.05 ? 'rich' : 'flat';
+  return `${p} <span class="${cls}" style="font-size:11px">${d > 0 ? '+' : ''}${Number(d).toFixed(2)}%</span>`;
+}
+
+/* Cheap AND sound in one number: high is a strong setup, low means richly valued
+   or a weak business (or both). Green >=65, amber 40-65, dim below. Not advice. */
+function opportunityCell(r){
+  if (r.opportunity == null)
+    return '<span class="flat" title="Needs both a quality score and a Z; banks, property and barely-moved multiples read N/A.">&mdash;</span>';
+  const o = r.opportunity;
+  const col = o >= 65 ? 'var(--cheap)' : o >= 40 ? 'var(--warn)' : 'var(--dim)';
+  const tip = `Opportunity ${o}/100 \u2014 discount (Z ${r.zscore == null ? '?' : Number(r.zscore).toFixed(1)}) combined with quality ${r.quality}. High = cheap and sound.`;
+  return `<b style="color:${col}" title="${tip}">${o}</b>`;
+}
+
 function visible() {
   const q = qEl.value.trim().toLowerCase();
   const sec = secEl.value;
@@ -3964,11 +4032,12 @@ function render() {
     <td class="txt nm">${r.sector || ''}</td>
     <td class="txt nm" title="${r.industry || ''}">${r.industry || ''}</td>
     <td>${num(r.mktcap_b, 1)}</td>
-    <td>${num(r.price, 2)}</td>
+    <td>${priceCell(r)}</td>
     <td>${num(r.ps_now)}</td>
     <td class="${r.zscore == null ? 'flat' : r.zscore < -0.5 ? 'cheap' : r.zscore > 0.5 ? 'rich' : 'flat'}"
         title="${r.zscore == null ? 'This multiple has barely moved, so there is no basis for calling today unusual either way.' : ''}">${num(r.zscore)}</td>
     <td>${qualityCell(r)}</td>
+    <td>${opportunityCell(r)}</td>
     <td>${num(r.ps_med_5y)}${implied(r, r.ps_med_5y)}</td>
     <td>${signed(r.vs_5y_pct)}</td>
     <td title="${medianNote(r)}">${num(r.ps_med_10y)}${implied(r, r.ps_med_10y)}</td>
@@ -4270,6 +4339,7 @@ function openDrawer(t) {
         ${plain('Profitability', r.q_profit == null ? '<span class="none">&mdash;</span>' : r.q_profit + ' / 100')}
         ${plain('Trajectory', r.q_traj == null ? '<span class="none">&mdash;</span>' : r.q_traj + ' / 100')}
         ${plain('Cash generation', r.q_cash == null ? '<span class="none">&mdash;</span>' : r.q_cash + ' / 100')}
+        ${r.opportunity != null ? plain('Opportunity (cheap &times; sound)', '<b>' + r.opportunity + '</b> / 100') : ''}
       </div>` : ''}
 
       <div class="sect">
@@ -4297,7 +4367,8 @@ function openDrawer(t) {
       <div class="sect">
         <h3>What you are paying</h3>
         ${plain('Share price', r.price == null ? '<span class="none">&mdash;</span>'
-          : '$' + Number(r.price).toFixed(2))}
+          : '$' + Number(r.price).toFixed(2) + (r.day_change_pct == null ? ''
+            : ` <span class="${r.day_change_pct > 0 ? 'cheap' : r.day_change_pct < 0 ? 'rich' : 'flat'}">${r.day_change_pct > 0 ? '+' : ''}${Number(r.day_change_pct).toFixed(2)}% today</span>`))}
         ${plain('Analyst target', r.target_price == null ? '<span class="none">not covered</span>'
           : '$' + Number(r.target_price).toFixed(0) + (r.target_upside == null ? ''
             : ` <span class="${r.target_upside > 0 ? 'g-good' : 'g-bad'}">${r.target_upside > 0 ? '+' : ''}${Number(r.target_upside).toFixed(0)}%</span>`))}
@@ -4413,15 +4484,16 @@ def save_state(summary: pd.DataFrame, series: dict[str, pd.DataFrame], path: Pat
           f"({path.stat().st_size/1e6:.1f} MB)")
 
 
-def _latest_prices(tickers: list[str]) -> dict[str, float]:
-    """Today's price per ticker, one bulk download, no cache.
+def _latest_prices(tickers: list[str]) -> tuple[dict[str, float], dict[str, float]]:
+    """Today's price and the prior close per ticker, one bulk download, no cache.
 
-    Uses the most recent close (or live intraday last) from a single yfinance
-    call. Yahoo is ~15 minutes delayed, so "now" means a quarter-hour behind --
-    which is stated on the page, not hidden.
+    Two daily bars are pulled so the day's move can be shown beside the price:
+    the last is today's (live intraday, or the most recent close), the one before
+    it is the prior close. Yahoo is ~15 minutes delayed, so "now" means a
+    quarter-hour behind -- which is stated on the page, not hidden.
     """
     import yfinance as yf
-    out = {}
+    out, prev = {}, {}
     CHUNK = 100
     for i in range(0, len(tickers), CHUNK):
         batch = tickers[i:i + CHUNK]
@@ -4439,7 +4511,9 @@ def _latest_prices(tickers: list[str]) -> dict[str, float]:
                 col = close[t].dropna()
                 if len(col):
                     out[t] = float(col.iloc[-1])
-    return out
+                    if len(col) >= 2:
+                        prev[t] = float(col.iloc[-2])
+    return out, prev
 
 
 def refresh_prices(tag: str = ""):
@@ -4456,7 +4530,7 @@ def refresh_prices(tag: str = ""):
     print(f"Repricing {len(tickers)} companies from {state_path.name} "
           f"(built {state.get('built')})...")
 
-    prices = _latest_prices(tickers)
+    prices, prev_close = _latest_prices(tickers)
     print(f"  got {len(prices)} live prices")
 
     rows = []
@@ -4472,6 +4546,8 @@ def refresh_prices(tag: str = ""):
             # scale the price-driven fields; the share basis is fixed from last
             # night, so market cap and P/S move exactly with the price
             row["price"] = new_px
+            pv = prev_close.get(t)
+            row["day_change_pct"] = ((new_px / pv - 1) * 100) if pv else None
             if row.get("mktcap_b") is not None:
                 row["mktcap_b"] = float(row["mktcap_b"]) * factor
             new_ps = float(c["last_ps"]) * factor
@@ -4811,6 +4887,18 @@ def main():
     # Outside the if so the column always exists; it reads N/A where the inputs
     # are absent.
     summary = quality_score(summary)
+    # The discount (Z) blended with quality into one "how worthwhile" read.
+    summary = opportunity_score(summary)
+
+    # Stamp the day's move so the nightly page shows it too, not only after the
+    # first intraday reprice. One bulk quote pull; failure is non-fatal.
+    try:
+        last_px, prev_px = _latest_prices(sorted(summary["ticker"].dropna().unique()))
+        dc = {t: (last_px[t] / prev_px[t] - 1) * 100
+              for t in last_px if prev_px.get(t)}
+        summary["day_change_pct"] = summary["ticker"].map(dc)
+    except Exception as exc:
+        print(f"  day-change stamp skipped: {exc}")
 
     tag = f"_{args.tag}" if args.tag else ""
     summary.to_csv(OUT / f"ps_screen{tag}.csv", index=False)
