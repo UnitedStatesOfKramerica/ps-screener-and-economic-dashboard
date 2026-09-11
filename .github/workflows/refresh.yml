@@ -3,15 +3,17 @@ name: Refresh prices
 # Runs often during the trading day, but only actually reprices when the US
 # market is open. GitHub cron is UTC and cannot express "market hours", and
 # scheduled runs are best-effort (5-30 min late is normal, and a slot can be
-# skipped when the queue is busy), so this fires at :05 and :35 past the hour
-# across the widest UTC span the NYSE session can occupy, and a gate inside the
-# job decides whether to proceed. A skipped or late slot just means the next one
-# catches up.
+# skipped when the queue is busy), so this fires four times an hour, at :05, :20,
+# :35 and :50, across the widest UTC span the NYSE session can occupy, and a gate
+# inside the job decides whether to proceed. More attempts means more of them
+# survive GitHub's dropping; a skipped or late slot just means the next one
+# catches up. (This is a mitigation, not a cure -- GitHub cron stays best-effort;
+# an external trigger or Cloudflare cron is the reliable fix.)
 on:
   schedule:
     # 13:05 UTC .. 21:35 UTC covers 9:30am-4:00pm ET in both DST and standard
     # time. The in-job gate trims the edges to the real session.
-    - cron: "5,35 13-21 * * 1-5"
+    - cron: "5,20,35,50 13-21 * * 1-5"
   workflow_dispatch:   # manual reprice on demand
 
 permissions:
