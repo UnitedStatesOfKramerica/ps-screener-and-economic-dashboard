@@ -3307,7 +3307,7 @@ def quality_score(summary: pd.DataFrame) -> pd.DataFrame:
 
     def score_row(r):
         blank = {"quality": None, "q_balance": None, "q_profit": None,
-                 "q_traj": None, "q_cash": None, "q_reason": None}
+                 "q_traj": None, "q_cash": None, "q_reason": None, "q_reason_kind": None}
         if r.get("sector") in EXCLUDED_SECTORS:
             return pd.Series(blank)
 
@@ -3413,18 +3413,22 @@ def quality_score(summary: pd.DataFrame) -> pd.DataFrame:
         elif dil is not None and dil >= 6:
             negs.append(f"diluting {dil:+.0f}%/yr")
         reason = "; ".join((negs[:3] if negs else pos[:3])) or None
+        reason_kind = ("concern" if negs else "strength") if reason else None
 
         def _r(x):
             return None if x is None else round(x)
         return pd.Series({"quality": q, "q_balance": _r(bs), "q_profit": _r(prof),
-                          "q_traj": _r(traj), "q_cash": _r(cash), "q_reason": reason})
+                          "q_traj": _r(traj), "q_cash": _r(cash), "q_reason": reason,
+                          "q_reason_kind": reason_kind})
 
     if summary.empty:
-        for c in ["quality", "q_balance", "q_profit", "q_traj", "q_cash", "q_reason"]:
+        for c in ["quality", "q_balance", "q_profit", "q_traj", "q_cash",
+                 "q_reason", "q_reason_kind"]:
             summary[c] = pd.Series(dtype=object)
         return summary
     scored = summary.apply(score_row, axis=1)
-    for c in ["quality", "q_balance", "q_profit", "q_traj", "q_cash", "q_reason"]:
+    for c in ["quality", "q_balance", "q_profit", "q_traj", "q_cash",
+             "q_reason", "q_reason_kind"]:
         summary[c] = scored[c]
     return summary
 
@@ -3494,12 +3498,16 @@ def trailing_anchors(df: pd.DataFrame, quality) -> dict:
         out[f"z_{label}_ago"] = round(z, 3) if z is not None else None
         out[f"opp_{label}_ago"] = _opportunity_value(z, quality) if z is not None else None
 
-    # ~2 years of P/S, thinned to ~50 points, for a trend sparkline.
-    recent = ps[dates >= today - pd.Timedelta(days=730)]
-    recent = recent[recent > 0]
-    if len(recent) > 50:
-        recent = recent[:: max(1, len(recent) // 50)]
-    out["ps_spark"] = [round(float(v), 3) for v in recent]
+    # ~2 years of P/S, thinned to ~50 points, for a trend sparkline. Dates are
+    # kept alongside the values (masked identically, thinned identically) so a
+    # hover tooltip can show what date each point is from.
+    mask = (dates >= today - pd.Timedelta(days=730)) & (ps > 0)
+    rp, rd = ps[mask], dates[mask]
+    if len(rp) > 50:
+        step = max(1, len(rp) // 50)
+        rp, rd = rp[::step], rd[::step]
+    out["ps_spark"] = [round(float(v), 3) for v in rp]
+    out["ps_spark_dates"] = [str(pd.Timestamp(x).date()) for x in rd]
     return out
 
 
@@ -3692,6 +3700,47 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .vpt.final .vtxt{color:var(--bright)}
   .caution{margin-top:12px;padding:12px 14px;border-left:2px solid var(--warn);
            background:#171B23;color:var(--dim);font-size:11.5px;line-height:1.55}
+
+  /* Opportunity: the headline number, deliberately louder than the pillar rows
+     below it -- a bordered chip with a large bold figure, not just another row. */
+  .opp-chip{display:flex;align-items:baseline;gap:9px;margin:2px 0 18px;
+            padding:11px 15px;background:var(--raised);border:1px solid var(--rule);
+            border-left:3px solid var(--mid);border-radius:4px}
+  .opp-lab{font-family:var(--sans);font-size:11px;letter-spacing:.1em;
+           text-transform:uppercase;color:var(--dim)}
+  .opp-val{font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;
+           line-height:1}
+  .opp-of{font-size:12px;color:var(--dim)}
+  .opp-sub{margin-left:auto;font-size:11px;color:var(--dim);text-align:right;
+           max-width:150px;line-height:1.4}
+
+  /* Recent trend: a two-card grid instead of cramming two deltas into one
+     narrow value column, which read as squished. */
+  .trend-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}
+  .trend-card{background:var(--raised);border:1px solid var(--rule);
+             border-radius:4px;padding:10px 13px}
+  .trend-lab{font-family:var(--sans);font-size:10px;letter-spacing:.1em;
+            text-transform:uppercase;color:var(--dim);margin-bottom:9px}
+  .trend-vals{display:flex;flex-direction:column;gap:7px}
+  .trend-vals > div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .trend-per{font-size:11px;color:var(--dim);white-space:nowrap}
+  .trend-vals span:last-child{font-size:14px;font-weight:600;
+                              font-variant-numeric:tabular-nums}
+
+  /* Interactive P/S sparkline: compact by default, expandable, with a hover
+     crosshair and tooltip. */
+  .spark-wrap{position:relative;margin:4px 0 4px}
+  .spark-foot{display:flex;align-items:center;gap:10px;margin-top:6px;
+             font-size:11px;color:var(--dim)}
+  .spark-foot > span:first-child{flex:1}
+  .spark-toggle{font-family:var(--sans);font-size:10px;letter-spacing:.05em;
+               color:var(--dim);background:none;border:1px solid var(--rule);
+               border-radius:3px;padding:3px 10px;cursor:pointer}
+  .spark-toggle:hover{color:var(--bright);border-color:var(--dim)}
+  .spark-tip{position:absolute;top:-2px;display:none;padding:3px 8px;
+            background:var(--panel);border:1px solid var(--rule);border-radius:3px;
+            font-size:11px;color:var(--bright);white-space:nowrap;pointer-events:none;
+            font-variant-numeric:tabular-nums}
   .tk{cursor:pointer;text-decoration:underline;text-decoration-color:#38414F;
       text-underline-offset:3px}
   .tk:hover{color:var(--cheap);text-decoration-color:var(--cheap)}
@@ -4037,7 +4086,7 @@ function qualityTip(r){
   if (r.q_traj    != null) p.push('trajectory ' + r.q_traj);
   if (r.q_cash    != null) p.push('cash ' + r.q_cash);
   let s = 'Quality ' + r.quality + '/100 \u2014 ' + p.join(', ') + '.';
-  if (r.q_reason) s += ' ' + r.q_reason + '.';
+  if (r.q_reason) s += ' ' + (r.q_reason_kind === 'concern' ? 'Main concern: ' : 'Standout: ') + r.q_reason + '.';
   return s;
 }
 /* The one number that says whether a cheap stock is worth researching or is a
@@ -4074,18 +4123,72 @@ function opportunityCell(r){
   return `<b style="color:${col}" title="${tip}">${o}</b>`;
 }
 
-/* A tiny P/S trend line, ~2 years, thinned to ~50 points server-side. Low P/S is
-   cheap, so a line trending down means the stock has got cheaper. */
-function sparkline(arr){
-  if (!arr || arr.length < 3) return '';
-  const w = 132, h = 30, pad = 3;
-  const lo = Math.min(...arr), hi = Math.max(...arr), rng = (hi - lo) || 1;
-  const x = i => pad + i * (w - 2 * pad) / (arr.length - 1);
+/* A P/S trend chart, ~2 years, thinned to ~50 points server-side. Low P/S is
+   cheap, so a line trending down means the stock has got cheaper. Compact by
+   default; click "Expand" for a bigger view with gridlines and axis labels.
+   Hovering (either size) shows the date and value under the cursor. */
+let sparkState = null;
+
+function sparkSVG(values, expanded){
+  const w = expanded ? 560 : 132, h = expanded ? 130 : 30, pad = expanded ? 16 : 3;
+  const lo = Math.min(...values), hi = Math.max(...values), rng = (hi - lo) || 1;
+  const x = i => pad + i * (w - 2 * pad) / (values.length - 1);
   const y = v => pad + (h - 2 * pad) * (1 - (v - lo) / rng);
-  const pts = arr.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-  return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" style="vertical-align:middle">`
-       + `<polyline points="${pts}" fill="none" stroke="var(--mid)" stroke-width="1.4"/>`
-       + `<circle cx="${x(arr.length - 1).toFixed(1)}" cy="${y(arr[arr.length - 1]).toFixed(1)}" r="2" fill="var(--bright)"/></svg>`;
+  const pts = values.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const last = values.length - 1;
+  let grid = '';
+  if (expanded) {
+    const mid = (hi + lo) / 2;
+    [hi, mid, lo].forEach(v => {
+      grid += `<line x1="${pad}" x2="${w - pad}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}" stroke="var(--rule)" stroke-width="1"/>`
+            + `<text x="${w - pad}" y="${(y(v) - 3).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--dim)">${v.toFixed(1)}x</text>`;
+    });
+  }
+  return `<svg class="spark-svg" viewBox="0 0 ${w} ${h}" width="${expanded ? '100%' : w}" height="${h}"
+        data-w="${w}" data-h="${h}" data-pad="${pad}" style="display:block;cursor:crosshair">`
+    + grid
+    + `<polyline points="${pts}" fill="none" stroke="var(--mid)" stroke-width="${expanded ? 1.6 : 1.4}"/>`
+    + `<line class="spark-cross" x1="0" y1="${pad}" x2="0" y2="${h - pad}" stroke="var(--dim)" stroke-width="1" opacity="0"/>`
+    + `<circle class="spark-dot" cx="${x(last).toFixed(1)}" cy="${y(values[last]).toFixed(1)}" r="${expanded ? 3 : 2}" fill="var(--bright)"/>`
+    + `</svg>`;
+}
+
+function renderSpark(){
+  const wrap = document.getElementById('sparkWrap');
+  if (!wrap || !sparkState) return;
+  const { values, dates, expanded } = sparkState;
+  const first = dates && dates[0], lastD = dates && dates[dates.length - 1];
+  wrap.innerHTML = sparkSVG(values, expanded)
+    + `<div class="spark-tip" id="sparkTip"></div>`
+    + `<div class="spark-foot">`
+    + (expanded && first ? `<span>${first}</span><span>${lastD}</span>`
+       : `<span>P/S, ~2 yrs (down = cheaper)</span>`)
+    + `<button class="spark-toggle" id="sparkToggle" type="button">${expanded ? 'Collapse' : 'Expand'}</button>`
+    + `</div>`;
+  const svg = wrap.querySelector('.spark-svg');
+  const tip = wrap.querySelector('#sparkTip');
+  const cross = wrap.querySelector('.spark-cross');
+  const w = +svg.dataset.w, h = +svg.dataset.h, pad = +svg.dataset.pad;
+  const n = values.length;
+  const idxAt = clientX => {
+    const rect = svg.getBoundingClientRect();
+    const relX = (clientX - rect.left) / rect.width * w;
+    return Math.max(0, Math.min(n - 1, Math.round((relX - pad) / (w - 2 * pad) * (n - 1))));
+  };
+  svg.addEventListener('mousemove', e => {
+    const i = idxAt(e.clientX);
+    const rect = svg.getBoundingClientRect();
+    tip.style.display = 'block';
+    tip.style.left = Math.min(rect.width - 90, Math.max(0, (e.clientX - rect.left + 8))) + 'px';
+    tip.textContent = (dates && dates[i] ? dates[i] + ' \u2014 ' : '') + values[i].toFixed(2) + 'x';
+    const xp = pad + i * (w - 2 * pad) / (n - 1);
+    cross.setAttribute('x1', xp); cross.setAttribute('x2', xp); cross.setAttribute('opacity', '0.6');
+  });
+  svg.addEventListener('mouseleave', () => { tip.style.display = 'none'; cross.setAttribute('opacity', '0'); });
+  document.getElementById('sparkToggle').addEventListener('click', () => {
+    sparkState.expanded = !sparkState.expanded;
+    renderSpark();
+  });
 }
 
 /* Live change of a score vs a stored anchor. Computed against the LIVE value, so
@@ -4445,13 +4548,20 @@ function openDrawer(t) {
         ? `<div class="caution">${r.research_audit}.</div>` : ''}
 
       ${r.quality != null ? `<div class="sect">
-        <h3>Quality ${r.quality}/100${r.q_reason
-          ? ` &middot; <span class="qr" style="color:${r.quality >= SOUND_Q ? 'var(--cheap)' : r.quality <= TRAP_Q ? 'var(--rich)' : 'var(--warn)'}">${r.q_reason}</span>` : ''}</h3>
+        ${r.opportunity != null ? `<div class="opp-chip"
+            style="border-left-color:${r.opportunity >= 65 ? 'var(--cheap)' : r.opportunity >= 40 ? 'var(--warn)' : 'var(--dim)'}">
+          <span class="opp-lab">Opportunity</span>
+          <span class="opp-val" style="color:${r.opportunity >= 65 ? 'var(--cheap)' : r.opportunity >= 40 ? 'var(--warn)' : 'var(--dim)'}">${r.opportunity}</span>
+          <span class="opp-of">/ 100</span>
+          <span class="opp-sub">discount &times; quality, one number for how worthwhile this looks</span>
+        </div>` : ''}
+        <h3>Quality ${r.quality}/100</h3>
+        ${r.q_reason ? plain(r.q_reason_kind === 'concern' ? 'Main concern' : 'Standout factor',
+            `<span style="color:${r.quality >= SOUND_Q ? 'var(--cheap)' : r.quality <= TRAP_Q ? 'var(--rich)' : 'var(--warn)'}">${r.q_reason}</span>`) : ''}
         ${plain('Balance sheet', r.q_balance == null ? '<span class="none">&mdash;</span>' : r.q_balance + ' / 100')}
         ${plain('Profitability', r.q_profit == null ? '<span class="none">&mdash;</span>' : r.q_profit + ' / 100')}
         ${plain('Trajectory', r.q_traj == null ? '<span class="none">&mdash;</span>' : r.q_traj + ' / 100')}
         ${plain('Cash generation', r.q_cash == null ? '<span class="none">&mdash;</span>' : r.q_cash + ' / 100')}
-        ${r.opportunity != null ? plain('Opportunity (cheap &times; sound)', '<b>' + r.opportunity + '</b> / 100') : ''}
       </div>` : ''}
 
       <div class="sect">
@@ -4494,13 +4604,23 @@ function openDrawer(t) {
 
       ${((r.ps_spark && r.ps_spark.length > 2) || r.z_7d_ago != null) ? `<div class="sect">
         <h3>Recent trend</h3>
-        ${(r.ps_spark && r.ps_spark.length > 2)
-          ? `<div style="margin:2px 0 8px">${sparkline(r.ps_spark)} <span style="font-size:11px;color:var(--dim)">P/S, ~2 yrs (down = cheaper)</span></div>` : ''}
-        ${plain('Z change', 'past week ' + deltaSpan(r.zscore, r.z_7d_ago, false, 2)
-            + ' &middot; past month ' + deltaSpan(r.zscore, r.z_30d_ago, false, 2))}
-        ${r.opportunity != null
-          ? plain('Opportunity change', 'past week ' + deltaSpan(r.opportunity, r.opp_7d_ago, true, 0)
-            + ' &middot; past month ' + deltaSpan(r.opportunity, r.opp_30d_ago, true, 0)) : ''}
+        ${(r.ps_spark && r.ps_spark.length > 2) ? `<div class="spark-wrap" id="sparkWrap"></div>` : ''}
+        ${(r.z_7d_ago != null || r.opportunity != null) ? `<div class="trend-grid">
+          <div class="trend-card">
+            <div class="trend-lab">Z score</div>
+            <div class="trend-vals">
+              <div><span class="trend-per">7 days</span>${deltaSpan(r.zscore, r.z_7d_ago, false, 2)}</div>
+              <div><span class="trend-per">30 days</span>${deltaSpan(r.zscore, r.z_30d_ago, false, 2)}</div>
+            </div>
+          </div>
+          ${r.opportunity != null ? `<div class="trend-card">
+            <div class="trend-lab">Opportunity</div>
+            <div class="trend-vals">
+              <div><span class="trend-per">7 days</span>${deltaSpan(r.opportunity, r.opp_7d_ago, true, 0)}</div>
+              <div><span class="trend-per">30 days</span>${deltaSpan(r.opportunity, r.opp_30d_ago, true, 0)}</div>
+            </div>
+          </div>` : ''}
+        </div>` : ''}
       </div>` : ''}
 
       <div class="sect">
@@ -4529,6 +4649,12 @@ function openDrawer(t) {
              <div class="vlab">${lab}</div><div class="vtxt">${txt}</div></div>`).join('')}
       </div>
     </div>`;
+  if (r.ps_spark && r.ps_spark.length > 2) {
+    sparkState = { values: r.ps_spark, dates: r.ps_spark_dates || null, expanded: false };
+    renderSpark();
+  } else {
+    sparkState = null;
+  }
   drawer.classList.add('on'); scrim.classList.add('on');
 }
 
@@ -5033,7 +5159,8 @@ def main():
     # page takes deltas against the live Z, so they survive an intraday reprice.
     qmap = dict(zip(summary["ticker"], summary["quality"]))
     anchors = {t: trailing_anchors(df, qmap.get(t)) for t, df in series.items()}
-    for col in ("z_7d_ago", "z_30d_ago", "opp_7d_ago", "opp_30d_ago", "ps_spark"):
+    for col in ("z_7d_ago", "z_30d_ago", "opp_7d_ago", "opp_30d_ago",
+               "ps_spark", "ps_spark_dates"):
         summary[col] = summary["ticker"].map(lambda t: anchors.get(t, {}).get(col))
 
     tag = f"_{args.tag}" if args.tag else ""
