@@ -22,11 +22,14 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      # xlrd is used only to read Shiller's ie_data.xls for the CAPE ratio;
-      # yfinance is used only for the RSP/SPY concentration ratio. Both fail
-      # soft (fetch_cape / fetch_concentration_ratio catch and skip), so a
-      # broken install or fetch doesn't take down the rest of the build.
-      - run: pip install requests xlrd yfinance
+      # xlrd reads Shiller's ie_data.xls for CAPE; openpyxl reads FINRA's
+      # margin-statistics.xlsx for margin debt; yfinance fetches RSP/SPY for
+      # the concentration ratio. All three fail soft (their fetch functions
+      # catch and skip), so a broken install or fetch doesn't take down the
+      # rest of the build -- but note this workflow was previously missing
+      # openpyxl entirely, which is why margin debt has been silently failing
+      # ("openpyxl not installed -- skipping margin debt") since this was built.
+      - run: pip install requests xlrd yfinance openpyxl
 
       - name: Build the dashboard
         env:
@@ -38,5 +41,16 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/dashboard.html
-          git diff --staged --quiet || git commit -m "Macro dashboard $(date -u +%Y-%m-%d)"
+          if git diff --staged --quiet; then
+            echo "No changes to publish."
+            exit 0
+          fi
+          git commit -m "Macro dashboard $(date -u +%Y-%m-%d)"
+          # Rebase onto whatever landed on main since this job checked out --
+          # e.g. a manual file upload while the run was in flight. Only
+          # docs/dashboard.html is touched here, so this should always apply
+          # cleanly; if it ever doesn't, the job fails loudly instead of
+          # silently losing today's update.
+          git fetch origin main
+          git rebase origin/main
           git push
