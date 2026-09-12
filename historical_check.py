@@ -58,7 +58,7 @@ def _fetch_raw(ind):
 
 
 NEEDED = (set(md.GROWTH_MOM) | set(md.INFLATION_MOM) | set(RECESSION)
-          | {"Shiller CAPE", "Market cap / GDP"})
+          | {"Shiller CAPE", "Market cap / GDP", "RSP/SPY"})
 print("Fetching full history for", len(NEEDED), "series ...")
 RAW = {}
 for sid in NEEDED:
@@ -134,6 +134,15 @@ def valuation_at(as_of):
     return (e["state"], round(e["latest"], 1)) if e else ("n/a", None)
 
 
+def concentration_at(as_of):
+    # Percentile-based like the live dashboard's "pctile": True treatment --
+    # historical_check's generic eval_signal helper doesn't read that flag
+    # (it only looks at THEME_IDS membership), so this hardcodes it, the
+    # same way valuation_at() hardcodes its own two signals.
+    e = eval_signal("RSP/SPY", as_of, percentile_state=True)
+    return (e["state"], round(e["latest"], 1)) if e else ("n/a", None)
+
+
 def main():
     print("=" * 100)
     print("HISTORICAL CHECK -- latest-vintage data truncated to each date "
@@ -167,6 +176,15 @@ def main():
     for label, dt in [("dot-com 2000", "2000-03-01"), ("2021 peak", "2021-12-01")]:
         vst, vval = valuation_at(dt)
         print(f"  {label:<16} {dt}: {vst} ({vval})")
+
+    print("\nMarket concentration (RSP/SPY, rebased=100 at 2003 launch) -- no data "
+          "before 2003, so dot-com can't be checked directly; 2021-2025 should "
+          "read low/alert (Magnificent 7 era narrowing the rally):")
+    for label, dt in [("2007 (pre-GFC)", "2007-06-01"), ("2018 (calm)", "2018-06-01"),
+                       ("2020 low", "2020-03-01"), ("2021 peak", "2021-12-01"),
+                       ("2024", "2024-01-01"), ("latest", DATES[-1])]:
+        cst, cval = concentration_at(dt)
+        print(f"  {label:<16} {dt}: {cst} ({cval})")
 
 
 if __name__ == "__main__":

@@ -45,7 +45,12 @@ THEMES = {
          "units": "%", "worry": "up", "start": "1997-01-01",
          "caution": 5.0, "alert": 7.0,
          "note": "Widening means credit markets are pricing rising default risk. "
-                 "Spikes lead or coincide with downturns."},
+                 "Spikes lead or coincide with downturns. History capped at 3 "
+                 "years as of 2026 -- FRED restricted this and other ICE Data "
+                 "index series to a rolling window; the chart won't extend "
+                 "further back regardless of the range button chosen. Doesn't "
+                 "affect the level/trend read above, which only uses recent "
+                 "months."},
         {"id": "NFCI", "label": "Financial conditions index", "kind": "level",
          "units": "", "worry": "up", "start": "1985-01-01",
          "caution": 0.0, "alert": 0.5,
@@ -222,6 +227,17 @@ THEMES = {
                  "-- high profits draw competition, labour and regulation -- so a "
                  "historically elevated share flatters earnings the market may be "
                  "extrapolating. The valuation risk a simple P/E hides."},
+        {"id": "RSP/SPY", "label": "Market concentration (equal-wt vs cap-wt)",
+         "compute": "concentration", "kind": "level", "units": "", "worry": "down",
+         "start": "2003-01-01", "pctile": True,
+         "note": "The S&P 500 Equal Weight ETF (RSP) against the S&P 500 itself "
+                 "(SPY), both rebased to 100 at RSP's April 2003 launch. Falling "
+                 "means cap-weighted mega-caps are beating the average stock -- "
+                 "gains narrowing to fewer names, the same pattern that preceded "
+                 "2000's unwind. Real data only starts in 2003 -- no true "
+                 "equal-weight product existed before then -- so this can't "
+                 "directly cover the dot-com peak itself; read the level against "
+                 "its own 2003-present range."},
     ],
 }
 
@@ -858,6 +874,48 @@ def fetch_finra_margin(start):
         print(f"  [margin] parse error: {exc}"); return []
 
 
+def fetch_concentration_ratio(start):
+    """Equal-weight vs cap-weight breadth/concentration signal, proxied by RSP
+    (Invesco S&P 500 Equal Weight ETF) against SPY (SPDR S&P 500 ETF Trust),
+    both rebased to 100 at their first shared trading date. ETF share prices
+    are ordinary quoted market data -- like any stock price -- not a
+    licensed index product, so unlike SP500 itself there's no reproduction
+    restriction on publishing this directly.
+
+    Real data only goes back to RSP's April 2003 launch: no true
+    equal-weight S&P 500 product existed before then (S&P's own Equal
+    Weight Index launched Jan 2003 too), so this cannot be extended back
+    to cover the 2000 dot-com peak -- a hard data-availability limit, not
+    a choice. Falling means cap-weighted mega-caps are beating the average
+    stock (gains narrowing to fewer names); rising means participation is
+    broadening.
+    """
+    try:
+        import yfinance as yf
+    except ImportError:
+        print("  [breadth] yfinance not installed -- skipping concentration ratio")
+        return []
+    try:
+        rsp = yf.Ticker("RSP").history(start=start, auto_adjust=True)["Close"]
+        spy = yf.Ticker("SPY").history(start=start, auto_adjust=True)["Close"]
+    except Exception as exc:
+        print(f"  [breadth] fetch failed ({exc})")
+        return []
+    if rsp.empty or spy.empty:
+        print("  [breadth] empty result from yfinance")
+        return []
+    common = rsp.index.intersection(spy.index)
+    if len(common) < 30:
+        print("  [breadth] too few overlapping trading days")
+        return []
+    rsp, spy = rsp.loc[common].sort_index(), spy.loc[common].sort_index()
+    ratio = (rsp / rsp.iloc[0]) / (spy / spy.iloc[0]) * 100.0
+    out = [(d.strftime("%Y-%m-%d"), round(float(v), 3)) for d, v in ratio.items()]
+    if out:
+        print(f"  [breadth] RSP/SPY -> {len(out)} pts; last 3: {out[-3:]}")
+    return out
+
+
 def fetch_sum(ids, start):
     """Sum several FRED series on their common dates (e.g. non-financial +
     financial corporate equities). Returns [] if any input is missing."""
@@ -927,6 +985,8 @@ def panel_for(ind, percentile_state=False):
         raw = fetch_ecy(ind["start"])
     elif ind.get("compute") == "cape":
         raw = fetch_cape(ind["start"])
+    elif ind.get("compute") == "concentration":
+        raw = fetch_concentration_ratio(ind["start"])
     elif ind.get("compute") == "multpl":
         raw = fetch_multpl(ind["url"], ind["start"], ind.get("lo", 3.0),
                            ind.get("hi", 80.0), tag=ind.get("tag", "multpl"))
