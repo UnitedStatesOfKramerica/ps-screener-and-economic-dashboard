@@ -22,9 +22,11 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      # openpyxl is used only to read FINRA's margin-debt Excel; if it or the
-      # download ever fails, the dashboard still builds without that one signal.
-      - run: pip install requests openpyxl
+      # xlrd is used only to read Shiller's ie_data.xls for the CAPE ratio;
+      # yfinance is used only for the RSP/SPY concentration ratio. Both fail
+      # soft (fetch_cape / fetch_concentration_ratio catch and skip), so a
+      # broken install or fetch doesn't take down the rest of the build.
+      - run: pip install requests xlrd yfinance
 
       - name: Build the dashboard
         env:
@@ -35,6 +37,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/dashboard.html docs/history.json
+          git add docs/dashboard.html
           git diff --staged --quiet || git commit -m "Macro dashboard $(date -u +%Y-%m-%d)"
           git push
