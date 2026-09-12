@@ -3463,11 +3463,12 @@ def opportunity_score(summary: pd.DataFrame) -> pd.DataFrame:
 
 
 def trailing_anchors(df: pd.DataFrame, quality) -> dict:
-    """Z and Opportunity as they stood ~7 and ~30 calendar days ago, plus a
-    downsampled P/S sparkline for the drawer. Rebuilt from the daily P/S the
-    state already stores, so it costs no new data. Only the historical anchors
-    are stored; the page takes the deltas against the LIVE Z, so a week/month
-    change stays correct after an intraday reprice.
+    """Z and Opportunity as they stood ~7 and ~30 calendar days ago, plus up to
+    10 years of weekly P/S history for the drawer's range-selectable chart.
+    Rebuilt from the daily P/S the state already stores, so it costs no new
+    data. Only the historical anchors are stored; the page takes the deltas
+    against the LIVE Z, so a week/month change stays correct after an intraday
+    reprice.
     """
     if df is None or df.empty:
         return {}
@@ -3498,16 +3499,31 @@ def trailing_anchors(df: pd.DataFrame, quality) -> dict:
         out[f"z_{label}_ago"] = round(z, 3) if z is not None else None
         out[f"opp_{label}_ago"] = _opportunity_value(z, quality) if z is not None else None
 
-    # ~2 years of P/S, thinned to ~50 points, for a trend sparkline. Dates are
-    # kept alongside the values (masked identically, thinned identically) so a
-    # hover tooltip can show what date each point is from.
-    mask = (dates >= today - pd.Timedelta(days=730)) & (ps > 0)
-    rp, rd = ps[mask], dates[mask]
-    if len(rp) > 50:
-        step = max(1, len(rp) // 50)
-        rp, rd = rp[::step], rd[::step]
-    out["ps_spark"] = [round(float(v), 3) for v in rp]
-    out["ps_spark_dates"] = [str(pd.Timestamp(x).date()) for x in rd]
+    # Z alone goes back further (90d, 1y): it depends only on price, which is
+    # known exactly as of any past date. Opportunity is deliberately NOT
+    # extended this far -- doing so would mean assuming quality was the same
+    # 90 days or a year ago as it is today. Quality moves in steps at each
+    # filing (roughly quarterly), and the longer the look-back, the likelier a
+    # step happened in between -- which is exactly the kind of change this
+    # should surface, not quietly assume away. A real multi-year Opportunity
+    # history needs quality reconstructed at each historical filing date, which
+    # is separate, larger work (see the discussion with Stephen, Sep 2026).
+    for label, days in (("90d", 90), ("365d", 365)):
+        p = _ps_asof(days)
+        z = ((math.log(p) - lm) / ls) if p else None
+        out[f"z_{label}_ago"] = round(z, 3) if z is not None else None
+
+    # Weekly-resampled P/S history for the drawer chart: up to 10 years (the
+    # same window Z itself uses), or since inception if shorter. ONE series is
+    # sent; the 1Y/3Y/5Y/10Y/"since inception" buttons in the drawer just slice
+    # this client-side, so no extra data or server-side work is needed per
+    # range. Weekly (not daily) keeps the payload reasonable across 500
+    # companies while still giving a decade of resolution.
+    wk = pd.Series(ps, index=pd.DatetimeIndex(dates)).sort_index()
+    wk = wk[wk > 0].resample("W").last().dropna()
+    wk = wk[wk.index >= today - pd.DateOffset(years=10)]
+    out["ps_spark"] = [round(float(v), 3) for v in wk.values]
+    out["ps_spark_dates"] = [str(pd.Timestamp(x).date()) for x in wk.index]
     return out
 
 
@@ -3714,6 +3730,14 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .opp-sub{margin-left:auto;font-size:11px;color:var(--dim);text-align:right;
            max-width:150px;line-height:1.4}
 
+  /* The quality reason: a label caption above free-form text, never a flex row
+     fighting a long value -- the row layout broke when the "value" was a full
+     phrase instead of a short number. */
+  .q-reason-block{margin:8px 0 16px}
+  .q-reason-lab{font-family:var(--sans);font-size:10px;letter-spacing:.1em;
+               text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+  .q-reason-txt{font-size:12.5px;line-height:1.5}
+
   /* Recent trend: a two-card grid instead of cramming two deltas into one
      narrow value column, which read as squished. */
   .trend-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}
@@ -3726,13 +3750,21 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .trend-per{font-size:11px;color:var(--dim);white-space:nowrap}
   .trend-vals span:last-child{font-size:14px;font-weight:600;
                               font-variant-numeric:tabular-nums}
+  .trend-note{margin-top:9px;padding-top:8px;border-top:1px solid var(--rule);
+             font-size:10.5px;line-height:1.5;color:var(--dim)}
 
   /* Interactive P/S sparkline: compact by default, expandable, with a hover
      crosshair and tooltip. */
   .spark-wrap{position:relative;margin:4px 0 4px}
   .spark-foot{display:flex;align-items:center;gap:10px;margin-top:6px;
              font-size:11px;color:var(--dim)}
-  .spark-foot > span:first-child{flex:1}
+  .spark-caption{flex:1}
+  .spark-range{display:flex;gap:5px;margin-top:8px}
+  .range-btn{font-family:var(--sans);font-size:10px;letter-spacing:.03em;
+            color:var(--dim);background:none;border:1px solid var(--rule);
+            border-radius:3px;padding:3px 9px;cursor:pointer}
+  .range-btn:hover{color:var(--bright);border-color:var(--dim)}
+  .range-btn.active{color:var(--bright);border-color:var(--mid);background:var(--panel)}
   .spark-toggle{font-family:var(--sans);font-size:10px;letter-spacing:.05em;
                color:var(--dim);background:none;border:1px solid var(--rule);
                border-radius:3px;padding:3px 10px;cursor:pointer}
@@ -4123,16 +4155,26 @@ function opportunityCell(r){
   return `<b style="color:${col}" title="${tip}">${o}</b>`;
 }
 
-/* A P/S trend chart, ~2 years, thinned to ~50 points server-side. Low P/S is
-   cheap, so a line trending down means the stock has got cheaper. Compact by
-   default; click "Expand" for a bigger view with gridlines and axis labels.
-   Hovering (either size) shows the date and value under the cursor. */
+/* A P/S trend chart. The server sends the full weekly-resampled history (up to
+   10 years, or since inception if shorter -- the same window Z itself uses),
+   and the range buttons below just slice that ONE array client-side, so no
+   extra data or server logic is needed per range. Compact view is a fixed
+   1-year glance; expanding reveals the range picker. Hovering (either size)
+   shows the date and value under the cursor. */
 let sparkState = null;
+const SPARK_RANGES = ['1Y', '3Y', '5Y', '10Y', 'MAX'];
+
+function sparkSlice(values, dates, range){
+  const perYear = 52;   // weekly points
+  const years = { '1Y': 1, '3Y': 3, '5Y': 5, '10Y': 10 }[range];
+  const n = years ? Math.min(values.length, years * perYear) : values.length;
+  return { values: values.slice(-n), dates: dates ? dates.slice(-n) : null };
+}
 
 function sparkSVG(values, expanded){
   const w = expanded ? 560 : 132, h = expanded ? 130 : 30, pad = expanded ? 16 : 3;
   const lo = Math.min(...values), hi = Math.max(...values), rng = (hi - lo) || 1;
-  const x = i => pad + i * (w - 2 * pad) / (values.length - 1);
+  const x = i => pad + i * (w - 2 * pad) / (Math.max(1, values.length - 1));
   const y = v => pad + (h - 2 * pad) * (1 - (v - lo) / rng);
   const pts = values.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
   const last = values.length - 1;
@@ -4156,15 +4198,18 @@ function sparkSVG(values, expanded){
 function renderSpark(){
   const wrap = document.getElementById('sparkWrap');
   if (!wrap || !sparkState) return;
-  const { values, dates, expanded } = sparkState;
+  const { values: allValues, dates: allDates, expanded, range } = sparkState;
+  const { values, dates } = sparkSlice(allValues, allDates, expanded ? range : '1Y');
   const first = dates && dates[0], lastD = dates && dates[dates.length - 1];
   wrap.innerHTML = sparkSVG(values, expanded)
     + `<div class="spark-tip" id="sparkTip"></div>`
     + `<div class="spark-foot">`
-    + (expanded && first ? `<span>${first}</span><span>${lastD}</span>`
-       : `<span>P/S, ~2 yrs (down = cheaper)</span>`)
+    + `<span class="spark-caption">P/S ratio${first ? ` \u00b7 ${first} to ${lastD}` : ''} (down = cheaper)</span>`
     + `<button class="spark-toggle" id="sparkToggle" type="button">${expanded ? 'Collapse' : 'Expand'}</button>`
-    + `</div>`;
+    + `</div>`
+    + (expanded ? `<div class="spark-range">`
+        + SPARK_RANGES.map(r => `<button type="button" class="range-btn${r === range ? ' active' : ''}" data-r="${r}">${r === 'MAX' ? 'Since inception' : r}</button>`).join('')
+        + `</div>` : '');
   const svg = wrap.querySelector('.spark-svg');
   const tip = wrap.querySelector('#sparkTip');
   const cross = wrap.querySelector('.spark-cross');
@@ -4181,7 +4226,7 @@ function renderSpark(){
     tip.style.display = 'block';
     tip.style.left = Math.min(rect.width - 90, Math.max(0, (e.clientX - rect.left + 8))) + 'px';
     tip.textContent = (dates && dates[i] ? dates[i] + ' \u2014 ' : '') + values[i].toFixed(2) + 'x';
-    const xp = pad + i * (w - 2 * pad) / (n - 1);
+    const xp = pad + i * (w - 2 * pad) / Math.max(1, n - 1);
     cross.setAttribute('x1', xp); cross.setAttribute('x2', xp); cross.setAttribute('opacity', '0.6');
   });
   svg.addEventListener('mouseleave', () => { tip.style.display = 'none'; cross.setAttribute('opacity', '0'); });
@@ -4189,6 +4234,11 @@ function renderSpark(){
     sparkState.expanded = !sparkState.expanded;
     renderSpark();
   });
+  if (expanded) {
+    wrap.querySelectorAll('.range-btn').forEach(btn => {
+      btn.addEventListener('click', () => { sparkState.range = btn.dataset.r; renderSpark(); });
+    });
+  }
 }
 
 /* Live change of a score vs a stored anchor. Computed against the LIVE value, so
@@ -4556,8 +4606,10 @@ function openDrawer(t) {
           <span class="opp-sub">discount &times; quality, one number for how worthwhile this looks</span>
         </div>` : ''}
         <h3>Quality ${r.quality}/100</h3>
-        ${r.q_reason ? plain(r.q_reason_kind === 'concern' ? 'Main concern' : 'Standout factor',
-            `<span style="color:${r.quality >= SOUND_Q ? 'var(--cheap)' : r.quality <= TRAP_Q ? 'var(--rich)' : 'var(--warn)'}">${r.q_reason}</span>`) : ''}
+        ${r.q_reason ? `<div class="q-reason-block">
+          <div class="q-reason-lab">${r.q_reason_kind === 'concern' ? 'Main concern' : 'Standout factor'}</div>
+          <div class="q-reason-txt" style="color:${r.quality >= SOUND_Q ? 'var(--cheap)' : r.quality <= TRAP_Q ? 'var(--rich)' : 'var(--warn)'}">${r.q_reason}</div>
+        </div>` : ''}
         ${plain('Balance sheet', r.q_balance == null ? '<span class="none">&mdash;</span>' : r.q_balance + ' / 100')}
         ${plain('Profitability', r.q_profit == null ? '<span class="none">&mdash;</span>' : r.q_profit + ' / 100')}
         ${plain('Trajectory', r.q_traj == null ? '<span class="none">&mdash;</span>' : r.q_traj + ' / 100')}
@@ -4611,6 +4663,8 @@ function openDrawer(t) {
             <div class="trend-vals">
               <div><span class="trend-per">7 days</span>${deltaSpan(r.zscore, r.z_7d_ago, false, 2)}</div>
               <div><span class="trend-per">30 days</span>${deltaSpan(r.zscore, r.z_30d_ago, false, 2)}</div>
+              <div><span class="trend-per">90 days</span>${deltaSpan(r.zscore, r.z_90d_ago, false, 2)}</div>
+              <div><span class="trend-per">1 year</span>${deltaSpan(r.zscore, r.z_365d_ago, false, 2)}</div>
             </div>
           </div>
           ${r.opportunity != null ? `<div class="trend-card">
@@ -4619,6 +4673,8 @@ function openDrawer(t) {
               <div><span class="trend-per">7 days</span>${deltaSpan(r.opportunity, r.opp_7d_ago, true, 0)}</div>
               <div><span class="trend-per">30 days</span>${deltaSpan(r.opportunity, r.opp_30d_ago, true, 0)}</div>
             </div>
+            <div class="trend-note">Not shown further back: this would have to assume
+              quality hasn't changed since, and quality moves in steps at each filing.</div>
           </div>` : ''}
         </div>` : ''}
       </div>` : ''}
@@ -4650,7 +4706,7 @@ function openDrawer(t) {
       </div>
     </div>`;
   if (r.ps_spark && r.ps_spark.length > 2) {
-    sparkState = { values: r.ps_spark, dates: r.ps_spark_dates || null, expanded: false };
+    sparkState = { values: r.ps_spark, dates: r.ps_spark_dates || null, expanded: false, range: 'MAX' };
     renderSpark();
   } else {
     sparkState = null;
@@ -5159,7 +5215,8 @@ def main():
     # page takes deltas against the live Z, so they survive an intraday reprice.
     qmap = dict(zip(summary["ticker"], summary["quality"]))
     anchors = {t: trailing_anchors(df, qmap.get(t)) for t, df in series.items()}
-    for col in ("z_7d_ago", "z_30d_ago", "opp_7d_ago", "opp_30d_ago",
+    for col in ("z_7d_ago", "z_30d_ago", "z_90d_ago", "z_365d_ago",
+               "opp_7d_ago", "opp_30d_ago",
                "ps_spark", "ps_spark_dates"):
         summary[col] = summary["ticker"].map(lambda t: anchors.get(t, {}).get(col))
 
