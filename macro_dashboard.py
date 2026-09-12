@@ -240,6 +240,18 @@ THEMES = {
                  "product existed before 2003, so this can't be computed for the "
                  "dot-com era itself -- read today's level against its own "
                  "2003-present range."},
+        {"id": "SPY top10", "label": "S&P 500 top-10 concentration",
+         "compute": "top10", "kind": "level", "units": "%", "worry": "up",
+         "start": "2003-01-01", "pctile": True,
+         "note": "Combined weight of the 10 largest companies in the S&P 500, "
+                 "from SPY's own daily holdings file (multiple share classes of "
+                 "the same company, e.g. GOOGL/GOOG, count once). Published "
+                 "research (RBC Wealth Management/FactSet) puts this at ~19% in "
+                 "1990, ~23-27% at the 2000 peak, and a record ~40% by 2025 -- "
+                 "that's the scale to read today's number against. No free "
+                 "source has daily history for this, so unlike the ratio above "
+                 "it starts accumulating from today rather than 2003; expect a "
+                 "flat, neutral read for the first week or so."},
     ],
 }
 
@@ -918,6 +930,80 @@ def fetch_concentration_ratio(start):
     return out
 
 
+SPY_HOLDINGS_URL = ("https://www.ssga.com/us/en/institutional/library-content/"
+                     "products/fund-data/etfs/us/holdings-daily-us-en-spy.xlsx")
+
+
+def fetch_spy_top10():
+    """Live S&P 500 top-10 concentration by weight, from SPY's own daily
+    holdings file (published free by State Street, SPY's issuer, as a fund
+    holdings disclosure -- not a licensed index product). No free source has
+    daily history for this before today (see fetch_concentration_ratio's
+    docstring for why), so unlike every other signal here this maintains its
+    OWN small running file (docs/top10_history.json) instead of pulling a
+    ready-made series from FRED -- it starts accumulating from whenever this
+    is first deployed and fills in day by day, the same way docs/history.json
+    already does for change-tracking. Expect a flat "neutral" read with no
+    visible trend for the first few days, until enough points exist -- same
+    as any other freshly added signal, not a bug.
+
+    Groups holdings by the first 6 characters of the CUSIP-like "Identifier"
+    column (the issuer prefix shared across share classes) rather than by
+    ticker, so e.g. GOOGL and GOOG count once toward the top 10 -- matching
+    how published concentration research (RBC/FactSet) counts companies,
+    not tickers, rather than hardcoding a list of known dual-class tickers.
+    """
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    (OUT / "docs").mkdir(exist_ok=True)
+    hist_path = OUT / "docs/top10_history.json"
+    try:
+        history = json.loads(hist_path.read_text())
+        if not isinstance(history, list):
+            history = []
+    except Exception:
+        history = []
+
+    try:
+        import io
+        import openpyxl
+    except Exception:
+        print("  [top10] openpyxl not installed -- skipping top-10 weight")
+        return [(d, v) for d, v in history]
+    try:
+        r = requests.get(SPY_HOLDINGS_URL, timeout=30,
+                         headers={"User-Agent": "Mozilla/5.0"})
+        r.raise_for_status()
+        wb = openpyxl.load_workbook(io.BytesIO(r.content), read_only=True,
+                                    data_only=True)
+        rows = list(wb.active.iter_rows(values_only=True))
+        header_idx = next(i for i, row in enumerate(rows)
+                          if row and row[0] == "Name" and "Weight" in row)
+        cols = {name: i for i, name in enumerate(rows[header_idx]) if name}
+        w_i, id_i = cols["Weight"], cols["Identifier"]
+        groups = {}
+        for row in rows[header_idx + 1:]:
+            if not row or not isinstance(row[w_i], (int, float)):
+                continue
+            key = (row[id_i] or "")[:6]
+            groups[key] = groups.get(key, 0.0) + float(row[w_i])
+        if len(groups) < 10:
+            raise ValueError(f"only {len(groups)} distinct companies found")
+        top10 = round(sum(sorted(groups.values(), reverse=True)[:10]), 2)
+        print(f"  [top10] top-10 concentration -> {top10}%")
+    except Exception as exc:
+        print(f"  [top10] fetch/parse failed ({exc}) -- using saved history only")
+        return [(d, v) for d, v in history]
+
+    history = [[d, v] for d, v in history if d != today]   # replace same-day re-run
+    history.append([today, top10])
+    history.sort(key=lambda s: s[0])
+    try:
+        hist_path.write_text(json.dumps(history))
+    except Exception as exc:
+        print(f"  [top10] could not write top10_history.json ({exc})")
+    return [(d, v) for d, v in history]
+
+
 def fetch_sum(ids, start):
     """Sum several FRED series on their common dates (e.g. non-financial +
     financial corporate equities). Returns [] if any input is missing."""
@@ -989,6 +1075,8 @@ def panel_for(ind, percentile_state=False):
         raw = fetch_cape(ind["start"])
     elif ind.get("compute") == "concentration":
         raw = fetch_concentration_ratio(ind["start"])
+    elif ind.get("compute") == "top10":
+        raw = fetch_spy_top10()
     elif ind.get("compute") == "multpl":
         raw = fetch_multpl(ind["url"], ind["start"], ind.get("lo", 3.0),
                            ind.get("hi", 80.0), tag=ind.get("tag", "multpl"))
