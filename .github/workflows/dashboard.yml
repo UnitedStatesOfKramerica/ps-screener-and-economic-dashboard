@@ -40,7 +40,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/dashboard.html
+          git add docs/dashboard.html docs/history.json
           if git diff --staged --quiet; then
             echo "No changes to publish."
             exit 0
@@ -48,9 +48,9 @@ jobs:
           git commit -m "Macro dashboard $(date -u +%Y-%m-%d)"
           # Rebase onto whatever landed on main since this job checked out --
           # e.g. a manual file upload while the run was in flight. Only
-          # docs/dashboard.html is touched here, so this should always apply
-          # cleanly; if it ever doesn't, the job fails loudly instead of
-          # silently losing today's update.
+          # docs/dashboard.html and docs/history.json are touched here, so
+          # this should always apply cleanly; if it ever doesn't, the job
+          # fails loudly instead of silently losing today's update.
           git fetch origin main
           git rebase origin/main
           git push

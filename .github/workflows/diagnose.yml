@@ -1,0 +1,27 @@
+name: Diagnose (one-off)
+
+# Manual-trigger only -- no schedule. Runs diagnose.py once to inspect the
+# real SPY holdings file structure. Delete this file and diagnose.py once
+# we've read the output; neither is meant to stick around.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install requests openpyxl
+
+      - name: Run diagnostics
+        run: python diagnose.py
