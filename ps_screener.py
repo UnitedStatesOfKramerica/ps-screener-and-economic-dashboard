@@ -3211,6 +3211,25 @@ def _qwmean(pairs):
     return (num / den) if den else None
 
 
+_DISCOUNT_PTS = [(-4, 100), (-3, 98), (-2, 85), (-1, 68), (-0.5, 55),
+                 (0, 40), (0.5, 25), (1.5, 0)]
+
+
+def _opportunity_value(z, q):
+    """Blend a Z-score and a quality score into one 0-100 opportunity number: Z
+    becomes a discount score (deep discount high, premium ~0), then a geometric
+    mean with quality. None if either input is missing."""
+    try:
+        z = float(z)
+        q = float(q)
+    except (TypeError, ValueError):
+        return None
+    if z != z or q != q:
+        return None
+    d = _qlin(z, _DISCOUNT_PTS)
+    return None if d is None else round((d * q) ** 0.5)
+
+
 def quality_score(summary: pd.DataFrame) -> pd.DataFrame:
     """A 0-100 business-quality score, a SEPARATE axis from the Z-score.
 
@@ -3308,7 +3327,19 @@ def quality_score(summary: pd.DataFrame) -> pd.DataFrame:
             # A return on equity above ~80% is a near-zero book value from
             # buybacks, not a better business; it is capped, not rewarded.
             s_roe = 70 if roe >= 80 else _qlin(roe, [(0, 20), (8, 50), (15, 72), (25, 92), (35, 100)])
-        prof = _qwmean([(s_nm, 0.60), (s_roe, 0.40)])
+        # Shareholder return: buying back stock (negative dilution) is rewarded,
+        # serial issuance penalised; dividend yield, where the cross-check knows
+        # it, adds a bounded bonus. Buybacks come from the share count, so this is
+        # universal and SEC-sourced; dividends are only credited where present.
+        d1 = _g(r, "dilution_1y")
+        d3 = _g(r, "dilution_3y")
+        dil = d1 if d1 is not None else (d3 / 3 if d3 is not None else None)
+        s_capret = _qlin(dil, [(-4, 100), (-2, 88), (-1, 78), (0, 62),
+                               (2, 44), (5, 22), (10, 5)])
+        div = _g(r, "dividend_yield")
+        if s_capret is not None and div is not None and div > 0:
+            s_capret = min(100.0, s_capret + min(15.0, div * 3))
+        prof = _qwmean([(s_nm, 0.50), (s_roe, 0.30), (s_capret, 0.20)])
 
         # ---- trajectory (the value-trap filter) ----
         s_rc = _qlin(rc3 if rc3 is not None else rc5,
@@ -3355,6 +3386,10 @@ def quality_score(summary: pd.DataFrame) -> pd.DataFrame:
             negs.append("margins compressing")
         if nm is not None and nm > 18:
             pos.append(f"{nm:.0f}% net margin")
+        if dil is not None and dil <= -3:
+            pos.append("buying back stock")
+        elif dil is not None and dil >= 6:
+            negs.append(f"diluting {dil:+.0f}%/yr")
         reason = "; ".join((negs[:3] if negs else pos[:3])) or None
 
         def _r(x):
@@ -3391,21 +3426,7 @@ def opportunity_score(summary: pd.DataFrame) -> pd.DataFrame:
     a research prioritiser, not advice.
     """
     def _op(r):
-        z = r.get("zscore")
-        q = r.get("quality")
-        try:
-            z = float(z)
-            q = float(q)
-        except (TypeError, ValueError):
-            return None
-        if z != z or q != q:                       # NaN on either axis
-            return None
-        # Cheap (negative Z) -> high discount score; premium -> ~0.
-        d = _qlin(z, [(-4, 100), (-3, 98), (-2, 85), (-1, 68), (-0.5, 55),
-                      (0, 40), (0.5, 25), (1.5, 0)])
-        if d is None:
-            return None
-        return round((d * q) ** 0.5)
+        return _opportunity_value(r.get("zscore"), r.get("quality"))
 
     if summary.empty or "quality" not in summary.columns or "zscore" not in summary.columns:
         summary["opportunity"] = pd.Series([None] * len(summary),
@@ -3413,6 +3434,51 @@ def opportunity_score(summary: pd.DataFrame) -> pd.DataFrame:
         return summary
     summary["opportunity"] = summary.apply(_op, axis=1)
     return summary
+
+
+def trailing_anchors(df: pd.DataFrame, quality) -> dict:
+    """Z and Opportunity as they stood ~7 and ~30 calendar days ago, plus a
+    downsampled P/S sparkline for the drawer. Rebuilt from the daily P/S the
+    state already stores, so it costs no new data. Only the historical anchors
+    are stored; the page takes the deltas against the LIVE Z, so a week/month
+    change stays correct after an intraday reprice.
+    """
+    if df is None or df.empty:
+        return {}
+    d = df.sort_values("date")
+    ps = np.asarray(d["ps"].values, dtype=float)
+    dates = pd.to_datetime(np.asarray(d["date"].values))
+    good = ps[ps > 0]
+    if len(good) < 30 or len(dates) < 30:
+        return {}
+    logs = np.log(good)
+    lm, ls = float(logs.mean()), float(logs.std(ddof=1))
+    if ls <= 1e-9:
+        return {}
+    today = dates[-1]
+
+    def _ps_asof(days):
+        cut = today - pd.Timedelta(days=days)
+        mask = dates <= cut
+        if not mask.any():
+            return None
+        v = ps[mask][-1]
+        return float(v) if v > 0 else None
+
+    out = {}
+    for label, days in (("7d", 7), ("30d", 30)):
+        p = _ps_asof(days)
+        z = ((math.log(p) - lm) / ls) if p else None
+        out[f"z_{label}_ago"] = round(z, 3) if z is not None else None
+        out[f"opp_{label}_ago"] = _opportunity_value(z, quality) if z is not None else None
+
+    # ~2 years of P/S, thinned to ~50 points, for a trend sparkline.
+    recent = ps[dates >= today - pd.Timedelta(days=730)]
+    recent = recent[recent > 0]
+    if len(recent) > 50:
+        recent = recent[:: max(1, len(recent) // 50)]
+    out["ps_spark"] = [round(float(v), 3) for v in recent]
+    return out
 
 
 def build_stamp() -> str:
@@ -3851,7 +3917,7 @@ function fillIndustries() {
 fillIndustries();
 secEl.addEventListener('change', () => { subEl.value = ''; fillIndustries(); });
 
-let sortKey = 'zscore', sortAsc = true;
+let sortKey = 'opportunity', sortAsc = false;   // best opportunity first; N/A sinks to the bottom
 
 /* Colour has to follow MEANING, not sign. Below its own norm is good news, so
    negative is green there. Shrinking revenue is bad news, so negative must be
@@ -3984,6 +4050,30 @@ function opportunityCell(r){
   const col = o >= 65 ? 'var(--cheap)' : o >= 40 ? 'var(--warn)' : 'var(--dim)';
   const tip = `Opportunity ${o}/100 \u2014 discount (Z ${r.zscore == null ? '?' : Number(r.zscore).toFixed(1)}) combined with quality ${r.quality}. High = cheap and sound.`;
   return `<b style="color:${col}" title="${tip}">${o}</b>`;
+}
+
+/* A tiny P/S trend line, ~2 years, thinned to ~50 points server-side. Low P/S is
+   cheap, so a line trending down means the stock has got cheaper. */
+function sparkline(arr){
+  if (!arr || arr.length < 3) return '';
+  const w = 132, h = 30, pad = 3;
+  const lo = Math.min(...arr), hi = Math.max(...arr), rng = (hi - lo) || 1;
+  const x = i => pad + i * (w - 2 * pad) / (arr.length - 1);
+  const y = v => pad + (h - 2 * pad) * (1 - (v - lo) / rng);
+  const pts = arr.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" style="vertical-align:middle">`
+       + `<polyline points="${pts}" fill="none" stroke="var(--mid)" stroke-width="1.4"/>`
+       + `<circle cx="${x(arr.length - 1).toFixed(1)}" cy="${y(arr[arr.length - 1]).toFixed(1)}" r="2" fill="var(--bright)"/></svg>`;
+}
+
+/* Live change of a score vs a stored anchor. Computed against the LIVE value, so
+   it stays right after an intraday reprice. For Z, down = cheaper = good. */
+function deltaSpan(now, ago, upGood, dp){
+  if (now == null || ago == null) return '<span class="none">&mdash;</span>';
+  const x = Number(now) - Number(ago);
+  if (Math.abs(x) < (dp ? 0.005 : 0.5)) return '<span class="flat">no change</span>';
+  const good = upGood ? x > 0 : x < 0;
+  return `<span class="${good ? 'cheap' : 'rich'}">${x > 0 ? '+' : ''}${x.toFixed(dp)}</span>`;
 }
 
 function visible() {
@@ -4380,6 +4470,17 @@ function openDrawer(t) {
           : Number(r.dividend_yield).toFixed(2) + '%')}
       </div>
 
+      ${((r.ps_spark && r.ps_spark.length > 2) || r.z_7d_ago != null) ? `<div class="sect">
+        <h3>Recent trend</h3>
+        ${(r.ps_spark && r.ps_spark.length > 2)
+          ? `<div style="margin:2px 0 8px">${sparkline(r.ps_spark)} <span style="font-size:11px;color:var(--dim)">P/S, ~2 yrs (down = cheaper)</span></div>` : ''}
+        ${plain('Z change', 'past week ' + deltaSpan(r.zscore, r.z_7d_ago, false, 2)
+            + ' &middot; past month ' + deltaSpan(r.zscore, r.z_30d_ago, false, 2))}
+        ${r.opportunity != null
+          ? plain('Opportunity change', 'past week ' + deltaSpan(r.opportunity, r.opp_7d_ago, true, 0)
+            + ' &middot; past month ' + deltaSpan(r.opportunity, r.opp_30d_ago, true, 0)) : ''}
+      </div>` : ''}
+
       <div class="sect">
         <h3>Is the business still growing</h3>
         ${plain('Sales, past year', grow(r.rev_growth_yoy))}
@@ -4596,6 +4697,10 @@ def refresh_prices(tag: str = ""):
         rows.append(row)
 
     summary = pd.DataFrame(rows)
+    # Z was just repriced, so the Opportunity score (which blends Z with quality)
+    # has to be recomputed or it would disagree with the Z beside it. Quality is
+    # fundamental and unchanged intraday, so this just re-blends the new Z.
+    summary = opportunity_score(summary)
     print(f"  {moved} prices moved since the state was built")
 
     # stamp the refresh time so the page shows prices are live
@@ -4899,6 +5004,14 @@ def main():
         summary["day_change_pct"] = summary["ticker"].map(dc)
     except Exception as exc:
         print(f"  day-change stamp skipped: {exc}")
+
+    # 7d/30d Z and Opportunity anchors plus a P/S sparkline for the drawer,
+    # rebuilt from the daily history the state already keeps -- no new data. The
+    # page takes deltas against the live Z, so they survive an intraday reprice.
+    qmap = dict(zip(summary["ticker"], summary["quality"]))
+    anchors = {t: trailing_anchors(df, qmap.get(t)) for t, df in series.items()}
+    for col in ("z_7d_ago", "z_30d_ago", "opp_7d_ago", "opp_30d_ago", "ps_spark"):
+        summary[col] = summary["ticker"].map(lambda t: anchors.get(t, {}).get(col))
 
     tag = f"_{args.tag}" if args.tag else ""
     summary.to_csv(OUT / f"ps_screen{tag}.csv", index=False)
