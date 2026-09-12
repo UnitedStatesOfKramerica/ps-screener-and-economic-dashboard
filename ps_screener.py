@@ -3094,9 +3094,31 @@ def sp500_constituents() -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 
+def _drop_nonscalar_columns(df: pd.DataFrame, *, context: str) -> pd.DataFrame:
+    """SQLite (and a flat CSV) can only hold scalar values per cell. A column
+    that sometimes holds a list, tuple, dict or array (e.g. a sparkline series
+    meant for the interactive HTML only) has to be excluded here rather than
+    crash the whole write -- this is a root-cause guard, not a patch for one
+    column: it protects the next column shaped like this too. The column is
+    still written to the HTML JSON payload and to state.json; only the flat
+    exports drop it.
+    """
+    def _is_scalar(v) -> bool:
+        return v is None or isinstance(v, (str, bytes, int, float, bool)) or \
+               (isinstance(v, float) and v != v)   # NaN
+    bad = [c for c in df.columns
+           if df[c].map(lambda v: not _is_scalar(v)).any()]
+    if bad:
+        print(f"  {context}: excluding non-scalar column(s) {bad} "
+              f"(not representable in a flat table; still in the HTML page)")
+        return df.drop(columns=bad)
+    return df
+
+
 def write_sqlite(summary: pd.DataFrame, series: dict[str, pd.DataFrame], path: Path):
     con = sqlite3.connect(path)
-    summary.to_sql("screen", con, if_exists="replace", index=False)
+    _drop_nonscalar_columns(summary, context="sqlite").to_sql(
+        "screen", con, if_exists="replace", index=False)
     frames = []
     for t, df in series.items():
         d = df.set_index("date").resample("ME").last().dropna().reset_index()
@@ -4706,7 +4728,8 @@ def refresh_prices(tag: str = ""):
     # stamp the refresh time so the page shows prices are live
     os.environ["PRICE_REFRESH_AT"] = _now_et()
 
-    summary.to_csv(OUT / f"ps_screen{tag}.csv", index=False)
+    _drop_nonscalar_columns(summary, context="csv").to_csv(
+        OUT / f"ps_screen{tag}.csv", index=False)
     write_html(summary, OUT / f"ps_screen{tag}.html")
     print(f"  repriced and rewrote ps_screen.html / ps_screen.csv")
 
@@ -5014,7 +5037,8 @@ def main():
         summary[col] = summary["ticker"].map(lambda t: anchors.get(t, {}).get(col))
 
     tag = f"_{args.tag}" if args.tag else ""
-    summary.to_csv(OUT / f"ps_screen{tag}.csv", index=False)
+    _drop_nonscalar_columns(summary, context="csv").to_csv(
+        OUT / f"ps_screen{tag}.csv", index=False)
     write_sqlite(summary, series, OUT / f"ps_screen{tag}.db")
     write_html(summary, OUT / f"ps_screen{tag}.html")
     # Save the state the intraday refresh reprices from. Written into docs/ so
