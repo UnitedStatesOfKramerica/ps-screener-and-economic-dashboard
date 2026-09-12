@@ -227,17 +227,23 @@ THEMES = {
                  "-- high profits draw competition, labour and regulation -- so a "
                  "historically elevated share flatters earnings the market may be "
                  "extrapolating. The valuation risk a simple P/E hides."},
-        {"id": "RSP/SPY", "label": "Market concentration (equal-wt vs cap-wt)",
-         "compute": "concentration", "kind": "level", "units": "", "worry": "down",
+        {"id": "SPY/RSP", "label": "Market concentration (cap-wt over equal-wt)",
+         "compute": "concentration", "kind": "level", "units": "", "worry": "up",
          "start": "2003-01-01", "pctile": True,
-         "note": "The S&P 500 Equal Weight ETF (RSP) against the S&P 500 itself "
-                 "(SPY), both rebased to 100 at RSP's April 2003 launch. Falling "
-                 "means cap-weighted mega-caps are beating the average stock -- "
-                 "gains narrowing to fewer names, the same pattern that preceded "
-                 "2000's unwind. Real data only starts in 2003 -- no true "
-                 "equal-weight product existed before then -- so this can't "
-                 "directly cover the dot-com peak itself; read the level against "
-                 "its own 2003-present range."},
+         "note": "The S&P 500 (SPY, cap-weighted -- mega-caps count more) against "
+                 "the S&P 500 Equal Weight ETF (RSP, every company counted the "
+                 "same), both set to 100 at RSP's April 2003 launch. Rising means "
+                 "cap-weighted is pulling ahead -- a handful of mega-caps are "
+                 "driving the market's gains while the average stock lags, the "
+                 "same pattern that preceded 2000's unwind; falling means gains "
+                 "are broadening to more of the market. For scale: published "
+                 "research (RBC Wealth Management/FactSet) puts top-10 S&P 500 "
+                 "weight at ~19% in 1990, ~23-27% at the 2000 peak, and a record "
+                 "~40% by 2025 -- no true equal-weight product existed before "
+                 "2003, so this specific ratio can't be computed for the dot-com "
+                 "era itself, but that published figure is the closest honest "
+                 "comparison available. Read today's level against its own "
+                 "2003-present range."},
     ],
 }
 
@@ -875,8 +881,8 @@ def fetch_finra_margin(start):
 
 
 def fetch_concentration_ratio(start):
-    """Equal-weight vs cap-weight breadth/concentration signal, proxied by RSP
-    (Invesco S&P 500 Equal Weight ETF) against SPY (SPDR S&P 500 ETF Trust),
+    """Equal-weight vs cap-weight breadth/concentration signal, proxied by SPY
+    (SPDR S&P 500 ETF Trust) against RSP (Invesco S&P 500 Equal Weight ETF),
     both rebased to 100 at their first shared trading date. ETF share prices
     are ordinary quoted market data -- like any stock price -- not a
     licensed index product, so unlike SP500 itself there's no reproduction
@@ -886,8 +892,8 @@ def fetch_concentration_ratio(start):
     equal-weight S&P 500 product existed before then (S&P's own Equal
     Weight Index launched Jan 2003 too), so this cannot be extended back
     to cover the 2000 dot-com peak -- a hard data-availability limit, not
-    a choice. Falling means cap-weighted mega-caps are beating the average
-    stock (gains narrowing to fewer names); rising means participation is
+    a choice. Rising means cap-weighted mega-caps are beating the average
+    stock (gains narrowing to fewer names); falling means participation is
     broadening.
     """
     try:
@@ -909,10 +915,10 @@ def fetch_concentration_ratio(start):
         print("  [breadth] too few overlapping trading days")
         return []
     rsp, spy = rsp.loc[common].sort_index(), spy.loc[common].sort_index()
-    ratio = (rsp / rsp.iloc[0]) / (spy / spy.iloc[0]) * 100.0
+    ratio = (spy / spy.iloc[0]) / (rsp / rsp.iloc[0]) * 100.0
     out = [(d.strftime("%Y-%m-%d"), round(float(v), 3)) for d, v in ratio.items()]
     if out:
-        print(f"  [breadth] RSP/SPY -> {len(out)} pts; last 3: {out[-3:]}")
+        print(f"  [breadth] SPY/RSP -> {len(out)} pts; last 3: {out[-3:]}")
     return out
 
 
