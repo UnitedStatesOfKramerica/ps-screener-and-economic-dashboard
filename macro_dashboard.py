@@ -236,13 +236,9 @@ THEMES = {
                  "cap-weighted is pulling ahead -- a handful of mega-caps are "
                  "driving the market's gains while the average stock lags, the "
                  "same pattern that preceded 2000's unwind; falling means gains "
-                 "are broadening to more of the market. For scale: published "
-                 "research (RBC Wealth Management/FactSet) puts top-10 S&P 500 "
-                 "weight at ~19% in 1990, ~23-27% at the 2000 peak, and a record "
-                 "~40% by 2025 -- no true equal-weight product existed before "
-                 "2003, so this specific ratio can't be computed for the dot-com "
-                 "era itself, but that published figure is the closest honest "
-                 "comparison available. Read today's level against its own "
+                 "are broadening to more of the market. No true equal-weight "
+                 "product existed before 2003, so this can't be computed for the "
+                 "dot-com era itself -- read today's level against its own "
                  "2003-present range."},
     ],
 }
