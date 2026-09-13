@@ -1184,7 +1184,28 @@ def _compute_changes(history, all_panels, today):
         if s.get("regime") != cur["regime"]:
             d = days_ago(s["date"])
             if d <= 90:
-                out["regime_change"] = {"from": s["regime"], "to": cur["regime"], "days": d}
+                # Which axis actually flipped -- only compare direction on
+                # that axis's own signal list, and only for snapshots old
+                # enough to have growth/inflation stored (added later; older
+                # entries just won't get a driver breakdown, which degrades
+                # gracefully to the plain "shifted from X" banner).
+                drivers, axes = [], []
+                if s.get("growth") and s["growth"] != cur.get("growth"):
+                    axes.append(("growth", GROWTH_MOM))
+                if s.get("inflation") and s["inflation"] != cur.get("inflation"):
+                    axes.append(("inflation", INFLATION_MOM))
+                for axis_name, ids in axes:
+                    for sid in ids:
+                        cur_sig, prior_sig = cur["signals"].get(sid), s["signals"].get(sid)
+                        if not cur_sig or not prior_sig:
+                            continue
+                        cur_dir, prior_dir = cur_sig[1], prior_sig[1]
+                        if cur_dir != prior_dir:            # changed sides of the tally
+                            drivers.append({"label": label_of.get(sid, sid),
+                                             "axis": axis_name,
+                                             "from": prior_dir, "to": cur_dir})
+                out["regime_change"] = {"from": s["regime"], "to": cur["regime"],
+                                         "days": d, "drivers": drivers}
             break
     return out
 
@@ -1314,15 +1335,20 @@ def build():
     # ---- Regime: growth x inflation, plus a valuation condition ----
     def _mom(ids):
         worse = better = 0
+        worse_l, better_l = [], []
         for sid in ids:
             p = by_id.get(sid)
             if not p:
                 continue
             worse += p["deteriorating"]
             better += p["improving"]
-        return worse, better
-    g_worse, g_better = _mom(GROWTH_MOM)
-    i_worse, i_better = _mom(INFLATION_MOM)
+            if p["deteriorating"]:
+                worse_l.append(p["label"])
+            elif p["improving"]:
+                better_l.append(p["label"])
+        return worse, better, worse_l, better_l
+    g_worse, g_better, g_worse_l, g_better_l = _mom(GROWTH_MOM)
+    i_worse, i_better, i_worse_l, i_better_l = _mom(INFLATION_MOM)
     growth = "decelerating" if (g_worse - g_better) >= REGIME_MARGIN else "accelerating"
     inflation = "accelerating" if (i_worse - i_better) >= REGIME_MARGIN else "decelerating"
     rname, rplay = REGIMES[(growth, inflation)]
@@ -1343,6 +1369,10 @@ def build():
     print(f"  [regime] {rname} (growth {growth}, inflation {inflation}) "
           f"| valuations {valcond} [growth {g_worse}w/{g_better}b, "
           f"inflation {i_worse}w/{i_better}b]")
+    print(f"    growth worse:   {', '.join(g_worse_l) or '(none)'}")
+    print(f"    growth better:  {', '.join(g_better_l) or '(none)'}")
+    print(f"    inflation worse:  {', '.join(i_worse_l) or '(none)'}")
+    print(f"    inflation better: {', '.join(i_better_l) or '(none)'}")
 
     # ---- Market confirmation: does the market's own risk pricing back the macro? ----
     def _mkt_status(sid, up_word):
@@ -1466,7 +1496,8 @@ def build():
         "signals": {p["series_id"]: [p["state"], p["direction"]] for p in all_panels},
         "counts": counts,
         "alloc": {a["bucket"]: [a["lean"], a["conviction"]] for a in allocation},
-        "regime": regime["name"]}
+        "regime": regime["name"], "growth": regime["growth"],
+        "inflation": regime["inflation"]}
     (OUT / "docs").mkdir(exist_ok=True)
     hist_path = OUT / "docs/history.json"
     try:
@@ -1586,6 +1617,9 @@ PAGE = r"""<!DOCTYPE html>
   .regime-play { color:var(--ink); font-size:13px; line-height:1.55; margin:9px 0 10px; max-width:900px; }
   .regime-val { font-size:12px; color:var(--dim); display:flex; align-items:center; gap:8px; }
   .regime-valnote { color:var(--dim); }
+  .regime-banner.expandable { cursor:pointer; }
+  .regime-detail { display:none; margin-top:11px; padding-top:11px; border-top:1px solid var(--line); }
+  .regime-banner.open .regime-detail { display:block; }
   .confirm-banner { background:var(--card); border:1px solid var(--line); border-left-width:4px; border-radius:13px; padding:14px 18px; margin-bottom:18px; }
   .confirm-banner.bd-alert { border-left-color:var(--alert); }
   .confirm-banner.bd-caution { border-left-color:var(--caution); }
@@ -1764,16 +1798,32 @@ const R = D.regime;
 if (R){
   const vcls = R.valuation==='extreme'?'alert':R.valuation==='elevated'?'caution':'calm';
   const rchg = D.changes && D.changes.regime_change;
-  const rchgTag = rchg ? `<span class="regime-chg">shifted from <b>${rchg.from}</b> ${rchg.days}d ago</span>` : '';
+  const hasDrivers = rchg && rchg.drivers && rchg.drivers.length;
+  const rchgTag = rchg ? `<span class="regime-chg">shifted from <b>${rchg.from}</b> ${rchg.days}d ago${hasDrivers?' <span class="chev" id="rchev">&#9656;</span>':''}</span>` : '';
+  let rdetail = '';
+  if (hasDrivers){
+    const rows = rchg.drivers.map(d =>
+      `<div class="drow"><span class="drow-l">${d.label}</span>`
+      + `<span class="drow-t">${d.axis}</span>`
+      + `<span class="drow-s">${d.from} &rarr; <b>${d.to}</b></span></div>`).join('');
+    rdetail = `<div class="regime-detail"><div class="asig-h">What changed since ${rchg.from}</div>${rows}</div>`;
+  }
   document.getElementById('regime').innerHTML =
-    `<div class="regime-banner">
+    `<div class="regime-banner${hasDrivers?' expandable':''}">
        <div class="regime-top"><span class="regime-tag">Regime</span>`
        + `<h2>${R.name}</h2>`
        + `<span class="regime-sub">growth ${R.growth} &middot; inflation ${R.inflation}</span>${rchgTag}</div>`
      + `<p class="regime-play">${R.playbook}</p>`
      + `<div class="regime-val">Valuations <span class="badge bg-${vcls}">${R.valuation}</span>`
        + `<span class="regime-valnote">${R.valnote}</span></div>`
-     + `</div>`;
+     + rdetail + `</div>`;
+  if (hasDrivers){
+    const rb = document.querySelector('.regime-banner');
+    rb.addEventListener('click', ()=>{
+      rb.classList.toggle('open');
+      const ch = document.getElementById('rchev'); if(ch) ch.classList.toggle('open');
+    });
+  }
 }
 
 const CF = D.confirmation;
