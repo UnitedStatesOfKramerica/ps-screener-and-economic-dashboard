@@ -48,6 +48,8 @@ def _fetch_raw(ind):
         return md.fetch_cape(ind["start"])
     if ind.get("compute") == "concentration":
         return md.fetch_concentration_ratio(ind["start"])
+    if ind.get("compute") == "issuance":
+        return md.fetch_fed_issuance(ind["issuance_col"])
     if ind.get("compute") == "multpl":
         return md.fetch_multpl(ind["url"], ind["start"], ind.get("lo", 3.0),
                                ind.get("hi", 80.0), tag=ind.get("tag", "x"))
@@ -60,7 +62,8 @@ def _fetch_raw(ind):
 
 
 NEEDED = (set(md.GROWTH_MOM) | set(md.INFLATION_MOM) | set(RECESSION)
-          | {"Shiller CAPE", "Market cap / GDP", "SPY/RSP"})
+          | {"Shiller CAPE", "Market cap / GDP", "SPY/RSP",
+             "IPO issuance", "SEO issuance"})
 print("Fetching full history for", len(NEEDED), "series ...")
 RAW = {}
 for sid in NEEDED:
@@ -145,6 +148,11 @@ def concentration_at(as_of):
     return (e["state"], round(e["latest"], 1)) if e else ("n/a", None)
 
 
+def issuance_at(sid, as_of):
+    e = eval_signal(sid, as_of, percentile_state=True)
+    return (e["state"], round(e["latest"], 1)) if e else ("n/a", None)
+
+
 def main():
     print("=" * 100)
     print("HISTORICAL CHECK -- latest-vintage data truncated to each date "
@@ -178,6 +186,17 @@ def main():
     for label, dt in [("dot-com 2000", "2000-03-01"), ("2021 peak", "2021-12-01")]:
         vst, vval = valuation_at(dt)
         print(f"  {label:<16} {dt}: {vst} ({vval})")
+
+    print("\nEquity issuance around the dot-com peak -- this is the one signal in "
+          "this whole check with real data reaching back that far (starts 1994), "
+          "so it should actually show 1999-2000 as elevated/alert, not just cite it:")
+    for label, dt in [("1998 (before)", "1998-06-01"), ("1999 (boom)", "1999-06-01"),
+                       ("2000 peak", "2000-03-01"), ("2001 (bust)", "2001-06-01"),
+                       ("2021 peak", "2021-12-01"), ("latest", DATES[-1])]:
+        ist, ival = issuance_at("IPO issuance", dt)
+        sst, sval = issuance_at("SEO issuance", dt)
+        print(f"  {label:<16} {dt}: IPO {ist} (${ival}B/12mo) | "
+              f"SEO {sst} (${sval}B/12mo)")
 
     print("\nMarket concentration (SPY/RSP, rebased=100 at 2003 launch) -- no data "
           "before 2003, so dot-com can't be checked directly; 2021-2025 should "

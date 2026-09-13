@@ -252,6 +252,29 @@ THEMES = {
                  "source has daily history for this, so unlike the ratio above "
                  "it starts accumulating from today rather than 2003; expect a "
                  "flat, neutral read for the first week or so."},
+        {"id": "IPO issuance", "label": "IPO issuance (trailing 12mo)",
+         "compute": "issuance", "issuance_col": "IPO",
+         "kind": "level", "units": "$B", "worry": "up", "start": "1994-01-01",
+         "pctile": True,
+         "note": "Trailing 12-month sum of new-company IPO proceeds, from the "
+                 "Federal Reserve's own Enhanced Financial Accounts data "
+                 "(federalreserve.gov). A hot IPO market -- lots of new, often "
+                 "unprofitable, story-driven companies going public -- is a "
+                 "classic late-cycle euphoria tell; 1999-2000 is the textbook "
+                 "case, and this series actually reaches back far enough to "
+                 "cover it (starts 1994), unlike the concentration signals "
+                 "above. The Fed only refreshes this file a few times a year, "
+                 "so expect it to hold flat for stretches, then jump -- that's "
+                 "the source's real cadence, not a stuck fetch."},
+        {"id": "SEO issuance", "label": "Secondary offering issuance (trailing 12mo)",
+         "compute": "issuance", "issuance_col": "SEO",
+         "kind": "level", "units": "$B", "worry": "up", "start": "1994-01-01",
+         "pctile": True,
+         "note": "Trailing 12-month sum of follow-on/secondary equity offerings "
+                 "by already-public companies -- same Fed source as IPO "
+                 "issuance above. A distinct signal: this is existing companies "
+                 "raising more capital because conditions are favorable, not "
+                 "new companies debuting. Same refresh-lag caveat applies."},
     ],
 }
 
@@ -1017,6 +1040,65 @@ def fetch_spy_top10():
     return [(d, v) for d, v in history]
 
 
+FED_ISSUANCE_URL = ("https://www.federalreserve.gov/releases/efa/"
+                     "equity-issuance-retirement-monthly-historical.csv")
+
+
+def fetch_fed_issuance(column):
+    """Trailing-12-month sum of monthly IPO or SEO (secondary/follow-on
+    offering) equity issuance, from the Federal Reserve Board's own Enhanced
+    Financial Accounts project (federalreserve.gov -- primary government
+    data, not a licensed index or a redistributor). `column` is "IPO" or
+    "SEO". Monthly figures are lumpy (a few large deals can swing one month
+    a lot), so this sums a trailing 12-month window for a smoother "how much
+    issuance over the last year" read -- same spirit as the other
+    level-based percentile signals here.
+
+    Real coverage starts January 1994 -- genuinely reaches the 1999-2000
+    dot-com IPO boom, unlike the concentration signals above.
+
+    Note: the underlying file only gets refreshed by the Fed a few times a
+    year, not continuously -- expect this to hold flat for stretches, then
+    jump when they republish. That's the source's real update cadence, not
+    a stuck fetch.
+    """
+    import csv
+    import io
+    try:
+        r = requests.get(FED_ISSUANCE_URL, timeout=30,
+                         headers={"User-Agent": "Mozilla/5.0"})
+        r.raise_for_status()
+    except Exception as exc:
+        print(f"  [issuance] fetch failed ({exc})")
+        return []
+    try:
+        rows = list(csv.reader(io.StringIO(r.text)))
+        header = [h.strip() for h in rows[0]]
+        col_i = header.index(f"Issuance, {column}")
+        monthly = []
+        for row in rows[1:]:
+            if len(row) < 3:
+                continue
+            try:
+                d = row[0].strip()
+                v = float(row[col_i].strip())
+            except (ValueError, IndexError):
+                continue
+            monthly.append((d, v))
+    except Exception as exc:
+        print(f"  [issuance] parse failed ({exc})")
+        return []
+    monthly.sort()
+    out = []
+    for i in range(11, len(monthly)):
+        window = monthly[i - 11:i + 1]
+        out.append((window[-1][0], round(sum(v for _, v in window), 2)))
+    if out:
+        print(f"  [issuance] {column} trailing-12mo -> {len(out)} pts; "
+              f"last 3: {out[-3:]}")
+    return out
+
+
 def fetch_sum(ids, start):
     """Sum several FRED series on their common dates (e.g. non-financial +
     financial corporate equities). Returns [] if any input is missing."""
@@ -1090,6 +1172,8 @@ def panel_for(ind, percentile_state=False):
         raw = fetch_concentration_ratio(ind["start"])
     elif ind.get("compute") == "top10":
         raw = fetch_spy_top10()
+    elif ind.get("compute") == "issuance":
+        raw = fetch_fed_issuance(ind["issuance_col"])
     elif ind.get("compute") == "multpl":
         raw = fetch_multpl(ind["url"], ind["start"], ind.get("lo", 3.0),
                            ind.get("hi", 80.0), tag=ind.get("tag", "multpl"))
@@ -1490,7 +1574,7 @@ def build():
                "the market is pricing it too (see the gauges below). De-risking has "
                "confirmation, not just a forecast.")
     elif macro == "risk-off" and not market_riskoff:
-        verdict, tone = "Macro early -- not yet confirmed", "caution"
+        verdict, tone = "Unconfirmed risk-off", "caution"
         msg = ("The macro setup leans risk-off, but the market has not confirmed -- "
                "its risk gauges are mostly still calm (see below). The setup usually "
                "deteriorates ahead of price, so prepare and tighten stops, but the "
