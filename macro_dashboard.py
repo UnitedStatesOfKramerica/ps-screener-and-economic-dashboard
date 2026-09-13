@@ -113,13 +113,13 @@ THEMES = {
          "caution": 0.0, "alert": -2.0,
          "note": "Factory output. Cyclical and timely; turns down early because "
                  "manufacturing leads the broader economy."},
+    ],
+    "Consumer": [
         {"id": "UMCSENT", "label": "Consumer sentiment", "kind": "level",
          "units": "", "worry": "down", "start": "1990-01-01",
          "caution": 70, "alert": 60,
          "note": "University of Michigan survey. Weak and falling sentiment "
                  "precedes pullbacks in consumer spending."},
-    ],
-    "Consumer": [
         {"id": "RRSFS", "label": "Real retail sales (YoY)", "kind": "yoy",
          "units": "%", "worry": "down", "start": "1993-01-01",
          "caution": 1.0, "alert": 0.0,
@@ -199,10 +199,17 @@ THEMES = {
                  "it is easing. Early-cycle hikes are healthy, so weigh this "
                  "alongside where the cycle and valuations sit."},
         {"id": "M2SL", "label": "M2 money supply (YoY)", "kind": "yoy",
-         "units": "%", "worry": None, "start": "1990-01-01",
-         "caution": None, "alert": None,
-         "note": "Money-supply growth. Sharp contraction is unusual and has "
-                 "accompanied tightening cycles."},
+         "units": "%", "worry": "up", "start": "1990-01-01", "pctile": True,
+         "note": "Money-supply growth. The 2021-2022 episode is the strongest "
+                 "recent case for this as a leading inflation indicator -- M2 "
+                 "growth peaked near 27% YoY roughly a year before CPI inflation "
+                 "peaked. But the relationship isn't stable across all periods "
+                 "(money velocity isn't constant), so mainstream economists are "
+                 "genuinely split on how reliable a real-time signal this is "
+                 "outside episodes like that one. Feeds the regime's inflation "
+                 "axis as one vote among several, alongside realized price data "
+                 "and market-based inflation expectations -- not a standalone "
+                 "call."},
     ],
     "Valuation": [
         {"id": "Shiller CAPE", "label": "Shiller CAPE (10-yr P/E)", "compute": "cape",
@@ -608,6 +615,11 @@ ALLOC = {
     "T10Y3M": [("Overall equity exposure", "UW"), ("Long-duration Treasuries", "OW"),
                ("Defensive equities", "OW"), ("Cyclicals & small caps", "UW"),
                ("Energy", "UW"), ("Real assets & commodities", "UW"), ("Value over Growth", "UW")],
+    "T10Y2Y": [("Overall equity exposure", "UW"), ("Long-duration Treasuries", "OW"),
+               ("Defensive equities", "OW"), ("Cyclicals & small caps", "UW"),
+               ("Energy", "UW"), ("Real assets & commodities", "UW"), ("Value over Growth", "UW")],
+    "NFCIRISK": [("Overall equity exposure", "UW"), ("Defensive equities", "OW"), ("Gold", "OW")],
+    "NFCILEVERAGE": [("Overall equity exposure", "UW"), ("High-yield credit", "UW")],
     # Labour / growth / consumer weakening -> defensive, duration
     "SAHMREALTIME": [("Overall equity exposure", "UW"), ("Defensive equities", "OW"),
                      ("Cyclicals & small caps", "UW"), ("Long-duration Treasuries", "OW"),
@@ -619,6 +631,23 @@ ALLOC = {
               ("Energy", "UW"), ("Real assets & commodities", "UW")],
     "NEWORDER": [("Cyclicals & small caps", "UW"), ("Overall equity exposure", "UW")],
     "DRCCLACBS": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "PSAVERT": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "DSPIC96": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "TDSP": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "REVOLSL": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "DRSFRMACBS": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "UMCSENT": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "AWHAETP": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "CCSA": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "JTSQUR": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "LNS13026638": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "LNS12032194": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "HTRUCKSSAAR": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "HOUST": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "MSACSR": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "PERMIT": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
+    "MORTGAGE30US": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW"),
+                      ("Long-duration Treasuries", "UW")],
     "WEI": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"),
             ("Defensive equities", "OW"), ("Long-duration Treasuries", "OW"),
             ("Energy", "UW"), ("Real assets & commodities", "UW"), ("Value over Growth", "UW")],
@@ -649,6 +678,10 @@ SIGNAL_WEIGHT = {
     "CPIAUCSL": 1.25, "PCEPILFE": 1.25, "IC4WSA": 1.25, "CFNAI": 1.25,
     "CORESTICKM159SFRBATL": 1.0, "VIXCLS": 1.0, "NFCICREDIT": 1.0,
     "DCOILWTICO": 1.0, "TEMPHELPS": 1.0, "NEWORDER": 1.0, "DRCCLACBS": 1.0, "RRSFS": 1.0,
+    "PSAVERT": 1.0, "DSPIC96": 1.0, "TDSP": 1.0, "REVOLSL": 1.0, "DRSFRMACBS": 1.0, "UMCSENT": 1.0,
+    "T10Y2Y": 2.0, "NFCIRISK": 1.0, "NFCILEVERAGE": 1.0,
+    "AWHAETP": 1.0, "CCSA": 1.0, "JTSQUR": 1.0, "LNS13026638": 1.0, "LNS12032194": 1.0,
+    "HTRUCKSSAAR": 1.0, "HOUST": 1.0, "MSACSR": 1.0, "PERMIT": 1.0, "MORTGAGE30US": 1.0,
     "FRBATLWGT3MMAWMHWGO": 0.75, "PPIFIS": 0.75, "IR": 0.5,
     "WEI": 1.25, "DRTSCILM": 1.5, "DTWEXBGS": 1.0,
     "Net liquidity": 1.5, "WALCL": 1.0, "JTSJOL": 1.0,
@@ -682,11 +715,27 @@ REGIME_MARGIN = 2
 # too aggressive.
 REGIME_PERSIST_DAYS = 3
 
+# Which theme each signal id lives under, and which themes have a
+# theme_condition() summary -- both computed once from THEMES/DRILLDOWNS so
+# panel_for can report accurate "feeds" disclaimers without hand-maintaining
+# a separate list that could drift out of sync.
+SIGNAL_THEME = {}
+for _theme, _inds in THEMES.items():
+    for _ind in _inds:
+        SIGNAL_THEME[_ind["id"]] = _theme
+for _theme, _inds in DRILLDOWNS.items():
+    for _ind in _inds:
+        SIGNAL_THEME.setdefault(_ind["id"], _theme)
+CONDITION_THEMES = {"Valuation": "the Valuation condition",
+                     "Consumer": "the Consumer condition"}
+
 GROWTH_MOM = ["PAYEMS", "INDPRO", "GDPC1", "CFNAI", "NEWORDER", "RRSFS",
               "UNRATE", "IC4WSA", "SAHMREALTIME", "WEI", "DRTSCILM",
-              "JTSJOL", "HPIPONM226S"]
+              "JTSJOL", "HPIPONM226S", "AWHAETP", "CCSA", "JTSQUR",
+              "LNS13026638", "LNS12032194", "HTRUCKSSAAR", "HOUST",
+              "MSACSR", "PERMIT", "MORTGAGE30US"]
 INFLATION_MOM = ["CPIAUCSL", "PCEPILFE", "T5YIE", "T5YIFR",
-                 "CORESTICKM159SFRBATL", "PPIFIS", "PCETRIM12M159SFRBDAL"]
+                 "CORESTICKM159SFRBATL", "PPIFIS", "PCETRIM12M159SFRBDAL", "M2SL"]
 REGIMES = {
     ("accelerating", "accelerating"): ("Reflation",
         "Growth and inflation both rising -- early-cycle. Historically favours "
@@ -811,6 +860,27 @@ def substate_of(worry, pct):
     if worry == "up":
         return "alert" if pct >= 85 else "caution" if pct >= 65 else "calm"
     return "alert" if pct <= 15 else "caution" if pct <= 35 else "calm"
+
+
+def theme_condition(panels, labels=("extreme", "elevated", "normal")):
+    """Rolls up a theme's panels (headline + drill-down together) into one
+    label, by how many are flashing alert/caution right now. Originally
+    built as the Valuation theme's own extreme/elevated/normal bucketing;
+    generalized so other themes (e.g. Consumer) can get the same kind of
+    aggregate summary with their own wording via `labels`.
+    """
+    hi, mid, lo = labels
+    alert = sum(1 for p in panels if p["state"] == "alert")
+    hot = sum(1 for p in panels if p["state"] in ("alert", "caution"))
+    if alert >= 3:
+        cond = hi
+    elif alert >= 1 or hot >= 3:
+        cond = mid
+    else:
+        cond = lo
+    flashing = [p["label"] for p in panels if p["state"] in ("alert", "caution")]
+    return {"condition": cond, "alert": alert, "hot": hot, "total": len(panels),
+            "flashing": flashing}
 
 
 SHILLER_CAPE_URLS = [
@@ -1257,6 +1327,7 @@ def panel_for(ind, percentile_state=False):
     regime_axes = [ax for ax, lst in (("growth", GROWTH_MOM), ("inflation", INFLATION_MOM))
                    if sid in lst]
     alloc_votes = ALLOC.get(sid, [])
+    condition_label = CONDITION_THEMES.get(SIGNAL_THEME.get(sid))
     panel = {
         "label": ind["label"], "series_id": ind["id"], "units": ind["units"],
         "worry": ind["worry"], "note": ind["note"], "state": st,
@@ -1265,6 +1336,7 @@ def panel_for(ind, percentile_state=False):
         "latest": round(latest, 2), "latest_date": series[-1][0],
         "trend": tr, "deteriorating": deteriorating, "improving": improving,
         "regime_axes": regime_axes, "alloc_votes": alloc_votes,
+        "condition_label": condition_label,
         "points": [[d, round(v, 3)] for d, v in series]}
     return panel, None
 
@@ -1523,25 +1595,30 @@ def build():
                    if raw_name != rname else None)
 
     val_panels = themes_out.get("Valuation", []) + drill_out.get("Valuation", [])
-    v_alert = sum(1 for p in val_panels if p["state"] == "alert")
-    v_hot = sum(1 for p in val_panels if p["state"] in ("alert", "caution"))
-    if v_alert >= 3:
-        valcond = "extreme"
-    elif v_alert >= 1 or v_hot >= 3:
-        valcond = "elevated"
-    else:
-        valcond = "normal"
+    val_cond = theme_condition(val_panels)
+    valcond = val_cond["condition"]
     cape_p = next((p for p in val_panels if p["label"].startswith("Shiller CAPE")), None)
     valnote = (f"Shiller CAPE {cape_p['latest']:.0f}x" if cape_p
                else "market cap/GDP and household equity allocation near records")
+    consumer_panels = themes_out.get("Consumer", []) + drill_out.get("Consumer", [])
+    consumer_cond = theme_condition(consumer_panels, labels=("stressed", "mixed", "healthy"))
     regime = {"name": rname, "growth": growth, "inflation": inflation,
               "playbook": rplay, "valuation": valcond, "valnote": valnote,
+              "val_alert": val_cond["alert"], "val_hot": val_cond["hot"],
+              "val_total": val_cond["total"], "val_flashing": val_cond["flashing"],
+              "consumer": consumer_cond["condition"],
+              "consumer_alert": consumer_cond["alert"], "consumer_hot": consumer_cond["hot"],
+              "consumer_total": consumer_cond["total"],
+              "consumer_flashing": consumer_cond["flashing"],
               "g_worse": g_worse, "g_better": g_better, "g_worse_l": g_worse_l,
               "g_better_l": g_better_l, "i_worse": i_worse, "i_better": i_better,
               "i_worse_l": i_worse_l, "i_better_l": i_better_l,
               "margin": REGIME_MARGIN, "raw_name": raw_name, "pending": pending}
     print(f"  [regime] {rname} (growth {growth}, inflation {inflation}) "
-          f"| valuations {valcond} [growth {g_worse}w/{g_better}b, "
+          f"| valuations {valcond} [{val_cond['alert']}/{val_cond['total']} alert] "
+          f"| consumer {consumer_cond['condition']} "
+          f"[{consumer_cond['alert']}/{consumer_cond['total']} alert] "
+          f"[growth {g_worse}w/{g_better}b, "
           f"inflation {i_worse}w/{i_better}b]")
     print(f"    growth worse:   {', '.join(g_worse_l) or '(none)'}")
     print(f"    growth better:  {', '.join(g_better_l) or '(none)'}")
@@ -1788,7 +1865,7 @@ PAGE = r"""<!DOCTYPE html>
   .regime-top h2 { margin:0; font-size:22px; }
   .regime-sub { color:var(--dim); font-size:12.5px; }
   .regime-play { color:var(--ink); font-size:13px; line-height:1.55; margin:9px 0 10px; max-width:900px; }
-  .regime-val { font-size:12px; color:var(--dim); display:flex; align-items:center; gap:8px; }
+  .regime-val { font-size:12px; color:var(--dim); display:flex; align-items:center; gap:8px; margin-top:4px; }
   .regime-valnote { color:var(--dim); }
   .regime-banner.expandable { cursor:pointer; }
   .regime-detail { display:none; margin-top:11px; padding-top:11px; border-top:1px solid var(--line); }
@@ -1973,6 +2050,7 @@ const stText = s => s==='alert' ? 'danger' : s;
 const R = D.regime;
 if (R){
   const vcls = R.valuation==='extreme'?'alert':R.valuation==='elevated'?'caution':'calm';
+  const ccls = R.consumer==='stressed'?'alert':R.consumer==='mixed'?'caution':'calm';
   const rchg = D.changes && D.changes.regime_change;
   const hasDiff = rchg && rchg.drivers && rchg.drivers.length;
   const rchgTag = rchg ? `<span class="regime-chg">shifted from <b>${rchg.from}</b> ${rchg.days}d ago</span>` : '';
@@ -1982,6 +2060,10 @@ if (R){
     const rows = worseL.map(l=>`<div class="drow"><span class="drow-l">${l}</span><span class="drow-t s-uw">worsening</span></div>`).join('')
                + betterL.map(l=>`<div class="drow"><span class="drow-l">${l}</span><span class="drow-t s-ow">improving</span></div>`).join('');
     return `<div class="regime-axis"><div class="asig-h">${label} &middot; ${worse} worsening / ${better} improving &middot; net ${lead>=0?'+':''}${lead} (flips to ${flipsTo} at +${margin})</div>${rows || '<div class="drow off">No signals moved enough to count either way.</div>'}</div>`;
+  };
+  const condRow = (label, alert, hot, total, flashing) => {
+    const rows = flashing.map(l=>`<div class="drow"><span class="drow-l">${l}</span><span class="drow-t s-uw">flashing</span></div>`).join('');
+    return `<div class="regime-axis"><div class="asig-h">${label} &middot; ${alert} alert / ${hot-alert} caution of ${total} total</div>${rows || '<div class="drow off">Nothing flashing right now.</div>'}</div>`;
   };
   const diffRows = hasDiff ? rchg.drivers.map(d =>
       `<div class="drow"><span class="drow-l">${d.label}</span>`
@@ -1993,6 +2075,8 @@ if (R){
     + (hasDiff ? `<div class="asig-h">What changed since ${rchg.from} (${rchg.days}d ago)</div>${diffRows}<div style="height:10px"></div>` : '')
     + axisRow('Growth', R.g_worse, R.g_better, R.g_worse_l, R.g_better_l, R.margin, 'decelerating')
     + axisRow('Inflation', R.i_worse, R.i_better, R.i_worse_l, R.i_better_l, R.margin, 'accelerating')
+    + condRow('Valuation', R.val_alert, R.val_hot, R.val_total, R.val_flashing)
+    + condRow('Consumer', R.consumer_alert, R.consumer_hot, R.consumer_total, R.consumer_flashing)
     + `</div>`;
 
   document.getElementById('regime').innerHTML =
@@ -2004,6 +2088,8 @@ if (R){
      + `<p class="regime-play">${R.playbook}</p>`
      + `<div class="regime-val">Valuations <span class="badge bg-${vcls}">${R.valuation}</span>`
        + `<span class="regime-valnote">${R.valnote}</span></div>`
+     + `<div class="regime-val">Consumer <span class="badge bg-${ccls}">${R.consumer}</span>`
+       + `<span class="regime-valnote">${R.consumer_alert} alert, ${R.consumer_hot-R.consumer_alert} caution of ${R.consumer_total}</span></div>`
      + rdetail + `</div>`;
   const rb = document.querySelector('.regime-banner');
   rb.addEventListener('click', ()=>{
@@ -2254,6 +2340,8 @@ function feedsText(p){
     const votes = p.alloc_votes.map(v => `${v[0]} (${v[1]})`).join(', ');
     parts.push(`capital allocation: ${votes}`);
   }
+  if (p.condition_label)
+    parts.push(p.condition_label + ' summary');
   if (!parts.length)
     return 'Informational only -- not used in the regime or capital allocation.';
   return 'Feeds ' + parts.join(' &middot; ') + '.';
