@@ -189,7 +189,9 @@ def main():
 
     print("\nEquity issuance around the dot-com peak -- this is the one signal in "
           "this whole check with real data reaching back that far (starts 1994), "
-          "so it should actually show 1999-2000 as elevated/alert, not just cite it:")
+          "so it should actually show 1999-2000 as elevated/alert, not just cite it. "
+          "Note: the Fed only refreshes this source a few times a year, so don't be "
+          "surprised if nearby dates show identical values -- that's the data, not a bug:")
     for label, dt in [("1998 (before)", "1998-06-01"), ("1999 (boom)", "1999-06-01"),
                        ("2000 peak", "2000-03-01"), ("2001 (bust)", "2001-06-01"),
                        ("2021 peak", "2021-12-01"), ("latest", DATES[-1])]:
