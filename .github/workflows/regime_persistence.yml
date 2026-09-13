@@ -1,0 +1,31 @@
+name: Regime persistence backtest (one-off)
+
+# Manual-trigger only -- no schedule. Runs regime_persistence.py once and
+# captures its output in the Actions log. Delete this file and
+# regime_persistence.py once we've read the output; neither is meant to
+# stick around. May take a few minutes -- it's evaluating ~9,700 daily
+# dates, not the usual handful of anchor dates.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install requests xlrd yfinance
+
+      - name: Run regime persistence backtest
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python regime_persistence.py
