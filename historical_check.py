@@ -46,6 +46,8 @@ for _grp in (md.THEMES, md.DRILLDOWNS):
 def _fetch_raw(ind):
     if ind.get("compute") == "cape":
         return md.fetch_cape(ind["start"])
+    if ind.get("compute") == "concentration":
+        return md.fetch_concentration_ratio(ind["start"])
     if ind.get("compute") == "multpl":
         return md.fetch_multpl(ind["url"], ind["start"], ind.get("lo", 3.0),
                                ind.get("hi", 80.0), tag=ind.get("tag", "x"))

@@ -617,6 +617,19 @@ DEADBAND_K = 0.75
 # a bare edge (2 vs 1) is noise and was flipping the regime to false stagflation.
 REGIME_MARGIN = 2
 
+# A raw regime reading only becomes the DISPLAYED regime after holding for this
+# many consecutive daily builds. Backtested empirically (regime_persistence.py,
+# Sept 2026): over 26.7 years of daily readings, 18% of all regime "episodes"
+# lasted <=2 days -- almost entirely rapid Reflation<->Goldilocks flicker, which
+# tracks exactly with the two daily-updating breakeven-inflation signals being
+# the only daily-frequency inputs to the inflation axis while everything else
+# feeding the classifier is monthly/quarterly. Median genuine run length was 21
+# days, so a 3-day confirmation costs little against real shifts while removing
+# that entire noise band. Requiring a full week would have erased 40% of ALL
+# historical episodes, including plenty of plausibly-genuine 3-7 day moves --
+# too aggressive.
+REGIME_PERSIST_DAYS = 3
+
 GROWTH_MOM = ["PAYEMS", "INDPRO", "GDPC1", "CFNAI", "NEWORDER", "RRSFS",
               "UNRATE", "IC4WSA", "SAHMREALTIME", "WEI", "DRTSCILM",
               "JTSJOL", "HPIPONM226S"]
@@ -1214,6 +1227,18 @@ def build():
     print("Building recession-risk dashboard from FRED...")
     failed = []
 
+    # Read history.json early -- the regime-persistence check below needs the
+    # last few days' raw readings, well before the "History & change tracking"
+    # section (which reuses this same list rather than reading the file twice).
+    (OUT / "docs").mkdir(exist_ok=True)
+    hist_path = OUT / "docs/history.json"
+    try:
+        history = json.loads(hist_path.read_text())
+        if not isinstance(history, list):
+            history = []
+    except Exception:
+        history = []
+
     spread = fetch("T10Y3M", "1985-01-01")
     ny_series = []
     if spread:
@@ -1351,7 +1376,34 @@ def build():
     i_worse, i_better, i_worse_l, i_better_l = _mom(INFLATION_MOM)
     growth = "decelerating" if (g_worse - g_better) >= REGIME_MARGIN else "accelerating"
     inflation = "accelerating" if (i_worse - i_better) >= REGIME_MARGIN else "decelerating"
-    rname, rplay = REGIMES[(growth, inflation)]
+    raw_name, raw_play = REGIMES[(growth, inflation)]
+
+    # ---- Persistence: only DISPLAY a regime once it's held for
+    # REGIME_PERSIST_DAYS consecutive raw daily readings (see the constant's
+    # comment for why -- backtested against 26.7 years of daily data). Counts
+    # backward through history (today counts as 1) for a same-raw-reading
+    # streak; if that streak hasn't reached the threshold yet, keep showing
+    # whatever was last actually confirmed instead of flipping immediately.
+    streak = 1
+    for h in reversed(history):
+        if h.get("raw_regime", h.get("regime")) == raw_name:
+            streak += 1
+        else:
+            break
+    if not history or streak >= REGIME_PERSIST_DAYS:
+        rname, rplay, pending = raw_name, raw_play, None
+    else:
+        rname = history[-1]["regime"]
+        cg = history[-1].get("growth", growth)
+        ci = history[-1].get("inflation", inflation)
+        rplay = REGIMES.get((cg, ci), (rname, raw_play))[1]
+        growth, inflation = cg, ci   # display axes match the held-over regime
+        # Only worth flagging as "pending" if confirming the raw reading would
+        # actually change what's displayed -- if raw has wobbled back to
+        # matching the already-displayed regime, there's nothing pending.
+        pending = ({"to": raw_name, "streak": streak, "needed": REGIME_PERSIST_DAYS}
+                   if raw_name != rname else None)
+
     val_panels = themes_out.get("Valuation", []) + drill_out.get("Valuation", [])
     v_alert = sum(1 for p in val_panels if p["state"] == "alert")
     v_hot = sum(1 for p in val_panels if p["state"] in ("alert", "caution"))
@@ -1369,7 +1421,7 @@ def build():
               "g_worse": g_worse, "g_better": g_better, "g_worse_l": g_worse_l,
               "g_better_l": g_better_l, "i_worse": i_worse, "i_better": i_better,
               "i_worse_l": i_worse_l, "i_better_l": i_better_l,
-              "margin": REGIME_MARGIN}
+              "margin": REGIME_MARGIN, "raw_name": raw_name, "pending": pending}
     print(f"  [regime] {rname} (growth {growth}, inflation {inflation}) "
           f"| valuations {valcond} [growth {g_worse}w/{g_better}b, "
           f"inflation {i_worse}w/{i_better}b]")
@@ -1377,6 +1429,9 @@ def build():
     print(f"    growth better:  {', '.join(g_better_l) or '(none)'}")
     print(f"    inflation worse:  {', '.join(i_worse_l) or '(none)'}")
     print(f"    inflation better: {', '.join(i_better_l) or '(none)'}")
+    if pending:
+        print(f"    [regime] raw reading is {raw_name} ({streak}/{REGIME_PERSIST_DAYS} "
+              f"days) -- not yet confirmed, still showing {rname}")
 
     # ---- Market confirmation: does the market's own risk pricing back the macro? ----
     def _mkt_status(sid, up_word):
@@ -1501,15 +1556,10 @@ def build():
         "counts": counts,
         "alloc": {a["bucket"]: [a["lean"], a["conviction"]] for a in allocation},
         "regime": regime["name"], "growth": regime["growth"],
-        "inflation": regime["inflation"]}
-    (OUT / "docs").mkdir(exist_ok=True)
-    hist_path = OUT / "docs/history.json"
-    try:
-        history = json.loads(hist_path.read_text())
-        if not isinstance(history, list):
-            history = []
-    except Exception:
-        history = []
+        "inflation": regime["inflation"], "raw_regime": regime["raw_name"]}
+    # NOTE: `history` here is the SAME list read near the top of build(), before
+    # the regime-persistence check -- not re-read from disk, so there's no
+    # chance of the persistence check and the write seeing different data.
     history = [s for s in history if s.get("date") != today]   # replace same-day re-run
     history.append(snapshot)
     history.sort(key=lambda s: s["date"])
@@ -1817,7 +1867,9 @@ if (R){
       `<div class="drow"><span class="drow-l">${d.label}</span>`
       + `<span class="drow-t">${d.axis}</span>`
       + `<span class="drow-s">${d.from} &rarr; <b>${d.to}</b></span></div>`).join('') : '';
+  const pendingTag = R.pending ? `<span class="regime-chg">watching <b>${R.pending.to}</b> (${R.pending.streak}/${R.pending.needed} days held)</span>` : '';
   const rdetail = `<div class="regime-detail">`
+    + (R.pending ? `<div class="asig-h">Not yet confirmed</div><div class="drow"><span class="drow-l">Raw reading is ${R.pending.to}, but only shows once it holds ${R.pending.needed} consecutive days -- currently ${R.pending.streak}/${R.pending.needed}. Still displaying ${R.name} until then.</span></div><div style="height:10px"></div>` : '')
     + (hasDiff ? `<div class="asig-h">What changed since ${rchg.from} (${rchg.days}d ago)</div>${diffRows}<div style="height:10px"></div>` : '')
     + axisRow('Growth', R.g_worse, R.g_better, R.g_worse_l, R.g_better_l, R.margin, 'decelerating')
     + axisRow('Inflation', R.i_worse, R.i_better, R.i_worse_l, R.i_better_l, R.margin, 'accelerating')
@@ -1828,7 +1880,7 @@ if (R){
        <div class="regime-top"><span class="regime-tag">Regime</span>`
        + `<span class="chev" id="rchev">&#9656;</span>`
        + `<h2>${R.name}</h2>`
-       + `<span class="regime-sub">growth ${R.growth} &middot; inflation ${R.inflation}</span>${rchgTag}</div>`
+       + `<span class="regime-sub">growth ${R.growth} &middot; inflation ${R.inflation}</span>${rchgTag}${pendingTag}</div>`
      + `<p class="regime-play">${R.playbook}</p>`
      + `<div class="regime-val">Valuations <span class="badge bg-${vcls}">${R.valuation}</span>`
        + `<span class="regime-valnote">${R.valnote}</span></div>`
