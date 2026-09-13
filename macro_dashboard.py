@@ -41,6 +41,21 @@ THEMES = {
          "caution": 0.0, "alert": -0.25,
          "note": "The most-watched curve. Un-inverting after an inversion has "
                  "historically been the final warning before recession."},
+        {"id": "DGS10", "label": "10-year Treasury yield (nominal)", "kind": "level",
+         "units": "%", "worry": None, "start": "1985-01-01",
+         "note": "The actual 10-year rate -- what mortgage rates track most "
+                 "closely. Shown as purely informational (no calm/caution/alert "
+                 "badge) because a rising 10-year isn't inherently good or bad; "
+                 "it depends on why it's rising. Compare against the 10-year "
+                 "real yield and 10-year breakeven inflation in the drill-down "
+                 "below: if real yield is doing the moving, it's a growth, "
+                 "policy-expectations, or term-premium story; if breakeven "
+                 "inflation is doing the moving, it's a genuine inflation-fear "
+                 "move -- worse for both bonds and equities. This dashboard "
+                 "can't fully separate growth optimism from Fed-tightening "
+                 "fear from a rising term premium -- all three push real "
+                 "yields up the same way -- so read 'real-yield-driven' as "
+                 "'not an inflation story,' not as an automatic bullish signal."},
         {"id": "BAMLH0A0HYM2", "label": "High-yield credit spread", "kind": "level",
          "units": "%", "worry": "up", "start": "1997-01-01",
          "caution": 5.0, "alert": 7.0,
@@ -442,7 +457,20 @@ DRILLDOWNS = {
          "note": "The 10-year TIPS yield -- interest rates after inflation, and the "
                  "discount rate for every long-duration asset. Rising real yields "
                  "compress valuations and are the true headwind for gold and long "
-                 "bonds; falling real yields are the tailwind."},
+                 "bonds; falling real yields are the tailwind. Paired with the "
+                 "10-year breakeven inflation rate below: when this is the main "
+                 "driver of a nominal 10-year yield move (see the headline card "
+                 "above), it's a growth/policy/term-premium story, not inflation."},
+        {"id": "T10YIE", "label": "10-year breakeven inflation", "kind": "level",
+         "units": "%", "worry": "up", "start": "2003-01-01",
+         "note": "The market's expected average inflation over the next 10 "
+                 "years -- nominal 10-year yield minus the real yield above, "
+                 "maturity-matched so the two combine cleanly. When THIS is the "
+                 "main driver of a nominal 10-year yield move, it's a genuine "
+                 "inflation-fear story: worse for both bonds and equities, and "
+                 "the case for energy/value/TIPS over long-duration bonds and "
+                 "growth. Same concept as the 5-year breakeven elsewhere in this "
+                 "theme, just matched to the 10-year real yield's own maturity."},
         {"id": "DTWEXBGS", "label": "US dollar (broad)", "kind": "level",
          "units": "", "worry": "up", "start": "2006-01-01",
          "note": "The trade-weighted dollar. A rising dollar tightens global "
@@ -559,6 +587,7 @@ ALLOC = {
     # Inflation complex running hot -> away from duration, toward energy/value
     "T5YIE": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"), ("Energy", "OW"), ("Real assets & commodities", "OW")],
     "T5YIFR": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"), ("Energy", "OW"), ("Real assets & commodities", "OW")],
+    "T10YIE": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"), ("Energy", "OW"), ("Real assets & commodities", "OW")],
     "CORESTICKM159SFRBATL": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW")],
     "FRBATLWGT3MMAWMHWGO": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW")],
     "PPIFIS": [("Long-duration Treasuries", "UW"), ("Value over Growth", "OW"), ("Energy", "OW"), ("Real assets & commodities", "OW")],
@@ -616,7 +645,7 @@ ALLOC = {
 SIGNAL_WEIGHT = {
     "T10Y3M": 2.0, "SAHMREALTIME": 2.0,
     "BAMLH0A0HYM2": 1.5, "DFII10": 1.5,
-    "T5YIE": 1.25, "T5YIFR": 1.25, "STLFSI4": 1.25, "NFCI": 1.25,
+    "T5YIE": 1.25, "T5YIFR": 1.25, "T10YIE": 1.25, "STLFSI4": 1.25, "NFCI": 1.25,
     "CPIAUCSL": 1.25, "PCEPILFE": 1.25, "IC4WSA": 1.25, "CFNAI": 1.25,
     "CORESTICKM159SFRBATL": 1.0, "VIXCLS": 1.0, "NFCICREDIT": 1.0,
     "DCOILWTICO": 1.0, "TEMPHELPS": 1.0, "NEWORDER": 1.0, "DRCCLACBS": 1.0, "RRSFS": 1.0,
@@ -1224,6 +1253,10 @@ def panel_for(ind, percentile_state=False):
     crit += (" Colour shows the level; the arrow shows 6-month direction "
              "(worsening or improving) -- a separate axis, so a calm signal can be "
              "worsening and a danger one improving.")
+    sid = ind["id"]
+    regime_axes = [ax for ax, lst in (("growth", GROWTH_MOM), ("inflation", INFLATION_MOM))
+                   if sid in lst]
+    alloc_votes = ALLOC.get(sid, [])
     panel = {
         "label": ind["label"], "series_id": ind["id"], "units": ind["units"],
         "worry": ind["worry"], "note": ind["note"], "state": st,
@@ -1231,6 +1264,7 @@ def panel_for(ind, percentile_state=False):
         "caution": ind.get("caution"), "alert": ind.get("alert"),
         "latest": round(latest, 2), "latest_date": series[-1][0],
         "trend": tr, "deteriorating": deteriorating, "improving": improving,
+        "regime_axes": regime_axes, "alloc_votes": alloc_votes,
         "points": [[d, round(v, 3)] for d, v in series]}
     return panel, None
 
@@ -1740,6 +1774,7 @@ PAGE = r"""<!DOCTYPE html>
   .val small { font-size:13px; color:var(--dim); font-weight:500; }
   .move { font-size:12px; font-weight:600; }
   .asof { color:var(--dim); font-size:11px; }
+  .feeds { color:var(--dim); font-size:11px; margin-top:4px; font-style:italic; }
   .cbox { height:130px; margin-top:10px; position:relative; }
   .note { color:var(--dim); font-size:11.5px; margin-top:9px; line-height:1.45; }
   .calm{color:var(--calm);} .caution{color:var(--caution);} .alert{color:var(--alert);} .neutral{color:var(--neutral);} .dim{color:var(--dim);}
@@ -1926,6 +1961,7 @@ PAGE = r"""<!DOCTYPE html>
     </div>
     <div class="modal-cbox"><canvas id="modal-cv"></canvas></div>
     <div class="modal-note" id="modal-note"></div>
+    <div class="feeds" id="modal-feeds"></div>
   </div>
 </div>
 <script>
@@ -2210,6 +2246,18 @@ function moveInfo(p){
     else if(p.worry==='down') moveCls=d<0?'alert':'calm'; }
   return {mv,moveTxt,moveCls};
 }
+function feedsText(p){
+  const parts = [];
+  if (p.regime_axes && p.regime_axes.length)
+    parts.push(`the regime (${p.regime_axes.join(' + ')} axis)`);
+  if (p.alloc_votes && p.alloc_votes.length){
+    const votes = p.alloc_votes.map(v => `${v[0]} (${v[1]})`).join(', ');
+    parts.push(`capital allocation: ${votes}`);
+  }
+  if (!parts.length)
+    return 'Informational only -- not used in the regime or capital allocation.';
+  return 'Feeds ' + parts.join(' &middot; ') + '.';
+}
 function makeCard(p,cid){
   PANELS[cid] = p;
   const {mv,moveTxt,moveCls} = moveInfo(p);
@@ -2222,7 +2270,8 @@ function makeCard(p,cid){
     ${mv?`<span class="move ${moveCls}">${p.direction==='worsening'?'&#9660; worsening':p.direction==='improving'?'&#9650; improving':'&#8213; steady'} &middot; ${moveTxt}</span>`:''}</div>
     <div class="asof">as of ${p.latest_date}${pctTxt}</div>
     <div class="cbox"><canvas id="cv-${cid}"></canvas><button class="expand" data-cid="${cid}" title="Expand chart" aria-label="Expand chart">&#10530;</button></div>
-    <div class="note">${p.note}</div>`;
+    <div class="note">${p.note}</div>
+    <div class="feeds">${feedsText(p)}</div>`;
   return card;
 }
 function drawSeries(canvasId, p, opts){
@@ -2266,6 +2315,7 @@ function openModal(cid){
   meta += `</span>`;
   document.getElementById('modal-meta').innerHTML = meta;
   document.getElementById('modal-note').textContent = p.note;
+  document.getElementById('modal-feeds').innerHTML = feedsText(p);
   document.getElementById('modal').classList.add('open');
   if(modalChart){ modalChart.destroy(); modalChart = null; }
   modalPanel = p; modalRange = 'max';
