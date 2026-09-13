@@ -1365,7 +1365,11 @@ def build():
     valnote = (f"Shiller CAPE {cape_p['latest']:.0f}x" if cape_p
                else "market cap/GDP and household equity allocation near records")
     regime = {"name": rname, "growth": growth, "inflation": inflation,
-              "playbook": rplay, "valuation": valcond, "valnote": valnote}
+              "playbook": rplay, "valuation": valcond, "valnote": valnote,
+              "g_worse": g_worse, "g_better": g_better, "g_worse_l": g_worse_l,
+              "g_better_l": g_better_l, "i_worse": i_worse, "i_better": i_better,
+              "i_worse_l": i_worse_l, "i_better_l": i_better_l,
+              "margin": REGIME_MARGIN}
     print(f"  [regime] {rname} (growth {growth}, inflation {inflation}) "
           f"| valuations {valcond} [growth {g_worse}w/{g_better}b, "
           f"inflation {i_worse}w/{i_better}b]")
@@ -1620,6 +1624,8 @@ PAGE = r"""<!DOCTYPE html>
   .regime-banner.expandable { cursor:pointer; }
   .regime-detail { display:none; margin-top:11px; padding-top:11px; border-top:1px solid var(--line); }
   .regime-banner.open .regime-detail { display:block; }
+  .regime-axis { margin-bottom:12px; }
+  .regime-axis:last-child { margin-bottom:0; }
   .confirm-banner { background:var(--card); border:1px solid var(--line); border-left-width:4px; border-radius:13px; padding:14px 18px; margin-bottom:18px; }
   .confirm-banner.bd-alert { border-left-color:var(--alert); }
   .confirm-banner.bd-caution { border-left-color:var(--caution); }
@@ -1798,32 +1804,40 @@ const R = D.regime;
 if (R){
   const vcls = R.valuation==='extreme'?'alert':R.valuation==='elevated'?'caution':'calm';
   const rchg = D.changes && D.changes.regime_change;
-  const hasDrivers = rchg && rchg.drivers && rchg.drivers.length;
-  const rchgTag = rchg ? `<span class="regime-chg">shifted from <b>${rchg.from}</b> ${rchg.days}d ago${hasDrivers?' <span class="chev" id="rchev">&#9656;</span>':''}</span>` : '';
-  let rdetail = '';
-  if (hasDrivers){
-    const rows = rchg.drivers.map(d =>
+  const hasDiff = rchg && rchg.drivers && rchg.drivers.length;
+  const rchgTag = rchg ? `<span class="regime-chg">shifted from <b>${rchg.from}</b> ${rchg.days}d ago</span>` : '';
+
+  const axisRow = (label, worse, better, worseL, betterL, margin, flipsTo) => {
+    const lead = worse - better;
+    const rows = worseL.map(l=>`<div class="drow"><span class="drow-l">${l}</span><span class="drow-t s-uw">worsening</span></div>`).join('')
+               + betterL.map(l=>`<div class="drow"><span class="drow-l">${l}</span><span class="drow-t s-ow">improving</span></div>`).join('');
+    return `<div class="regime-axis"><div class="asig-h">${label} &middot; ${worse} worsening / ${better} improving &middot; net ${lead>=0?'+':''}${lead} (flips to ${flipsTo} at +${margin})</div>${rows || '<div class="drow off">No signals moved enough to count either way.</div>'}</div>`;
+  };
+  const diffRows = hasDiff ? rchg.drivers.map(d =>
       `<div class="drow"><span class="drow-l">${d.label}</span>`
       + `<span class="drow-t">${d.axis}</span>`
-      + `<span class="drow-s">${d.from} &rarr; <b>${d.to}</b></span></div>`).join('');
-    rdetail = `<div class="regime-detail"><div class="asig-h">What changed since ${rchg.from}</div>${rows}</div>`;
-  }
+      + `<span class="drow-s">${d.from} &rarr; <b>${d.to}</b></span></div>`).join('') : '';
+  const rdetail = `<div class="regime-detail">`
+    + (hasDiff ? `<div class="asig-h">What changed since ${rchg.from} (${rchg.days}d ago)</div>${diffRows}<div style="height:10px"></div>` : '')
+    + axisRow('Growth', R.g_worse, R.g_better, R.g_worse_l, R.g_better_l, R.margin, 'decelerating')
+    + axisRow('Inflation', R.i_worse, R.i_better, R.i_worse_l, R.i_better_l, R.margin, 'accelerating')
+    + `</div>`;
+
   document.getElementById('regime').innerHTML =
-    `<div class="regime-banner${hasDrivers?' expandable':''}">
+    `<div class="regime-banner expandable">
        <div class="regime-top"><span class="regime-tag">Regime</span>`
+       + `<span class="chev" id="rchev">&#9656;</span>`
        + `<h2>${R.name}</h2>`
        + `<span class="regime-sub">growth ${R.growth} &middot; inflation ${R.inflation}</span>${rchgTag}</div>`
      + `<p class="regime-play">${R.playbook}</p>`
      + `<div class="regime-val">Valuations <span class="badge bg-${vcls}">${R.valuation}</span>`
        + `<span class="regime-valnote">${R.valnote}</span></div>`
      + rdetail + `</div>`;
-  if (hasDrivers){
-    const rb = document.querySelector('.regime-banner');
-    rb.addEventListener('click', ()=>{
-      rb.classList.toggle('open');
-      const ch = document.getElementById('rchev'); if(ch) ch.classList.toggle('open');
-    });
-  }
+  const rb = document.querySelector('.regime-banner');
+  rb.addEventListener('click', ()=>{
+    rb.classList.toggle('open');
+    const ch = document.getElementById('rchev'); if(ch) ch.classList.toggle('open');
+  });
 }
 
 const CF = D.confirmation;
