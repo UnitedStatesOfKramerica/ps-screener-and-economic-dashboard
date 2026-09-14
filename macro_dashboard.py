@@ -670,6 +670,38 @@ ALLOC = {
                              ("Real assets & commodities", "OW")],
 }
 
+# Signals whose allocation vote is symmetric -- they argue FOR a bucket when
+# reading healthy just as they argue against it when deteriorating. The engine
+# auto-generates the reversed vote for these (per bucket) when the signal is
+# improving or sitting calm, so a strong expansion can actually lean the
+# tool bullish (overweight cyclicals/high-yield, underweight defensives)
+# instead of only ever reading "No signal". See _healthy_active in build().
+#
+# Deliberately EXCLUDED (stay one-directional -- absence of alarm is NOT a
+# bullish signal, and mirroring them would manufacture false confidence):
+#   - Recession/tail alarms: Sahm rule, yield-curve inversions (T10Y3M,
+#     T10Y2Y), jobless-claims spikes (IC4WSA, CCSA), the credit/leverage NFCI
+#     subindices (NFCICREDIT, NFCILEVERAGE).
+#   - Liquidity (Net liquidity, WALCL): QE-era distortion makes their
+#     "improving" readings unreliable, so we don't trust the bullish side.
+#   - Inflation/rates signals already vote both ways by construction (e.g.
+#     rising inflation -> overweight energy AND underweight bonds); that's a
+#     genuine economic split, not a simple mirror, so they're not auto-mirrored.
+TWO_DIRECTIONAL = {
+    # Consumer health
+    "DRCCLACBS", "DRSFRMACBS", "DSPIC96", "PSAVERT", "REVOLSL", "RRSFS",
+    "TDSP", "UMCSENT",
+    # Growth / activity
+    "CFNAI", "NEWORDER", "WEI", "HTRUCKSSAAR",
+    # Housing activity
+    "HOUST", "HPIPONM226S", "HSN1F", "MORTGAGE30US", "MSACSR", "PERMIT",
+    # Labour demand
+    "JTSJOL", "JTSQUR", "TEMPHELPS", "AWHAETP", "LNS12032194", "LNS13026638",
+    # Stress / credit that genuinely swing both ways (tight spreads & low
+    # vol are real evidence FOR risk, not just absence of alarm)
+    "BAMLH0A0HYM2", "VIXCLS", "NFCI", "NFCIRISK", "STLFSI4",
+}
+
 # Per-signal weight in the allocation tally -- marquee signals count more than
 # minor ones. Default 1.0 for anything unlisted. Conviction is the weighted margin.
 SIGNAL_WEIGHT = {
@@ -1503,8 +1535,45 @@ def build():
         for bucket, lean in imps:
             bucket_signals[bucket].append((sid, lean))
 
+    # Theme-condition rollups feed allocation too, not just the regime banner.
+    # Stretched valuations argue against broad equity risk and (mildly) for
+    # gold/defensives; a stressed consumer argues against cyclicals and for
+    # defensives. These are computed here (themes are already built above) so
+    # the allocation loop can fold them in as explicit, labelled votes.
+    _val_panels = themes_out.get("Valuation", []) + drill_out.get("Valuation", [])
+    _cons_panels = themes_out.get("Consumer", []) + drill_out.get("Consumer", [])
+    _val_c = theme_condition(_val_panels)
+    _cons_c = theme_condition(_cons_panels, labels=("stressed", "mixed", "healthy"))
+    # condition -> (weight applied). "extreme"/"stressed" fire at full weight,
+    # "elevated"/"mixed" at half; "normal"/"healthy" don't vote.
+    _val_w = {"extreme": 1.5, "elevated": 0.75}.get(_val_c["condition"], 0.0)
+    _cons_w = {"stressed": 1.5, "mixed": 0.75}.get(_cons_c["condition"], 0.0)
+    CONDITION_VOTES = []
+    if _val_w:
+        CONDITION_VOTES += [
+            ("Valuation condition", "Overall equity exposure", "UW", _val_w),
+            ("Valuation condition", "Defensive equities", "OW", _val_w),
+            ("Valuation condition", "Gold", "OW", _val_w)]
+    if _cons_w:
+        CONDITION_VOTES += [
+            ("Consumer condition", "Cyclicals & small caps", "UW", _cons_w),
+            ("Consumer condition", "Defensive equities", "OW", _cons_w),
+            ("Consumer condition", "Overall equity exposure", "UW", _cons_w)]
+    cond_votes_by_bucket = {b: [] for b in ALLOC_BUCKETS}
+    for label, bucket, lean, w in CONDITION_VOTES:
+        cond_votes_by_bucket[bucket].append((label, lean, w))
+
     def _active(p):
+        # "Worsening-active": the signal is moving its worrying way or sitting
+        # at a caution/danger level. This is the original vote trigger.
         return bool(p["deteriorating"] or p["state"] in ("caution", "alert"))
+
+    def _healthy_active(p):
+        # The mirror of _active: the signal is moving its GOOD way or sitting
+        # at a healthy (calm) level. Used only for TWO_DIRECTIONAL signals to
+        # cast a reversed vote -- so a strong, improving economy can actually
+        # argue FOR cyclicals/risk/high-yield, not just fail to argue against.
+        return bool(p["improving"] or p["state"] == "calm")
 
     allocation = []
     for b in ALLOC_BUCKETS:
@@ -1517,18 +1586,47 @@ def build():
             if not p:
                 continue
             w = SIGNAL_WEIGHT.get(sid, 1.0)
-            if lean == "OW":
+            two_dir = sid in TWO_DIRECTIONAL
+            rev = "UW" if lean == "OW" else "OW"
+            # A two-directional signal can push the bucket EITHER way, so it
+            # contributes to whichever possible-total its live reading points
+            # at; a one-directional (tail) signal only ever adds to its own
+            # side. This keeps the conviction denominator honest.
+            if two_dir:
+                ow_possible += w
+                uw_possible += w
+            elif lean == "OW":
                 ow_possible += w
             else:
                 uw_possible += w
-            act = _active(p)
-            if act:
+            worse = _active(p)
+            better = two_dir and _healthy_active(p) and not worse
+            if worse:
                 if lean == "OW":
                     ow += w; n_ow += 1
                 else:
                     uw += w; n_uw += 1
-            drivers.append({"label": p["label"], "lean": lean, "active": act,
-                            "state": p["state"], "weight": w})
+                drivers.append({"label": p["label"], "lean": lean, "active": True,
+                                "state": p["state"], "weight": w})
+            elif better:
+                # Cast the REVERSED vote.
+                if rev == "OW":
+                    ow += w; n_ow += 1
+                else:
+                    uw += w; n_uw += 1
+                drivers.append({"label": p["label"], "lean": rev, "active": True,
+                                "state": p["state"], "weight": w, "mirror": True})
+            else:
+                drivers.append({"label": p["label"], "lean": lean, "active": False,
+                                "state": p["state"], "weight": w})
+        # Fold in theme-condition votes for this bucket (valuation / consumer).
+        for label, lean, w in cond_votes_by_bucket[b]:
+            if lean == "OW":
+                ow_possible += w; ow += w; n_ow += 1
+            else:
+                uw_possible += w; uw += w; n_uw += 1
+            drivers.append({"label": label, "lean": lean, "active": True,
+                            "state": "caution", "weight": w, "condition": True})
         drivers.sort(key=lambda d: (not d["active"], -d["weight"], d["lean"]))
         net = ow - uw
         active_total = ow + uw
@@ -1618,14 +1716,14 @@ def build():
         pending = ({"to": raw_name, "streak": streak, "needed": REGIME_PERSIST_DAYS}
                    if raw_name != rname else None)
 
-    val_panels = themes_out.get("Valuation", []) + drill_out.get("Valuation", [])
-    val_cond = theme_condition(val_panels)
+    # Reuse the conditions already computed above for allocation (identical
+    # inputs -- avoid recomputing and risking drift between the two sections).
+    val_cond = _val_c
     valcond = val_cond["condition"]
-    cape_p = next((p for p in val_panels if p["label"].startswith("Shiller CAPE")), None)
+    cape_p = next((p for p in _val_panels if p["label"].startswith("Shiller CAPE")), None)
     valnote = (f"Shiller CAPE {cape_p['latest']:.0f}x" if cape_p
                else "market cap/GDP and household equity allocation near records")
-    consumer_panels = themes_out.get("Consumer", []) + drill_out.get("Consumer", [])
-    consumer_cond = theme_condition(consumer_panels, labels=("stressed", "mixed", "healthy"))
+    consumer_cond = _cons_c
     regime = {"name": rname, "growth": growth, "inflation": inflation,
               "playbook": rplay, "valuation": valcond, "valnote": valnote,
               "val_alert": val_cond["alert"], "val_hot": val_cond["hot"],
@@ -1965,6 +2063,8 @@ PAGE = r"""<!DOCTYPE html>
   .wchip { font-size:8.5px; text-transform:uppercase; letter-spacing:.04em; padding:1px 5px; border-radius:8px; margin-left:6px; vertical-align:middle; }
   .wchip.key { background:rgba(88,166,255,.14); color:var(--neutral); }
   .wchip.minor { background:var(--line); color:var(--dim); }
+  .wchip.mirror { background:rgba(63,185,80,.14); color:var(--calm); }
+  .wchip.cond { background:rgba(210,153,34,.16); color:var(--caution); }
   .jobs-h { font-size:18px; margin:6px 0 4px; }
   .jobs-sub { color:var(--dim); font-size:12px; margin:0 0 15px; max-width:860px; line-height:1.5; }
   .jobs-list { margin-bottom:30px; }
@@ -2214,7 +2314,7 @@ const allocEl = document.getElementById('alloc');
 if (D.allocation && D.allocation.length){
   const acls = l => l==='Overweight'?'calm':l==='Underweight'?'alert':l==='Balanced'?'caution':'neutral';
   let ah = `<h2 class="alloc-h">Capital Allocation</h2>
-    <p class="alloc-sub">A rules-based read of what the currently-active macro signals lean toward &mdash; not advice, and every driver is shown so you can judge for yourself. A signal counts as &ldquo;active&rdquo; when it is moving its worrying way or sitting at a caution/danger level; the meter shows conviction &mdash; the <b>weighted</b> margin, so heavier signals (the yield curve, Sahm rule, credit spreads) move it more than minor ones. Conviction is scored as a <b>share of what each bucket could possibly signal</b>, not a raw count, so &ldquo;strong&rdquo; means the same thing in a bucket fed by 34 signals as in one fed by 5. <b>Balanced</b> means active signals pull both ways; <b>No signal</b> means nothing mapped here is firing. Tap a card for what the bucket means and every signal feeding it &mdash; dimmed rows are mapped but not currently active.</p>
+    <p class="alloc-sub">A rules-based read of what the currently-active macro signals lean toward &mdash; not advice, and every driver is shown so you can judge for yourself. A signal counts as &ldquo;active&rdquo; when it is moving its worrying way or sitting at a caution/danger level; the meter shows conviction &mdash; the <b>weighted</b> margin, so heavier signals (the yield curve, Sahm rule, credit spreads) move it more than minor ones. Conviction is scored as a <b>share of what each bucket could possibly signal</b>, not a raw count, so &ldquo;strong&rdquo; means the same thing in a bucket fed by 34 signals as in one fed by 5. Most cyclical signals are <b>two-directional</b>: a strong, improving economy argues <i>for</i> cyclicals and risk (shown as a <span class="wchip mirror">reversed</span> vote), not just against defensives &mdash; but pure recession alarms (yield-curve inversion, the Sahm rule) stay one-way, since calm is the absence of danger, not a buy signal. Stretched valuations and a stressed consumer add their own <span class="wchip cond">condition</span> votes. <b>Balanced</b> means active signals pull both ways; <b>No signal</b> means nothing mapped here is firing. Tap a card for what the bucket means and every signal feeding it &mdash; dimmed rows are mapped but not currently active.</p>
     <div class="alloc-grid">`;
   const allocCh = {}; (CH.alloc_changes||[]).forEach(c=>allocCh[c.bucket]=c);
   D.allocation.forEach((a,ai)=>{
@@ -2235,10 +2335,14 @@ if (D.allocation && D.allocation.length){
     a.drivers.forEach(d=>{
       const wt = d.weight>=1.5 ? '<span class="wchip key">key</span>'
                : d.weight<=0.75 ? '<span class="wchip minor">minor</span>' : '';
+      const tag = d.mirror ? '<span class="wchip mirror">reversed</span>'
+                : d.condition ? '<span class="wchip cond">condition</span>' : '';
+      const verdict = d.mirror ? 'healthy' : d.condition ? 'firing'
+                    : (d.active ? stText(d.state) : 'inactive');
       rows += `<div class="drow ${d.active?'':'off'}"><span class="dot" style="background:${css('--'+d.state)}"></span>`
-           + `<span class="drow-l">${d.label}${wt}</span>`
+           + `<span class="drow-l">${d.label}${wt}${tag}</span>`
            + `<span class="drow-t ${d.lean==='OW'?'s-ow':'s-uw'}">${d.lean==='OW'?'overweight':'underweight'}</span>`
-           + `<span class="drow-s">${d.active?stText(d.state):'inactive'}</span></div>`;
+           + `<span class="drow-s">${verdict}</span></div>`;
     });
     if (!a.drivers.length) rows = `<div class="drow off">No signals mapped to this bucket yet.</div>`;
     const detail = `<div class="alloc-detail"><p class="alloc-def">${a.definition||''}</p>`
