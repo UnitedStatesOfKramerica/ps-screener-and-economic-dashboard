@@ -1821,9 +1821,19 @@ def build():
                "gauges below). Either the macro catches down or this is a passing "
                "scare -- credit and price usually lead, so respect it.")
     elif macro == "risk-on":
-        verdict, tone = "Confirmed risk-on", "calm"
-        msg = ("Macro and the market agree -- conditions benign and the market calm. "
-               "Risk-on tilts have confirmation.")
+        if valcond == "extreme":
+            verdict, tone = "Risk-on, but valuations extreme", "caution"
+            msg = ("Momentum and market pricing both read calm -- that part is real, not "
+                   "a false signal. But valuations are in the extreme tier (see the "
+                   "Valuation condition above), and a calm market doesn't offset that; it's "
+                   "a separate, slower-moving risk this verdict shouldn't paper over. "
+                   "Backtested directly: at the actual 2000, 2007, and 2021 market peaks, "
+                   "the read was already risk-off before this gate ever mattered -- its "
+                   "whole effect is during the buildup phase, like this one, not at the top.")
+        else:
+            verdict, tone = "Confirmed risk-on", "calm"
+            msg = ("Macro and the market agree -- conditions benign and the market calm. "
+                   "Risk-on tilts have confirmation.")
     else:
         verdict = "Market pricing risk" if market_riskoff else "Market calm"
         tone = "caution" if market_riskoff else "calm"
