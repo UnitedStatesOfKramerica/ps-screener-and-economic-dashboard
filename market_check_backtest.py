@@ -196,6 +196,20 @@ def market_check_at(as_of, sp500_raw, alloc_results):
     return verdict, macro, n_hot, total
 
 
+def gated_verdict(verdict, val_condition):
+    """PROPOSED CHANGE, not yet live: downgrades 'Confirmed risk-on' to a
+    qualified state when Valuation reads 'extreme'. Deliberately does NOT
+    touch the underlying vote math (2007/GFC showed that's accurate) -- this
+    only stops the LABEL from claiming 'confirmed, all clear' when a known
+    slow-moving risk factor is flashing. Every other verdict passes through
+    unchanged, including 'Confirmed risk-on' when valuation is merely
+    'elevated' or 'normal'.
+    """
+    if verdict == "Confirmed risk-on" and val_condition == "extreme":
+        return "Risk-on, but valuations extreme"
+    return verdict
+
+
 def weekly_dates(start, end):
     d, out = start, []
     while d <= end:
@@ -228,41 +242,77 @@ KEY_BUCKETS = ["Overall equity exposure", "Value over Growth", "Gold",
                "Cyclicals & small caps", "Defensive equities"]
 
 verdict_counts_by_window = {}
+gated_counts_by_window = {}
+flip_examples_by_window = {}   # first/last week of each contiguous flip run, per era
 
 for label, start, end in WINDOWS:
     dates = weekly_dates(start, end)
     print(f"\n{'=' * 100}")
     print(f"{label} -- weekly, {dates[0]} to {dates[-1]} ({len(dates)} dates)")
     print(f"{'=' * 100}")
-    hdr = (f"{'date':<12}{'macro':<10}{'gauges':<8}{'verdict':<26}"
-           f"{'OEE':<12}{'Value/Gr':<12}{'Gold':<12}{'ValCond':<10}{'ConsCond':<10}")
-    print(hdr)
-    print("-" * len(hdr))
-    counts = {}
+    counts, gcounts = {}, {}
+    flips = []            # list of (start_date, end_date, run_length) for flipped runs
+    run_start = None
     for k, dt in enumerate(dates):
         alloc, val_c, cons_c = allocation_at(dt)
         verdict, macro, n_hot, total = market_check_at(dt, SP500_RAW, alloc)
+        gv = gated_verdict(verdict, val_c["condition"])
         counts[verdict] = counts.get(verdict, 0) + 1
-        oee = alloc["Overall equity exposure"]["lean"]
-        vog = alloc["Value over Growth"]["lean"]
-        gold = alloc["Gold"]["lean"]
-        print(f"{dt:<12}{macro:<10}{f'{n_hot}/{total}':<8}{verdict:<26}"
-              f"{oee:<12}{vog:<12}{gold:<12}{val_c['condition']:<10}{cons_c['condition']:<10}")
-        if (k + 1) % 50 == 0:
+        gcounts[gv] = gcounts.get(gv, 0) + 1
+        flipped = (gv != verdict)
+        if flipped and run_start is None:
+            run_start = dt
+        if not flipped and run_start is not None:
+            flips.append((run_start, dates[k - 1]))
+            run_start = None
+        if (k + 1) % 100 == 0:
             print(f"  ... {k + 1}/{len(dates)}")
+    if run_start is not None:
+        flips.append((run_start, dates[-1]))
     verdict_counts_by_window[label] = counts
+    gated_counts_by_window[label] = gcounts
+    flip_examples_by_window[label] = flips
 
 print(f"\n{'=' * 100}")
-print("SUMMARY -- verdict frequency by era")
+print("COMPARISON -- verdict frequency, BEFORE vs AFTER the proposed valuation gate")
 print(f"{'=' * 100}")
-for label, counts in verdict_counts_by_window.items():
+for label in verdict_counts_by_window:
+    counts, gcounts = verdict_counts_by_window[label], gated_counts_by_window[label]
     total = sum(counts.values())
+    before_riskon = counts.get("Confirmed risk-on", 0)
+    after_riskon = gcounts.get("Confirmed risk-on", 0)
+    after_qualified = gcounts.get("Risk-on, but valuations extreme", 0)
     print(f"\n{label} ({total} weeks):")
-    for v, c in sorted(counts.items(), key=lambda x: -x[1]):
-        print(f"  {v:<26} {c:>4}  ({c/total*100:.0f}%)")
+    print(f"  BEFORE -- 'Confirmed risk-on': {before_riskon} weeks ({before_riskon/total*100:.0f}%)")
+    print(f"  AFTER  -- 'Confirmed risk-on': {after_riskon} weeks ({after_riskon/total*100:.0f}%)   "
+          f"'Risk-on, but valuations extreme': {after_qualified} weeks ({after_qualified/total*100:.0f}%)")
+    pct_downgraded = (after_qualified / before_riskon * 100) if before_riskon else 0.0
+    print(f"  -> {after_qualified} of the original {before_riskon} risk-on weeks "
+          f"({pct_downgraded:.0f}%) get downgraded")
+    flips = flip_examples_by_window[label]
+    print(f"  Contiguous flipped stretches: {len(flips)}")
+    for s, e in flips:
+        print(f"    {s} to {e}")
 
 print(f"\n{'=' * 100}")
-print("DEEP DIVE -- full 9-bucket allocation at named reference dates")
+print("OVER-TRIGGER CHECK -- does the gate ever fire outside the 3 known crisis eras'")
+print("bubble buildups? (spot-checking calmer stretches within each window)")
+print(f"{'=' * 100}")
+CALM_CHECK_DATES = [
+    ("2003-06-01", "post dot-com bust recovery, should NOT be extreme"),
+    ("2009-06-01", "post-GFC trough recovery, should NOT be extreme"),
+    ("2013-06-01", "mid-cycle expansion, should NOT be extreme"),
+    ("2017-06-01", "mid-cycle expansion, should NOT be extreme"),
+]
+for dt, why in CALM_CHECK_DATES:
+    alloc, val_c, cons_c = allocation_at(dt)
+    verdict, macro, n_hot, total = market_check_at(dt, SP500_RAW, alloc)
+    gv = gated_verdict(verdict, val_c["condition"])
+    flag = "  <-- GATE FIRED HERE" if gv != verdict else ""
+    print(f"  {dt} ({why}): valcond={val_c['condition']:<10} verdict={verdict:<20} gated={gv}{flag}")
+
+print(f"\n{'=' * 100}")
+print("DEEP DIVE -- reference dates, BEFORE vs AFTER")
 print(f"{'=' * 100}")
 REFERENCE_DATES = [
     ("1999-12-01", "pre dot-com peak"),
@@ -277,12 +327,8 @@ REFERENCE_DATES = [
 for dt, why in REFERENCE_DATES:
     alloc, val_c, cons_c = allocation_at(dt)
     verdict, macro, n_hot, total = market_check_at(dt, SP500_RAW, alloc)
-    print(f"\n--- {dt} ({why}) ---")
-    print(f"  Market check: {verdict}  (macro={macro}, gauges {n_hot}/{total} hot)")
-    print(f"  Valuation condition: {val_c['condition']}  "
-          f"({val_c['alert']} alert / {val_c['hot']-val_c['alert']} caution of {val_c['total']})")
-    print(f"  Consumer condition:  {cons_c['condition']}  "
-          f"({cons_c['alert']} alert / {cons_c['hot']-cons_c['alert']} caution of {cons_c['total']})")
-    for b in md.ALLOC_BUCKETS:
-        a = alloc[b]
-        print(f"    {b:<32} {a['lean']:<12} net={a['net']:+.2f}")
+    gv = gated_verdict(verdict, val_c["condition"])
+    changed = " <-- CHANGED" if gv != verdict else ""
+    print(f"  {dt:<12} ({why})")
+    print(f"    valuation={val_c['condition']:<10} BEFORE={verdict:<20} AFTER={gv}{changed}")
+
