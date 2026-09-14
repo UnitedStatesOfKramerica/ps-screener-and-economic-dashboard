@@ -587,7 +587,7 @@ BUCKET_DEF = {
     "Cyclicals & small caps": "Economically-sensitive stocks -- industrials, materials, discretionary, small caps -- that need growth and easy credit. Underweight when the cycle turns down.",
     "High-yield credit": "Below-investment-grade corporate bonds. Underweight when spreads widen or credit conditions tighten, because default risk and drawdowns rise together.",
     "Real assets & commodities": "Commodities, TIPS, real estate and infrastructure -- assets whose real value holds through inflation. Overweight when realised and expected inflation are rising.",
-    "Gold": "A monetary and tail hedge that tracks real interest rates and stress, not inflation itself. It rises when real yields fall or fear spikes, and stalls when real yields climb -- which is why it went nowhere in 2022 despite high inflation.",
+    "Gold": "A monetary and tail hedge that tracks real interest rates and stress, not inflation itself. It rises when real yields fall or fear spikes, and stalls when real yields climb -- which is why it went nowhere in 2022 despite high inflation. Three legs drive the read: real rates (10-year real yield, Fed funds direction) push it down when rising; stress (financial stress index, VIX, NFCI risk subindex, high-yield credit spreads) pushes it up; a strengthening dollar pushes it down. Inflation expectations are deliberately NOT wired in -- gold's relationship runs through real yields, so adding breakevens would double-count that leg and reintroduce the 2022 error.",
 }
 
 ALLOC = {
@@ -606,7 +606,8 @@ ALLOC = {
     "DFII10": [("Gold", "UW"), ("Long-duration Treasuries", "UW"), ("Value over Growth", "OW")],
     # Financial stress / tightening -> risk-off, safe havens
     "BAMLH0A0HYM2": [("Overall equity exposure", "UW"), ("High-yield credit", "UW"),
-                     ("Defensive equities", "OW"), ("Long-duration Treasuries", "OW")],
+                     ("Defensive equities", "OW"), ("Long-duration Treasuries", "OW"),
+                     ("Gold", "OW")],
     "NFCI": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
     "NFCICREDIT": [("High-yield credit", "UW"), ("Cyclicals & small caps", "UW"), ("Overall equity exposure", "UW")],
     "STLFSI4": [("Overall equity exposure", "UW"), ("High-yield credit", "UW"), ("Defensive equities", "OW"),
@@ -656,7 +657,7 @@ ALLOC = {
                  ("Long-duration Treasuries", "OW"), ("Value over Growth", "UW")],
     "DTWEXBGS": [("Energy", "UW"), ("Real assets & commodities", "UW"), ("Gold", "UW")],
     "RRSFS": [("Cyclicals & small caps", "UW"), ("Defensive equities", "OW")],
-    "FEDFUNDS": [("Overall equity exposure", "UW")],
+    "FEDFUNDS": [("Overall equity exposure", "UW"), ("Gold", "UW")],
     "Net liquidity": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW"),
                       ("High-yield credit", "UW")],
     "WALCL": [("Overall equity exposure", "UW"), ("Cyclicals & small caps", "UW")],
