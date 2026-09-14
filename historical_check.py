@@ -50,6 +50,14 @@ def _fetch_raw(ind):
         return md.fetch_concentration_ratio(ind["start"])
     if ind.get("compute") == "issuance":
         return md.fetch_fed_issuance(ind["issuance_col"])
+    if ind.get("compute") == "combine":
+        return md.combine_series(ind["parts"], ind["start"], ind.get("ratio_scale", 1.0))
+    if ind.get("compute") == "margin":
+        return md.fetch_finra_margin(ind["start"])
+    if ind.get("compute") == "ecy":
+        return md.fetch_ecy(ind["start"])
+    if ind.get("compute") == "top10":
+        return []   # no historical source exists -- accumulates live only, see its own docstring
     if ind.get("compute") == "multpl":
         return md.fetch_multpl(ind["url"], ind["start"], ind.get("lo", 3.0),
                                ind.get("hi", 80.0), tag=ind.get("tag", "x"))
@@ -61,9 +69,19 @@ def _fetch_raw(ind):
     return md.fetch(ind["id"], ind["start"])
 
 
+# Full universe needed for the regime AND the market-check/capital-allocation
+# backtests: every ALLOC signal, every Valuation and Consumer signal (their
+# theme_condition() rollups vote in allocation), plus the market-check
+# gauges (BAMLH0A0HYM2 is already in ALLOC; VIXCLS/STLFSI4/SP500 are not).
+_VAL_CONS_IDS = set()
+for _t in ("Valuation", "Consumer"):
+    for _lst in (md.THEMES.get(_t, []), md.DRILLDOWNS.get(_t, [])):
+        _VAL_CONS_IDS |= {_i["id"] for _i in _lst}
+
 NEEDED = (set(md.GROWTH_MOM) | set(md.INFLATION_MOM) | set(RECESSION)
+          | set(md.ALLOC.keys()) | _VAL_CONS_IDS
           | {"Shiller CAPE", "Market cap / GDP", "SPY/RSP",
-             "IPO issuance", "SEO issuance"})
+             "IPO issuance", "SEO issuance", "VIXCLS", "STLFSI4"})
 print("Fetching full history for", len(NEEDED), "series ...")
 RAW = {}
 for sid in NEEDED:
