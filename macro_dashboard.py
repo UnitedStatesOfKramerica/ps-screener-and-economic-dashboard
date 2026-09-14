@@ -1735,7 +1735,9 @@ def build():
               "g_worse": g_worse, "g_better": g_better, "g_worse_l": g_worse_l,
               "g_better_l": g_better_l, "i_worse": i_worse, "i_better": i_better,
               "i_worse_l": i_worse_l, "i_better_l": i_better_l,
-              "margin": REGIME_MARGIN, "raw_name": raw_name, "pending": pending}
+              "margin": REGIME_MARGIN, "raw_name": raw_name, "pending": pending,
+              "all_regimes": [{"name": nm, "growth": g, "inflation": i, "playbook": pb}
+                             for (g, i), (nm, pb) in REGIMES.items()]}
     print(f"  [regime] {rname} (growth {growth}, inflation {inflation}) "
           f"| valuations {valcond} [{val_cond['alert']}/{val_cond['total']} alert] "
           f"| consumer {consumer_cond['condition']} "
@@ -1993,6 +1995,8 @@ PAGE = r"""<!DOCTYPE html>
   .regime-detail { display:none; margin-top:11px; padding-top:11px; border-top:1px solid var(--line); }
   .regime-banner.open .regime-detail { display:block; }
   .regime-axis { margin-bottom:12px; }
+  .regime-glossary-axes { color:var(--dim); font-size:11px; }
+  .regime-glossary-play { color:var(--dim); font-size:11px; line-height:1.5; margin:2px 0 10px 0; padding-left:2px; }
   .regime-axis:last-child { margin-bottom:0; }
   .confirm-banner { background:var(--card); border:1px solid var(--line); border-left-width:4px; border-radius:13px; padding:14px 18px; margin-bottom:18px; }
   .confirm-banner.bd-alert { border-left-color:var(--alert); }
@@ -2194,6 +2198,11 @@ if (R){
       + `<span class="drow-t">${d.axis}</span>`
       + `<span class="drow-s">${d.from} &rarr; <b>${d.to}</b></span></div>`).join('') : '';
   const pendingTag = R.pending ? `<span class="regime-chg">watching <b>${R.pending.to}</b> (${R.pending.streak}/${R.pending.needed} days held)</span>` : '';
+  const glossaryRows = (R.all_regimes || []).map(rg => {
+    const isCurrent = rg.name === R.name;
+    return `<div class="drow${isCurrent ? '' : ' off'}"><span class="drow-l">${isCurrent ? '<b>&#9656; ' + rg.name + '</b>' : rg.name} <span class="regime-glossary-axes">(${rg.growth} growth, ${rg.inflation} inflation)</span></span></div>`
+         + `<div class="regime-glossary-play">${rg.playbook}</div>`;
+  }).join('');
   const rdetail = `<div class="regime-detail">`
     + (R.pending ? `<div class="asig-h">Not yet confirmed</div><div class="drow"><span class="drow-l">Raw reading is ${R.pending.to}, but only shows once it holds ${R.pending.needed} consecutive days -- currently ${R.pending.streak}/${R.pending.needed}. Still displaying ${R.name} until then.</span></div><div style="height:10px"></div>` : '')
     + (hasDiff ? `<div class="asig-h">What changed since ${rchg.from} (${rchg.days}d ago)</div>${diffRows}<div style="height:10px"></div>` : '')
@@ -2201,6 +2210,7 @@ if (R){
     + axisRow('Inflation', R.i_worse, R.i_better, R.i_worse_l, R.i_better_l, R.margin, 'accelerating')
     + condRow('Valuation', R.val_alert, R.val_hot, R.val_total, R.val_flashing)
     + condRow('Consumer', R.consumer_alert, R.consumer_hot, R.consumer_total, R.consumer_flashing)
+    + `<div class="asig-h">All 4 regimes (current one marked)</div>${glossaryRows}`
     + `</div>`;
 
   document.getElementById('regime').innerHTML =
