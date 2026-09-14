@@ -1,0 +1,29 @@
+name: Regime actionability backtest (one-off)
+
+# Manual-trigger only. Runs regime_actionability_backtest.py once and
+# captures its output in the Actions log. Delete this file and
+# regime_actionability_backtest.py once we've read the output.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install requests xlrd yfinance openpyxl
+
+      - name: Run regime actionability backtest
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python regime_actionability_backtest.py
