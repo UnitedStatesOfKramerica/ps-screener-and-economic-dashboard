@@ -1,89 +1,141 @@
 """
-Regime persistence backtest -- NOT part of the live dashboard, and separate
-from historical_check.py's own crisis-anchored checks.
+Regime persistence + margin calibration backtest -- NOT part of the live
+dashboard. Run once, paste the full output back.
 
-The question this answers: historically, how often has this regime
-classifier flipped for only a day or two before reverting? DEADBAND_K and
-REGIME_MARGIN were tuned against known crisis dates (does the classifier
-read correctly at 2000/2008/2020/2022) -- that is a DIFFERENT question from
-"how long does an assigned regime typically last before flipping again,"
-which has never been measured. If short-lived regimes turn out to be
-common, a persistence requirement (only change the displayed regime after
-N consecutive daily readings agree) is justified, and this shows what N
-would actually filter out. If they're rare, the current instant-flip
-design already matches what the backtest validated, and adding a delay
-would just slow down real signal for no real benefit.
+WHY THIS IS BEING RE-RUN: the earlier version of this script was run when
+GROWTH_MOM had 13 signals and INFLATION_MOM had 7. Wiring up previously
+unused signals took those to 23 and 8. DEADBAND_K, REGIME_MARGIN and the
+3-day persistence rule were all calibrated against the OLD set, so those
+numbers no longer describe the classifier that is actually running.
 
-This evaluates the regime DAILY (not weekly) over ~26 years, because the
-concrete worry is day-to-day noise: two of the seven INFLATION_MOM signals
-(T5YIE, T5YIFR) update daily while the rest are monthly/quarterly, so a
-regime can mechanically flip between two calendar days even though nothing
-else in the picture changed. Weekly sampling would hide exactly that.
+It now answers three questions in one pass instead of one:
 
-Runtime: a few thousand dates x ~20 signals each -- expect low single-digit
-minutes, not seconds. Progress prints every 500 dates so it's clear it's
-still working.
+  1. With the CURRENT signal set, how often does the regime flip for only a
+     day or two? (Re-measures what the 3-day persistence rule was based on.)
 
-Run: python regime_persistence.py   (needs FRED_API_KEY, same as
-                                      historical_check.py; must sit next to
-                                      macro_dashboard.py and
-                                      historical_check.py)
+  2. Is a flat REGIME_MARGIN=2 right for both axes now that growth has 23
+     signals and inflation has 8? A net-2 margin is 8.7% of the growth axis
+     but 25% of the inflation axis -- growth is now ~3x easier to flip. This
+     grid-tests margin combinations so the constant can be chosen from data
+     rather than guessed.
+
+  3. For whichever margin looks best, what persistence threshold actually
+     filters the noise?
+
+Efficiency note: momentum counts are evaluated ONCE per date (the expensive
+part), then every margin combination is re-derived from those cached counts.
+So testing 12 configurations costs barely more than testing one.
+
+Run: python regime_persistence.py   (needs FRED_API_KEY; must sit next to
+                                      macro_dashboard.py and historical_check.py)
 """
 import historical_check as hc
+import macro_dashboard as md
 from datetime import datetime, timedelta
 
 START = datetime(2000, 1, 1)
-END = datetime(2026, 9, 12)     # today
-STEP_DAYS = 1
+END = datetime(2026, 9, 12)
 
 dates = []
 d = START
 while d <= END:
     dates.append(d.strftime("%Y-%m-%d"))
-    d += timedelta(days=STEP_DAYS)
+    d += timedelta(days=1)
 
-print(f"Evaluating regime at {len(dates)} daily dates, {dates[0]} to {dates[-1]} ...")
-seq = []
+print(f"Signal set under test: {len(md.GROWTH_MOM)} growth, "
+      f"{len(md.INFLATION_MOM)} inflation")
+print(f"Evaluating {len(dates)} daily dates, {dates[0]} to {dates[-1]} ...")
+
+counts = []
 for k, dt in enumerate(dates):
-    name, *_ = hc.regime_at(dt)
-    seq.append((dt, name))
-    if (k + 1) % 500 == 0:
+    _, _, _, gw, gb, iw, ib = hc.regime_at(dt)
+    counts.append((dt, gw, gb, iw, ib))
+    if (k + 1) % 1000 == 0:
         print(f"  ... {k + 1}/{len(dates)}")
 
-# ---- Run-length analysis: consecutive stretches of the same regime ----
-runs = []
-cur_regime, cur_start = seq[0][1], seq[0][0]
-length = 1
-for k in range(1, len(seq)):
-    dt, name = seq[k]
-    if name == cur_regime:
-        length += 1
-    else:
-        runs.append((cur_regime, cur_start, seq[k - 1][0], length))
-        cur_regime, cur_start, length = name, dt, 1
-runs.append((cur_regime, cur_start, seq[-1][0], length))
 
-print(f"\n{len(runs)} total regime runs over {len(dates)} daily readings "
-      f"({dates[0]} to {dates[-1]})")
-print(f"{'regime':<24}{'start':<12}{'end':<12}{'days':<8}")
-print("-" * 60)
-for regime, start, end, days in runs:
-    flag = "  <-- <=2-DAY BLIP" if days <= 2 else ""
-    print(f"{regime:<24}{start:<12}{end:<12}{days:<8}{flag}")
+def regimes_for(g_margin, i_margin):
+    seq = []
+    for dt, gw, gb, iw, ib in counts:
+        growth = "decelerating" if (gw - gb) >= g_margin else "accelerating"
+        infl = "accelerating" if (iw - ib) >= i_margin else "decelerating"
+        seq.append((dt, md.REGIMES[(growth, infl)][0]))
+    return seq
 
-lengths = [r[3] for r in runs]
-one_day = sum(1 for l in lengths if l == 1)
-two_or_fewer = sum(1 for l in lengths if l <= 2)
-week_or_fewer = sum(1 for l in lengths if l <= 7)
-print("\n--- Summary ---")
-print(f"Total runs: {len(runs)}")
-print(f"1-day runs (caught by requiring 2 consecutive daily readings to agree): "
-      f"{one_day} ({one_day / len(runs) * 100:.0f}%)")
-print(f"<=2-day runs (caught by requiring 3 consecutive readings): "
-      f"{two_or_fewer} ({two_or_fewer / len(runs) * 100:.0f}%)")
-print(f"<=1-week runs (caught by requiring 8 consecutive readings): "
-      f"{week_or_fewer} ({week_or_fewer / len(runs) * 100:.0f}%)")
-print(f"Median run length: {sorted(lengths)[len(lengths) // 2]} days")
-longest = max(lengths)
-print(f"Longest run: {longest} days "
-      f"({[r for r in runs if r[3] == longest][0][0]})")
+
+def runs_of(seq):
+    runs = []
+    cur, start, length = seq[0][1], seq[0][0], 1
+    for k in range(1, len(seq)):
+        dt, name = seq[k]
+        if name == cur:
+            length += 1
+        else:
+            runs.append((cur, start, seq[k - 1][0], length))
+            cur, start, length = name, dt, 1
+    runs.append((cur, start, seq[-1][0], length))
+    return runs
+
+
+print("\n" + "=" * 78)
+print("PART 1 -- MARGIN GRID (how stable is each configuration?)")
+print("=" * 78)
+print(f"{'g_margin':>9}{'i_margin':>9}{'runs':>7}{'median':>8}{'1-day':>8}"
+      f"{'<=2day':>8}{'<=7day':>8}")
+print("-" * 78)
+grid = {}
+for gm in (2, 3, 4, 5):
+    for im in (2, 3):
+        seq = regimes_for(gm, im)
+        runs = runs_of(seq)
+        L = [r[3] for r in runs]
+        med = sorted(L)[len(L) // 2]
+        one = sum(1 for x in L if x == 1)
+        two = sum(1 for x in L if x <= 2)
+        wk = sum(1 for x in L if x <= 7)
+        grid[(gm, im)] = runs
+        mark = "  <-- CURRENT" if (gm, im) == (md.REGIME_MARGIN, md.REGIME_MARGIN) else ""
+        print(f"{gm:>9}{im:>9}{len(runs):>7}{med:>8}"
+              f"{one:>7}{'':1}{two:>7}{'':1}{wk:>7}{mark}")
+
+print("\nProportional alternative (margin scaled to axis size, ~15% of signals):")
+gm_prop = max(2, round(0.15 * len(md.GROWTH_MOM)))
+im_prop = max(2, round(0.15 * len(md.INFLATION_MOM)))
+print(f"  would be g_margin={gm_prop}, i_margin={im_prop}")
+seq = regimes_for(gm_prop, im_prop)
+runs = runs_of(seq)
+L = [r[3] for r in runs]
+print(f"  runs={len(runs)}  median={sorted(L)[len(L)//2]}d  "
+      f"1-day={sum(1 for x in L if x==1)}  <=2day={sum(1 for x in L if x<=2)}")
+grid[(gm_prop, im_prop)] = runs
+
+print("\n" + "=" * 78)
+print(f"PART 2 -- RUN DETAIL at the CURRENT setting "
+      f"(g={md.REGIME_MARGIN}, i={md.REGIME_MARGIN})")
+print("=" * 78)
+cur_runs = grid[(md.REGIME_MARGIN, md.REGIME_MARGIN)]
+for regime, start, end, days in cur_runs:
+    flag = "  <-- BLIP" if days <= 2 else ""
+    print(f"{regime:<24}{start:<12}{end:<12}{days:>5}{flag}")
+
+L = [r[3] for r in cur_runs]
+print(f"\nTotal runs: {len(L)}   median: {sorted(L)[len(L)//2]} days   "
+      f"longest: {max(L)} days")
+for n in (2, 3, 4, 5, 8):
+    caught = sum(1 for x in L if x < n)
+    print(f"  requiring {n} consecutive days would filter {caught} of "
+          f"{len(L)} episodes ({caught/len(L)*100:.0f}%)")
+
+print("\n" + "=" * 78)
+print("PART 3 -- SIGNAL AVAILABILITY DRIFT (caveat check)")
+print("=" * 78)
+print("Some newly-wired signals start late (e.g. average weekly hours ~2006,")
+print("JOLTS ~2000), so the early part of this backtest runs on a smaller")
+print("growth axis than today's. Total signals reporting at each sample date:")
+for dt in ("2000-06-01", "2004-06-01", "2008-06-01", "2012-06-01",
+           "2016-06-01", "2020-06-01", "2026-06-01"):
+    row = next((c for c in counts if c[0] == dt), None)
+    if row:
+        _, gw, gb, iw, ib = row
+        print(f"  {dt}: growth {gw + gb:>2} of {len(md.GROWTH_MOM)} moving, "
+              f"inflation {iw + ib:>2} of {len(md.INFLATION_MOM)} moving")

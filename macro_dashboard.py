@@ -1509,12 +1509,17 @@ def build():
     for b in ALLOC_BUCKETS:
         ow = uw = 0.0
         n_ow = n_uw = 0
+        ow_possible = uw_possible = 0.0
         drivers = []
         for sid, lean in bucket_signals[b]:
             p = by_id.get(sid)
             if not p:
                 continue
             w = SIGNAL_WEIGHT.get(sid, 1.0)
+            if lean == "OW":
+                ow_possible += w
+            else:
+                uw_possible += w
             act = _active(p)
             if act:
                 if lean == "OW":
@@ -1535,11 +1540,29 @@ def build():
         else:
             lean = "No signal"
         mag = abs(net)
-        conviction = ("strong" if mag >= 3.0 else "moderate" if mag >= 1.5
-                      else "slight" if mag > 0 else "none")
+        # Conviction is NORMALISED, not absolute. Before this, "strong" was a
+        # flat >=3.0 weighted margin, which meant 3 of 34 signals in Defensive
+        # equities (7.7% of its evidence base) but nearly everything in Gold
+        # (>90%) -- the same word for a ~7x different standard, and adding
+        # signals to a bucket mechanically manufactured conviction. Denominator
+        # is the largest one-sided vote the bucket could actually produce, so
+        # every bucket gets a comparable 0-100% scale regardless of how many
+        # signals feed it. The absolute floors (mag) stop one signal firing in
+        # a small bucket from reading "strong" off a tiny denominator.
+        denom = max(ow_possible, uw_possible)
+        frac = (mag / denom) if denom > 0 else 0.0
+        if frac >= 0.20 and mag >= 2.0:
+            conviction = "strong"
+        elif frac >= 0.10 and mag >= 1.0:
+            conviction = "moderate"
+        elif mag > 0:
+            conviction = "slight"
+        else:
+            conviction = "none"
         allocation.append({
             "bucket": b, "definition": BUCKET_DEF.get(b, ""),
             "lean": lean, "conviction": conviction, "net": round(net, 2),
+            "conviction_pct": round(frac * 100),
             "ow": [d["label"] for d in drivers if d["active"] and d["lean"] == "OW"],
             "uw": [d["label"] for d in drivers if d["active"] and d["lean"] == "UW"],
             "drivers": drivers})
@@ -2190,7 +2213,7 @@ const allocEl = document.getElementById('alloc');
 if (D.allocation && D.allocation.length){
   const acls = l => l==='Overweight'?'calm':l==='Underweight'?'alert':l==='Balanced'?'caution':'neutral';
   let ah = `<h2 class="alloc-h">Capital Allocation</h2>
-    <p class="alloc-sub">A rules-based read of what the currently-active macro signals lean toward &mdash; not advice, and every driver is shown so you can judge for yourself. A signal counts as &ldquo;active&rdquo; when it is moving its worrying way or sitting at a caution/danger level; the meter shows conviction &mdash; the <b>weighted</b> margin, so heavier signals (the yield curve, Sahm rule, credit spreads) move it more than minor ones. <b>Balanced</b> means active signals pull both ways; <b>No signal</b> means nothing mapped here is firing. Tap a card for what the bucket means and every signal feeding it &mdash; dimmed rows are mapped but not currently active.</p>
+    <p class="alloc-sub">A rules-based read of what the currently-active macro signals lean toward &mdash; not advice, and every driver is shown so you can judge for yourself. A signal counts as &ldquo;active&rdquo; when it is moving its worrying way or sitting at a caution/danger level; the meter shows conviction &mdash; the <b>weighted</b> margin, so heavier signals (the yield curve, Sahm rule, credit spreads) move it more than minor ones. Conviction is scored as a <b>share of what each bucket could possibly signal</b>, not a raw count, so &ldquo;strong&rdquo; means the same thing in a bucket fed by 34 signals as in one fed by 5. <b>Balanced</b> means active signals pull both ways; <b>No signal</b> means nothing mapped here is firing. Tap a card for what the bucket means and every signal feeding it &mdash; dimmed rows are mapped but not currently active.</p>
     <div class="alloc-grid">`;
   const allocCh = {}; (CH.alloc_changes||[]).forEach(c=>allocCh[c.bucket]=c);
   D.allocation.forEach((a,ai)=>{
@@ -2206,7 +2229,7 @@ if (D.allocation && D.allocation.length){
       ? `<div class="alloc-tally">no active signals</div>`
       : a.lean==='Balanced'
       ? `<div class="alloc-tally">signals conflict &middot; ${a.ow.length} for, ${a.uw.length} against</div>`
-      : `<div class="alloc-tally">${a.conviction} conviction &middot; ${a.ow.length} for, ${a.uw.length} against</div>`;
+      : `<div class="alloc-tally">${a.conviction} conviction (${a.conviction_pct}% of this bucket's possible signal) &middot; ${a.ow.length} for, ${a.uw.length} against</div>`;
     let rows = '';
     a.drivers.forEach(d=>{
       const wt = d.weight>=1.5 ? '<span class="wchip key">key</span>'
