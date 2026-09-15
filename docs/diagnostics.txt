@@ -2,20 +2,28 @@
 RELIABILITY: WHERE OUR NUMBERS DISAGREE WITH YAHOO
 ==============================================================================
 468 rows cross-checked against Yahoo's independently reported figures.
-10 disagree on market cap by more than 12%, 12 on revenue by more than 15%.
+18 disagree on market cap by more than 12%, 11 on revenue by more than 15%.
 A market-cap gap points at the share count; a revenue gap at the concept merge.
 
 MARKET CAP (ours = SEC shares x Yahoo price, vs Yahoo's own):
-  IBKR      -74%   ours $41.1B
-  VMRK      -50%   ours $25.2B
-  CVNA      -33%   ours $51.2B
+  IBKR      -73%   ours $41.1B
+  VMRK      -51%   ours $25.2B
+  CVNA      -35%   ours $51.2B
   BX        -33%   ours $102.8B
-  ECHO      +21%   ours $32.8B
-  LITE      -17%   ours $69.2B
-  ALB       +15%   ours $16.0B
-  MLM       -15%   ours $30.8B
-  DVN       -15%   ours $47.2B
+  HPE       +22%   ours $90.0B
+  ECHO      +20%   ours $32.8B
+  GLW       +18%   ours $145.9B
+  ALB       +18%   ours $16.0B
+  SMCI      +18%   ours $28.0B
+  PANW      -17%   ours $252.6B
+  TER       +16%   ours $59.9B
   SPG       -15%   ours $66.5B
+  COHR      +14%   ours $59.7B
+  C         +14%   ours $260.0B
+  DVN       -14%   ours $47.2B
+  MLM       -14%   ours $30.8B
+  CIEN      +13%   ours $51.1B
+  SWKS      +12%   ours $13.4B
 
 REVENUE (ours = trailing twelve from filings, vs Yahoo's):
   MAR      +264%
@@ -24,12 +32,11 @@ REVENUE (ours = trailing twelve from filings, vs Yahoo's):
   LHX       +69%
   PAYX      +59%
   NDAQ      +56%
+  COF       +29%
   ICE       +27%
   WMB       +25%
-  COF       +22%
   DD        +18%
   KKR       -18%
-  AVGO      -15%
 
 ==============================================================================
 CONSTITUENTS THAT NEVER REACHED THE SCREEN
@@ -37,16 +44,16 @@ CONSTITUENTS THAT NEVER REACHED THE SCREEN
 
 APA     not yet filing          reports no revenue period of any kind -- typically a when-issued or spin-off ticker the index list added before the entity began filing with the SEC
 APO     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-ARES    share count stale       the newest consolidated share count is 620 days old (2024-12-31); a current one is only filed per share class, which companyfacts omits
+ARES    share count stale       the newest consolidated share count is 623 days old (2024-12-31); a current one is only filed per share class, which companyfacts omits
 BG      no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 BKR     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 BLK     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-BRK-B   share count stale       the newest consolidated share count is 4000 days old (2015-09-30); a current one is only filed per share class, which companyfacts omits
+BRK-B   share count stale       the newest consolidated share count is 4003 days old (2015-09-30); a current one is only filed per share class, which companyfacts omits
 CEG     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 COIN    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 CRH     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 DASH    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-ERIE    share count stale       the newest consolidated share count is 1900 days old (2021-06-30); a current one is only filed per share class, which companyfacts omits
+ERIE    share count stale       the newest consolidated share count is 1903 days old (2021-06-30); a current one is only filed per share class, which companyfacts omits
 FDXF    not yet filing          reports no revenue period of any kind -- typically a when-issued or spin-off ticker the index list added before the entity began filing with the SEC
 FERG    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 GEHC    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
@@ -65,7 +72,7 @@ STZ     no share count          no consolidated share concept is reported; the c
 SW      no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 SYF     not yet filing          reports no revenue period of any kind -- typically a when-issued or spin-off ticker the index list added before the entity began filing with the SEC
 TKO     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-V       share count stale       the newest consolidated share count is 6065 days old (2010-02-03); a current one is only filed per share class, which companyfacts omits
+V       share count stale       the newest consolidated share count is 6068 days old (2010-02-03); a current one is only filed per share class, which companyfacts omits
 VLTO    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 XOM     not yet filing          reports no revenue period of any kind -- typically a when-issued or spin-off ticker the index list added before the entity began filing with the SEC
 ==============================================================================
@@ -284,7 +291,7 @@ SHARE COUNTS AS COLLECTED (last 8)  [concept: WeightedAverageNumberOfDilutedShar
   2026-03-31         118,607,000
   2026-06-30         136,212,000
 SPLITS: {}
-CORPORATE ACTIONS: [('2015-03-31', 0.368)]
+CORPORATE ACTIONS: [('2015-03-31', 0.371)]
 
 P/S SERIES, YEARLY SAMPLE
   2014-12-31  price     60.13  shares         79M  cap $      4.8B  rev $    2.49B  P/S     1.91
@@ -879,6 +886,134 @@ P/S SERIES, YEARLY SAMPLE
   2026-12-31  price    128.51  shares        800M  cap $    102.8B  rev $   16.11B  P/S     6.38
 
 ==============================================================================
+BNY
+==============================================================================
+
+FLAGGED FOR:
+  - newest revenue figure was filed 201 days ago, so the denominator is stale
+
+P/S now 5.63 | 5y med 2.57 | 10y med 2.78 | Z 2.567309112068429 | years 9.9
+cross-check: None (revenue None, mktcap None)
+
+REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
+                                                          15     16     17     18     19     20     21     22     23     24     25   facts
+  PaymentsToAcquireAvailableForSaleSecurities           33.8   27.5   26.2      -      -      -      -      -      -      -      -     85
+  PaymentsToAcquireAvailableForSaleSecuritiesDebt          -   27.5   26.2   32.4   46.4   68.4   54.2   32.3   23.4   43.6   37.5     70
+  ProceedsFromSaleOfAvailableForSaleSecurities          19.0    7.6    6.0      -      -      -      -      -      -      -      -     85
+ *Revenues                                              15.1      -   15.5   16.4   16.5   15.8   15.9   16.5   17.7   18.6   20.1    122
+  ProceedsFromSaleAndMaturityOfAvailableForSaleSecuri   14.7   11.3    6.3    9.1      -      -      -      -      -      -      -     94
+  ProceedsFromSaleOfAvailableForSaleSecuritiesDebt         -    7.6    6.0    8.2   11.4   13.3   13.5   15.0   11.2    6.8   11.1     70
+  ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailabl    8.8    8.8    9.1    7.7      -      -      -      -      -      -      -     94
+  ClearingFeesRevenue                                    1.4    1.4    1.6      -      -      -      -      -      -      -      -     50
+  OtherComprehensiveIncomeLossAvailableForSaleSecurit   -0.6      -      -      -      -      -      -      -      -      -      -     61
+  OtherComprehensiveIncomeLossAvailableForSaleSecurit   -0.4   -0.3    0.1   -0.4    0.5    1.2   -1.2   -2.9    0.9    0.4    1.0    227
+  OtherComprehensiveIncomeLossAvailableForSaleSecurit   -0.2      -      -      -      -      -      -      -      -      -      -     61
+  FairValueMeasurementWithUnobservableInputsReconcili      -    0.1      -      -      -      -      -      -      -      -      -     31
+  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
+  CHOSEN: Revenues
+  anchor: Revenues (66 periods, newest 2025-12-31)
+    RevenueFromContractWithCustomerExcludingAssessedTax: no comparable overlap, not merged
+
+ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
+  2018-12-31  reported $    16.392B   4 quarters sum $     0.000B
+  2019-12-31  reported $    16.462B   4 quarters sum $     0.000B
+  2020-12-31  reported $    15.808B   4 quarters sum $     0.000B
+  2021-12-31  reported $    15.931B   4 quarters sum $     0.000B
+  2022-12-31  reported $    16.529B   4 quarters sum $     0.000B
+  2023-12-31  reported $    17.697B   4 quarters sum $     0.000B
+  2024-12-31  reported $    18.619B   4 quarters sum $     0.000B
+  2025-12-31  reported $    20.080B   4 quarters sum $     0.000B
+
+DERIVED QUARTERS (last 10)
+  2014-01-01 -> 2014-03-31  ( 89d)  $     3.627B  [Revenues]
+  2014-04-01 -> 2014-06-30  ( 90d)  $     3.728B  [Revenues]
+  2014-07-01 -> 2014-09-30  ( 91d)  $     4.588B  [Revenues]
+  2014-10-01 -> 2014-12-31  ( 91d)  $     3.665B  [Revenues]
+  2015-01-01 -> 2015-03-31  ( 89d)  $     3.761B  [Revenues]
+  2015-04-01 -> 2015-06-30  ( 90d)  $     3.849B  [Revenues]
+  2015-07-01 -> 2015-09-30  ( 91d)  $     3.795B  [Revenues]
+  2015-10-01 -> 2015-12-31  ( 91d)  $     3.721B  [Revenues]
+  2016-01-01 -> 2016-03-31  ( 90d)  $     3.737B  [Revenues]
+  2016-04-01 -> 2016-06-30  ( 90d)  $     3.772B  [Revenues]
+
+NET INCOME CONCEPTS (research module)
+  NetIncomeLoss                                         245 facts  2007-12-31 .. 2026-06-30  annual median $3.30B
+  ProfitLoss                                            275 facts  2007-12-31 .. 2026-06-30  annual median $3.22B
+  NetIncomeLossAvailableToCommonStockholdersBasic       265 facts  2007-12-31 .. 2026-06-30  annual median $3.05B
+  annual net income periods KEPT after screening (19), last 8:
+    2018-01-01 -> 2018-12-31  (364d)  $    4.266B  [NetIncomeLoss]
+    2019-01-01 -> 2019-12-31  (364d)  $    4.441B  [NetIncomeLoss]
+    2020-01-01 -> 2020-12-31  (365d)  $    3.617B  [NetIncomeLoss]
+    2021-01-01 -> 2021-12-31  (364d)  $    3.759B  [NetIncomeLoss]
+    2022-01-01 -> 2022-12-31  (364d)  $    2.556B  [NetIncomeLoss]
+    2023-01-01 -> 2023-12-31  (364d)  $    3.302B  [NetIncomeLoss]
+    2024-01-01 -> 2024-12-31  (365d)  $    4.530B  [NetIncomeLoss]
+    2025-01-01 -> 2025-12-31  (364d)  $    5.549B  [NetIncomeLoss]
+  RAW annual-length net income facts for the newest year:
+    2023-01-01 -> 2023-12-31  $    3.304B  10-K  filed 2026-02-25  [ProfitLoss]
+    2024-01-01 -> 2024-12-31  $    4.336B  10-K  filed 2025-02-27  [NetIncomeLossAvailableToCo]
+    2024-01-01 -> 2024-12-31  $    4.336B  10-K  filed 2026-02-25  [NetIncomeLossAvailableToCo]
+    2024-01-01 -> 2024-12-31  $    4.530B  10-K  filed 2025-02-27  [NetIncomeLoss]
+    2024-01-01 -> 2024-12-31  $    4.530B  10-K  filed 2026-02-25  [NetIncomeLoss]
+    2024-01-01 -> 2024-12-31  $    4.543B  10-K  filed 2025-02-27  [ProfitLoss]
+    2024-01-01 -> 2024-12-31  $    4.543B  10-K  filed 2026-02-25  [ProfitLoss]
+    2025-01-01 -> 2025-12-31  $    5.306B  10-K  filed 2026-02-25  [NetIncomeLossAvailableToCo]
+    2025-01-01 -> 2025-12-31  $    5.549B  10-K  filed 2026-02-25  [NetIncomeLoss]
+    2025-01-01 -> 2025-12-31  $    5.583B  10-K  filed 2026-02-25  [ProfitLoss]
+  derived net income QUARTERS, last 6:
+    2025-01-01 -> 2025-03-31  ( 89d)  $    1.220B
+    2025-04-01 -> 2025-06-30  ( 90d)  $    1.423B
+    2025-07-01 -> 2025-09-30  ( 91d)  $    1.445B
+    2025-09-30 -> 2025-12-31  ( 92d)  $    1.461B
+    2026-01-01 -> 2026-03-31  ( 89d)  $    1.632B
+    2026-04-01 -> 2026-06-30  ( 90d)  $    1.761B
+  derived TTM net income, last 4:
+    2025-09-30  $    5.243B  [NetIncomeLoss]
+    2025-12-31  $    5.549B  [NetIncomeLoss]
+    2026-03-31  $    5.961B  [NetIncomeLoss]
+    2026-06-30  $    6.299B  [NetIncomeLoss]
+
+TTM SERIES (last 10)
+  period 2016-06-30  available 2016-08-08  $    15.025B  [Revenues]
+  period 2017-12-31  available 2018-02-26  $    15.543B  [reported-annual]
+  period 2018-12-31  available 2019-02-26  $    16.392B  [reported-annual]
+  period 2019-12-31  available 2020-02-26  $    16.462B  [reported-annual]
+  period 2020-12-31  available 2021-02-26  $    15.808B  [reported-annual]
+  period 2021-12-31  available 2022-02-26  $    15.931B  [reported-annual]
+  period 2022-12-31  available 2023-02-26  $    16.529B  [reported-annual]
+  period 2023-12-31  available 2024-02-26  $    17.697B  [reported-annual]
+  period 2024-12-31  available 2025-02-26  $    18.619B  [reported-annual]
+  period 2025-12-31  available 2026-02-26  $    20.080B  [reported-annual]
+  annual reconciliation: 0 mismatches of 17 year-ends checked
+
+SHARE COUNTS AS COLLECTED (last 8)  [concept: WeightedAverageNumberOfDilutedSharesOutstanding]
+  2024-09-30         752,555,000
+  2024-12-31         748,101,000
+  2025-03-31         727,398,000
+  2025-06-30         723,826,000
+  2025-09-30         720,344,000
+  2025-12-31         716,718,000
+  2026-03-31         698,164,000
+  2026-06-30         695,514,000
+SPLITS: {}
+CORPORATE ACTIONS: []
+
+P/S SERIES, YEARLY SAMPLE
+  2014-12-31  price     40.57  shares      1,137M  cap $     46.1B  rev $   15.54B  P/S     2.97
+  2015-12-31  price     41.22  shares      1,113M  cap $     45.9B  rev $   15.07B  P/S     3.04
+  2016-12-31  price     47.38  shares      1,077M  cap $     51.0B  rev $   15.03B  P/S     3.40
+  2017-12-31  price     53.86  shares      1,044M  cap $     56.2B  rev $   15.03B  P/S     3.74
+  2018-12-31  price     47.07  shares      1,007M  cap $     47.4B  rev $   15.54B  P/S     3.05
+  2019-12-31  price     50.33  shares        943M  cap $     47.5B  rev $   16.39B  P/S     2.90
+  2020-12-31  price     42.44  shares        893M  cap $     37.9B  rev $   16.46B  P/S     2.30
+  2021-12-31  price     58.08  shares        856M  cap $     49.7B  rev $   15.81B  P/S     3.15
+  2022-12-31  price     45.52  shares        815M  cap $     37.1B  rev $   15.93B  P/S     2.33
+  2023-12-31  price     52.05  shares        793M  cap $     41.3B  rev $   16.53B  P/S     2.50
+  2024-12-31  price     76.83  shares        748M  cap $     57.5B  rev $   17.70B  P/S     3.25
+  2025-12-31  price    116.09  shares        717M  cap $     83.2B  rev $   18.62B  P/S     4.47
+  2026-12-31  price    162.66  shares        696M  cap $    113.1B  rev $   20.08B  P/S     5.63
+
+==============================================================================
 BMY
 ==============================================================================
 
@@ -1238,26 +1373,26 @@ COF
 FLAGGED FOR:
   - the share count moved +32% in one step on 2025-06-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.21 | 5y med 1.63 | 10y med 1.59 | Z 1.092401172542331 | years 10.0
+P/S now 2.09 | 5y med 1.63 | 10y med 1.59 | Z 0.8903359597873503 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
                                                           15     16     17     18     19     20     21     22     23     24     25   facts
- *Revenues                                              23.4   25.5   27.2   28.1   28.6   28.5   30.4   34.2   36.8   39.1   53.4    175
-  PaymentsToAcquireAvailableForSaleSecuritiesDebt          -   14.2   12.4   14.0   12.1   43.0   27.9   14.8   10.4   17.2   18.2     70
+ *Revenues                                              23.4   25.5   27.2   28.1   28.6   28.5   30.4   34.2   36.8   39.1   53.4    179
+  PaymentsToAcquireAvailableForSaleSecuritiesDebt          -   14.2   12.4   14.0   12.1   43.0   27.9   14.8   10.4   17.2   18.2     72
   PaymentsToAcquireAvailableForSaleSecurities           12.2   14.2   12.4      -      -      -      -      -      -      -      -     81
-  ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailabl    7.7    7.9    7.2    7.5    8.6   22.3   27.0   19.1    8.8   11.8   17.9    151
+  ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailabl    7.7    7.9    7.2    7.5    8.6   22.3   27.0   19.1    8.8   11.8   17.9    153
   BusinessAcquisitionsProFormaRevenue                      -      -      -      -      -      -      -      -      -      -      -     12
   SegmentReportingInformationRevenue                       -      -      -      -      -      -      -      -      -      -      -     22
   AvailableForSaleSecuritiesGrossRealizedGainsLossesS      -      -      -      -      -      -      -      -      -      -      -     56
   ProceedsFromSaleOfAvailableForSaleSecurities           4.4    4.1    8.2    6.4    4.8      -      -      -      -      -      -    121
   SegmentReportingSegmentRevenue                           -      -      -      -      -      -      -      -      -      -      -     17
   ProceedsFromSaleAndMaturityOfAvailableForSaleSecuri      -      -      -      -      -      -      -      -      -      -      -     12
-  ProceedsFromSaleOfAvailableForSaleSecuritiesDebt         -    4.1    8.2    6.4    4.8    0.8    2.8    2.6    0.3    0.2    0.0     91
- *RevenueFromContractWithCustomerExcludingAssessedTax      -      -      -    3.4    3.8    3.7    4.8    5.4    5.6    5.9    8.1     98
+  ProceedsFromSaleOfAvailableForSaleSecuritiesDebt         -    4.1    8.2    6.4    4.8    0.8    2.8    2.6    0.3    0.2    0.0     94
+ *RevenueFromContractWithCustomerExcludingAssessedTax      -      -      -    3.4    3.8    3.7    4.8    5.4    5.6    5.9    8.1    102
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: Revenues
-  anchor: Revenues (88 periods, newest 2026-03-31)
+  anchor: Revenues (90 periods, newest 2026-06-30)
     RevenueFromContractWithCustomerExcludingAssessedTax: REFUSED, runs 0.15x the anchor where they overlap
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
@@ -1271,7 +1406,6 @@ ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2025-12-31  reported $    53.434B   4 quarters sum $    53.434B
 
 DERIVED QUARTERS (last 10)
-  2023-09-30 -> 2023-12-31  ( 92d)  $     9.506B  [Revenues]
   2024-01-01 -> 2024-03-31  ( 90d)  $     9.402B  [Revenues]
   2024-04-01 -> 2024-06-30  ( 90d)  $     9.506B  [Revenues]
   2024-07-01 -> 2024-09-30  ( 91d)  $    10.014B  [Revenues]
@@ -1281,10 +1415,11 @@ DERIVED QUARTERS (last 10)
   2025-07-01 -> 2025-09-30  ( 91d)  $    15.359B  [Revenues]
   2025-09-30 -> 2025-12-31  ( 92d)  $    15.583B  [Revenues]
   2026-01-01 -> 2026-03-31  ( 89d)  $    15.231B  [Revenues]
+  2026-04-01 -> 2026-06-30  ( 90d)  $    15.850B  [Revenues]
 
 NET INCOME CONCEPTS (research module)
-  NetIncomeLoss                                         245 facts  2007-12-31 .. 2026-03-31  annual median $4.05B
-  NetIncomeLossAvailableToCommonStockholdersBasic       235 facts  2007-12-31 .. 2026-03-31  annual median $3.87B
+  NetIncomeLoss                                         249 facts  2007-12-31 .. 2026-06-30  annual median $4.05B
+  NetIncomeLossAvailableToCommonStockholdersBasic       239 facts  2007-12-31 .. 2026-06-30  annual median $3.87B
   annual net income periods KEPT after screening (18), last 8:
     2018-01-01 -> 2018-12-31  (364d)  $    6.015B  [NetIncomeLoss]
     2019-01-01 -> 2019-12-31  (364d)  $    5.546B  [NetIncomeLoss]
@@ -1306,20 +1441,19 @@ NET INCOME CONCEPTS (research module)
     2025-01-01 -> 2025-12-31  $    2.181B  10-K  filed 2026-02-19  [NetIncomeLossAvailableToCo]
     2025-01-01 -> 2025-12-31  $    2.453B  10-K  filed 2026-02-19  [NetIncomeLoss]
   derived net income QUARTERS, last 6:
-    2024-09-30 -> 2024-12-31  ( 92d)  $    1.096B
     2025-01-01 -> 2025-03-31  ( 89d)  $    1.404B
     2025-04-01 -> 2025-06-30  ( 90d)  $   -4.277B
     2025-07-01 -> 2025-09-30  ( 91d)  $    3.192B
     2025-09-30 -> 2025-12-31  ( 92d)  $    2.134B
     2026-01-01 -> 2026-03-31  ( 89d)  $    2.174B
+    2026-04-01 -> 2026-06-30  ( 90d)  $    3.020B
   derived TTM net income, last 4:
-    2025-06-30  $    0.000B  [NetIncomeLoss]
     2025-09-30  $    1.415B  [NetIncomeLoss]
     2025-12-31  $    2.453B  [NetIncomeLoss]
     2026-03-31  $    3.223B  [NetIncomeLoss]
+    2026-06-30  $   10.520B  [NetIncomeLoss]
 
 TTM SERIES (last 10)
-  period 2023-12-31  available 2024-02-23  $    36.787B  [Revenues]
   period 2024-03-31  available 2024-05-02  $    37.286B  [Revenues]
   period 2024-06-30  available 2024-08-01  $    37.780B  [Revenues]
   period 2024-09-30  available 2024-10-31  $    38.428B  [Revenues]
@@ -1329,10 +1463,10 @@ TTM SERIES (last 10)
   period 2025-09-30  available 2025-11-03  $    48.041B  [Revenues]
   period 2025-12-31  available 2026-02-19  $    53.434B  [Revenues]
   period 2026-03-31  available 2026-05-07  $    58.665B  [Revenues]
+  period 2026-06-30  available 2026-07-28  $    62.023B  [Revenues]
   annual reconciliation: 0 mismatches of 18 year-ends checked
 
 SHARE COUNTS AS COLLECTED (last 8)  [concept: WeightedAverageNumberOfDilutedSharesOutstanding]
-  2024-06-30         383,900,000
   2024-09-30         383,700,000
   2024-12-31         383,600,000
   2025-03-31         384,000,000
@@ -1340,6 +1474,7 @@ SHARE COUNTS AS COLLECTED (last 8)  [concept: WeightedAverageNumberOfDilutedShar
   2025-09-30         639,500,000
   2025-12-31         541,300,000
   2026-03-31         623,400,000
+  2026-06-30         622,300,000
 SPLITS: {}
 CORPORATE ACTIONS: [('2025-06-30', 0.317)]
 
@@ -1356,7 +1491,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    131.12  shares        384M  cap $     50.3B  rev $   36.32B  P/S     1.38
   2024-12-31  price    178.32  shares        384M  cap $     68.4B  rev $   38.43B  P/S     1.78
   2025-12-31  price    242.36  shares        541M  cap $    131.2B  rev $   48.04B  P/S     2.73
-  2026-12-31  price    208.30  shares        623M  cap $    129.9B  rev $   58.66B  P/S     2.21
+  2026-12-31  price    208.30  shares        622M  cap $    129.6B  rev $   62.02B  P/S     2.09
 
 ==============================================================================
 CCL
@@ -2084,7 +2219,7 @@ SHARE COUNTS AS COLLECTED (last 8)  [concept: WeightedAverageNumberOfDilutedShar
   2025-12-31         401,513,338
   2026-03-31         394,599,504
 SPLITS: {}
-CORPORATE ACTIONS: [('2016-03-31', 0.367)]
+CORPORATE ACTIONS: [('2016-03-31', 0.368)]
 
 P/S SERIES, YEARLY SAMPLE
   2014-12-31  price    114.88  shares        339M  cap $     38.9B  rev $   19.17B  P/S     2.03
@@ -2229,7 +2364,7 @@ C
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 204 days ago, so the denominator is stale
+  - newest revenue figure was filed 207 days ago, so the denominator is stale
 
 P/S now 3.05 | 5y med 1.56 | 10y med 1.99 | Z 1.711687598582532 | years 9.9
 cross-check: None (revenue None, mktcap None)
@@ -2808,26 +2943,26 @@ DELL
 FLAGGED FOR:
   - the share count moved +85% in one step on 2019-05-03, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.78 | 5y med 0.69 | 10y med 0.33 | Z 2.5412771840670545 | years 9.4
+P/S now 2.45 | 5y med 0.69 | 10y med 0.33 | Z 2.390323566979351 | years 9.4
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
                                                           16     17     18     19     20     21     22     23     24     25     26   facts
- *Revenues                                                 -   62.2   79.0   90.6   92.2   94.2  101.2  102.3   88.4   95.6  113.5    136
-  CostOfRevenue                                         42.5   48.7   58.6   65.6   64.2   66.5   79.3   79.6   67.6   74.3   90.8    141
+ *Revenues                                                 -   62.2   79.0   90.6   92.2   94.2  101.2  102.3   88.4   95.6  113.5    140
+  CostOfRevenue                                         42.5   48.7   58.6   65.6   64.2   66.5   79.3   79.6   67.6   74.3   90.8    145
  *SalesRevenueNet                                       50.9   62.2   79.0      -      -      -      -      -      -      -      -     54
  *SalesRevenueGoodsNet                                  42.7   51.1   61.3      -      -      -      -      -      -      -      -     28
-  ContractWithCustomerLiabilityRevenueRecognized           -      -   15.5   17.4   19.7   22.2   18.8   20.3   22.0   21.2   20.1     94
+  ContractWithCustomerLiabilityRevenueRecognized           -      -   15.5   17.4   19.7   22.2   18.8   20.3   22.0   21.2   20.1     98
  *SalesRevenueServicesNet                                8.2   12.9   19.9      -      -      -      -      -      -      -      -     28
   IncreaseDecreaseInDeferredRevenue                      0.9    2.6    3.3      -      -      -      -      -      -      -      -     22
   DisposalGroupIncludingDiscontinuedOperationRevenue       -    3.2      -      -      -      -      -      -      -      -      -      1
-  SalesTypeLeaseRevenue                                    -      -      -      -    0.8    0.8    0.8    0.9    1.1    2.0    0.9     85
-  CostOfGoodsSoldSalesTypeLease                            -      -      -      -    0.6    0.6    0.6    0.7    0.9    1.7    0.8     85
+  SalesTypeLeaseRevenue                                    -      -      -      -    0.8    0.8    0.8    0.9    1.1    2.0    0.9     89
+  CostOfGoodsSoldSalesTypeLease                            -      -      -      -    0.6    0.6    0.6    0.7    0.9    1.7    0.8     89
   FinancingReceivableSignificantSales                    0.1    0.3    0.7    0.9    0.5    0.6    0.2    0.7    0.2    0.1      -     82
-  SalesTypeLeaseLeaseIncome                                -      -      -      -      -      -    0.2    0.2    0.2    0.3    0.4     21
+  SalesTypeLeaseLeaseIncome                                -      -      -      -      -      -    0.2    0.2    0.2    0.3    0.4     25
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: Revenues, SalesRevenueNet
-  anchor: Revenues (63 periods, newest 2026-05-01)
+  anchor: Revenues (65 periods, newest 2026-07-31)
     SalesRevenueNet: merged at 0.993x the anchor (rescaled by 1.000)
     SalesRevenueServicesNet: REFUSED, runs 0.23x the anchor where they overlap
     SalesRevenueGoodsNet: REFUSED, runs 0.76x the anchor where they overlap
@@ -2844,7 +2979,6 @@ ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
   2026-01-30  reported $   113.538B   4 quarters sum $   113.538B
 
 DERIVED QUARTERS (last 10)
-  2023-11-04 -> 2024-02-02  ( 90d)  $    22.318B  [Revenues]
   2024-02-03 -> 2024-05-03  ( 90d)  $    22.244B  [Revenues]
   2024-05-04 -> 2024-08-02  ( 90d)  $    25.026B  [Revenues]
   2024-08-03 -> 2024-11-01  ( 90d)  $    24.366B  [Revenues]
@@ -2854,11 +2988,12 @@ DERIVED QUARTERS (last 10)
   2025-08-02 -> 2025-10-31  ( 90d)  $    27.005B  [Revenues]
   2025-10-31 -> 2026-01-30  ( 91d)  $    33.379B  [Revenues]
   2026-01-31 -> 2026-05-01  ( 90d)  $    43.842B  [Revenues]
+  2026-05-02 -> 2026-07-31  ( 90d)  $    46.971B  [Revenues]
 
 NET INCOME CONCEPTS (research module)
-  NetIncomeLoss                                         196 facts  2015-01-30 .. 2026-05-01  annual median $3.25B
+  NetIncomeLoss                                         200 facts  2015-01-30 .. 2026-07-31  annual median $3.25B
   ProfitLoss                                            142 facts  2015-01-30 .. 2026-01-30  annual median $2.42B
-  NetIncomeLossAvailableToCommonStockholdersBasic        62 facts  2019-05-03 .. 2026-05-01  annual median $3.39B
+  NetIncomeLossAvailableToCommonStockholdersBasic        66 facts  2019-05-03 .. 2026-07-31  annual median $3.39B
   annual net income periods KEPT after screening (12), last 8:
     2018-02-03 -> 2019-02-01  (363d)  $   -2.310B  [NetIncomeLoss]
     2019-02-02 -> 2020-01-31  (363d)  $    4.616B  [NetIncomeLoss]
@@ -2880,20 +3015,19 @@ NET INCOME CONCEPTS (research module)
     2025-02-01 -> 2026-01-30  $    5.936B  DEF 14A  filed 2026-05-15  [NetIncomeLoss]
     2025-02-01 -> 2026-01-30  $    5.936B  PRE 14A  filed 2026-05-04  [NetIncomeLoss]
   derived net income QUARTERS, last 6:
-    2024-11-02 -> 2025-01-31  ( 90d)  $    1.533B
     2025-02-01 -> 2025-05-02  ( 90d)  $    0.965B
     2025-05-03 -> 2025-08-01  ( 90d)  $    1.164B
     2025-08-02 -> 2025-10-31  ( 90d)  $    1.548B
     2025-10-31 -> 2026-01-30  ( 91d)  $    2.259B
     2026-01-31 -> 2026-05-01  ( 90d)  $    3.438B
+    2026-05-02 -> 2026-07-31  ( 90d)  $    4.133B
   derived TTM net income, last 4:
-    2025-08-01  $    4.837B  [NetIncomeLoss]
     2025-10-31  $    5.210B  [NetIncomeLoss]
     2026-01-30  $    5.936B  [NetIncomeLoss]
     2026-05-01  $    8.409B  [NetIncomeLoss]
+    2026-07-31  $   11.378B  [NetIncomeLoss]
 
 TTM SERIES (last 10)
-  period 2024-02-02  available 2024-03-25  $    88.425B  [Revenues]
   period 2024-05-03  available 2024-06-11  $    89.747B  [Revenues]
   period 2024-08-02  available 2024-09-10  $    91.839B  [Revenues]
   period 2024-11-01  available 2024-12-10  $    93.954B  [Revenues]
@@ -2903,10 +3037,10 @@ TTM SERIES (last 10)
   period 2025-10-31  available 2025-12-09  $   104.090B  [Revenues]
   period 2026-01-30  available 2026-03-16  $   113.538B  [Revenues]
   period 2026-05-01  available 2026-06-09  $   134.002B  [Revenues]
+  period 2026-07-31  available 2026-09-08  $   151.197B  [Revenues]
   annual reconciliation: 2 mismatches of 12 year-ends checked
 
 SHARE COUNTS AS COLLECTED (last 8)  [concept: WeightedAverageNumberOfDilutedSharesOutstanding]
-  2024-08-02         725,000,000
   2024-11-01         722,000,000
   2025-01-31         720,000,000
   2025-05-02         702,000,000
@@ -2914,6 +3048,7 @@ SHARE COUNTS AS COLLECTED (last 8)  [concept: WeightedAverageNumberOfDilutedShar
   2025-10-31         689,000,000
   2026-01-30         684,000,000
   2026-05-01         656,000,000
+  2026-07-31         654,000,000
 SPLITS: {}
 CORPORATE ACTIONS: [('2019-05-03', 0.854)]
 
@@ -2928,7 +3063,7 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price     76.50  shares        740M  cap $     56.6B  rev $   91.15B  P/S     0.62
   2024-12-31  price    115.24  shares        722M  cap $     83.2B  rev $   93.95B  P/S     0.89
   2025-12-31  price    125.88  shares        689M  cap $     86.7B  rev $  104.09B  P/S     0.83
-  2026-12-31  price    567.29  shares        656M  cap $    372.1B  rev $  134.00B  P/S     2.78
+  2026-12-31  price    567.29  shares        654M  cap $    371.0B  rev $  151.20B  P/S     2.45
 
 ==============================================================================
 DVN
@@ -3938,7 +4073,7 @@ FERG
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 277 days ago, so the denominator is stale
+  - newest revenue figure was filed 280 days ago, so the denominator is stale
   - 23 of the months in the window are valued on a revenue figure that was already up to 615 days old, and there is not enough history left to measure without them, so the median rests on them
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6565,7 +6700,7 @@ SHARE COUNTS AS COLLECTED (last 8)  [concept: WeightedAverageNumberOfDilutedShar
   2026-03-31       2,225,000,000
   2026-06-30       2,225,000,000
 SPLITS: {}
-CORPORATE ACTIONS: [('2015-03-31', 1.092)]
+CORPORATE ACTIONS: [('2015-03-31', 0.892)]
 
 P/S SERIES, YEARLY SAMPLE
   2014-12-31  price     42.31  shares      1,137M  cap $     48.1B  rev $   14.98B  P/S     3.21
@@ -6824,7 +6959,7 @@ LHX
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 317 days ago, so the denominator is stale
+  - newest revenue figure was filed 320 days ago, so the denominator is stale
   - the share count moved +87% in one step on 2019-09-27, which no split explains -- the multiples either side of it are measuring different companies
 
 P/S now 2.12 | 5y med 2.28 | 10y med 2.50 | Z -0.8235916786503471 | years 9.6
@@ -7820,6 +7955,7 @@ MRNA
 
 FLAGGED FOR:
   - trailing revenue jumps 132% around 2020-09-30, 5x this company's usual move between filings, at the exact point the source concept changes from mixed to Revenues
+  - newest revenue figure was filed 201 days ago, so the denominator is stale
 
 P/S now 29.48 | 5y med 3.56 | 10y med 6.80 | Z 0.35674058459499414 | years 7.4
 cross-check: None (revenue None, mktcap None)
@@ -7939,7 +8075,7 @@ TAP
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 206 days ago, so the denominator is stale
+  - newest revenue figure was filed 209 days ago, so the denominator is stale
 
 P/S now 0.66 | 5y med 1.04 | 10y med 1.11 | Z -1.3788785508735086 | years 9.9
 cross-check: None (revenue None, mktcap None)
@@ -8931,59 +9067,58 @@ PANW
 FLAGGED FOR:
   - the share count moved +244% in one step on 2022-10-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 24.97 | 5y med 13.26 | 10y med 3.22 | Z 1.856834109775957 | years 10.0
+P/S now 22.00 | 5y med 13.26 | 10y med 3.22 | Z 1.7166233912104525 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
-                                                          15     16     17     18     19     20     21     22     23     24     25   facts
- *RevenueFromContractWithCustomerExcludingAssessedTax      -      -    1.8    2.3    2.9    3.4    4.3    5.5    6.9    8.0    9.2    117
-  ContractWithCustomerLiabilityRevenueRecognized           -      -      -      -    1.2    1.5    2.0    2.7    3.6    4.6    5.5     53
-  ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailabl    0.3    0.6    0.8    0.7    2.1    2.0    1.2    1.1    2.8    1.9    1.6    123
- *Revenues                                               0.9    1.4    1.8    2.3      -      -      -      -      -      -      -     18
- *SalesRevenueNet                                        0.9    1.4    1.8    2.3      -      -      -      -      -      -      -    130
- *SalesRevenueServicesNet                                0.4    0.7    1.1    1.4      -      -      -      -      -      -      -    130
-  ProceedsFromSaleOfAvailableForSaleSecuritiesDebt         -      -      -      -      -      -      -    0.4    1.0    1.0    1.2     24
-  PaymentsToAcquireAvailableForSaleSecurities            1.0    1.0    1.0    0.7      -      -      -      -      -      -      -     56
- *SalesRevenueGoodsNet                                   0.5    0.7    0.7    0.9      -      -      -      -      -      -      -    130
-  IncreaseDecreaseInDeferredRevenue                      0.3    0.5    0.5    0.6      -      -      -      -      -      -      -     60
-  ProceedsFromSaleOfAvailableForSaleSecurities           0.0    0.1    0.0    0.0      -      -      -      -      -      -      -     46
-  OtherComprehensiveIncomeLossAvailableForSaleSecurit    0.0    0.0   -0.0   -0.0    0.0    0.0   -0.0   -0.0   -0.0    0.0    0.0    162
+                                                          16     17     18     19     20     21     22     23     24     25     26   facts
+ *RevenueFromContractWithCustomerExcludingAssessedTax      -    1.8    2.3    2.9    3.4    4.3    5.5    6.9    8.0    9.2   11.5    120
+  ContractWithCustomerLiabilityRevenueRecognized           -      -      -    1.2    1.5    2.0    2.7    3.6    4.6    5.5    6.2     55
+  ProceedsFromSaleOfAvailableForSaleSecuritiesDebt         -      -      -      -      -      -    0.4    1.0    1.0    1.2    3.5     27
+  ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailabl    0.6    0.8    0.7    2.1    2.0    1.2    1.1    2.8    1.9    1.6    2.2    126
+ *Revenues                                               1.4    1.8    2.3      -      -      -      -      -      -      -      -     18
+ *SalesRevenueNet                                        1.4    1.8    2.3      -      -      -      -      -      -      -      -    130
+ *SalesRevenueServicesNet                                0.7    1.1    1.4      -      -      -      -      -      -      -      -    130
+  PaymentsToAcquireAvailableForSaleSecurities            1.0    1.0    0.7      -      -      -      -      -      -      -      -     56
+ *SalesRevenueGoodsNet                                   0.7    0.7    0.9      -      -      -      -      -      -      -      -    130
+  IncreaseDecreaseInDeferredRevenue                      0.5    0.5    0.6      -      -      -      -      -      -      -      -     60
+  ProceedsFromSaleOfAvailableForSaleSecurities           0.1    0.0    0.0      -      -      -      -      -      -      -      -     46
+  OtherComprehensiveIncomeLossAvailableForSaleSecurit    0.0   -0.0   -0.0    0.0    0.0   -0.0   -0.0   -0.0    0.0    0.0   -0.1    165
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
   CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues, SalesRevenueNet
-  anchor: RevenueFromContractWithCustomerExcludingAssessedTax (57 periods, newest 2026-04-30)
+  anchor: RevenueFromContractWithCustomerExcludingAssessedTax (58 periods, newest 2026-07-31)
     Revenues: merged at 1.002x the anchor (rescaled by 1.000)
     SalesRevenueNet: merged at 1.002x the anchor (rescaled by 1.000)
     SalesRevenueServicesNet: REFUSED, runs 0.61x the anchor where they overlap
     SalesRevenueGoodsNet: REFUSED, runs 0.39x the anchor where they overlap
 
 ANNUAL FIGURES KEPT vs SUM OF DERIVED QUARTERS
-  2018-07-31  reported $     2.274B   4 quarters sum $     2.274B
   2019-07-31  reported $     2.900B   4 quarters sum $     2.900B
   2020-07-31  reported $     3.408B   4 quarters sum $     3.408B
   2021-07-31  reported $     4.256B   4 quarters sum $     4.256B
   2022-07-31  reported $     5.502B   4 quarters sum $     5.502B
   2023-07-31  reported $     6.893B   4 quarters sum $     6.893B
   2024-07-31  reported $     8.027B   4 quarters sum $     8.027B
-  2025-07-31  reported $     9.222B   4 quarters sum $     9.222B
+  2025-07-31  reported $     9.221B   4 quarters sum $     9.221B
+  2026-07-31  reported $    11.480B   4 quarters sum $    11.480B
 
 DERIVED QUARTERS (last 10)
-  2023-11-01 -> 2024-01-31  ( 91d)  $     1.975B  [RevenueFromContractWithCustomerExc]
   2024-02-01 -> 2024-04-30  ( 89d)  $     1.985B  [RevenueFromContractWithCustomerExc]
   2024-04-30 -> 2024-07-31  ( 92d)  $     2.189B  [RevenueFromContractWithCustomerExc]
   2024-08-01 -> 2024-10-31  ( 91d)  $     2.139B  [RevenueFromContractWithCustomerExc]
   2024-11-01 -> 2025-01-31  ( 91d)  $     2.257B  [RevenueFromContractWithCustomerExc]
   2025-02-01 -> 2025-04-30  ( 88d)  $     2.289B  [RevenueFromContractWithCustomerExc]
-  2025-04-30 -> 2025-07-31  ( 92d)  $     2.537B  [RevenueFromContractWithCustomerExc]
+  2025-04-30 -> 2025-07-31  ( 92d)  $     2.536B  [RevenueFromContractWithCustomerExc]
   2025-08-01 -> 2025-10-31  ( 91d)  $     2.474B  [RevenueFromContractWithCustomerExc]
   2025-11-01 -> 2026-01-31  ( 91d)  $     2.594B  [RevenueFromContractWithCustomerExc]
   2026-02-01 -> 2026-04-30  ( 88d)  $     3.002B  [RevenueFromContractWithCustomerExc]
+  2026-04-30 -> 2026-07-31  ( 92d)  $     3.410B  [RevenueFromContractWithCustomerExc]
 
 NET INCOME CONCEPTS (research module)
-  NetIncomeLoss                                         248 facts  2011-07-31 .. 2026-04-30  annual median $-0.16B
+  NetIncomeLoss                                         251 facts  2011-07-31 .. 2026-07-31  annual median $-0.13B
   ProfitLoss                                              7 facts  2013-07-31 .. 2016-07-31  annual median $-0.17B
   NetIncomeLossAvailableToCommonStockholdersBasic        10 facts  2012-04-30 .. 2014-01-31  (no annual periods)
-  annual net income periods KEPT after screening (14), last 8:
-    2017-08-01 -> 2018-07-31  (364d)  $   -0.122B  [NetIncomeLoss]
+  annual net income periods KEPT after screening (15), last 8:
     2018-08-01 -> 2019-07-31  (364d)  $   -0.082B  [NetIncomeLoss]
     2019-08-01 -> 2020-07-31  (365d)  $   -0.267B  [NetIncomeLoss]
     2020-08-01 -> 2021-07-31  (364d)  $   -0.499B  [NetIncomeLoss]
@@ -8991,45 +9126,45 @@ NET INCOME CONCEPTS (research module)
     2022-08-01 -> 2023-07-31  (364d)  $    0.440B  [NetIncomeLoss]
     2023-08-01 -> 2024-07-31  (365d)  $    2.578B  [NetIncomeLoss]
     2024-08-01 -> 2025-07-31  (364d)  $    1.134B  [NetIncomeLoss]
+    2025-08-01 -> 2026-07-31  (364d)  $    0.307B  [NetIncomeLoss]
   RAW annual-length net income facts for the newest year:
-    2020-08-01 -> 2021-07-31  $   -0.499B  10-K  filed 2023-09-01  [NetIncomeLoss]
-    2021-08-01 -> 2022-07-31  $   -0.267B  10-K  filed 2022-09-06  [NetIncomeLoss]
-    2021-08-01 -> 2022-07-31  $   -0.267B  10-K  filed 2023-09-01  [NetIncomeLoss]
     2021-08-01 -> 2022-07-31  $   -0.267B  10-K  filed 2024-09-06  [NetIncomeLoss]
     2022-08-01 -> 2023-07-31  $    0.440B  10-K  filed 2023-09-01  [NetIncomeLoss]
     2022-08-01 -> 2023-07-31  $    0.440B  10-K  filed 2024-09-06  [NetIncomeLoss]
     2022-08-01 -> 2023-07-31  $    0.440B  10-K  filed 2025-08-29  [NetIncomeLoss]
     2023-08-01 -> 2024-07-31  $    2.578B  10-K  filed 2024-09-06  [NetIncomeLoss]
     2023-08-01 -> 2024-07-31  $    2.578B  10-K  filed 2025-08-29  [NetIncomeLoss]
+    2023-08-01 -> 2024-07-31  $    2.578B  10-K  filed 2026-09-10  [NetIncomeLoss]
     2024-08-01 -> 2025-07-31  $    1.134B  10-K  filed 2025-08-29  [NetIncomeLoss]
+    2024-08-01 -> 2025-07-31  $    1.134B  10-K  filed 2026-09-10  [NetIncomeLoss]
+    2025-08-01 -> 2026-07-31  $    0.307B  10-K  filed 2026-09-10  [NetIncomeLoss]
   derived net income QUARTERS, last 6:
-    2024-11-01 -> 2025-01-31  ( 91d)  $    0.267B
     2025-02-01 -> 2025-04-30  ( 88d)  $    0.262B
     2025-04-30 -> 2025-07-31  ( 92d)  $    0.254B
     2025-08-01 -> 2025-10-31  ( 91d)  $    0.334B
     2025-11-01 -> 2026-01-31  ( 91d)  $    0.432B
     2026-02-01 -> 2026-04-30  ( 88d)  $   -0.177B
+    2026-04-30 -> 2026-07-31  ( 92d)  $   -0.282B
   derived TTM net income, last 4:
-    2025-07-31  $    1.134B  [NetIncomeLoss]
     2025-10-31  $    1.117B  [NetIncomeLoss]
     2026-01-31  $    1.282B  [NetIncomeLoss]
     2026-04-30  $    0.843B  [NetIncomeLoss]
+    2026-07-31  $    0.307B  [NetIncomeLoss]
 
 TTM SERIES (last 10)
-  period 2024-01-31  available 2024-02-21  $     7.527B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2024-04-30  available 2024-05-21  $     7.791B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2024-07-31  available 2024-09-06  $     8.027B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2024-10-31  available 2024-11-21  $     8.288B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2025-01-31  available 2025-02-14  $     8.570B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2025-04-30  available 2025-05-21  $     8.874B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2025-07-31  available 2025-08-29  $     9.222B  [RevenueFromContractWithCustomerExcludingAssessedTax]
+  period 2025-07-31  available 2025-08-29  $     9.221B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2025-10-31  available 2025-11-20  $     9.556B  [RevenueFromContractWithCustomerExcludingAssessedTax]
   period 2026-01-31  available 2026-02-18  $     9.893B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  period 2026-04-30  available 2026-06-03  $    10.607B  [RevenueFromContractWithCustomerExcludingAssessedTax]
-  annual reconciliation: 0 mismatches of 14 year-ends checked
+  period 2026-04-30  available 2026-06-03  $    10.606B  [RevenueFromContractWithCustomerExcludingAssessedTax]
+  period 2026-07-31  available 2026-09-10  $    11.480B  [RevenueFromContractWithCustomerExcludingAssessedTax]
+  annual reconciliation: 0 mismatches of 15 year-ends checked
 
 SHARE COUNTS AS COLLECTED (last 8)  [concept: WeightedAverageNumberOfDilutedSharesOutstanding]
-  2024-07-31         354,000,000
   2024-10-31         354,500,000
   2025-01-31         709,100,000
   2025-04-30         708,600,000
@@ -9037,6 +9172,7 @@ SHARE COUNTS AS COLLECTED (last 8)  [concept: WeightedAverageNumberOfDilutedShar
   2025-10-31         709,000,000
   2026-01-31         713,000,000
   2026-04-30         801,000,000
+  2026-07-31         764,000,000
 SPLITS: {'2024-12-16': (2.0, 'rescaled'), '2021-10-31': (3.0384, 'rescaled'), '2022-04-30': (0.3358, 'rescaled')}
 CORPORATE ACTIONS: [('2019-07-31', 0.358), ('2022-10-31', 2.436)]
 
@@ -9053,13 +9189,14 @@ P/S SERIES, YEARLY SAMPLE
   2023-12-31  price    147.44  shares        700M  cap $    103.1B  rev $    7.21B  P/S    14.31
   2024-12-31  price    181.96  shares        709M  cap $    129.0B  rev $    8.29B  P/S    15.57
   2025-12-31  price    184.20  shares        709M  cap $    130.6B  rev $    9.56B  P/S    13.67
-  2026-12-31  price    330.65  shares        801M  cap $    264.9B  rev $   10.61B  P/S    24.97
+  2026-12-31  price    330.65  shares        764M  cap $    252.6B  rev $   11.48B  P/S    22.00
 
 ==============================================================================
 PSKY
 ==============================================================================
 
 FLAGGED FOR:
+  - newest revenue figure was filed 202 days ago, so the denominator is stale
   - 13 of the months in the window are valued on a revenue figure that was already up to 365 days old, and there is not enough history left to measure without them, so the median rests on them
   - the share count is 66% higher than a year ago, on 2025-09-30 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
@@ -10570,7 +10707,7 @@ TFC
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 3057 days ago, so the denominator is stale
+  - newest revenue figure was filed 3060 days ago, so the denominator is stale
   - 108 of the months in the window are valued on a revenue figure that was already up to 3056 days old, and there is not enough history left to measure without them, so the median rests on them
   - a P/S of 430 is not a valuation, it is a broken denominator
   - the share count moved +67% in one step on 2020-03-31, which no split explains -- the multiples either side of it are measuring different companies
@@ -12247,32 +12384,68 @@ WTW    2016-01-05      0.3775   reported share count went 0.76x, not 0.38x
 WTW    2016-03-31      1.9710   SPLIT ADDED from EDGAR: count 69,000,000 -> 136,000,000 with revenue flat through it; Yahoo has no record of it
 YUM    2016-11-01      1.3910   reported share count went 0.86x, not 1.39x
 ==============================================================================
-AVGO
+GLW
 ==============================================================================
 
 FLAGGED FOR:
-  - revenue differs from Yahoo by -15%
+  - market cap differs from Yahoo by +18%
 
-P/S now 23.42 | 5y med 15.31 | 10y med 8.30 | Z 1.4761391257145273
-  my revenue  $     75.47B   Yahoo $     89.10B
-  my mktcap   $  1,767.24B   Yahoo $  1,728.01B
+P/S now 8.60 | 5y med 2.43 | 10y med 2.66 | Z 2.952212446071419
+  my revenue  $     16.96B   Yahoo $     16.96B
+  my mktcap   $    145.93B   Yahoo $    123.44B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
-                                                          16     17     18     19     20     21     22     23     24     25   facts
- *RevenueFromContractWithCustomerExcludingAssessedTax      -   17.6   20.8   22.6   23.9   27.4   33.2   35.8   51.6   63.9    124
- *Revenues                                              13.2   17.6   20.8      -      -      -      -      -      -      -     19
-  CostOfRevenue                                            -    9.1   10.1   10.1   10.4   10.6   11.1   11.1   19.1   20.6    100
-  ContractWithCustomerLiabilityRevenueRecognized           -      -      -    0.2    1.4    2.6    2.6    2.9    2.4    9.2     57
-  FinancingReceivableSignificantSales                      -    0.2    0.4    1.2    3.7    4.0    3.7    4.0    5.9    7.4     44
-  DisposalGroupIncludingDiscontinuedOperationRevenue       -      -      -      -      -      -      -      -    0.9    0.9     15
-  RevenueFromRelatedParties                              0.3    0.3    0.7      -      -      -      -      -      -      -     11
-  GainLossOnSalesOfAssetsAndAssetImpairmentCharges         -      -      -      -      -      -      -      -      -    0.1      6
+                                                          15     16     17     18     19     20     21     22     23     24     25   facts
+ *Revenues                                                 -    9.4   10.1   11.3   11.5   11.3   14.1   14.2   12.6   13.1   15.6    108
+ *SalesRevenueGoodsNet                                   9.1    9.4   10.1      -      -      -      -      -      -      -      -    155
+  CostOfRevenue                                          5.5    5.6    6.1    6.8    7.5    7.8    9.0    9.7    8.7    8.8   10.0    227
+  BusinessAcquisitionsProFormaRevenue                      -      -      -      -      -      -      -      -      -      -      -      7
+  ContractWithCustomerLiabilityRevenueRecognized           -      -      -      -      -      -      -      -    0.0    0.0    0.2     11
+  OtherComprehensiveIncomeAvailableForSaleSecuritiesA      -      -      -      -      -      -      -      -      -      -      -     11
+  CashFlowHedgeGainLossReclassifiedToCostOfSalesNet        -      -      -      -      -      -      -      -      -      -      -      1
+  OtherComprehensiveIncomeLossAvailableForSaleSecurit    0.0   -0.0    0.0   -0.0    0.0      -      -      -      -      -      -     78
+  AvailableForSaleSecuritiesContinuousUnrealizedLossP    0.0      -      -      -      -      -      -      -      -      -      -     18
+  AvailableForSaleSecuritiesContinuousUnrealizedLossP    0.0      -      -      -      -      -      -      -      -      -      -     18
+  AvailableForSaleSecuritiesGrossRealizedGains             -      -      -      -      -      -      -      -      -      -      -      6
+  OtherComprehensiveIncomeAvailableforsaleSecuritiesA      -      -      -      -      -      -      -      -      -      -      -      3
   (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
-  anchor: RevenueFromContractWithCustomerExcludingAssessedTax (55 periods, newest 2026-05-03)
-    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
-    SalesRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
+  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues, SalesRevenueGoodsNet
+  anchor: Revenues (58 periods, newest 2026-06-30)
+    RevenueFromContractWithCustomerExcludingAssessedTax: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueGoodsNet: merged at 1.000x the anchor (rescaled by 1.000)
+
+==============================================================================
+HPE
+==============================================================================
+
+FLAGGED FOR:
+  - market cap differs from Yahoo by +22%
+
+P/S now 2.15 | 5y med 0.78 | 10y med 0.77 | Z 3.964309377349798
+  my revenue  $     41.87B   Yahoo $     41.87B
+  my mktcap   $     89.97B   Yahoo $     73.55B
+  (structurally clean -- this block exists only because the two sources disagree)
+
+REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
+                                                          15     16     17     18     19     20     21     22     23     24     25   facts
+ *Revenues                                              52.1   50.1   28.9   30.9   29.1   27.0   27.8   28.5   29.1   30.1   34.3    167
+ *SalesRevenueServicesNet                               32.1   30.5   10.9   10.9      -      -      -      -      -      -      -     42
+ *SalesRevenueGoodsNet                                  19.6   19.2   17.6   19.5      -      -      -      -      -      -      -     42
+  ContractWithCustomerLiabilityRevenueRecognized           -      -      -      -    3.1    3.2    3.2    3.2    3.4    3.5    3.7     28
+  ProceedsFromSaleOfAvailableForSaleSecuritiesDebt         -      -      -      -      -      -      -      -    0.0    0.0    0.9     11
+  SalesTypeAndDirectFinancingLeasesInterestIncome          -      -      -    0.4    0.5    0.5    0.5    0.5    0.5    0.7    0.8     83
+  CapitalLeasesIncomeStatementLeaseRevenue               0.4    0.4    0.4    0.4      -      -      -      -      -      -      -     57
+  FinancingReceivableSignificantSales                      -    0.1    0.1    0.2    0.2    0.1    0.1    0.2    0.2    0.1    0.2     82
+  ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailabl      -      -      -      -      -      -      -      -    0.0    0.0    0.0      7
+  OtherComprehensiveIncomeLossAvailableForSaleSecurit   -0.0   -0.0   -0.0   -0.0    0.0   -0.0   -0.0   -0.0    0.0    0.0   -0.0    143
+  OtherComprehensiveIncomeLossAvailableForSaleSecurit    0.0    0.0   -0.0    0.0      -      -      -      -      -      -      -     41
+  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
+  CHOSEN: Revenues
+  anchor: Revenues (77 periods, newest 2026-07-31)
+    SalesRevenueServicesNet: REFUSED, runs 0.37x the anchor where they overlap
+    SalesRevenueGoodsNet: REFUSED, runs 0.61x the anchor where they overlap
+    OperatingLeaseLeaseIncome: REFUSED, runs 0.08x the anchor where they overlap
 
 ==============================================================================
 HLT
@@ -12283,7 +12456,7 @@ FLAGGED FOR:
 
 P/S now 5.64 | 5y med 5.36 | 10y med 4.48 | Z 0.6808885000333224
   my revenue  $     12.48B   Yahoo $      5.10B
-  my mktcap   $     70.42B   Yahoo $     68.91B
+  my mktcap   $     70.42B   Yahoo $     69.91B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12306,37 +12479,6 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
     Revenues: merged at 1.000x the anchor (rescaled by 1.000)
 
 ==============================================================================
-LITE
-==============================================================================
-
-FLAGGED FOR:
-  - market cap differs from Yahoo by -17%
-
-P/S now 22.95 | 5y med 3.56 | 10y med 3.39 | Z 2.8335819952448316
-  my revenue  $      3.01B   Yahoo $      3.01B
-  my mktcap   $     69.16B   Yahoo $     83.15B
-  (structurally clean -- this block exists only because the two sources disagree)
-
-REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
-                                                          16     17     18     19     20     21     22     23     24     25     26   facts
- *RevenueFromContractWithCustomerIncludingAssessedTax      -    1.0    1.2    1.6    1.7    1.7    1.7    1.8    1.4    1.6    3.0     92
- *RevenueFromContractWithCustomerExcludingAssessedTax      -      -      -      -      -      -    1.7    1.8    1.4    1.6    3.0     37
- *Revenues                                               0.9    1.0    1.2      -      -      -      -      -      -      -      -     19
- *SalesRevenueNet                                        0.9    1.0      -      -      -      -      -      -      -      -      -     85
-  CostOfRevenue                                          0.6      -      -      -      -      -      -      -      -      -      -     69
-  OtherComprehensiveIncomeAvailableforsaleSecuritiesA      -      -   -0.0    0.0    0.0   -0.0   -0.0    0.0    0.0    0.0   -0.0     81
-  OtherComprehensiveIncomeAvailableforsaleSecuritiesT      -      -      -    0.0    0.0   -0.0    0.0    0.0    0.0    0.0    0.0     59
-  OtherComprehensiveIncomeLossAvailableForSaleSecurit    0.0    0.0   -0.0    0.0      -      -      -      -      -      -      -     36
-  ContractWithCustomerLiabilityRevenueRecognized           -      -      -      -      -    0.0    0.0    0.0    0.0    0.0    0.0     11
-  DeferredRevenueRevenueRecognized1                        -      -      -      -    0.0    0.0      -      -      -      -      -      2
-  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
-  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, RevenueFromContractWithCustomerIncludingAssessedTax, Revenues, SalesRevenueNet
-  anchor: RevenueFromContractWithCustomerExcludingAssessedTax (24 periods, newest 2026-06-27)
-    RevenueFromContractWithCustomerIncludingAssessedTax: merged at 1.000x the anchor (rescaled by 1.000)
-    Revenues: merged at 1.000x merged history (rescaled by 1.000)
-    SalesRevenueNet: merged at 1.000x merged history (rescaled by 1.000)
-
-==============================================================================
 SPG
 ==============================================================================
 
@@ -12345,7 +12487,7 @@ FLAGGED FOR:
 
 P/S now 9.58 | 5y med 8.73 | 10y med 8.87 | Z 0.5673596576609349
   my revenue  $      6.94B   Yahoo $      6.94B
-  my mktcap   $     66.46B   Yahoo $     77.76B
+  my mktcap   $     66.46B   Yahoo $     77.81B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12359,6 +12501,39 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
     OperatingLeaseLeaseIncome: merged at 0.917x the anchor (rescaled by 1.090)
 
 ==============================================================================
+TER
+==============================================================================
+
+FLAGGED FOR:
+  - market cap differs from Yahoo by +16%
+
+P/S now 13.41 | 5y med 6.26 | 10y med 5.38 | Z 2.173499412100426
+  my revenue  $      4.46B   Yahoo $      4.46B
+  my mktcap   $     59.88B   Yahoo $     51.47B
+  (structurally clean -- this block exists only because the two sources disagree)
+
+REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
+                                                          15     16     17     18     19     20     21     22     23     24     25   facts
+ *Revenues                                               1.6    1.8    2.1    2.1    2.3    3.1    3.7    3.2    2.7    2.8    3.2    260
+ *RevenueFromContractWithCustomerExcludingAssessedTax      -    1.8    2.1    2.1      -      -      -      -      -      -      -     35
+ *SalesRevenueGoodsNet                                   1.3    1.5    1.8      -      -      -      -      -      -      -      -    152
+  EntityWideDisclosureOnGeographicAreasRevenueFromExt      -      -      -      -      -      -      -      -      -      -      -      6
+  PaymentsToAcquireAvailableForSaleSecurities            1.4    1.7    1.4    0.9    0.7    0.9      -      -      -      -      -    102
+  BusinessAcquisitionsProFormaRevenue                      -      -      -      -      -      -      -      -      -      -      -     11
+  ProceedsFromSaleOfAvailableForSaleSecurities           1.3    0.9    0.5    0.8    0.1    0.0      -      -      -      -      -    103
+  ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailabl    0.4    0.2    0.7    1.3    0.6    0.5    0.7    0.2    0.1    0.0    0.0    128
+  CostOfRevenue                                          0.7    0.8    0.9    0.9      -      -      -      -      -      -      -    157
+ *SalesRevenueServicesNet                                0.3    0.3    0.4      -      -      -      -      -      -      -      -    152
+  ContractWithCustomerLiabilityRevenueRecognized           -      -      -    0.1    0.1    0.1    0.1    0.1    0.1    0.1    0.1     96
+  IncreaseDecreaseInDeferredRevenueAndCustomerAdvance    0.0   -0.0    0.0      -      -      -      -      -      -      -      -     56
+  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
+  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues
+  anchor: Revenues (120 periods, newest 2026-06-28)
+    RevenueFromContractWithCustomerExcludingAssessedTax: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueServicesNet: REFUSED, runs 0.18x the anchor where they overlap
+    SalesRevenueGoodsNet: merged at 0.823x the anchor (rescaled by 1.216)
+
+==============================================================================
 NDAQ
 ==============================================================================
 
@@ -12367,7 +12542,7 @@ FLAGGED FOR:
 
 P/S now 5.94 | 5y med 5.64 | 10y med 4.42 | Z 1.1378623658298002
   my revenue  $      8.75B   Yahoo $      5.61B
-  my mktcap   $     51.95B   Yahoo $     50.97B
+  my mktcap   $     51.95B   Yahoo $     51.19B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12390,6 +12565,38 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
     Revenues: merged at 1.000x the anchor (rescaled by 1.000)
 
 ==============================================================================
+CIEN
+==============================================================================
+
+FLAGGED FOR:
+  - market cap differs from Yahoo by +13%
+
+P/S now 8.49 | 5y med 2.30 | 10y med 1.89 | Z 2.4905988239980648
+  my revenue  $      6.02B   Yahoo $      6.02B
+  my mktcap   $     51.11B   Yahoo $     45.33B
+  (structurally clean -- this block exists only because the two sources disagree)
+
+REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
+                                                          15     16     17     18     19     20     21     22     23     24     25   facts
+ *Revenues                                                 -    2.6    2.8    3.1    3.6    3.5    3.6    3.6    4.4    4.0    4.8    108
+ *SalesRevenueNet                                        2.4    2.6    2.8      -      -      -      -      -      -      -      -    104
+ *SalesRevenueGoodsNet                                   2.0    2.1    2.3      -      -      -      -      -      -      -      -    104
+  PaymentsToAcquireAvailableForSaleSecuritiesDebt        0.2    0.4    0.3    0.3    0.2    0.2    0.2    0.6    0.3    0.3    0.2    143
+  ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailabl    0.2    0.2    0.3    0.4    0.2    0.1    0.2    0.7    0.2    0.1    0.3    137
+  ProceedsFromSaleOfAvailableForSaleSecuritiesDebt         -      -      -      -      -      -      -      -      -      -      -     25
+ *SalesRevenueServicesNet                                0.4    0.5    0.5      -      -      -      -      -      -      -      -    104
+  ContractWithCustomerLiabilityRevenueRecognized           -      -      -      -    0.1    0.1    0.1    0.1    0.1    0.2    0.2     58
+  IncreaseDecreaseInDeferredRevenue                      0.0   -0.0    0.0   -0.0      -      -      -      -      -      -      -     77
+  OtherComprehensiveIncomeAvailableforsaleSecuritiesA   -0.0    0.0   -0.0    0.0    0.0   -0.0   -0.0   -0.0    0.0    0.0   -0.0    179
+  OtherComprehensiveIncomeAvailableForSaleSecuritiesA      -      -      -      -      -      -      -      -      -      -      -     19
+  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
+  CHOSEN: Revenues, SalesRevenueNet
+  anchor: Revenues (64 periods, newest 2026-08-01)
+    SalesRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueServicesNet: REFUSED, runs 0.18x the anchor where they overlap
+    SalesRevenueGoodsNet: merged at 0.821x the anchor (rescaled by 1.218)
+
+==============================================================================
 PAYX
 ==============================================================================
 
@@ -12398,7 +12605,7 @@ FLAGGED FOR:
 
 P/S now 6.62 | 5y med 8.96 | 10y med 8.24 | Z -1.2355873583585126
   my revenue  $      6.30B   Yahoo $      3.97B
-  my mktcap   $     41.69B   Yahoo $     41.22B
+  my mktcap   $     41.69B   Yahoo $     42.19B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12427,11 +12634,11 @@ IBKR
 ==============================================================================
 
 FLAGGED FOR:
-  - market cap differs from Yahoo by -74%
+  - market cap differs from Yahoo by -73%
 
 P/S now 5.99 | 5y med 2.91 | 10y med 2.46 | Z 2.324865214166781
   my revenue  $      6.86B   Yahoo $      6.83B
-  my mktcap   $     41.12B   Yahoo $    155.68B
+  my mktcap   $     41.12B   Yahoo $    154.62B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12450,15 +12657,44 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
     Revenues: merged at 1.057x the anchor (rescaled by 0.946)
 
 ==============================================================================
+SMCI
+==============================================================================
+
+FLAGGED FOR:
+  - market cap differs from Yahoo by +18%
+
+P/S now 0.72 | 5y med 0.97 | 10y med 0.62 | Z -0.1974375901148168
+  my revenue  $     39.06B   Yahoo $     39.06B
+  my mktcap   $     27.96B   Yahoo $     23.77B
+  (structurally clean -- this block exists only because the two sources disagree)
+
+REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
+                                                          16     17     18     19     20     21     22     23     24     25     26   facts
+ *RevenueFromContractWithCustomerExcludingAssessedTax      -    2.5    3.4    3.5    3.3    3.6    5.2    7.1   15.0   22.0   39.1    120
+  CostOfRevenue                                          1.9    2.1    2.9    3.0    2.8    3.0    4.4    5.8   12.9   19.5   34.8    195
+ *Revenues                                               2.2    2.5      -      -      -      -      -      -      -      -      -     21
+ *SalesRevenueNet                                        2.2      -      -      -      -      -      -      -      -      -      -    126
+  ContractWithCustomerLiabilityRevenueRecognized           -      -      -    0.1    0.1    0.1    0.1    0.1    0.1    0.2    0.4     61
+  RevenueFromRelatedParties                              0.0    0.0    0.1    0.1    0.1    0.1    0.1      -      -      -      -    133
+  IncreaseDecreaseInDeferredRevenue                        -    0.0    0.1    0.1    0.0   -0.0      -      -      -      -      -     39
+  ProceedsFromSaleOfAvailableForSaleSecuritiesDebt         -      -    0.0    0.0    0.0      -      -      -      -      -      -      3
+  FairValueMeasurementWithUnobservableInputsReconcili      -      -      -      -      -      -      -      -      -      -      -     14
+  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
+  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues, SalesRevenueNet
+  anchor: RevenueFromContractWithCustomerExcludingAssessedTax (58 periods, newest 2026-06-30)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 0.892x the anchor (rescaled by 1.122)
+
+==============================================================================
 VMRK
 ==============================================================================
 
 FLAGGED FOR:
-  - market cap differs from Yahoo by -50%
+  - market cap differs from Yahoo by -51%
 
 P/S now 8.05 | 5y med 8.77 | 10y med 9.54 | Z -1.0286139716297085
   my revenue  $      3.13B   Yahoo $      3.09B
-  my mktcap   $     25.20B   Yahoo $     50.71B
+  my mktcap   $     25.20B   Yahoo $     51.32B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12493,7 +12729,7 @@ FLAGGED FOR:
 
 P/S now 2.11 | 5y med 1.64 | 10y med 1.69 | Z 0.8983792205518031
   my revenue  $      8.27B   Yahoo $      6.99B
-  my mktcap   $     17.42B   Yahoo $     17.15B
+  my mktcap   $     17.42B   Yahoo $     16.78B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12514,31 +12750,66 @@ REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
     OperatingLeaseLeaseIncome: REFUSED, runs 0.01x the anchor where they overlap
     SalesRevenueNet: no comparable overlap, not merged
 
+==============================================================================
+SWKS
+==============================================================================
+
+FLAGGED FOR:
+  - market cap differs from Yahoo by +12%
+
+P/S now 3.33 | 5y med 3.20 | 10y med 3.92 | Z -0.6066279268458848
+  my revenue  $      4.01B   Yahoo $      4.01B
+  my mktcap   $     13.38B   Yahoo $     11.92B
+  (structurally clean -- this block exists only because the two sources disagree)
+
+REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
+                                                          15     16     17     18     19     20     21     22     23     24     25   facts
+ *RevenueFromContractWithCustomerExcludingAssessedTax      -      -    3.7    3.9    3.4    3.4    5.1    5.5    4.8    4.2    4.1    111
+ *Revenues                                                 -      -      -      -      -      -      -    5.5    4.8    4.2    4.1     86
+  BusinessAcquisitionsProFormaRevenue                      -      -    3.7    3.9      -    3.7    5.4    5.4      -      -      -     18
+ *SalesRevenueNet                                        3.3    3.3    3.7    3.9      -      -      -      -      -      -      -    185
+  ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailabl    0.0      -      -      -      -      -      -      -      -      -      -     12
+  OtherComprehensiveIncomeLossAvailableForSaleSecurit    0.0    0.0    0.0   -0.0    0.0    0.0    0.0   -0.0    0.0    0.0   -0.0    122
+  AvailableForSaleSecuritiesGrossUnrealizedGains           -      -      -      -      -      -    0.0      -      -      -      -      1
+  OtherComprehensiveIncomeAvailableForSaleSecuritiesA      -      -      -      -      -      -      -      -      -      -      -      2
+  (* = already in REVENUE_TAGS; anything large and unmarked is a concept the tag list is missing)
+  CHOSEN: RevenueFromContractWithCustomerExcludingAssessedTax, Revenues, SalesRevenueNet
+  anchor: RevenueFromContractWithCustomerExcludingAssessedTax (56 periods, newest 2026-07-03)
+    Revenues: merged at 1.000x the anchor (rescaled by 1.000)
+    SalesRevenueNet: merged at 1.000x the anchor (rescaled by 1.000)
+
 
 ==============================================================================
 CROSS-CHECK AGAINST YAHOO — every row that disagrees
 ==============================================================================
 
 tkr    sector                     my revenue   my mktcap  rev diff  cap diff
-AVGO   Information Technology          75.5B    1,767.2B      -15%       +2%
-COF    Financials                      58.7B      129.9B      +22%       +2%
+C      Financials                      85.2B      260.0B       +4%      +14%
+PANW   Information Technology          11.5B      252.6B       -0%      -17%
+GLW    Information Technology          17.0B      145.9B       +0%      +18%
+COF    Financials                      62.0B      129.6B      +29%       +2%
 BX     Financials                      16.1B      102.8B       +4%      -33%
-KKR    Financials                      21.3B       90.7B      -18%       -3%
+KKR    Financials                      21.3B       90.7B      -18%       -4%
+HPE    Information Technology          41.9B       90.0B       +0%      +22%
 ICE    Financials                      13.4B       89.4B      +27%       +1%
-WMB    Energy                          15.4B       89.3B      +25%       +0%
-MAR    Consumer Discretionary          26.9B       88.9B     +264%       +2%
-HLT    Consumer Discretionary          12.5B       70.4B     +145%       +2%
-LITE   Information Technology           3.0B       69.2B       -0%      -17%
+WMB    Energy                          15.4B       89.3B      +25%       +1%
+MAR    Consumer Discretionary          26.9B       88.9B     +264%       +0%
+HLT    Consumer Discretionary          12.5B       70.4B     +145%       +1%
 SPG    Real Estate                      6.9B       66.5B       +0%      -15%
+TER    Information Technology           4.5B       59.9B       -0%      +16%
+COHR   Information Technology           7.1B       59.7B       +0%      +14%
 NDAQ   Financials                       8.8B       52.0B      +56%       +2%
-CVNA   Consumer Discretionary          25.1B       51.2B       -0%      -33%
-DVN    Energy                          19.7B       47.2B       +5%      -15%
-LHX    Industrials                     21.7B       46.1B      +69%       +1%
-PAYX   Industrials                      6.3B       41.7B      +59%       +1%
-IBKR   Financials                       6.9B       41.1B       +0%      -74%
-ECHO   Communication Services          14.7B       32.8B       -0%      +21%
-HBAN   Financials                       1.7B       32.0B      -82%       -6%
-MLM    Materials                        6.7B       30.8B       +0%      -15%
-VMRK   Real Estate                      3.1B       25.2B       +1%      -50%
-DD     Industrials                      8.3B       17.4B      +18%       +2%
-ALB    Materials                        5.9B       16.0B       +0%      +15%
+CVNA   Consumer Discretionary          25.1B       51.2B       -0%      -35%
+CIEN   Information Technology           6.0B       51.1B       -0%      +13%
+DVN    Energy                          19.7B       47.2B       +5%      -14%
+LHX    Industrials                     21.7B       46.1B      +69%       -1%
+PAYX   Industrials                      6.3B       41.7B      +59%       -1%
+IBKR   Financials                       6.9B       41.1B       +0%      -73%
+ECHO   Communication Services          14.7B       32.8B       -0%      +20%
+HBAN   Financials                       1.7B       32.0B      -82%       -5%
+MLM    Materials                        6.7B       30.8B       +0%      -14%
+SMCI   Information Technology          39.1B       28.0B       -0%      +18%
+VMRK   Real Estate                      3.1B       25.2B       +1%      -51%
+DD     Industrials                      8.3B       17.4B      +18%       +4%
+ALB    Materials                        5.9B       16.0B       +0%      +18%
+SWKS   Information Technology           4.0B       13.4B       +0%      +12%
