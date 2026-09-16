@@ -228,107 +228,115 @@ def monthly_dates(start, end):
     return out
 
 
-print("Fetching SP500 (for the equity-trend gauge; separate from the INDS set)...")
-SP500_RAW = md.fetch("SP500", "2015-01-01")
-print(f"  {len(SP500_RAW)} points")
 
-WINDOWS = [
-    ("DOT-COM ERA", datetime(1998, 1, 1), datetime(2002, 12, 31)),
-    ("GFC ERA", datetime(2006, 1, 1), datetime(2009, 12, 31)),
-    ("COVID / 2022 BEAR ERA", datetime(2019, 1, 1), datetime(2023, 12, 31)),
-]
 
-KEY_BUCKETS = ["Overall equity exposure", "Value over Growth", "Gold",
-               "Cyclicals & small caps", "Defensive equities"]
+def _run():
+    print("Fetching SP500 (for the equity-trend gauge; separate from the INDS set)...")
+    SP500_RAW = md.fetch("SP500", "2015-01-01")
+    print(f"  {len(SP500_RAW)} points")
 
-verdict_counts_by_window = {}
-gated_counts_by_window = {}
-flip_examples_by_window = {}   # first/last week of each contiguous flip run, per era
+    WINDOWS = [
+        ("DOT-COM ERA", datetime(1998, 1, 1), datetime(2002, 12, 31)),
+        ("GFC ERA", datetime(2006, 1, 1), datetime(2009, 12, 31)),
+        ("COVID / 2022 BEAR ERA", datetime(2019, 1, 1), datetime(2023, 12, 31)),
+    ]
 
-for label, start, end in WINDOWS:
-    dates = weekly_dates(start, end)
+    KEY_BUCKETS = ["Overall equity exposure", "Value over Growth", "Gold",
+                   "Cyclicals & small caps", "Defensive equities"]
+
+    verdict_counts_by_window = {}
+    gated_counts_by_window = {}
+    flip_examples_by_window = {}   # first/last week of each contiguous flip run, per era
+
+    for label, start, end in WINDOWS:
+        dates = weekly_dates(start, end)
+        print(f"\n{'=' * 100}")
+        print(f"{label} -- weekly, {dates[0]} to {dates[-1]} ({len(dates)} dates)")
+        print(f"{'=' * 100}")
+        counts, gcounts = {}, {}
+        flips = []            # list of (start_date, end_date, run_length) for flipped runs
+        run_start = None
+        for k, dt in enumerate(dates):
+            alloc, val_c, cons_c = allocation_at(dt)
+            verdict, macro, n_hot, total = market_check_at(dt, SP500_RAW, alloc)
+            gv = gated_verdict(verdict, val_c["condition"])
+            counts[verdict] = counts.get(verdict, 0) + 1
+            gcounts[gv] = gcounts.get(gv, 0) + 1
+            flipped = (gv != verdict)
+            if flipped and run_start is None:
+                run_start = dt
+            if not flipped and run_start is not None:
+                flips.append((run_start, dates[k - 1]))
+                run_start = None
+            if (k + 1) % 100 == 0:
+                print(f"  ... {k + 1}/{len(dates)}")
+        if run_start is not None:
+            flips.append((run_start, dates[-1]))
+        verdict_counts_by_window[label] = counts
+        gated_counts_by_window[label] = gcounts
+        flip_examples_by_window[label] = flips
+
     print(f"\n{'=' * 100}")
-    print(f"{label} -- weekly, {dates[0]} to {dates[-1]} ({len(dates)} dates)")
+    print("COMPARISON -- verdict frequency, BEFORE vs AFTER the proposed valuation gate")
     print(f"{'=' * 100}")
-    counts, gcounts = {}, {}
-    flips = []            # list of (start_date, end_date, run_length) for flipped runs
-    run_start = None
-    for k, dt in enumerate(dates):
+    for label in verdict_counts_by_window:
+        counts, gcounts = verdict_counts_by_window[label], gated_counts_by_window[label]
+        total = sum(counts.values())
+        before_riskon = counts.get("Confirmed risk-on", 0)
+        after_riskon = gcounts.get("Confirmed risk-on", 0)
+        after_qualified = gcounts.get("Risk-on, but valuations extreme", 0)
+        print(f"\n{label} ({total} weeks):")
+        print(f"  BEFORE -- 'Confirmed risk-on': {before_riskon} weeks ({before_riskon/total*100:.0f}%)")
+        print(f"  AFTER  -- 'Confirmed risk-on': {after_riskon} weeks ({after_riskon/total*100:.0f}%)   "
+              f"'Risk-on, but valuations extreme': {after_qualified} weeks ({after_qualified/total*100:.0f}%)")
+        pct_downgraded = (after_qualified / before_riskon * 100) if before_riskon else 0.0
+        print(f"  -> {after_qualified} of the original {before_riskon} risk-on weeks "
+              f"({pct_downgraded:.0f}%) get downgraded")
+        flips = flip_examples_by_window[label]
+        print(f"  Contiguous flipped stretches: {len(flips)}")
+        for s, e in flips:
+            print(f"    {s} to {e}")
+
+    print(f"\n{'=' * 100}")
+    print("OVER-TRIGGER CHECK -- does the gate ever fire outside the 3 known crisis eras'")
+    print("bubble buildups? (spot-checking calmer stretches within each window)")
+    print(f"{'=' * 100}")
+    CALM_CHECK_DATES = [
+        ("2003-06-01", "post dot-com bust recovery, should NOT be extreme"),
+        ("2009-06-01", "post-GFC trough recovery, should NOT be extreme"),
+        ("2013-06-01", "mid-cycle expansion, should NOT be extreme"),
+        ("2017-06-01", "mid-cycle expansion, should NOT be extreme"),
+    ]
+    for dt, why in CALM_CHECK_DATES:
         alloc, val_c, cons_c = allocation_at(dt)
         verdict, macro, n_hot, total = market_check_at(dt, SP500_RAW, alloc)
         gv = gated_verdict(verdict, val_c["condition"])
-        counts[verdict] = counts.get(verdict, 0) + 1
-        gcounts[gv] = gcounts.get(gv, 0) + 1
-        flipped = (gv != verdict)
-        if flipped and run_start is None:
-            run_start = dt
-        if not flipped and run_start is not None:
-            flips.append((run_start, dates[k - 1]))
-            run_start = None
-        if (k + 1) % 100 == 0:
-            print(f"  ... {k + 1}/{len(dates)}")
-    if run_start is not None:
-        flips.append((run_start, dates[-1]))
-    verdict_counts_by_window[label] = counts
-    gated_counts_by_window[label] = gcounts
-    flip_examples_by_window[label] = flips
+        flag = "  <-- GATE FIRED HERE" if gv != verdict else ""
+        print(f"  {dt} ({why}): valcond={val_c['condition']:<10} verdict={verdict:<20} gated={gv}{flag}")
 
-print(f"\n{'=' * 100}")
-print("COMPARISON -- verdict frequency, BEFORE vs AFTER the proposed valuation gate")
-print(f"{'=' * 100}")
-for label in verdict_counts_by_window:
-    counts, gcounts = verdict_counts_by_window[label], gated_counts_by_window[label]
-    total = sum(counts.values())
-    before_riskon = counts.get("Confirmed risk-on", 0)
-    after_riskon = gcounts.get("Confirmed risk-on", 0)
-    after_qualified = gcounts.get("Risk-on, but valuations extreme", 0)
-    print(f"\n{label} ({total} weeks):")
-    print(f"  BEFORE -- 'Confirmed risk-on': {before_riskon} weeks ({before_riskon/total*100:.0f}%)")
-    print(f"  AFTER  -- 'Confirmed risk-on': {after_riskon} weeks ({after_riskon/total*100:.0f}%)   "
-          f"'Risk-on, but valuations extreme': {after_qualified} weeks ({after_qualified/total*100:.0f}%)")
-    pct_downgraded = (after_qualified / before_riskon * 100) if before_riskon else 0.0
-    print(f"  -> {after_qualified} of the original {before_riskon} risk-on weeks "
-          f"({pct_downgraded:.0f}%) get downgraded")
-    flips = flip_examples_by_window[label]
-    print(f"  Contiguous flipped stretches: {len(flips)}")
-    for s, e in flips:
-        print(f"    {s} to {e}")
+    print(f"\n{'=' * 100}")
+    print("DEEP DIVE -- reference dates, BEFORE vs AFTER")
+    print(f"{'=' * 100}")
+    REFERENCE_DATES = [
+        ("1999-12-01", "pre dot-com peak"),
+        ("2000-03-10", "dot-com peak (Nasdaq high was 2000-03-10)"),
+        ("2000-09-01", "6mo after the peak"),
+        ("2007-10-09", "pre-GFC peak (S&P 500 high was 2007-10-09)"),
+        ("2008-09-01", "just before Lehman"),
+        ("2021-11-19", "2021 peak (S&P 500 high was 2022-01-03; using late-2021 for data lag)"),
+        ("2022-06-01", "mid-2022 bear"),
+        ("2026-09-12", "latest / today"),
+    ]
+    for dt, why in REFERENCE_DATES:
+        alloc, val_c, cons_c = allocation_at(dt)
+        verdict, macro, n_hot, total = market_check_at(dt, SP500_RAW, alloc)
+        gv = gated_verdict(verdict, val_c["condition"])
+        changed = " <-- CHANGED" if gv != verdict else ""
+        print(f"  {dt:<12} ({why})")
+        print(f"    valuation={val_c['condition']:<10} BEFORE={verdict:<20} AFTER={gv}{changed}")
 
-print(f"\n{'=' * 100}")
-print("OVER-TRIGGER CHECK -- does the gate ever fire outside the 3 known crisis eras'")
-print("bubble buildups? (spot-checking calmer stretches within each window)")
-print(f"{'=' * 100}")
-CALM_CHECK_DATES = [
-    ("2003-06-01", "post dot-com bust recovery, should NOT be extreme"),
-    ("2009-06-01", "post-GFC trough recovery, should NOT be extreme"),
-    ("2013-06-01", "mid-cycle expansion, should NOT be extreme"),
-    ("2017-06-01", "mid-cycle expansion, should NOT be extreme"),
-]
-for dt, why in CALM_CHECK_DATES:
-    alloc, val_c, cons_c = allocation_at(dt)
-    verdict, macro, n_hot, total = market_check_at(dt, SP500_RAW, alloc)
-    gv = gated_verdict(verdict, val_c["condition"])
-    flag = "  <-- GATE FIRED HERE" if gv != verdict else ""
-    print(f"  {dt} ({why}): valcond={val_c['condition']:<10} verdict={verdict:<20} gated={gv}{flag}")
 
-print(f"\n{'=' * 100}")
-print("DEEP DIVE -- reference dates, BEFORE vs AFTER")
-print(f"{'=' * 100}")
-REFERENCE_DATES = [
-    ("1999-12-01", "pre dot-com peak"),
-    ("2000-03-10", "dot-com peak (Nasdaq high was 2000-03-10)"),
-    ("2000-09-01", "6mo after the peak"),
-    ("2007-10-09", "pre-GFC peak (S&P 500 high was 2007-10-09)"),
-    ("2008-09-01", "just before Lehman"),
-    ("2021-11-19", "2021 peak (S&P 500 high was 2022-01-03; using late-2021 for data lag)"),
-    ("2022-06-01", "mid-2022 bear"),
-    ("2026-09-12", "latest / today"),
-]
-for dt, why in REFERENCE_DATES:
-    alloc, val_c, cons_c = allocation_at(dt)
-    verdict, macro, n_hot, total = market_check_at(dt, SP500_RAW, alloc)
-    gv = gated_verdict(verdict, val_c["condition"])
-    changed = " <-- CHANGED" if gv != verdict else ""
-    print(f"  {dt:<12} ({why})")
-    print(f"    valuation={val_c['condition']:<10} BEFORE={verdict:<20} AFTER={gv}{changed}")
 
+
+if __name__ == "__main__":
+    _run()
