@@ -1,0 +1,30 @@
+name: Market check validation (one-off)
+
+# Manual-trigger only. Runs market_check_validation.py once and captures its
+# output in the Actions log. Delete this file and market_check_validation.py
+# once we've read the output. Imports market_check_backtest and
+# historical_check, so all three plus macro_dashboard must be in the repo.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install requests xlrd yfinance openpyxl
+
+      - name: Run market check validation
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python market_check_validation.py
