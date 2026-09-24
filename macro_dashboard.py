@@ -273,8 +273,10 @@ THEMES = {
                  "1990, ~23-27% at the 2000 peak, and a record ~40% by 2025 -- "
                  "that's the scale to read today's number against. No free "
                  "source has daily history for this, so unlike the ratio above "
-                 "it starts accumulating from today rather than 2003; expect a "
-                 "flat, neutral read for the first week or so."},
+                 "it accumulates from its first run (Sept 2026) rather than "
+                 "2003. Shown for context, not scored: its own history is far "
+                 "too short to define normal. The ratio above carries the "
+                 "scored concentration read, with history back to 2003."},
         {"id": "IPO issuance", "label": "IPO issuance (trailing 12mo)",
          "compute": "issuance", "issuance_col": "IPO",
          "kind": "level", "units": "$B", "worry": "up", "start": "1994-01-01",
@@ -850,6 +852,14 @@ def trend(series, lookback_days=180):
     if len(series) < 3:
         return None
     dates = [datetime.strptime(d, "%Y-%m-%d").date() for d, _ in series]
+    # No "6-month move" without 6 months of data. Previously a young series had
+    # its delta measured against its FIRST reading and labelled "over 6 mo" --
+    # the SPY top-10 card showed an 11-day move that way, with a worsening arrow.
+    # Verified against the live series at all 17 historical_check dates before
+    # adding: this changes no regime label and no individual regime vote, since
+    # every regime signal already has 6+ months at every date it is evaluated.
+    if (dates[-1] - dates[0]).days < lookback_days:
+        return None
     vals = [v for _, v in series]
     latest = vals[-1]
     target = dates[-1] - timedelta(days=lookback_days)
@@ -921,6 +931,27 @@ ROBUST_Z_CAP = 4.0          # beyond ~4 sigma, "very alarmed" is just "very alar
 MIN_Z_HISTORY = 8           # fewer points than this -> median/MAD not yet stable
 Z_CAUTION = 1.0
 Z_ALERT = 2.0
+
+# "Its own normal" needs enough history to mean something. A point count alone
+# was not enough: 8 points is 8 days for a daily series, and the SPY top-10 card
+# was scored against 11 days of readings. So a signal must span this many YEARS
+# of its own history before it is scored by distance from normal. Below it:
+#   - a signal with fixed caution/alert thresholds falls back to them. Those
+#     thresholds were set from long history the truncated series no longer has.
+#     This is the high-yield spread: FRED serves only a rolling 3 years of it,
+#     and z-scoring against that calm window put its danger line at 3.70% --
+#     below its own 5% CAUTION threshold -- and would have flashed danger in 5
+#     separate episodes of the last 3 years (Sep-Dec 2023, Aug 2024, Apr 2025)
+#     where the fixed thresholds never left calm (measured from the live series).
+#   - a signal without thresholds is shown for context, unscored (SPY top-10).
+# Why 5: measured from the live build, the only signals under 5 years are those
+# two (0.03 and 2.99 yrs); the next-shortest has 13.5, so any floor from 3 to 13
+# catches exactly them. It is not higher because 44 of the 77 signals start in
+# 1990, and a 10-year floor would blank them all at the 1999-2001 backtest dates.
+# KNOWN LIMIT, revisit ~Sept 2031: SPY top-10 crosses 5 years then and would
+# start scoring against a history that began at a record high, so its "normal"
+# would itself be extreme. Decide before then whether it should ever score.
+MIN_NORMAL_YEARS = 5.0
 
 # Signals whose danger line was defined by someone OUTSIDE this project keep
 # absolute scoring -- a z-score against their own history would destroy real,
@@ -1417,26 +1448,52 @@ def panel_for(ind, percentile_state=False):
     latest = series[-1][1]
     tr = trend(series)
     w = ind["worry"]
-    # Magnitude: robust z against the signal's own full history (see robust_z).
+    # How much of its own history this signal actually has (see MIN_NORMAL_YEARS).
+    first_d = datetime.strptime(series[0][0], "%Y-%m-%d").date()
+    last_d = datetime.strptime(series[-1][0], "%Y-%m-%d").date()
+    hist_years = (last_d - first_d).days / 365.25
+    short_history = hist_years < MIN_NORMAL_YEARS
+    has_thresholds = (w is not None and ind.get("caution") is not None
+                      and ind.get("alert") is not None)
+    # Magnitude: robust z against the signal's own full history (see robust_z),
+    # but only once that history is long enough to define "normal".
     # percentile_state is retained in the signature for call-site compatibility
-    # but no longer drives the badge -- one consistent measure now scores every
-    # signal, the percentile position survives only as a display factoid (the
-    # "Nth pctile of its range" line, sourced from trend()).
-    z = robust_z([v for _, v in series], latest, w)
+    # but no longer drives the badge.
+    z = None if short_history else robust_z([v for _, v in series], latest, w)
     phrase = distance_phrase(z)
-    # Badge state: absolute only where an outside body defined the danger line
-    # (ABSOLUTE_SCORED); robust z everywhere else; neutral if there is no worry
-    # direction or too little history for a stable median/MAD.
-    if ind["id"] in ABSOLUTE_SCORED and ind.get("caution") is not None \
-            and ind.get("alert") is not None:
+    # Badge state, in order:
+    #   1. externally-defined line (ABSOLUTE_SCORED)       -> fixed threshold
+    #   2. enough history                                  -> robust z
+    #   3. too little history, but has fixed thresholds    -> fixed threshold
+    #   4. otherwise (no worry direction, or too new)      -> unscored, context
+    if ind["id"] in ABSOLUTE_SCORED and has_thresholds:
         st = state_of(w, latest, ind["caution"], ind["alert"])
         score_mode = "absolute"
     elif z is not None:
         st = zstate_of(z)
         score_mode = "robust"
+    elif short_history and has_thresholds:
+        st = state_of(w, latest, ind["caution"], ind["alert"])
+        score_mode = "absolute"
     else:
         st = "neutral"
         score_mode = "context"
+    # What the reading is judged against, shown on the card in place of the old
+    # "Nth pctile of its range" line. That line was a min-max position -- the
+    # outlier-sensitive measure the scoring abandoned -- and it never said how
+    # much history it covered, which is what hid the top-10 card's problem.
+    yrs_txt = ("less than a year" if hist_years < 1 else
+               f"{hist_years:.0f} yr" + ("" if round(hist_years) == 1 else "s"))
+    if score_mode == "robust":
+        basis = f"judged against its history since {first_d.year}"
+    elif score_mode == "absolute" and short_history:
+        basis = f"judged against a fixed threshold (only {yrs_txt} of data available)"
+    elif score_mode == "absolute":
+        basis = "judged against a fixed threshold"
+    elif short_history and w is not None:
+        basis = f"history only since {first_d.day} {first_d.strftime('%b %Y')} -- too new to judge"
+    else:
+        basis = None
     sig = bool(tr and tr.get("typical", 0) > 0
                and abs(tr["delta"]) >= DEADBAND_K * tr["typical"])
     moved_bad = bool(tr and w and (
@@ -1453,12 +1510,20 @@ def panel_for(ind, percentile_state=False):
             crit = f"Danger at/above {a}{usuf}, caution at/above {c}{usuf} (higher is worse)."
         else:
             crit = f"Danger at/below {a}{usuf}, caution at/below {c}{usuf} (lower is worse)."
+        if short_history and ind["id"] not in ABSOLUTE_SCORED:
+            crit = (f"This series has only {yrs_txt} of history available -- too little "
+                    f"to define its normal -- so it is judged against a fixed threshold "
+                    f"set from its longer history instead. " + crit)
     elif score_mode == "robust":
         side = "high" if w == "up" else "low"
         crit = (f"Scored by how far it sits from its own historical normal, shown in "
                 f"plain English -- currently {phrase}. Danger once it reads far worse "
                 f"than normal, caution once somewhat worse ({side} readings are the "
                 f"worrying side).")
+    elif short_history and w is not None:
+        crit = (f"Not scored yet: its history only starts {first_d.isoformat()}, and a "
+                f"signal needs {MIN_NORMAL_YEARS:.0f} years of its own history before "
+                f"'normal' means anything. Shown for context.")
     else:
         crit = "Shown for context; not scored."
     crit += (" Colour shows the level; the arrow shows 6-month direction "
@@ -1473,7 +1538,8 @@ def panel_for(ind, percentile_state=False):
         "label": ind["label"], "series_id": ind["id"], "units": ind["units"],
         "worry": ind["worry"], "note": ind["note"], "state": st,
         "phrase": phrase, "z": (round(z, 2) if z is not None else None),
-        "score_mode": score_mode,
+        "score_mode": score_mode, "basis": basis,
+        "hist_years": round(hist_years, 2), "short_history": short_history,
         "fmt": ind.get("fmt"), "criteria": crit, "direction": direction,
         "caution": ind.get("caution"), "alert": ind.get("alert"),
         "latest": round(latest, 2), "latest_date": series[-1][0],
@@ -1618,6 +1684,18 @@ def build():
                   f"{'worse' if panel['deteriorating'] else 'ok'}")
         if subs:
             drill_out[theme] = subs
+
+    # Every signal under the history floor, and what it fell back to. Printed on
+    # every run so a provider truncating a series (as FRED did to the ICE credit
+    # indices) shows up in the log the day it happens, not months later.
+    _short = [p for grp in (themes_out, drill_out) for lst in grp.values()
+              for p in lst if p.get("short_history")]
+    print(f"\n  [span] {len(_short)} signal(s) under the {MIN_NORMAL_YEARS:.0f}-year "
+          f"floor for scoring against their own normal:")
+    for p in _short:
+        how = ("fixed threshold" if p["score_mode"] == "absolute" else "context only")
+        print(f"    {p['series_id']:<16} {p['hist_years']:>5.2f} yrs  -> {how}  "
+              f"(state={p['state']})")
 
     order = {"alert": 3, "caution": 2, "calm": 1, "neutral": 0}
     theme_states = {}
@@ -2609,7 +2687,7 @@ function feedsText(p){
 function makeCard(p,cid){
   PANELS[cid] = p;
   const {mv,moveTxt,moveCls} = moveInfo(p);
-  const pctTxt = mv ? ` &middot; ${mv.pct_of_range.toFixed(0)}th pctile of its range` : '';
+  const pctTxt = p.basis ? ` &middot; ${p.basis}` : '';
   const dv = dispVU(p.latest, p);
   const card = document.createElement('div'); card.className='card';
   card.innerHTML = `<div class="top"><div><h4>${p.label}</h4><div class="sid">${p.series_id}</div></div>
@@ -2662,7 +2740,7 @@ function openModal(cid){
   let meta = `<span class="m-val ${p.state}">${dv.t} ${dv.u}</span><span class="badge bg-${p.state}">${stText(p.state)}</span>`;
   if(p.phrase && p.score_mode==='robust') meta += `<span class="m-phrase ${p.state}">${p.phrase}</span>`;
   meta += `<span>as of ${p.latest_date}`;
-  if(mv) meta += ` &middot; ${mv.pct_of_range.toFixed(0)}th pctile of its range`;
+  if(p.basis) meta += ` &middot; ${p.basis}`;
   meta += `</span>`;
   document.getElementById('modal-meta').innerHTML = meta;
   document.getElementById('modal-note').textContent = p.note;
