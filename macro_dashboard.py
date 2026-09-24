@@ -20,6 +20,7 @@ than charting nothing. Requires a free FRED_API_KEY.
 import json
 import math
 import os
+import statistics
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -895,6 +896,100 @@ def substate_of(worry, pct):
     return "alert" if pct <= 15 else "caution" if pct <= 35 else "calm"
 
 
+# --------------------------------------------------------------------------
+# Magnitude scoring: robust z-score against a signal's OWN full history.
+#
+# Replaces the old split of fixed absolute thresholds (state_of) and
+# position-in-range percentiles (substate_of) with one consistent measure --
+# "how many robust standard deviations from its own normal is this reading, in
+# the worrying direction". Full history, so it never forgets a crisis; median +
+# MAD, so a single distortion (M2 / the Fed balance sheet after 2020) can't move
+# the yardstick the way mean + stdev would.
+#
+# Two dials, chosen from real data in historical_check.py's scoring gate, NOT
+# guessed. They are the ONLY pair at which the colour badge and the plain-English
+# phrase can never contradict each other: distance_phrase's own boundaries sit at
+# 1.0 ("somewhat worse" begins) and 2.0 ("far worse" begins), so caution=1.0 and
+# alert=2.0 make a caution badge always read "somewhat worse than normal" and a
+# danger badge always read "far worse"/"historic extreme". Validated on history:
+# at Lehman all four stress gauges read >=2 sigma (danger); at GFC onset Sahm and
+# NFCI give an early warning; the 2008/2022 recession read is unchanged from the
+# old scoring (gate section C). 3.0 for alert was tested and under-alarms even
+# Lehman, so it is too loose. Revisit caution=1.0 if Step 3's flip-frequency test
+# shows it churning in calm periods.
+ROBUST_Z_CAP = 4.0          # beyond ~4 sigma, "very alarmed" is just "very alarmed"
+MIN_Z_HISTORY = 8           # fewer points than this -> median/MAD not yet stable
+Z_CAUTION = 1.0
+Z_ALERT = 2.0
+
+# Signals whose danger line was defined by someone OUTSIDE this project keep
+# absolute scoring -- a z-score against their own history would destroy real,
+# externally-anchored information:
+#   T10Y3M / T10Y2Y  zero is inversion, an economically meaningful line.
+#   SAHMREALTIME     0.50 is the published Sahm-rule trigger.
+#   NFCI             the Chicago Fed already publishes this standardised to
+#                    mean 0 / sd 1, so it IS a z-score; re-standardising against
+#                    its own median would be double-standardisation, and 0.0 is
+#                    the publisher's own "average conditions" line.
+# The test is not "is it binary" but "did somebody outside this project define
+# the line". Everything else is scored on robust z.
+ABSOLUTE_SCORED = {"T10Y3M", "T10Y2Y", "SAHMREALTIME", "NFCI"}
+
+
+def robust_z(vals, latest, worry, cap=ROBUST_Z_CAP):
+    """Robust standard deviations of `latest` from the series' own normal, in the
+    WORRYING direction. Positive = toward danger, negative = toward safe, None if
+    the signal has no worry direction or too little history.
+
+    median + MAD*1.4826 (the constant makes MAD match stdev for normal data),
+    capped at +/-cap so one extreme reading can't dominate a composite. Falls back
+    to stdev only if MAD degenerates (many identical values), and returns 0.0 if
+    the series is genuinely flat rather than crashing.
+    """
+    if worry is None or len(vals) < MIN_Z_HISTORY:
+        return None
+    med = statistics.median(vals)
+    mad = statistics.median([abs(v - med) for v in vals])
+    if mad == 0:
+        sd = statistics.pstdev(vals)
+        if sd == 0:
+            return 0.0
+        raw = (latest - med) / sd
+    else:
+        raw = (latest - med) / (mad * 1.4826)
+    z = raw if worry == "up" else -raw
+    return max(-cap, min(cap, z))
+
+
+def zstate_of(z, caution=Z_CAUTION, alert=Z_ALERT):
+    if z is None:
+        return "neutral"
+    return "alert" if z >= alert else "caution" if z >= caution else "calm"
+
+
+def distance_phrase(z):
+    """Plain English for the magnitude -- what the reader sees instead of a sigma.
+
+    Six bands, two of them on the safe side, because the dashboard is not an echo
+    chamber: a signal that is genuinely better than normal has to be able to say
+    so, not merely fail to alarm. Boundaries align with zstate_of's bands so the
+    badge and this phrase never disagree.
+    """
+    if z is None:
+        return None
+    if z < -1.0:
+        return "better than normal"
+    if z < 0.5:
+        return "normal"
+    if z < 1.0:
+        return "slightly worse than normal"
+    if z < 2.0:
+        return "somewhat worse than normal"
+    if z < 3.0:
+        return "far worse than normal"
+    return "at a historic extreme"
+
+
 def theme_condition(panels, labels=("extreme", "elevated", "normal")):
     """Rolls up a theme's panels (headline + drill-down together) into one
     label, by how many are flashing alert/caution right now. Originally
@@ -1321,38 +1416,51 @@ def panel_for(ind, percentile_state=False):
         return None, (ind["id"], ind["label"] + " (empty after transform)")
     latest = series[-1][1]
     tr = trend(series)
-    if percentile_state:
-        st = substate_of(ind["worry"], tr["pct_of_range"] if tr else None)
+    w = ind["worry"]
+    # Magnitude: robust z against the signal's own full history (see robust_z).
+    # percentile_state is retained in the signature for call-site compatibility
+    # but no longer drives the badge -- one consistent measure now scores every
+    # signal, the percentile position survives only as a display factoid (the
+    # "Nth pctile of its range" line, sourced from trend()).
+    z = robust_z([v for _, v in series], latest, w)
+    phrase = distance_phrase(z)
+    # Badge state: absolute only where an outside body defined the danger line
+    # (ABSOLUTE_SCORED); robust z everywhere else; neutral if there is no worry
+    # direction or too little history for a stable median/MAD.
+    if ind["id"] in ABSOLUTE_SCORED and ind.get("caution") is not None \
+            and ind.get("alert") is not None:
+        st = state_of(w, latest, ind["caution"], ind["alert"])
+        score_mode = "absolute"
+    elif z is not None:
+        st = zstate_of(z)
+        score_mode = "robust"
     else:
-        st = state_of(ind["worry"], latest, ind.get("caution"), ind.get("alert"))
+        st = "neutral"
+        score_mode = "context"
     sig = bool(tr and tr.get("typical", 0) > 0
                and abs(tr["delta"]) >= DEADBAND_K * tr["typical"])
-    moved_bad = bool(tr and ind["worry"] and (
-        (ind["worry"] == "up" and tr["delta"] > 0) or
-        (ind["worry"] == "down" and tr["delta"] < 0)))
+    moved_bad = bool(tr and w and (
+        (w == "up" and tr["delta"] > 0) or
+        (w == "down" and tr["delta"] < 0)))
     deteriorating = bool(sig and moved_bad)
-    improving = bool(sig and ind["worry"] and not moved_bad and tr["delta"] != 0)
+    improving = bool(sig and w and not moved_bad and tr["delta"] != 0)
     direction = "worsening" if deteriorating else "improving" if improving else "steady"
     u = ind["units"]
     usuf = u if u in ("%", "x") else (" " + u if u else "")
-    w = ind["worry"]
-    if percentile_state:
-        if w == "up":
-            crit = ("Judged against its own history: danger in the top 15% of past "
-                    "readings, caution the top 35% (higher is worse).")
-        elif w == "down":
-            crit = ("Judged against its own history: danger in the bottom 15% of past "
-                    "readings, caution the bottom 35% (lower is worse).")
-        else:
-            crit = "Shown for context; not scored against a fixed threshold."
-    elif ind.get("caution") is not None and ind.get("alert") is not None and w:
+    if score_mode == "absolute":
         c, a = ind["caution"], ind["alert"]
         if w == "up":
             crit = f"Danger at/above {a}{usuf}, caution at/above {c}{usuf} (higher is worse)."
         else:
             crit = f"Danger at/below {a}{usuf}, caution at/below {c}{usuf} (lower is worse)."
+    elif score_mode == "robust":
+        side = "high" if w == "up" else "low"
+        crit = (f"Scored by how far it sits from its own historical normal, shown in "
+                f"plain English -- currently {phrase}. Danger once it reads far worse "
+                f"than normal, caution once somewhat worse ({side} readings are the "
+                f"worrying side).")
     else:
-        crit = "Shown for context; not scored against a fixed threshold."
+        crit = "Shown for context; not scored."
     crit += (" Colour shows the level; the arrow shows 6-month direction "
              "(worsening or improving) -- a separate axis, so a calm signal can be "
              "worsening and a danger one improving.")
@@ -1364,6 +1472,8 @@ def panel_for(ind, percentile_state=False):
     panel = {
         "label": ind["label"], "series_id": ind["id"], "units": ind["units"],
         "worry": ind["worry"], "note": ind["note"], "state": st,
+        "phrase": phrase, "z": (round(z, 2) if z is not None else None),
+        "score_mode": score_mode,
         "fmt": ind.get("fmt"), "criteria": crit, "direction": direction,
         "caution": ind.get("caution"), "alert": ind.get("alert"),
         "latest": round(latest, 2), "latest_date": series[-1][0],
@@ -1985,6 +2095,8 @@ PAGE = r"""<!DOCTYPE html>
   .val small { font-size:13px; color:var(--dim); font-weight:500; }
   .move { font-size:12px; font-weight:600; }
   .asof { color:var(--dim); font-size:11px; }
+  .phrase { font-size:11.5px; font-weight:600; margin:1px 0 0; opacity:0.9; }
+  .modal-meta .m-phrase { font-size:13px; font-weight:600; }
   .feeds { color:var(--dim); font-size:11px; margin-top:4px; font-style:italic; }
   .cbox { height:130px; margin-top:10px; position:relative; }
   .note { color:var(--dim); font-size:11.5px; margin-top:9px; line-height:1.45; }
@@ -2504,6 +2616,7 @@ function makeCard(p,cid){
     <span class="badge bg-${p.state}">${stText(p.state)}</span></div>
     <div class="row"><span class="val ${p.state}">${dv.t}<small> ${dv.u}</small></span>
     ${mv?`<span class="move ${moveCls}">${p.direction==='worsening'?'&#9660; worsening':p.direction==='improving'?'&#9650; improving':'&#8213; steady'} &middot; ${moveTxt}</span>`:''}</div>
+    ${(p.phrase && p.score_mode==='robust')?`<div class="phrase ${p.state}">${p.phrase}</div>`:''}
     <div class="asof">as of ${p.latest_date}${pctTxt}</div>
     <div class="cbox"><canvas id="cv-${cid}"></canvas><button class="expand" data-cid="${cid}" title="Expand chart" aria-label="Expand chart">&#10530;</button></div>
     <div class="note">${p.note}</div>
@@ -2546,7 +2659,9 @@ function openModal(cid){
   document.getElementById('modal-title').textContent = p.label;
   document.getElementById('modal-sid').textContent = p.series_id;
   const mv = p.trend, dv = dispVU(p.latest, p);
-  let meta = `<span class="m-val ${p.state}">${dv.t} ${dv.u}</span><span class="badge bg-${p.state}">${stText(p.state)}</span><span>as of ${p.latest_date}`;
+  let meta = `<span class="m-val ${p.state}">${dv.t} ${dv.u}</span><span class="badge bg-${p.state}">${stText(p.state)}</span>`;
+  if(p.phrase && p.score_mode==='robust') meta += `<span class="m-phrase ${p.state}">${p.phrase}</span>`;
+  meta += `<span>as of ${p.latest_date}`;
   if(mv) meta += ` &middot; ${mv.pct_of_range.toFixed(0)}th pctile of its range`;
   meta += `</span>`;
   document.getElementById('modal-meta').innerHTML = meta;
