@@ -72,6 +72,27 @@ THEMES = {
          "caution": 0.0, "alert": 0.5,
          "note": "Chicago Fed index of overall financial stress. Above zero is "
                  "tighter than average; positive and rising is deterioration."},
+        {"id": "CP minus T-bill", "label": "Funding stress (commercial paper minus T-bill)",
+         "compute": "combine", "parts": [["RIFSPPFAAD90NB", 1.0], ["DTB3", -1.0]],
+         "kind": "level", "units": "%", "worry": "up", "start": "1997-01-01",
+         "note": "3-month AA financial commercial paper minus the 3-month Treasury bill, "
+                 "both quoted on a discount basis. Both instruments price the same expected "
+                 "Fed path over the next three months, so what is left is the premium lenders "
+                 "demand to fund banks and finance companies instead of the Treasury -- a direct "
+                 "read on short-term funding stress. Tested on history since 1997: danger at the "
+                 "August 2007 commercial-paper freeze (the first crack of 2008), through 2008 and "
+                 "in March 2020, yet quiet through the 2004-06, 2016-18 and 2022-23 hiking "
+                 "cycles. It replaced the originally planned CPFF (commercial paper minus fed "
+                 "funds), which failed that test: it rises whenever rate hikes are expected and "
+                 "goes negative when cuts are, so it read danger through the 2022 rate shock and "
+                 "calm going into 2001. It feeds the market check (the funding-stress gauge) "
+                 "but deliberately has no allocation votes: rebuilt monthly over 1999-2026, "
+                 "those votes tilted allocation defensive as often in calm markets as in "
+                 "stressed ones, while in the market check -- which needs two gauges to agree "
+                 "-- it held risk-off through the spring-2008 relief rally. Sources: Board of "
+                 "Governors of the Federal Reserve System, 90-Day AA Financial Commercial Paper "
+                 "Interest Rate [RIFSPPFAAD90NB] and 3-Month Treasury Bill Secondary Market "
+                 "Rate [DTB3], retrieved from FRED, Federal Reserve Bank of St. Louis."},
     ],
     "Labor market": [
         {"id": "SAHMREALTIME", "label": "Sahm rule", "kind": "level",
@@ -114,6 +135,24 @@ THEMES = {
          "caution": 0.0, "alert": -2.0,
          "note": "Factory output. Cyclical and timely; turns down early because "
                  "manufacturing leads the broader economy."},
+        {"id": "Curve momentum", "label": "Yield-curve momentum (10Y-3M)",
+         "compute": "alias", "src": "T10Y3M", "long_leg": "DGS10",
+         "direction_rule": "curve", "unscored": True,
+         "kind": "level", "units": "%", "worry": "down", "start": "1985-01-01",
+         "note": "The same 10-year minus 3-month Treasury spread as the yield-curve card, read "
+                 "for its direction rather than its level -- the bond market's forward growth "
+                 "expectation. The arrow does not simply follow the spread. Flattening is "
+                 "worsening. Steepening counts as improving only when the 10-year yield rose (a "
+                 "bear steepener: growth or inflation expectations up). Steepening because short "
+                 "rates are falling faster than the 10-year (a bull steepener: the market pricing "
+                 "in, or the Fed delivering, cuts into weakness) counts as worsening -- that is how "
+                 "the curve typically moves just before and into recessions, and reading it as good "
+                 "news would be exactly backwards. Tested on data since 1985: first worsening read "
+                 "11-18 months before the 2001, 2008 and 2020 recessions, and almost no "
+                 "improving reads around their onsets (0, 1 and 0, versus 5, 7 and 3 for a plain "
+                 "spread-direction read). The level is not scored here -- the yield-curve card "
+                 "scores it against the inversion lines. One vote among many in the growth axis, "
+                 "so on its own it rarely moves the regime."},
     ],
     "Consumer": [
         {"id": "UMCSENT", "label": "Consumer sentiment", "kind": "level",
@@ -180,6 +219,22 @@ THEMES = {
          "note": "How many months to clear current inventory at the present sales "
                  "pace. Rising supply means demand is fading faster than builders "
                  "adjust -- above ~7 months has coincided with housing downturns."},
+        {"id": "Mortgage debt vs prices", "label": "Mortgage debt vs home prices (YoY gap)",
+         "compute": "ratio", "num": "HHMSDODNS", "den": "HPIPONM226S",
+         "kind": "yoy", "units": "%", "worry": "up", "start": "1991-01-01",
+         "note": "Year-over-year growth of household mortgage debt minus year-over-year growth "
+                 "of home prices. When debt grows faster than the homes securing it, household "
+                 "leverage is rising and the equity cushion is thinning -- the fragility that "
+                 "turned the 2007-08 price decline into a crisis. Tested on history since 1992: "
+                 "caution from early 2006 and danger from mid-2006, well ahead of 2008, and "
+                 "negative (equity rebuilding) for most of 2010-2025. It also flashed during the "
+                 "2003-04 refinancing boom, and there is only one housing-driven crisis to test it "
+                 "against, so it is scored and shown but does not vote in the regime or "
+                 "allocation. Quarterly, so it updates about ten weeks after each quarter ends. "
+                 "Sources: Board of Governors of the Federal Reserve System, Households and "
+                 "Nonprofit Organizations; One-to-Four-Family Residential Mortgages; Liability "
+                 "[HHMSDODNS], and U.S. Federal Housing Finance Agency, Purchase-Only House Price "
+                 "Index [HPIPONM226S], retrieved from FRED, Federal Reserve Bank of St. Louis."},
     ],
     "Inflation & policy": [
         {"id": "CPIAUCSL", "label": "CPI inflation (YoY)", "kind": "yoy",
@@ -615,6 +670,15 @@ ALLOC = {
     "NFCICREDIT": [("High-yield credit", "UW"), ("Cyclicals & small caps", "UW"), ("Overall equity exposure", "UW")],
     "STLFSI4": [("Overall equity exposure", "UW"), ("High-yield credit", "UW"), ("Defensive equities", "OW"),
                 ("Long-duration Treasuries", "OW"), ("Gold", "OW")],
+    # "CP minus T-bill" (funding stress) deliberately has NO allocation votes. Tested
+    # before shipping by rebuilding the whole dashboard monthly 1999-2026 with and
+    # without them: they changed a lean in 39 of 332 months, all toward defensive, but
+    # in 12% of calm months and 12% of stress months alike -- no discrimination, and
+    # several full reversals from one vote (high-yield credit Overweight->Underweight
+    # in the 2004-07 bull, 2016, Dec 2025-Jan 2026). Its value is in the market check,
+    # where the two-gauge rule filters that noise and it held risk-off through the
+    # spring-2008 relief rally. If direction-only votes are noisy engine-wide, that
+    # is for the allocation validation's calm-period lens, not a one-signal patch.
     "VIXCLS": [("Overall equity exposure", "UW"), ("Defensive equities", "OW"), ("Gold", "OW")],
     "T10Y3M": [("Overall equity exposure", "UW"), ("Long-duration Treasuries", "OW"),
                ("Defensive equities", "OW"), ("Cyclicals & small caps", "UW"),
@@ -769,7 +833,18 @@ GROWTH_MOM = ["PAYEMS", "INDPRO", "GDPC1", "CFNAI", "NEWORDER", "RRSFS",
               "UNRATE", "IC4WSA", "SAHMREALTIME", "WEI", "DRTSCILM",
               "JTSJOL", "HPIPONM226S", "AWHAETP", "CCSA", "JTSQUR",
               "LNS13026638", "LNS12032194", "HTRUCKSSAAR", "HOUST",
-              "MSACSR", "PERMIT", "MORTGAGE30US"]
+              "MSACSR", "PERMIT", "MORTGAGE30US", "Curve momentum"]
+# Step 1b added "Curve momentum", the one forward-looking input the axis lacked.
+# Measured before adding (live series, monthly 1990-2026): it changes the growth
+# read in 2 of 441 months -- one helpful (called the 2009 recovery two months
+# early), one not (a false slowdown read in June 2003) -- and leaves the lead time
+# before 2001, 2008, 2020 and 2022 unchanged. A raw count of 24 votes outnumbers
+# any single forward signal; making forward signals count for more is Step 2's
+# job (regime confidence), not a reason to hand-weight this vote to fit history.
+# Jobless-claims acceleration was also planned, tested, and NOT added: marginal
+# lead (2-3 months, 2001 only), 25% vs 16% calm-period false votes, and spurious
+# reads in 2021 from the 2020 spike leaving the year-ago comparison -- the claims
+# level and continued claims already in this list carry that information.
 INFLATION_MOM = ["CPIAUCSL", "PCEPILFE", "T5YIE", "T5YIFR",
                  "CORESTICKM159SFRBATL", "PPIFIS", "PCETRIM12M159SFRBDAL", "M2SL"]
 REGIMES = {
@@ -952,6 +1027,21 @@ Z_ALERT = 2.0
 # start scoring against a history that began at a record high, so its "normal"
 # would itself be extreme. Decide before then whether it should ever score.
 MIN_NORMAL_YEARS = 5.0
+
+# Scoring-method version, stamped on every daily snapshot in docs/history.json.
+# "Recently changed", allocation shifts, the regime-change banner and the
+# week-ago comparison only compare snapshots made by the SAME method, so a change
+# in how the dashboard scores things never masquerades as the market moving.
+# Without this, the Step 1a switch showed as 19 signals "changing" overnight
+# (Sept 23 -> 24; the page's cap of 8 hid 11 of them) and would have lingered in
+# "recently changed" for 45 days. Bump this whenever scoring, a regime axis, the
+# market check or allocation wiring changes; comparisons then restart cleanly.
+#   pre-1a  snapshots through 2026-09-23 (fixed thresholds / range percentiles)
+#   1a      2026-09-24 onward: robust-z scoring + the 5-year history floor
+#   1b      curve momentum on the growth axis, funding stress in the market check
+#           and allocation, housing debt-vs-prices card
+METHOD_VERSION = "1b"
+_METHOD_1A_FIRST_DAY = "2026-09-24"   # verified from history.json: the 19-change day
 
 # Signals whose danger line was defined by someone OUTSIDE this project keep
 # absolute scoring -- a z-score against their own history would destroy real,
@@ -1407,44 +1497,68 @@ def combine_series(parts, start, scale=1.0):
     return sorted((d, sum(coef * m[d] for coef, m in maps) * scale) for d in common)
 
 
-def panel_for(ind, percentile_state=False):
-    """Fetch one indicator and build its panel dict. Returns (panel, None) on
-    success or (None, fail_tuple) on failure. Shared by the main themes and the
-    drill-down sub-indicators so both get identical treatment."""
-    if ind.get("compute") == "ratio":
-        if ind.get("nums"):
-            num_series = fetch_sum(ind["nums"], ind["start"])
-        else:
-            num_series = fetch(ind["num"], ind["start"])
-        raw = ratio_align(num_series, fetch(ind["den"], ind["start"]),
-                          ind.get("ratio_scale", 1.0))
-    elif ind.get("compute") == "combine":
-        raw = combine_series(ind["parts"], ind["start"], ind.get("ratio_scale", 1.0))
-    elif ind.get("compute") == "margin":
-        raw = fetch_finra_margin(ind["start"])
-    elif ind.get("compute") == "ecy":
-        raw = fetch_ecy(ind["start"])
-    elif ind.get("compute") == "cape":
-        raw = fetch_cape(ind["start"])
-    elif ind.get("compute") == "concentration":
-        raw = fetch_concentration_ratio(ind["start"])
-    elif ind.get("compute") == "top10":
-        raw = fetch_spy_top10()
-    elif ind.get("compute") == "issuance":
-        raw = fetch_fed_issuance(ind["issuance_col"])
-    elif ind.get("compute") == "multpl":
-        raw = fetch_multpl(ind["url"], ind["start"], ind.get("lo", 3.0),
-                           ind.get("hi", 80.0), tag=ind.get("tag", "multpl"))
-    else:
-        raw = fetch(ind["id"], ind["start"])
-    if not raw:
-        return None, (ind["id"], ind["label"])
-    scale = ind.get("scale")
-    if scale:
-        raw = [(d, v * scale) for d, v in raw]
-    series = yoy(raw) if ind["kind"] == "yoy" else raw
-    if not series:
-        return None, (ind["id"], ind["label"] + " (empty after transform)")
+def fetch_raw(ind):
+    """Fetch one indicator's raw series, dispatching on its compute type. Shared by
+    panel_for and historical_check.py, so the backtest fetches exactly what ships."""
+    c = ind.get("compute")
+    if c == "ratio":
+        num = (fetch_sum(ind["nums"], ind["start"]) if ind.get("nums")
+               else fetch(ind["num"], ind["start"]))
+        return ratio_align(num, fetch(ind["den"], ind["start"]), ind.get("ratio_scale", 1.0))
+    if c == "combine":
+        return combine_series(ind["parts"], ind["start"], ind.get("ratio_scale", 1.0))
+    if c == "alias":                   # another FRED series, shown under a different card
+        return fetch(ind["src"], ind["start"])
+    if c == "margin":
+        return fetch_finra_margin(ind["start"])
+    if c == "ecy":
+        return fetch_ecy(ind["start"])
+    if c == "cape":
+        return fetch_cape(ind["start"])
+    if c == "concentration":
+        return fetch_concentration_ratio(ind["start"])
+    if c == "top10":
+        return fetch_spy_top10()
+    if c == "issuance":
+        return fetch_fed_issuance(ind["issuance_col"])
+    if c == "multpl":
+        return fetch_multpl(ind["url"], ind["start"], ind.get("lo", 3.0),
+                            ind.get("hi", 80.0), tag=ind.get("tag", "multpl"))
+    return fetch(ind["id"], ind["start"])
+
+
+def transform(ind, raw):
+    """Scale, then year-over-year for growth-rate signals -- the series every score
+    is computed on."""
+    if ind.get("scale"):
+        raw = [(d, v * ind["scale"]) for d, v in raw]
+    return yoy(raw) if ind["kind"] == "yoy" else raw
+
+
+def fetch_legs(ind):
+    """Companion series a signal's direction rule needs (see score_series)."""
+    return {"long": fetch(ind["long_leg"], ind["start"])} if ind.get("long_leg") else {}
+
+
+def _leg_change(leg, as_of, lookback_days=180):
+    """Change in a companion series over the lookback window ending at as_of, using
+    trend()'s nearest-observation rule. None if the leg doesn't cover the window."""
+    pts = [(datetime.strptime(d, "%Y-%m-%d").date(), v) for d, v in leg if d <= as_of]
+    if len(pts) < 2:
+        return None
+    end_d, end_v = pts[-1]
+    target = end_d - timedelta(days=lookback_days)
+    if pts[0][0] > target:
+        return None
+    return end_v - min(pts, key=lambda x: abs((x[0] - target).days))[1]
+
+
+def score_series(ind, series, legs=None):
+    """Everything a signal's reading means, derived from its transformed series: how
+    far it sits from its own normal, the badge, how it was scored, the plain-English
+    phrase, what it is judged against, and its 6-month direction. Pure -- no
+    fetching -- so historical_check.py can call it on history truncated to any past
+    date, and the backtest measures exactly what ships."""
     latest = series[-1][1]
     tr = trend(series)
     w = ind["worry"]
@@ -1455,33 +1569,28 @@ def panel_for(ind, percentile_state=False):
     short_history = hist_years < MIN_NORMAL_YEARS
     has_thresholds = (w is not None and ind.get("caution") is not None
                       and ind.get("alert") is not None)
+    # "unscored": the card exists for its direction; its level is scored elsewhere.
+    unscored = bool(ind.get("unscored"))
     # Magnitude: robust z against the signal's own full history (see robust_z),
     # but only once that history is long enough to define "normal".
-    # percentile_state is retained in the signature for call-site compatibility
-    # but no longer drives the badge.
-    z = None if short_history else robust_z([v for _, v in series], latest, w)
+    z = None if (short_history or unscored) else robust_z([v for _, v in series], latest, w)
     phrase = distance_phrase(z)
     # Badge state, in order:
     #   1. externally-defined line (ABSOLUTE_SCORED)       -> fixed threshold
     #   2. enough history                                  -> robust z
     #   3. too little history, but has fixed thresholds    -> fixed threshold
-    #   4. otherwise (no worry direction, or too new)      -> unscored, context
+    #   4. otherwise (no worry, too new, or unscored)      -> neutral, context
     if ind["id"] in ABSOLUTE_SCORED and has_thresholds:
-        st = state_of(w, latest, ind["caution"], ind["alert"])
-        score_mode = "absolute"
+        st, score_mode = state_of(w, latest, ind["caution"], ind["alert"]), "absolute"
     elif z is not None:
-        st = zstate_of(z)
-        score_mode = "robust"
-    elif short_history and has_thresholds:
-        st = state_of(w, latest, ind["caution"], ind["alert"])
-        score_mode = "absolute"
+        st, score_mode = zstate_of(z), "robust"
+    elif short_history and has_thresholds and not unscored:
+        st, score_mode = state_of(w, latest, ind["caution"], ind["alert"]), "absolute"
     else:
-        st = "neutral"
-        score_mode = "context"
+        st, score_mode = "neutral", "context"
     # What the reading is judged against, shown on the card in place of the old
-    # "Nth pctile of its range" line. That line was a min-max position -- the
-    # outlier-sensitive measure the scoring abandoned -- and it never said how
-    # much history it covered, which is what hid the top-10 card's problem.
+    # "Nth pctile of its range" line (a min-max position that never said how much
+    # history it covered -- which is what hid the top-10 card's problem).
     yrs_txt = ("less than a year" if hist_years < 1 else
                f"{hist_years:.0f} yr" + ("" if round(hist_years) == 1 else "s"))
     if score_mode == "robust":
@@ -1490,6 +1599,8 @@ def panel_for(ind, percentile_state=False):
         basis = f"judged against a fixed threshold (only {yrs_txt} of data available)"
     elif score_mode == "absolute":
         basis = "judged against a fixed threshold"
+    elif unscored:
+        basis = "direction only -- its level is scored on its own card"
     elif short_history and w is not None:
         basis = f"history only since {first_d.day} {first_d.strftime('%b %Y')} -- too new to judge"
     else:
@@ -1501,34 +1612,72 @@ def panel_for(ind, percentile_state=False):
         (w == "down" and tr["delta"] < 0)))
     deteriorating = bool(sig and moved_bad)
     improving = bool(sig and w and not moved_bad and tr["delta"] != 0)
+    # Yield-curve direction rule. Flattening already reads as worsening above. A
+    # steepening is only growth-positive if the long end rose (bear steepener);
+    # if the 10-year fell, the short end fell faster -- cuts being priced in or
+    # delivered into weakness (bull steepener) -- which is growth-negative. Tested on
+    # the live series: this removed 5, 6 and 3 wrong-way "improving" reads around the
+    # 2001, 2008 and 2020 recession onsets while keeping the same early warnings.
+    if ind.get("direction_rule") == "curve" and improving:
+        long_chg = _leg_change((legs or {}).get("long") or [], series[-1][0])
+        if long_chg is None:
+            improving = False                          # can't classify it -- no vote
+        elif long_chg <= 0:
+            improving, deteriorating = False, True     # bull steepener
     direction = "worsening" if deteriorating else "improving" if improving else "steady"
-    u = ind["units"]
+    return {"latest": latest, "trend": tr, "z": z, "phrase": phrase, "state": st,
+            "score_mode": score_mode, "basis": basis, "hist_years": hist_years,
+            "short_history": short_history, "yrs_txt": yrs_txt, "first_d": first_d,
+            "deteriorating": deteriorating, "improving": improving, "direction": direction}
+
+
+def criteria_text(ind, sc):
+    """The card's 'how is this judged' tooltip, from the score."""
+    w, u = ind["worry"], ind["units"]
     usuf = u if u in ("%", "x") else (" " + u if u else "")
-    if score_mode == "absolute":
+    if sc["score_mode"] == "absolute":
         c, a = ind["caution"], ind["alert"]
         if w == "up":
             crit = f"Danger at/above {a}{usuf}, caution at/above {c}{usuf} (higher is worse)."
         else:
             crit = f"Danger at/below {a}{usuf}, caution at/below {c}{usuf} (lower is worse)."
-        if short_history and ind["id"] not in ABSOLUTE_SCORED:
-            crit = (f"This series has only {yrs_txt} of history available -- too little "
+        if sc["short_history"] and ind["id"] not in ABSOLUTE_SCORED:
+            crit = (f"This series has only {sc['yrs_txt']} of history available -- too little "
                     f"to define its normal -- so it is judged against a fixed threshold "
                     f"set from its longer history instead. " + crit)
-    elif score_mode == "robust":
+    elif sc["score_mode"] == "robust":
         side = "high" if w == "up" else "low"
         crit = (f"Scored by how far it sits from its own historical normal, shown in "
-                f"plain English -- currently {phrase}. Danger once it reads far worse "
+                f"plain English -- currently {sc['phrase']}. Danger once it reads far worse "
                 f"than normal, caution once somewhat worse ({side} readings are the "
                 f"worrying side).")
-    elif short_history and w is not None:
-        crit = (f"Not scored yet: its history only starts {first_d.isoformat()}, and a "
+    elif ind.get("unscored"):
+        crit = ("Direction only: its level is already scored on its own card, so this "
+                "badge stays neutral. The arrow is the signal -- see the note for how "
+                "it is read.")
+    elif sc["short_history"] and w is not None:
+        crit = (f"Not scored yet: its history only starts {sc['first_d'].isoformat()}, and a "
                 f"signal needs {MIN_NORMAL_YEARS:.0f} years of its own history before "
                 f"'normal' means anything. Shown for context.")
     else:
         crit = "Shown for context; not scored."
-    crit += (" Colour shows the level; the arrow shows 6-month direction "
-             "(worsening or improving) -- a separate axis, so a calm signal can be "
-             "worsening and a danger one improving.")
+    return crit + (" Colour shows the level; the arrow shows 6-month direction "
+                   "(worsening or improving) -- a separate axis, so a calm signal can be "
+                   "worsening and a danger one improving.")
+
+
+def panel_for(ind, percentile_state=False):
+    """Fetch one indicator and build its panel dict. Returns (panel, None) on
+    success or (None, fail_tuple) on failure. Shared by the main themes and the
+    drill-down sub-indicators so both get identical treatment. percentile_state is
+    retained for call-site compatibility; scoring lives in score_series."""
+    raw = fetch_raw(ind)
+    if not raw:
+        return None, (ind["id"], ind["label"])
+    series = transform(ind, raw)
+    if not series:
+        return None, (ind["id"], ind["label"] + " (empty after transform)")
+    sc = score_series(ind, series, fetch_legs(ind))
     sid = ind["id"]
     regime_axes = [ax for ax, lst in (("growth", GROWTH_MOM), ("inflation", INFLATION_MOM))
                    if sid in lst]
@@ -1536,14 +1685,16 @@ def panel_for(ind, percentile_state=False):
     condition_label = CONDITION_THEMES.get(SIGNAL_THEME.get(sid))
     panel = {
         "label": ind["label"], "series_id": ind["id"], "units": ind["units"],
-        "worry": ind["worry"], "note": ind["note"], "state": st,
-        "phrase": phrase, "z": (round(z, 2) if z is not None else None),
-        "score_mode": score_mode, "basis": basis,
-        "hist_years": round(hist_years, 2), "short_history": short_history,
-        "fmt": ind.get("fmt"), "criteria": crit, "direction": direction,
+        "worry": ind["worry"], "note": ind["note"], "state": sc["state"],
+        "phrase": sc["phrase"], "z": (round(sc["z"], 2) if sc["z"] is not None else None),
+        "score_mode": sc["score_mode"], "basis": sc["basis"],
+        "hist_years": round(sc["hist_years"], 2), "short_history": sc["short_history"],
+        "fmt": ind.get("fmt"), "criteria": criteria_text(ind, sc),
+        "direction": sc["direction"],
         "caution": ind.get("caution"), "alert": ind.get("alert"),
-        "latest": round(latest, 2), "latest_date": series[-1][0],
-        "trend": tr, "deteriorating": deteriorating, "improving": improving,
+        "latest": round(sc["latest"], 2), "latest_date": series[-1][0],
+        "trend": sc["trend"], "deteriorating": sc["deteriorating"],
+        "improving": sc["improving"],
         "regime_axes": regime_axes, "alloc_votes": alloc_votes,
         "condition_label": condition_label,
         "points": [[d, round(v, 3)] for d, v in series]}
@@ -1554,7 +1705,10 @@ def _compute_changes(history, all_panels, today):
     """Deltas of the current snapshot vs history: scorecard counts ~a week ago,
     signals whose STATE changed recently, allocation lean shifts, regime change."""
     label_of = {p["series_id"]: p["label"] for p in all_panels}
-    cur, prior = history[-1], history[:-1]
+    cur = history[-1]
+    # Only compare like with like: snapshots scored by a different method are not
+    # evidence of anything changing (see METHOD_VERSION).
+    prior = [s for s in history[:-1] if s.get("method") == cur.get("method")]
     td = datetime.strptime(today, "%Y-%m-%d")
 
     def days_ago(d):
@@ -1637,6 +1791,11 @@ def build():
             history = []
     except Exception:
         history = []
+    # Stamp snapshots written before method versioning existed (one-time; the
+    # stamps are persisted when history.json is rewritten below).
+    for _s in history:
+        if "method" not in _s:
+            _s["method"] = "1a" if _s.get("date", "") >= _METHOD_1A_FIRST_DAY else "pre-1a"
 
     spread = fetch("T10Y3M", "1985-01-01")
     ny_series = []
@@ -1854,7 +2013,9 @@ def build():
             "uw": [d["label"] for d in drivers if d["active"] and d["lean"] == "UW"],
             "drivers": drivers})
     n_active = sum(1 for p in all_panels if _active(p))
-    print(f"  [alloc] {n_active} active signals -> "
+    n_active_alloc = sum(1 for p in all_panels if _active(p) and p["series_id"] in ALLOC)
+    print(f"  [alloc] {n_active} signals flashing dashboard-wide, {n_active_alloc} of them "
+          f"feed allocation -> "
           f"{sum(1 for a in allocation if a['lean'] in ('Overweight', 'Underweight'))} directional tilts")
 
     # ---- Regime: growth x inflation, plus a valuation condition ----
@@ -1952,6 +2113,7 @@ def build():
         return "calm", False
     comps, n_hot = [], 0
     for sid, lbl, up in [("BAMLH0A0HYM2", "Credit spreads", "widening"),
+                         ("CP minus T-bill", "Funding stress", "widening"),
                          ("VIXCLS", "Volatility", "rising"),
                          ("STLFSI4", "Financial stress", "rising")]:
         status, hot = _mkt_status(sid, up)
@@ -2073,7 +2235,8 @@ def build():
         "counts": counts,
         "alloc": {a["bucket"]: [a["lean"], a["conviction"]] for a in allocation},
         "regime": regime["name"], "growth": regime["growth"],
-        "inflation": regime["inflation"], "raw_regime": regime["raw_name"]}
+        "inflation": regime["inflation"], "raw_regime": regime["raw_name"],
+        "method": METHOD_VERSION}
     # NOTE: `history` here is the SAME list read near the top of build(), before
     # the regime-persistence check -- not re-read from disk, so there's no
     # chance of the persistence check and the write seeing different data.
