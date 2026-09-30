@@ -72,27 +72,28 @@ THEMES = {
          "caution": 0.0, "alert": 0.5,
          "note": "Chicago Fed index of overall financial stress. Above zero is "
                  "tighter than average; positive and rising is deterioration."},
-        {"id": "CP minus T-bill", "label": "Funding stress (commercial paper minus T-bill)",
+        {"id": "CP minus T-bill", "label": "Funding stress (commercial paper minus T-bill, 20-day avg)",
          "compute": "combine", "parts": [["RIFSPPFAAD90NB", 1.0], ["DTB3", -1.0]],
+         "smooth_obs": 20,
          "kind": "level", "units": "%", "worry": "up", "start": "1997-01-01",
-         "note": "3-month AA financial commercial paper minus the 3-month Treasury bill, "
-                 "both quoted on a discount basis. Both instruments price the same expected "
-                 "Fed path over the next three months, so what is left is the premium lenders "
-                 "demand to fund banks and finance companies instead of the Treasury -- a direct "
-                 "read on short-term funding stress. Tested on history since 1997: danger at the "
-                 "August 2007 commercial-paper freeze (the first crack of 2008), through 2008 and "
-                 "in March 2020, yet quiet through the 2004-06, 2016-18 and 2022-23 hiking "
-                 "cycles. It replaced the originally planned CPFF (commercial paper minus fed "
-                 "funds), which failed that test: it rises whenever rate hikes are expected and "
-                 "goes negative when cuts are, so it read danger through the 2022 rate shock and "
-                 "calm going into 2001. It feeds the market check (the funding-stress gauge) "
-                 "but deliberately has no allocation votes: rebuilt monthly over 1999-2026, "
-                 "those votes tilted allocation defensive as often in calm markets as in "
-                 "stressed ones, while in the market check -- which needs two gauges to agree "
-                 "-- it held risk-off through the spring-2008 relief rally. Sources: Board of "
-                 "Governors of the Federal Reserve System, 90-Day AA Financial Commercial Paper "
-                 "Interest Rate [RIFSPPFAAD90NB] and 3-Month Treasury Bill Secondary Market "
-                 "Rate [DTB3], retrieved from FRED, Federal Reserve Bank of St. Louis."},
+         "note": "3-month AA financial commercial paper minus the 3-month Treasury bill, both "
+                 "quoted on a discount basis, averaged over the last 20 trading days. Both "
+                 "instruments price the same expected Fed path, so the gap is roughly the "
+                 "premium lenders demand to fund banks and finance companies rather than the "
+                 "Treasury. Tested on daily data since 1997: danger at the start of the 2008 "
+                 "recession and at Lehman, caution in between, quiet through the 2004-06 rate "
+                 "hikes. It moves WITH funding crises rather than ahead of them -- calm on 1 Aug "
+                 "2007 and 1 Mar 2020, days or weeks before those seizures -- and short swings "
+                 "in T-bill yields can distort it: the daily reading hit danger on 1 July 2022, "
+                 "right after a quarter-end, then fell back. The 20-day average damps those. It "
+                 "replaced the originally planned CPFF (commercial paper minus fed funds), which "
+                 "read danger through most of every hiking cycle because it moves with expected "
+                 "rate hikes. Shown for context only -- no allocation votes and not in the market "
+                 "check (see the market check's notes); it is being evaluated as an input to the "
+                 "Step 2 confidence rating. Sources: Board of Governors of the Federal Reserve "
+                 "System, 90-Day AA Financial Commercial Paper Interest Rate [RIFSPPFAAD90NB] and "
+                 "3-Month Treasury Bill Secondary Market Rate [DTB3], retrieved from FRED, Federal "
+                 "Reserve Bank of St. Louis."},
     ],
     "Labor market": [
         {"id": "SAHMREALTIME", "label": "Sahm rule", "kind": "level",
@@ -226,7 +227,9 @@ THEMES = {
                  "of home prices. When debt grows faster than the homes securing it, household "
                  "leverage is rising and the equity cushion is thinning -- the fragility that "
                  "turned the 2007-08 price decline into a crisis. Tested on history since 1992: "
-                 "caution from early 2006 and danger from mid-2006, well ahead of 2008, and "
+                 "caution in the data for early 2006 (published about June 2006) and danger in "
+                 "the data for the quarter ending September 2006 (published December 2006) -- a "
+                 "year before the 2008 recession -- and "
                  "negative (equity rebuilding) for most of 2010-2025. It also flashed during the "
                  "2003-04 refinancing boom, and there is only one housing-driven crisis to test it "
                  "against, so it is scored and shown but does not vote in the regime or "
@@ -675,10 +678,9 @@ ALLOC = {
     # without them: they changed a lean in 39 of 332 months, all toward defensive, but
     # in 12% of calm months and 12% of stress months alike -- no discrimination, and
     # several full reversals from one vote (high-yield credit Overweight->Underweight
-    # in the 2004-07 bull, 2016, Dec 2025-Jan 2026). Its value is in the market check,
-    # where the two-gauge rule filters that noise and it held risk-off through the
-    # spring-2008 relief rally. If direction-only votes are noisy engine-wide, that
-    # is for the allocation validation's calm-period lens, not a one-signal patch.
+    # in the 2004-07 bull, 2016, Dec 2025-Jan 2026). It is not in the market check
+    # either (see MARKET_CHECK_GAUGES). If direction-only votes are noisy engine-wide,
+    # that is for the allocation validation's calm-period lens, not a one-signal patch.
     "VIXCLS": [("Overall equity exposure", "UW"), ("Defensive equities", "OW"), ("Gold", "OW")],
     "T10Y3M": [("Overall equity exposure", "UW"), ("Long-duration Treasuries", "OW"),
                ("Defensive equities", "OW"), ("Cyclicals & small caps", "UW"),
@@ -787,6 +789,20 @@ SIGNAL_WEIGHT = {
     "Net liquidity": 1.5, "WALCL": 1.0, "JTSJOL": 1.0,
     "HPIPONM226S": 1.0, "HSN1F": 0.75, "PCETRIM12M159SFRBDAL": 1.25, "FEDFUNDS": 0.75,
 }
+
+# The market check's FRED-sourced gauges: (series id, label, word for its risk-off
+# move). A gauge is hot when moving the risk-off way or at caution/danger, and
+# risk-off needs two hot gauges (build() adds the S&P 200-day trend as a fifth).
+# Module-level so historical_check.py measures exactly this list.
+# "CP minus T-bill" (funding stress) was added in Step 1b and taken out after the
+# live gate (30 Sept 2026). On daily data it held risk-off through the 2008 relief
+# rally -- but that is one episode, against nearly doubling calm-period risk-off
+# months (10 -> 19 of 143), plus a danger reading on a T-bill distortion in July
+# 2022. Same bar as the housing card: one episode is not enough for a decision-
+# bearing role. It is being evaluated as a graded input to Step 2 instead.
+MARKET_CHECK_GAUGES = [("BAMLH0A0HYM2", "Credit spreads", "widening"),
+                       ("VIXCLS", "Volatility", "rising"),
+                       ("STLFSI4", "Financial stress", "rising")]
 
 # ---- Regime classifier (growth x inflation) ----------------------------------
 # Signals whose 6-month direction defines momentum. Growth signals deteriorating
@@ -1038,9 +1054,10 @@ MIN_NORMAL_YEARS = 5.0
 # market check or allocation wiring changes; comparisons then restart cleanly.
 #   pre-1a  snapshots through 2026-09-23 (fixed thresholds / range percentiles)
 #   1a      2026-09-24 onward: robust-z scoring + the 5-year history floor
-#   1b      curve momentum on the growth axis, funding stress in the market check
-#           and allocation, housing debt-vs-prices card
-METHOD_VERSION = "1b"
+#   1b      curve momentum on the growth axis, funding-stress and housing cards,
+#           funding stress in the market check
+#   1b.1    funding stress smoothed (20-day) and taken out of the market check
+METHOD_VERSION = "1b.1"
 _METHOD_1A_FIRST_DAY = "2026-09-24"   # verified from history.json: the 19-change day
 
 # Signals whose danger line was defined by someone OUTSIDE this project keep
@@ -1527,11 +1544,27 @@ def fetch_raw(ind):
     return fetch(ind["id"], ind["start"])
 
 
+def trailing_mean(series, n):
+    """Average of each observation and the n-1 before it (the first n-1 are dropped).
+    Used where one-day distortions -- quarter-end money-market swings -- would
+    otherwise flash a daily card."""
+    vals, out, tot = [v for _, v in series], [], 0.0
+    for i, (d, v) in enumerate(series):
+        tot += v
+        if i >= n:
+            tot -= vals[i - n]
+        if i >= n - 1:
+            out.append((d, tot / n))
+    return out
+
+
 def transform(ind, raw):
-    """Scale, then year-over-year for growth-rate signals -- the series every score
-    is computed on."""
+    """Scale, smooth, then year-over-year for growth-rate signals -- the series every
+    score is computed on."""
     if ind.get("scale"):
         raw = [(d, v * ind["scale"]) for d, v in raw]
+    if ind.get("smooth_obs"):
+        raw = trailing_mean(raw, ind["smooth_obs"])
     return yoy(raw) if ind["kind"] == "yoy" else raw
 
 
@@ -2112,10 +2145,7 @@ def build():
             return "elevated", True                  # already at a risky level
         return "calm", False
     comps, n_hot = [], 0
-    for sid, lbl, up in [("BAMLH0A0HYM2", "Credit spreads", "widening"),
-                         ("CP minus T-bill", "Funding stress", "widening"),
-                         ("VIXCLS", "Volatility", "rising"),
-                         ("STLFSI4", "Financial stress", "rising")]:
+    for sid, lbl, up in MARKET_CHECK_GAUGES:
         status, hot = _mkt_status(sid, up)
         if status is not None:
             comps.append({"label": lbl, "status": status, "hot": hot})

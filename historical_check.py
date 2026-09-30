@@ -17,7 +17,11 @@ Since Step 1b this file has NO scoring code of its own. Fetching, transforming
 and scoring all come from macro_dashboard.py (fetch_raw, transform, fetch_legs,
 score_series), so what this measures is exactly what ships -- the precondition
 for Step 3's retest. Its earlier copy of the scoring could drift from
-production; it is gone.
+production; it is gone. The market check's gauge list is imported too.
+
+After the report, "OPEN QUESTIONS" answers what the Step 1b gate left open:
+Q1 the smoothed funding card, Q2 funding stress as a market-check input (for
+Step 2), Q3 whether valuation should be judged against its full history.
 
 Run:  python historical_check.py     (needs FRED_API_KEY, like the dashboard)
 """
@@ -44,11 +48,10 @@ DATES = ["1999-06-01", "2000-01-01", "2000-07-01", "2001-03-01",
 # Signals for the recession read (leading/coincident risk gauges with long history).
 RECESSION = ["T10Y3M", "SAHMREALTIME", "IC4WSA", "BAMLH0A0HYM2", "NFCI", "DRTSCILM", "WEI"]
 
-# The market check's FRED-sourced gauges, as the dashboard lists them. Its fifth,
+# The market check's FRED-sourced gauges, straight from the dashboard. Its fifth,
 # the S&P 500 200-day trend, is excluded: FRED serves only ~10 years of S&P data
 # and the dashboard never stores it, so no backtest has ever had it.
-MARKET_GAUGES = [("BAMLH0A0HYM2", "Credit spreads"), ("CP minus T-bill", "Funding stress"),
-                 ("VIXCLS", "Volatility"), ("STLFSI4", "Financial stress")]
+MARKET_GAUGES = [(sid, lbl) for sid, lbl, _ in md.MARKET_CHECK_GAUGES]
 
 SHOWN = {"alert": "danger", "caution": "caution", "calm": "calm", "neutral": "unscored"}
 
@@ -59,7 +62,7 @@ for _grp in (md.THEMES, md.DRILLDOWNS):
             INDS[_ind["id"]] = _ind
 
 print("Fetching full history for", len(INDS), "series ...")
-SERIES, LEGS, LOAD_FAILED = {}, {}, []
+SERIES, LEGS, LOAD_FAILED, RAW = {}, {}, [], {}
 for sid, ind in INDS.items():
     if ind.get("compute") == "top10":
         # No historical source exists, and its live fetch rewrites
@@ -73,6 +76,8 @@ for sid, ind in INDS.items():
     # equivalent (year-over-year only ever looks backward) and far faster.
     SERIES[sid] = md.transform(ind, raw)
     LEGS[sid] = md.fetch_legs(ind)
+    if ind.get("smooth_obs"):
+        RAW[sid] = raw                      # kept so Q1 can compare against the unsmoothed daily
 
 if LOAD_FAILED:
     print("\n" + "!" * 78)
@@ -160,8 +165,9 @@ def recession_flags(as_of):
     return hot, tot
 
 
-def market_riskoff(as_of, gauges):
-    """The market check's rule: risk-off needs at least two hot gauges."""
+def market_riskoff(as_of, gauges, extra=()):
+    """The market check's rule: risk-off needs at least two hot gauges. `extra` adds
+    candidate gauges as (indicator, series) pairs, for testing inputs not shipped."""
     n_hot = n = 0
     for sid in gauges:
         e = eval_signal(sid, as_of)
@@ -169,6 +175,12 @@ def market_riskoff(as_of, gauges):
             continue
         n += 1
         n_hot += _hot(e)
+    for ind, series in extra:
+        sc = _score(ind, series, {}, as_of)
+        if sc is None:
+            continue
+        n += 1
+        n_hot += _hot_sc(sc)
     return n_hot >= 2, n_hot, n
 
 
@@ -216,113 +228,148 @@ def _trailing_mean(series, n):
 
 
 # ===========================================================================
-#  STEP 1b CONFIRMATION GATE
-#  Every expectation below was measured before the build, on the live published
-#  series plus FRED histories pulled during Step 1b. This run repeats it on the
-#  exact production series, fetched live, through the production code.
+#  OPEN QUESTIONS left by the Step 1b gate (30 Sept 2026 run)
 # ===========================================================================
-def gate_1b():
+def _state_of(ind, series, d):
+    sc = _score(ind, series, {}, d)
+    return sc["state"] if sc else None
+
+
+def _fmt_sc(sc):
+    if sc is None:
+        return "(no data)"
+    return _fmt({"latest": sc["latest"], "z": sc["z"], "state": sc["state"],
+                 "det": sc["deteriorating"]})
+
+
+def open_questions():
+    import statistics
     print("\n" + "=" * 100)
-    print("STEP 1b CONFIRMATION GATE -- production code, production series, live FRED")
+    print("OPEN QUESTIONS FROM THE STEP 1b GATE")
     print("=" * 100)
+    fid = "CP minus T-bill"
+    ind20, s20, raw = INDS[fid], SERIES.get(fid), RAW.get(fid)
+    ind1 = {**ind20, "smooth_obs": None}
+    s1 = md.transform(ind1, raw) if raw else None
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
-    print("\n-- A. Funding stress (commercial paper minus T-bill) at the moments that matter --\n")
-    print(f"{'moment':<28}{'date':<12}{'reading':<38}expected from the pre-build test")
-    for lbl, d, exp in [
-            ("2001 recession", "2001-03-01", "unscored: under the 5-yr floor (history from 1997)"),
-            ("ABCP freeze, first crack", "2007-08-01", "danger"),
-            ("GFC onset", "2007-12-01", "danger"),
-            ("pre-Lehman", "2008-06-01", "caution or danger"),
-            ("Lehman", "2008-10-01", "danger"),
-            ("COVID", "2020-03-01", "danger"),
-            ("2005 rate hikes", "2005-06-01", "calm -- hikes are not funding stress"),
-            ("2018 rate hikes", "2018-03-01", "calm"),
-            ("2022 rate shock", "2022-07-01", "calm"),
-            ("2022 rate shock", "2022-10-01", "calm")]:
-        print(f"{lbl:<28}{d:<12}{_fmt(eval_signal('CP minus T-bill', d)):<38}{exp}")
-    for lbl, a, b in [("2004-06 hiking cycle", "2004-06-01", "2006-06-01"),
-                      ("2016-18 hiking cycle", "2016-01-01", "2018-12-01"),
-                      ("2022-23 hiking cycle", "2022-03-01", "2023-07-01"),
-                      ("GFC, Aug 2007 - Mar 2009", "2007-08-01", "2009-03-01")]:
-        ms = _months(a, b)
-        hot = sum(1 for m in ms if (eval_signal("CP minus T-bill", m) or {}).get("state")
-                  in ("caution", "alert"))
-        print(f"   months at caution/danger, {lbl:<26} {hot}/{len(ms)}")
-    print("   (pre-build test: 0/25, 4/36, 2/17 in the hiking cycles; 18/20 through the GFC)")
-
-    print("\n-- B. Housing: mortgage-debt growth minus home-price growth --\n")
-    for d, exp in [("2003-07-01", "danger (2003-04 refinancing boom -- a known early fire)"),
-                   ("2006-01-01", "caution"), ("2006-07-01", "danger"), ("2007-07-01", "danger"),
-                   ("2008-04-01", "danger"), ("2013-01-01", "calm (equity rebuilding)"),
-                   ("2021-07-01", "calm"), ("2026-04-01", "calm")]:
-        print(f"   {d:<12}{_fmt(eval_signal('Mortgage debt vs prices', d)):<38}expected: {exp}")
-
-    print("\n-- C. Regime at every date, with and without the curve-momentum vote --\n")
-    old_g = [s for s in md.GROWTH_MOM if s != "Curve momentum"]
-    same = 0
-    print(f"{'date':<12}{'without curve':<36}{'with curve (as shipped)':<36}curve vote")
-    for dt in DATES:
-        a, b = regime_at(dt, old_g), regime_at(dt)
-        e = eval_signal("Curve momentum", dt)
-        vote = "worsening" if e and e["det"] else "improving" if e and e["imp"] else "none"
-        same += a[0] == b[0]
-        print(f"{dt:<12}{a[0] + f' g{a[3]}w/{a[4]}b':<36}{b[0] + f' g{b[3]}w/{b[4]}b':<36}{vote}"
-              + ("" if a[0] == b[0] else "   <-- label differs"))
-    print(f"   {same}/{len(DATES)} regime labels identical (pre-build test: the curve vote "
-          f"changes the growth read in 2 of 441 months)")
-
-    print("\n-- D. Market check through the 2008 crisis, with and without the funding gauge --\n")
-    base = [s for s, _ in MARKET_GAUGES if s != "CP minus T-bill"]
-    full = [s for s, _ in MARKET_GAUGES]
-    for lbl, g in (("without funding", base), ("with funding", full)):
-        segs = []
-        for yr, a, b in (("2007", "2007-06-01", "2007-12-01"), ("2008", "2008-01-01", "2008-12-01"),
-                         ("2009", "2009-01-01", "2009-06-01")):
-            segs.append(yr + " " + "".join("R" if market_riskoff(m, g)[0] else "."
-                                           for m in _months(a, b)))
-        print(f"   {lbl:<16} " + " | ".join(segs))
-    print("   (R = risk-off; 2007 runs Jun-Dec, 2009 Jan-Jun. Pre-build test: without funding it\n"
-          "    drops out in spring 2008 -- the Bear Stearns relief rally -- and with funding it holds.)")
-    calm = [m for a, b in [("2003-06-01", "2006-12-01"), ("2012-01-01", "2014-12-01"),
-                           ("2016-06-01", "2018-06-01"), ("2023-06-01", "2026-08-01")]
-            for m in _months(a, b)]
-    for lbl, g in (("without funding", base), ("with funding", full)):
-        r = sum(market_riskoff(m, g)[0] for m in calm)
-        print(f"   calm-period risk-off months, {lbl:<16} {r}/{len(calm)}")
-    print("   (pre-build test on VIX + stress index alone: 8/143 -> 13/143. The credit-spread\n"
-          "    gauge, which FRED serves only from 2023, is included above; offline it adds 2-3.)")
-
-    print("\n-- F. Daily noise: the pre-build test used MONTHLY averages; the dashboard reads "
-          "DAILY values --\n")
-    ind, raw = INDS["CP minus T-bill"], SERIES.get("CP minus T-bill")
-    if not raw:
+    print("\n-- Q1. Funding card, now a 20-day average: does it keep the crises and drop the "
+          "distortions? --\n")
+    if not (s1 and s20):
         print("   (funding series did not load -- see the failure list at the top)")
     else:
-        windows = {"calm stretches": [("2004-06-01", "2006-06-01"), ("2012-01-01", "2014-12-31"),
-                                      ("2016-01-01", "2018-12-31"), ("2023-06-01", "2026-08-31")],
-                   "year-ends, Dec 15-Jan 15": [(f"{y}-12-15", f"{y + 1}-01-15")
-                                                for y in list(range(2004, 2006)) + list(range(2012, 2015))
-                                                + list(range(2016, 2019)) + list(range(2023, 2026))],
-                   "GFC, Aug 2007-Mar 2009": [("2007-08-01", "2009-03-31")]}
-        print(f"   share of sampled trading days 'hot' (moving risk-off, or at caution/danger)")
-        print(f"   {'':<22}" + "".join(f"{k:<28}" for k in windows))
-        for lbl, series in (("daily (as shipped)", raw), ("5-day average", _trailing_mean(raw, 5)),
-                            ("20-day average", _trailing_mean(raw, 20))):
-            cells = []
-            for spans in windows.values():
-                days = [d for d, _ in series if any(a <= d <= b for a, b in spans)][::5]
-                hot = sum(_hot_sc(_score(ind, series, {}, d)) for d in days)
-                cells.append(f"{hot}/{len(days)} = {100 * hot / max(1, len(days)):.0f}%")
-            print(f"   {lbl:<22}" + "".join(f"{c:<28}" for c in cells))
-        print("   If daily reads materially hotter in calm stretches or at year-ends than the\n"
-              "   averages while the GFC column holds, a short average is the fix -- chosen from\n"
-              "   this table, not guessed.")
+        print(f"   {'moment':<30}{'date':<12}{'daily (last run)':<32}{'20-day avg (as shipped)'}")
+        for lbl, d in [("before the ABCP freeze", "2007-08-01"), ("two weeks into the freeze", "2007-08-24"),
+                       ("2008 recession starts", "2007-12-01"), ("pre-Lehman", "2008-06-01"),
+                       ("Lehman", "2008-10-01"), ("before COVID", "2020-03-01"),
+                       ("COVID funding seizure", "2020-03-23"), ("2022, day after quarter-end", "2022-07-01"),
+                       ("2022, later", "2022-10-01"), ("2005 rate hikes", "2005-06-01"),
+                       ("2018 rate hikes", "2018-03-01")]:
+            print(f"   {lbl:<30}{d:<12}{_fmt_sc(_score(ind1, s1, {}, d)):<32}"
+                  f"{_fmt_sc(_score(ind20, s20, {}, d))}")
+        print("\n   How often the badge reads caution/danger, 2010-2026. A quarter-end effect would")
+        print("   show up as quarter-starts reading hotter than other month-starts:")
+        qs = [f"{y}-{m:02d}-01" for y in range(2010, 2027) for m in (1, 4, 7, 10)
+              if f"{y}-{m:02d}-01" <= "2026-07-01"]
+        other = [f"{y}-{m:02d}-01" for y in range(2010, 2027) for m in (2, 3, 5, 6, 8, 9, 11, 12)
+                 if f"{y}-{m:02d}-01" <= "2026-08-01"]
+        for lbl, ind, ser in (("daily", ind1, s1), ("20-day avg", ind20, s20)):
+            hq = sum(_state_of(ind, ser, d) in ("caution", "alert") for d in qs)
+            ho = sum(_state_of(ind, ser, d) in ("caution", "alert") for d in other)
+            print(f"   {lbl:<12} quarter-starts {hq}/{len(qs)} = {100 * hq / len(qs):.0f}%   "
+                  f"other month-starts {ho}/{len(other)} = {100 * ho / len(other):.0f}%")
+        for lbl, a2, b2 in [("2004-06 hiking cycle", "2004-06-01", "2006-06-01"),
+                            ("2016-18 hiking cycle", "2016-01-01", "2018-12-01"),
+                            ("2022-23 hiking cycle", "2022-03-01", "2023-07-01"),
+                            ("GFC, Aug 2007 - Mar 2009", "2007-08-01", "2009-03-01")]:
+            ms = _months(a2, b2)
+            h1 = sum(_state_of(ind1, s1, m) in ("caution", "alert") for m in ms)
+            h20 = sum(_state_of(ind20, s20, m) in ("caution", "alert") for m in ms)
+            print(f"   months at caution/danger, {lbl:<26} daily {h1}/{len(ms)}   20-day {h20}/{len(ms)}")
+        print("   (last run, daily: 0/25, 6/36, 3/17; GFC 17/20)")
 
-    print("\n-- E. Today --\n")
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    print("\n-- Q2. Funding stress as a market-check input (evidence for Step 2; not shipped) --\n")
+    base = [sid for sid, _ in MARKET_GAUGES]
+    variants = [("market check as shipped", ())]
+    if s20:
+        variants.append(("+ funding, 20-day", ((ind20, s20),)))
+    if s1:
+        variants.append(("+ funding, daily", ((ind1, s1),)))
+    for lbl, extra in variants:
+        segs = []
+        for yr, a2, b2 in (("2007", "2007-06-01", "2007-12-01"), ("2008", "2008-01-01", "2008-12-01"),
+                           ("2009", "2009-01-01", "2009-06-01")):
+            segs.append(yr + " " + "".join("R" if market_riskoff(m, base, extra)[0] else "."
+                                           for m in _months(a2, b2)))
+        print(f"   {lbl:<26} " + " | ".join(segs))
+    print("   (R = risk-off; 2007 runs Jun-Dec, 2009 Jan-Jun)")
+    calm = [m for a2, b2 in [("2003-06-01", "2006-12-01"), ("2012-01-01", "2014-12-01"),
+                             ("2016-06-01", "2018-06-01"), ("2023-06-01", "2026-08-01")]
+            for m in _months(a2, b2)]
+    for lbl, extra in variants:
+        r = sum(market_riskoff(m, base, extra)[0] for m in calm)
+        print(f"   calm-period risk-off months, {lbl:<26} {r}/{len(calm)}")
+    print("   (last run: 10/143 as shipped now; 19/143 with the daily gauge)")
+
+    print("\n-- Q3. Valuation: judged against history since 1990 (as shipped) or its full "
+          "history? --\n")
+    print("   The robust score measures each reading against its own history. The dashboard")
+    print("   starts most valuation series in 1990, so 'normal' is set by an era that was")
+    print("   itself richly valued. Where the source goes back further, this refetches it.\n")
+    val_ids = [i["id"] for g in (md.THEMES, md.DRILLDOWNS) for i in g.get("Valuation", [])]
+    extend = {}
+    for sid in val_ids:
+        ind = INDS[sid]
+        if ind.get("compute") in (None, "ratio", "cape", "multpl") and ind["start"] <= "1990-01-01" \
+                and SERIES.get(sid):
+            full = {**ind, "start": "1871-01-01"}
+            raw_f = md.fetch_raw(full)
+            ser_f = md.transform(full, raw_f) if raw_f else []
+            if ser_f and ser_f[0][0] < SERIES[sid][0][0]:
+                extend[sid] = (full, ser_f)
+    if not extend:
+        print("   (no valuation series returned longer history -- nothing to compare)")
+    else:
+        print(f"   {'signal':<20}{'full history from':<19}{'normal since 1990':>18}{'full-history normal':>21}"
+              f"   today: since-1990 / full")
+        for sid, (full, ser_f) in extend.items():
+            shp = [v for d, v in SERIES[sid] if d <= today]
+            fl = [v for d, v in ser_f if d <= today]
+            a1, a2 = eval_signal(sid, today), _score(full, ser_f, {}, today)
+            if a1 and a2 and a1["z"] is not None and a2["z"] is not None:
+                today_txt = (f"{SHOWN.get(a1['state'], a1['state'])} (z{a1['z']:+.1f}) / "
+                             f"{SHOWN.get(a2['state'], a2['state'])} (z{a2['z']:+.1f})")
+            else:
+                today_txt = "(not comparable today)"
+            print(f"   {sid[:19]:<20}{ser_f[0][0]:<19}{statistics.median(shp):>18.2f}"
+                  f"{statistics.median(fl):>21.2f}   {today_txt}")
+        print(f"\n   The Valuation condition -- the part that feeds allocation (extreme = 3+ in danger):")
+        print(f"   {'date':<12}{'history since 1990 (as shipped)':<36}{'full history':<36}CAPE: 1990 / full")
+        for d in ["1995-06-01", "2000-03-01", "2003-03-01", "2007-10-01", "2009-03-01", "2012-06-01",
+                  "2016-02-01", "2020-03-01", "2021-12-01", today]:
+            rows = {}
+            for mode in ("shipped", "full"):
+                panels = []
+                for sid in val_ids:
+                    if mode == "full" and sid in extend:
+                        st_ = _state_of(extend[sid][0], extend[sid][1], d)
+                    else:
+                        e = eval_signal(sid, d)
+                        st_ = e["state"] if e else None
+                    if st_ is not None:
+                        panels.append({"state": st_, "label": sid})
+                c = md.theme_condition(panels)
+                rows[mode] = f"{c['condition']} ({c['alert']} of {c['total']} in danger)"
+            cs = eval_signal("Shiller CAPE", d)
+            cf = (_state_of(extend["Shiller CAPE"][0], extend["Shiller CAPE"][1], d)
+                  if "Shiller CAPE" in extend else None)
+            print(f"   {d:<12}{rows['shipped']:<36}{rows['full']:<36}"
+                  f"{SHOWN.get(cs['state'], cs['state']) if cs else '-'} / {SHOWN.get(cf, cf) if cf else '-'}")
+
+    print("\n-- Today --\n")
     for sid in ("Curve momentum", "CP minus T-bill", "Mortgage debt vs prices"):
         print(f"   {sid:<26}{_fmt(eval_signal(sid, today))}")
-    r = market_riskoff(today, full)
+    r = market_riskoff(today, base)
     print(f"   regime {regime_at(today)[0]} | market check risk-off from FRED gauges: {r[0]} "
           f"({r[1]} of {r[2]} hot)")
 
@@ -383,7 +430,7 @@ def main():
         cst, cval = concentration_at(dt)
         print(f"  {label:<16} {dt}: {cst} ({cval})")
 
-    gate_1b()
+    open_questions()
 
 
 if __name__ == "__main__":
