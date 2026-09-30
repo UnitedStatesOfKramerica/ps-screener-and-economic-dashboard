@@ -1,0 +1,286 @@
+# Export backtest data -- a one-off, manually started run.
+#
+# Pulls, on GitHub's machines (which can reach Yahoo, Wikipedia and the SEC):
+#   * daily prices with and without dividends for every screener ticker, plus
+#     SPY, RSP (equal-weight S&P 500), BIL (cash) and the 11 sector ETFs
+#   * Wikipedia's index-membership dates and additions/removals history
+#   * a 17-year P/S history rebuilt by ps_screener.py itself (--years 17)
+# and hands them back as one downloadable artifact named "backtest-data".
+#
+# Commits nothing, publishes nothing, and cannot touch the live screen:
+# permissions are read-only and the screener pass writes only "_bt" files
+# inside this run's throwaway copy of the repo.
+
+name: Export backtest data
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install libraries
+        run: |
+          pip install -r requirements.txt || echo "requirements.txt did not fully install; filling gaps below"
+          pip install yfinance pandas numpy requests lxml
+
+      - name: Pull prices, dividends and index-membership history
+        run: |
+          python - <<'PY'
+          """
+          Export everything the screener backtest needs. Runs on GitHub's machines,
+          which can reach Yahoo and Wikipedia. Nothing here is committed or published:
+          the files leave only as this run's downloadable artifact.
+
+          backtest_data/
+            prices_close.csv.gz     daily close adjusted for splits only -- price return,
+                                    i.e. whether the stock itself went up
+            prices_adjclose.csv.gz  daily close adjusted for splits AND dividends --
+                                    total return, what an investor actually earned
+            dividends.csv.gz        every dividend paid: date, ticker, amount
+            splits.csv              every split: date, ticker, ratio
+            sp500_current.csv       Wikipedia's constituent table, incl. "Date added", so
+                                    a company is only tested from the day it joined the
+                                    index, never in the years before it qualified
+            sp500_changes.csv       Wikipedia's additions/removals history, to size the
+                                    survivorship bias rather than hand-wave it
+            manifest.json           what was asked for, what came back, library versions
+          """
+          import json
+          import sys
+          import time
+          from datetime import datetime, timezone
+          from io import StringIO
+          from pathlib import Path
+
+          import pandas as pd
+          import requests
+          import yfinance as yf
+
+          OUT = Path("backtest_data")
+          OUT.mkdir(exist_ok=True)
+          START = "2007-01-01"   # covers a 2009+ P/S history plus a 12-month momentum lookback
+          BENCHMARKS = ["SPY", "RSP", "BIL", "XLB", "XLC", "XLE", "XLF", "XLI",
+                        "XLK", "XLP", "XLRE", "XLU", "XLV", "XLY"]
+          WIKI = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+          # Same browser headers the nightly uses: Wikipedia rejects a bare Python agent.
+          HEADERS = {
+              "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+              "Accept-Language": "en-US,en;q=0.9",
+          }
+          manifest = {
+              "built_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+              "price_start": START,
+              "versions": {"python": sys.version.split()[0], "pandas": pd.__version__,
+                           "yfinance": getattr(yf, "__version__", "unknown")},
+              "notes": [],
+          }
+
+
+          def tidy(sym):
+              """Wikipedia writes BRK.B; Yahoo wants BRK-B. Same rule as the nightly."""
+              return str(sym).strip().upper().replace(".", "-")
+
+
+          # 1. The screener's own universe, from the state file the nightly commits
+          state_tickers = []
+          state_path = Path("docs/state.json")
+          if state_path.exists():
+              state = json.loads(state_path.read_text())
+              state_tickers = sorted(state.get("companies", {}))
+              manifest["state_built"] = state.get("built")
+          else:
+              manifest["notes"].append("docs/state.json not found; universe from Wikipedia only")
+          manifest["tickers_in_state"] = len(state_tickers)
+          print(f"{len(state_tickers)} tickers from docs/state.json")
+
+          # 2. Index membership history from Wikipedia
+          wiki_tickers = []
+          try:
+              r = requests.get(WIKI, headers=HEADERS, timeout=30)
+              r.raise_for_status()
+              tables = pd.read_html(StringIO(r.text))
+              current = next((t for t in tables
+                              if {"Symbol", "GICS Sector"}.issubset(set(map(str, t.columns)))), None)
+              if current is not None:
+                  current = current.copy()
+                  current["ticker"] = current["Symbol"].map(tidy)
+                  current.to_csv(OUT / "sp500_current.csv", index=False)
+                  wiki_tickers = sorted(current["ticker"].unique())
+                  manifest["wikipedia_current_rows"] = len(current)
+                  manifest["has_date_added"] = "Date added" in current.columns
+              else:
+                  manifest["notes"].append("Wikipedia constituent table not found (layout changed?)")
+              changes = None
+              for t in tables:
+                  flat = [" ".join(str(x) for x in c) if isinstance(c, tuple) else str(c)
+                          for c in t.columns]
+                  if any("Removed" in c for c in flat) and any("Added" in c for c in flat):
+                      changes = t.copy()
+                      changes.columns = flat
+                      break
+              if changes is not None:
+                  changes.to_csv(OUT / "sp500_changes.csv", index=False)
+                  manifest["wikipedia_change_rows"] = len(changes)
+              else:
+                  manifest["notes"].append("Wikipedia changes table not found")
+          except Exception as e:
+              manifest["notes"].append(f"Wikipedia unavailable: {type(e).__name__}: {e}")
+          print(f"{len(wiki_tickers)} tickers from Wikipedia")
+
+          # 3. Prices -- the same yfinance call the nightly makes successfully every day,
+          #    reading Adj Close and Dividends as well as Close
+          equities = sorted(set(state_tickers) | set(wiki_tickers))
+          wanted = equities + [b for b in BENCHMARKS if b not in equities]
+          manifest["tickers_requested"] = len(wanted)
+          close, adj, divs, splits = {}, {}, [], []
+
+
+          def download(batch):
+              for attempt in range(3):
+                  try:
+                      return yf.download(batch, start=START, auto_adjust=False, actions=True,
+                                         progress=False, group_by="ticker", threads=True)
+                  except Exception as e:
+                      print(f"    batch failed ({type(e).__name__}: {e}); attempt {attempt + 1} of 3")
+                      time.sleep(15 * (attempt + 1))
+              return None
+
+
+          def frame_for(data, t, n):
+              """One ticker's columns, whichever way round this yfinance version nests them."""
+              if data is None or getattr(data, "empty", True):
+                  return None
+              cols = data.columns
+              if isinstance(cols, pd.MultiIndex):
+                  if t in set(cols.get_level_values(0)):
+                      return data[t]
+                  if cols.nlevels > 1 and t in set(cols.get_level_values(1)):
+                      return data.xs(t, axis=1, level=1)
+                  return None
+              return data if n == 1 else None
+
+
+          def harvest(batch):
+              data = download(batch)
+              got = 0
+              for t in batch:
+                  f = frame_for(data, t, len(batch))
+                  if f is None or "Close" not in f.columns:
+                      continue
+                  c = pd.to_numeric(f["Close"], errors="coerce").dropna()
+                  if not len(c):
+                      continue
+                  close[t] = c
+                  if "Adj Close" in f.columns:
+                      a = pd.to_numeric(f["Adj Close"], errors="coerce").dropna()
+                      if len(a):
+                          adj[t] = a
+                  if "Dividends" in f.columns:
+                      d = pd.to_numeric(f["Dividends"], errors="coerce")
+                      d = d[d > 0]
+                      divs.extend((str(pd.Timestamp(k).date()), t, float(v)) for k, v in d.items())
+                  if "Stock Splits" in f.columns:
+                      s = pd.to_numeric(f["Stock Splits"], errors="coerce")
+                      s = s[s > 0]
+                      splits.extend((str(pd.Timestamp(k).date()), t, float(v)) for k, v in s.items())
+                  got += 1
+              return got
+
+
+          CHUNK = 40
+          for i in range(0, len(wanted), CHUNK):
+              batch = wanted[i:i + CHUNK]
+              n = harvest(batch)
+              print(f"  prices {i + 1}-{i + len(batch)} of {len(wanted)}: {n} returned")
+              time.sleep(1)   # Yahoo throttles back-to-back bulk pulls
+
+          missing = [t for t in wanted if t not in close]
+          if missing:
+              print(f"  second pass for {len(missing)} ticker(s) after a pause")
+              time.sleep(30)
+              for i in range(0, len(missing), 10):
+                  harvest(missing[i:i + 10])
+                  time.sleep(2)
+          missing = [t for t in wanted if t not in close]
+          manifest["tickers_with_prices"] = len(close)
+          manifest["tickers_missing"] = missing
+          manifest["adjclose_missing"] = sorted(t for t in close if t not in adj)
+
+
+          # 4. Write, then read every file back before trusting it
+          def wide(d):
+              df = pd.DataFrame(d).sort_index()
+              idx = pd.to_datetime(df.index)
+              if getattr(idx, "tz", None) is not None:
+                  idx = idx.tz_localize(None)
+              df.index = idx
+              df.index.name = "date"
+              return df[sorted(df.columns)]
+
+
+          written = {}
+          if close:
+              wc = wide(close)
+              wc.to_csv(OUT / "prices_close.csv.gz", float_format="%.6g")
+              written["prices_close.csv.gz"] = wc.shape
+              manifest["date_range"] = [str(wc.index.min().date()), str(wc.index.max().date())]
+          if adj:
+              wa = wide(adj)
+              wa.to_csv(OUT / "prices_adjclose.csv.gz", float_format="%.6g")
+              written["prices_adjclose.csv.gz"] = wa.shape
+          pd.DataFrame(divs, columns=["date", "ticker", "dividend"]).to_csv(
+              OUT / "dividends.csv.gz", index=False)
+          pd.DataFrame(splits, columns=["date", "ticker", "ratio"]).to_csv(
+              OUT / "splits.csv", index=False)
+
+          bad_reads = []
+          for name, shape in written.items():
+              back = pd.read_csv(OUT / name, index_col=0, parse_dates=True)
+              if back.shape != shape:
+                  bad_reads.append(f"{name} read back as {back.shape}, expected {shape}")
+          manifest["notes"].extend(bad_reads)
+
+          eq_got = sum(t in close for t in equities)
+          manifest["equities_requested"] = len(equities)
+          manifest["equities_with_prices"] = eq_got
+          ok = (len(equities) >= 400 and eq_got >= 0.9 * len(equities)
+                and "SPY" in close and "prices_adjclose.csv.gz" in written and not bad_reads)
+          manifest["passed"] = bool(ok)
+          (OUT / "manifest.json").write_text(json.dumps(manifest, indent=2, default=str))
+          print(json.dumps({k: v for k, v in manifest.items() if k != "tickers_missing"},
+                           indent=2, default=str))
+          if not ok:
+              sys.exit("Export incomplete -- see manifest.json in the artifact")
+          print("Export complete and every file read back cleanly.")
+          PY
+
+      - name: Rebuild P/S history back to 2009 with the screener itself
+        continue-on-error: true
+        timeout-minutes: 90
+        env:
+          SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
+        run: |
+          python ps_screener.py --years 17 --tag bt --verify 0
+          cp ps_screen_bt.db backtest_data/ps_screen_bt.db
+
+      - name: Upload everything as one artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: backtest-data
+          path: backtest_data/
+          retention-days: 30
+          if-no-files-found: error
