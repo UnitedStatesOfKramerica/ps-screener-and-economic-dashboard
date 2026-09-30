@@ -1986,8 +1986,15 @@ def apply_cross_check(summary: pd.DataFrame, series: dict[str, pd.DataFrame],
             problems.append(f"market cap differs from Yahoo by {sd:+.0f}%")
         verdict.append("; ".join(problems) if problems else "agrees")
 
-    summary["xc_revenue_diff"] = rev_diff
-    summary["xc_mktcap_diff"] = sh_diff
+    # Always numeric. A plain list of None (every row unchecked -- Yahoo down
+    # for the whole run, or --verify 0) becomes an OBJECT column, and the
+    # reliability report's .abs() then crashed the run at its very last step,
+    # after every file was written -- so the job ended in an error and nothing
+    # after it ran. A night where only SOME rows checked was always fine: pandas
+    # turned the gaps into NaN on its own. Declaring float here makes the
+    # all-missing night behave exactly like the ordinary one.
+    summary["xc_revenue_diff"] = pd.Series(rev_diff, index=summary.index, dtype="float64")
+    summary["xc_mktcap_diff"] = pd.Series(sh_diff, index=summary.index, dtype="float64")
     summary["xc_verdict"] = verdict
     for field, col in [("y_target", "target_price"), ("y_target_n", "target_analysts"),
                        ("y_forward_pe", "forward_pe"), ("y_industry", "industry")]:
@@ -2037,18 +2044,31 @@ def apply_cross_check(summary: pd.DataFrame, series: dict[str, pd.DataFrame],
     payers = [float(v) for v in raw if v is not None and float(v) > 0]
     scale = 100.0 if payers and statistics.median(payers) < 0.25 else 1.0
 
-    yields = []
+    yields, rates = [], []
     for t, v in zip(summary["ticker"], raw):
         c = checks.get(t, {})
         rate, px = c.get("y_div_rate"), c.get("y_price")
         try:
             if rate and px and float(px) > 0:
                 yields.append(round(float(rate) / float(px) * 100, 2))
+                rates.append(float(rate))
                 continue
         except (TypeError, ValueError):
             pass
-        yields.append(round(float(v) * scale, 2) if v is not None else None)
+        y = round(float(v) * scale, 2) if v is not None else None
+        yields.append(y)
+        # The annual dollar rate, kept so the intraday refresh can re-divide it
+        # by the new price. Where only a yield survived, back the rate out of it
+        # against tonight's price, so the field is still a fixed dollar amount a
+        # price move can be applied to rather than a stale percentage.
+        try:
+            pxr = c.get("y_price")
+            rates.append(float(rate) if rate else
+                         (round(y / 100 * float(pxr), 4) if (y and pxr and float(pxr) > 0) else None))
+        except (TypeError, ValueError):
+            rates.append(None)
     summary["dividend_yield"] = yields
+    summary["dividend_rate"] = rates
     # Upside needs a price column, which not every caller supplies. Reaching for
     # it unconditionally broke the cross-check on any frame without one.
     prices = summary["price"] if "price" in summary.columns else [None] * len(summary)
@@ -3020,7 +3040,7 @@ def margins_and_growth(facts: dict, ttm: pd.DataFrame) -> tuple:
         cost_q = derive_quarters(collect_periods(facts, "us-gaap", COST_TAGS))
         if cost_q and rev_q:
             costs = {c.end: c.val for c in cost_q}
-            gp_q = [Period(r.start, r.end, r.val - costs[r.end], r.filed)
+            gp_q = [Period(r.start, r.end, r.val - costs[r.end], r.filed, "derived")
                     for r in rev_q if r.end in costs]
 
     gp_ttm = trailing_twelve(gp_q) if gp_q else pd.DataFrame()
@@ -3475,14 +3495,35 @@ def trailing_anchors(df: pd.DataFrame, quality) -> dict:
     d = df.sort_values("date")
     ps = np.asarray(d["ps"].values, dtype=float)
     dates = pd.to_datetime(np.asarray(d["date"].values))
-    good = ps[ps > 0]
-    if len(good) < 30 or len(dates) < 30:
+    if len(ps) < 30 or len(dates) < 30:
         return {}
-    logs = np.log(good)
+    today = dates[-1]
+
+    # The scale (mean/std of log P/S) MUST match the one the live Z on the page
+    # is measured against, because the drawer subtracts these "ago" values from
+    # the live Z to show a 7d/30d/90d/1y change. summarize() measures Z on the
+    # stale-filtered ten-year window anchored on the last date; using the whole
+    # twelve-year raw series here instead put the two endpoints on different
+    # scales, so the change shown could be the wrong size -- and, where a stale
+    # stretch sat in the gap, even the wrong sign. Rebuild the identical
+    # distribution, with the same fallback, and take lm/ls from it. The past
+    # prices themselves (_ps_asof) stay on the full series: a price as of a past
+    # date is a real fact; only the yardstick that turns it into a Z is shared.
+    stale = np.asarray(d["rev_stale"].values, dtype=bool) if "rev_stale" in d.columns \
+        else np.zeros(len(ps), dtype=bool)
+    cutoff = today - pd.DateOffset(years=10)
+    use = (~stale) if d.attrs.get("used_fresh") else np.ones(len(ps), dtype=bool)
+    win = use & (dates >= cutoff) & (ps > 0)
+    if win.sum() < 200:
+        win = (dates >= cutoff) & (ps > 0)
+        if win.sum() < 200:
+            win = ps > 0
+    logs = np.log(ps[win])
+    if len(logs) < 30:
+        return {}
     lm, ls = float(logs.mean()), float(logs.std(ddof=1))
     if ls <= 1e-9:
         return {}
-    today = dates[-1]
 
     def _ps_asof(days):
         cut = today - pd.Timedelta(days=days)
@@ -4765,16 +4806,32 @@ def save_state(summary: pd.DataFrame, series: dict[str, pd.DataFrame], path: Pat
     a lossy monthly resample), the last price the history was built at, and the
     static summary row. Written once by the nightly run.
     """
-    cutoff = pd.Timestamp(date.today()) - pd.DateOffset(years=10)
     state = {"built": str(date.today()), "companies": {}}
     rows = {r["ticker"]: r for r in summary.to_dict(orient="records")}
     for t, df in series.items():
         if t not in rows:
             continue
         d = df.sort_values("date")
-        d10 = d[d["date"] >= cutoff]
+        # The intraday refresh recomputes Z, the percentile and the medians from
+        # THIS array, so it has to be the identical distribution summarize()
+        # built them from -- not the raw series. summarize() drops days whose
+        # revenue denominator was already stale (they bias the multiple upward),
+        # and anchors its ten-year window on the frame's LAST date, not on
+        # today's calendar date. Saving the raw ten years here instead meant a
+        # company with any stale stretch got one Z on the nightly page and a
+        # different, cheaper-looking Z the instant the first intraday refresh
+        # ran, with nothing having moved -- and Opportunity, the default sort,
+        # reshuffled with it. Mirror summarize() exactly, including its fallback
+        # to the full series when the fresh window is too thin to measure.
+        src = d[~d["rev_stale"]] if (d.attrs.get("used_fresh")
+                                     and "rev_stale" in d.columns) else d
+        anchor = d["date"].iloc[-1]
+        cutoff = anchor - pd.DateOffset(years=10)
+        d10 = src[src["date"] >= cutoff]
         if len(d10) < 200:
-            d10 = d
+            d10 = d[d["date"] >= cutoff]
+            if len(d10) < 200:
+                d10 = d
         state["companies"][t] = {
             "row": rows[t],
             "last_price": float(d["price"].iloc[-1]),
@@ -4893,9 +4950,9 @@ def refresh_prices(tag: str = ""):
                     row["target_upside"] = (float(row["target_price"]) / new_px - 1) * 100
                 except (TypeError, ValueError):
                     pass
-            if row.get("dividend_per_share") not in (None, "", 0) and new_px:
+            if row.get("dividend_rate") not in (None, "", 0) and new_px:
                 try:
-                    row["dividend_yield"] = float(row["dividend_per_share"]) / new_px * 100
+                    row["dividend_yield"] = round(float(row["dividend_rate"]) / new_px * 100, 2)
                 except (TypeError, ValueError):
                     pass
         rows.append(row)
@@ -5044,9 +5101,12 @@ def main():
                                 "when-issued or spin-off ticker the index list added "
                                 "before the entity began filing with the SEC"))
             else:
+                n_rev_concepts = sum(
+                    1 for tg in REVENUE_TAGS
+                    if facts.get("facts", {}).get("us-gaap", {}).get(tg))
                 dropped.append((t, "no revenue series",
                                 f"{len(periods)} period(s) and {len(quarters)} quarter(s) "
-                                f"survived collection from {len(revenue_concepts)} revenue "
+                                f"survived collection from {n_rev_concepts} revenue "
                                 f"concept(s), not enough to form a trailing twelve"))
             continue
 
@@ -5181,8 +5241,10 @@ def main():
         print(f"  {ok} agree, {bad} disagree, {miss} could not be checked"
               + (f"  ({ok / denom * 100:.1f}% agreement among those checked)" if denom else ""))
     else:
-        summary["xc_revenue_diff"] = None
-        summary["xc_mktcap_diff"] = None
+        # NaN, not None: see apply_cross_check -- a None column is an object
+        # column, and the documented "0 to skip" crashed the reliability report.
+        summary["xc_revenue_diff"] = np.nan
+        summary["xc_mktcap_diff"] = np.nan
         summary["xc_verdict"] = "unchecked"
 
     # Attach the research figures BEFORE writing anything. They used to be
