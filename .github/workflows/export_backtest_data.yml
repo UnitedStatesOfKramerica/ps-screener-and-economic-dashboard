@@ -7,6 +7,8 @@
 #   * evidence for why each index member missing from the screen is missing,
 #     including earlier SEC registrants that hold its orphaned history
 #   * a 17-year P/S history rebuilt by ps_screener.py itself (--years 17)
+#   * the real-filings fixture replay.py needs (never committed to the repo),
+#     plus replay.py's results on the live screener as a baseline
 # and hands them back as one downloadable artifact named "backtest-data".
 #
 # Commits nothing, publishes nothing, and cannot touch the live screen:
@@ -484,11 +486,15 @@ jobs:
           by_name, by_token = {}, {}
 
 
+          by_squash = {}
+
+
           def add_name(name, cik):
               n = norm(name)
               if n:
                   by_name.setdefault(n, set()).add(cik)
                   by_token.setdefault(n.split()[0], set()).add(n)
+                  by_squash.setdefault(n.replace(" ", ""), set()).add(n)
 
 
           try:   # primary: EDGAR's complete name index (one file, ~1M names)
@@ -541,12 +547,20 @@ jobs:
                   cands = set()
                   for n in names:
                       cands |= by_name.get(n, set())
-                  mine_tokens = set().union(*(n.split() for n in names)) if names else set()
+                      for other in by_squash.get(n.replace(" ", ""), ()):      # ExxonMobil = Exxon Mobil
+                          cands |= by_name.get(other, set())
+                  # Same first word, ranked by how much of the whole name matches (Jaccard):
+                  # plain "FERGUSON" must outrank "FERGUSON JOHN" for "FERGUSON ENTERPRISES",
+                  # which a raw shared-word count ties and alphabetical order then cut off.
                   pool = []
                   for n in names:
-                      for other in by_token.get(n.split()[0], ()):
-                          pool.append((len(set(other.split()) & mine_tokens), other))
-                  for _, other in sorted(pool, reverse=True)[:MAX_NAME_CANDIDATES]:
+                      toks = set(n.split())
+                      first = n.split()[0]
+                      for key in {first, n.replace(" ", "")[:len(first)]}:
+                          for other in by_token.get(key, ()):
+                              ot = set(other.split())
+                              pool.append((len(toks & ot) / len(toks | ot), -len(ot), other))
+                  for _, _, other in sorted(set(pool), reverse=True)[:MAX_NAME_CANDIDATES]:
                       cands |= by_name.get(other, set())
                   cands.discard(cik)
                   checked = []
@@ -577,6 +591,22 @@ jobs:
               print(f"  {n_done:>2}/{len(records)} {t:6s} cik={cik} first10K/Q={rec.get('first_periodic_filing')} "
                     f"rev_periods={st.get('revenue_periods')} ttm={st.get('ttm_rows')} "
                     f"best_pred={best.get('cik')}:{best.get('agreeing_annual_periods')}")
+              unread = sorted(((v.get("periodic_facts", 0), k) for k, v in (rec.get("inventory") or {}).items()
+                               if not v.get("screener_reads_it") and re.search(r"(?i)revenue|sales", k)),
+                              reverse=True)[:4]
+              print("EVIDENCE " + json.dumps({
+                  "ticker": t, "name": rec.get("entity_name"), "former": (rec.get("former_names") or [])[:3],
+                  "first_periodic": rec.get("first_periodic_filing"), "notices": rec.get("successor_notices"),
+                  "taxonomies": rec.get("taxonomies"), "rev_periods": st.get("revenue_periods"),
+                  "ttm_first": st.get("ttm_first"), "ttm_last": st.get("ttm_last"),
+                  "unread_revenue_concepts": [f"{k} ({n})" for n, k in unread],
+                  "share_age_days": {k.split(":")[-1][:28]: v.get("age_days")
+                                     for k, v in (st.get("shares") or {}).items()},
+                  "candidates": [{k: c.get(k) for k in ("cik", "name", "last_periodic_filing",
+                                                         "shared_annual_periods", "agreeing_annual_periods",
+                                                         "revenue_first_end")}
+                                 for c in (rec.get("predecessor_candidates") or [])[:3]],
+                  "error": rec.get("error") or rec.get("candidate_error")}, default=str))
 
           (OUT / "drop_probe.json").write_text(json.dumps(
               {"built": str(date.today()), "notes": notes, "records": records}, indent=1, default=str))
@@ -606,6 +636,87 @@ jobs:
           for f in ps_screen_bt.db ps_diagnostics_bt.txt; do
             if [ -f "$f" ]; then cp "$f" backtest_data/; else echo "::warning::$f was not written"; fi
           done
+
+      - name: Build the replay fixture and run replay.py on the live screener
+        continue-on-error: true
+        timeout-minutes: 20
+        env:
+          SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
+        run: |
+          python - <<'FIXTURE'
+          """
+          Build the real-filings fixture replay.py reads -- the file the repo never
+          commits -- using the screener's OWN SEC client and price loader, so the facts
+          and prices are exactly what the nightly sees. Shape, per ticker, as replay.py's
+          load()/series()/run_one() expect:
+              {"facts": <companyfacts>, "prices": {"YYYY-MM-DD": close}, "splits": {...}}
+
+          Companies: replay.py's own -- the eight assert_real_data() checks, plus every
+          name in its SECTOR map (the quality table). Written to
+          backtest_data/replay_fixture.json.gz, then read back before it is trusted.
+          """
+          import gzip
+          import json
+          import os
+          from datetime import date, timedelta
+          from pathlib import Path
+
+          import pandas as pd
+          import ps_screener as ps
+
+          OUT = Path("backtest_data")
+          OUT.mkdir(exist_ok=True)
+          TICKERS = ["HON", "MNST", "AMD", "BG", "AON", "ADM", "DD", "CPT",          # assert_real_data
+                     "OXY", "DVN", "MSFT", "V", "PG", "VZ", "CAT", "INTC", "CRM",     # SECTOR map
+                     "MCD", "MTD", "JPM", "O"]
+
+          edgar = ps.Edgar(os.environ.get("SEC_EMAIL", ""))
+          cik = edgar.ticker_to_cik()
+          # Same start the nightly asks for at its default history length.
+          closes, splits = ps.fetch_prices(
+              TICKERS, date.today() - timedelta(days=365 * ps.HISTORY_YEARS + 400))
+
+          bundle, skipped = {}, []
+          for t in TICKERS:
+              facts = edgar.company_facts(cik[t]) if t in cik else None
+              if not facts or t not in closes:
+                  skipped.append(f"{t} ({'no filings' if not facts else 'no prices'})")
+                  continue
+              sp = splits.get(t)
+              bundle[t] = {
+                  "facts": facts,
+                  "prices": {str(pd.Timestamp(k).date()): float(v) for k, v in closes[t].items()},
+                  "splits": {str(pd.Timestamp(k).date()): float(v)
+                             for k, v in (sp.items() if sp is not None else [])},
+              }
+
+          path = OUT / "replay_fixture.json.gz"
+          with gzip.open(path, "wt") as fh:
+              json.dump(bundle, fh)
+          with gzip.open(path, "rt") as fh:                     # read back before trusting it
+              back = json.load(fh)
+          assert set(back) == set(bundle), "fixture did not read back intact"
+          print(f"replay fixture: {len(back)} companies ({', '.join(back)}); "
+                f"skipped: {', '.join(skipped) or 'none'}; {path.stat().st_size / 1e6:.1f} MB")
+          FIXTURE
+          export QS_FIXTURE=backtest_data/replay_fixture.json.gz
+          echo "---------- replay.py on the LIVE screener (baseline) ----------"
+          python replay.py || echo "::warning::replay table did not complete"
+          python -c "import replay; replay.assert_real_data()" || echo "::warning::replay checks did not complete"
+
+      - name: Say where the download is
+        if: always()
+        run: |
+          {
+            echo "## Download the data for Claude"
+            echo "Scroll down this page to **Artifacts** and click **backtest-data**."
+            echo "Upload that zip to Claude -- the zip, not the log."
+            echo ""
+            echo "Contents:"
+            echo '```'
+            ls -la backtest_data 2>/dev/null || echo "(nothing was written)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload everything as one artifact
         if: always()
