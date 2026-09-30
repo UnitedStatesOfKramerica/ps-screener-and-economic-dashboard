@@ -1,9 +1,11 @@
 # Export backtest data -- a one-off, manually started run.
 #
 # Pulls, on GitHub's machines (which can reach Yahoo, Wikipedia and the SEC):
-#   * daily prices with and without dividends for every screener ticker, plus
+#   * daily prices with and without dividends for every index member, plus
 #     SPY, RSP (equal-weight S&P 500), BIL (cash) and the 11 sector ETFs
-#   * Wikipedia's index-membership dates and additions/removals history
+#   * Wikipedia's index-membership dates
+#   * evidence for why each index member missing from the screen is missing,
+#     including earlier SEC registrants that hold its orphaned history
 #   * a 17-year P/S history rebuilt by ps_screener.py itself (--years 17)
 # and hands them back as one downloadable artifact named "backtest-data".
 #
@@ -267,14 +269,343 @@ jobs:
           print("Export complete and every file read back cleanly.")
           PY
 
+      - name: Probe why index members are missing from the screen
+        continue-on-error: true
+        timeout-minutes: 30
+        env:
+          SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
+        run: |
+          python - <<'PROBE'
+          """
+          Why are index members missing from the published screen? For every company
+          Wikipedia lists that docs/state.json does not publish, record the evidence
+          needed to fix the ROOT cause for the whole class, not patch one ticker:
+
+            * the SEC registration number (CIK) the screener used, and Wikipedia's
+            * when that registrant began filing periodic reports, and any successor-
+              issuer notice (8-K12B / 8-K12G3) -- the signature of a company that
+              reorganised into a new legal entity and left its history behind
+            * which revenue and share concepts it reports, and how far each of the
+              screener's OWN stages (its real functions, not a re-implementation) gets
+            * earlier registrants with a matching name whose filings overlap and AGREE
+              with this one -- candidate predecessors holding the orphaned history
+
+          Writes backtest_data/drop_probe.json, backtest_data/probe_facts.json.gz (the
+          real filings, trimmed the way the screener trims them, so a fix can be built
+          and tested against them) and backtest_data/missing_tickers.txt.
+          """
+          import gzip
+          import json
+          import os
+          import re
+          from datetime import date
+          from pathlib import Path
+
+          import pandas as pd
+          import ps_screener as ps
+
+          OUT = Path("backtest_data")
+          OUT.mkdir(exist_ok=True)
+          PERIODIC = ("10-K", "10-Q", "10-K/A", "10-Q/A", "20-F")
+          MAX_NAME_CANDIDATES = 40     # per company, checked cheaply via the filing index
+          MAX_FACT_CANDIDATES = 5      # per company, whose full filings are compared
+          SUFFIXES = {"INC", "INCORPORATED", "CORP", "CORPORATION", "CO", "COMPANY", "LTD",
+                      "LIMITED", "PLC", "SA", "NV", "AG", "SE", "LP", "LLC", "THE",
+                      "HOLDINGS", "HOLDING", "GROUP"}
+          edgar = ps.Edgar(os.environ.get("SEC_EMAIL", ""))
+          notes = []
+
+
+          def cik10(x):
+              x = str(x).strip()
+              return x.zfill(10) if x.isdigit() else None
+
+
+          def norm(name):
+              n = re.sub(r"/[A-Z]{1,4}/?", " ", str(name).upper())   # EDGAR tags: /DE/, /NEW/
+              n = re.sub(r"[^A-Z0-9 ]", " ", n)
+              return " ".join(w for w in n.split() if w not in SUFFIXES)
+
+
+          def periodic_filings(sub):
+              rec = (sub or {}).get("filings", {}).get("recent", {})
+              return [(d, f) for d, f in zip(rec.get("filingDate", []), rec.get("form", []))]
+
+
+          def annual_revenue(facts):
+              """(start, end) -> set of reported annual revenue values, from the
+              screener's own revenue concepts, periodic filings only."""
+              out = {}
+              gaap = ((facts or {}).get("facts") or {}).get("us-gaap") or {}
+              for tag in ps.REVENUE_TAGS:
+                  for r in (gaap.get(tag) or {}).get("units", {}).get("USD", []):
+                      if r.get("form") not in PERIODIC or not r.get("start") or not r.get("end"):
+                          continue
+                      try:
+                          days = (date.fromisoformat(r["end"]) - date.fromisoformat(r["start"])).days
+                      except ValueError:
+                          continue
+                      if 350 <= days <= 380 and r.get("val"):
+                          out.setdefault((r["start"], r["end"]), set()).add(float(r["val"]))
+              return out
+
+
+          def overlap(a, b):
+              """How many shared annual periods, and how many report the same revenue."""
+              shared = set(a) & set(b)
+              agree = sum(1 for k in shared
+                          if any(abs(x - y) <= 0.005 * max(abs(x), abs(y)) for x in a[k] for y in b[k]))
+              return len(shared), agree
+
+
+          def stages(facts):
+              """Run the screener's own functions and report how far each gets."""
+              s = {}
+              try:
+                  periods = ps.collect_periods(facts, "us-gaap", ps.REVENUE_TAGS)
+                  quarters = ps.derive_quarters(periods)
+                  ttm = ps.trailing_twelve(quarters, periods)
+                  s["revenue_periods"] = len(periods)
+                  s["revenue_first_end"] = str(min(p.end for p in periods)) if periods else None
+                  s["revenue_last_end"] = str(max(p.end for p in periods)) if periods else None
+                  s["quarters"] = len(quarters)
+                  s["ttm_rows"] = len(ttm)
+                  s["ttm_first"] = str(ttm["period_end"].min()) if len(ttm) else None
+                  s["ttm_last"] = str(ttm["period_end"].max()) if len(ttm) else None
+              except Exception as e:
+                  s["revenue_error"] = f"{type(e).__name__}: {str(e)[:160]}"
+              shares = {}
+              for label, tax, tags in ([(c, "us-gaap", [c]) for c in ps.SHARE_MARKETCAP_TAGS]
+                                       + [("dei:EntityCommonStockSharesOutstanding", "dei",
+                                           ps.SHARE_TAGS_DEI)]):
+                  try:
+                      got = ps.collect_instants(facts, tax, tags)
+                      shares[label] = {"points": len(got),
+                                       "last": str(got[-1][0]) if got else None,
+                                       "age_days": (date.today() - got[-1][0]).days if got else None}
+                  except Exception as e:
+                      shares[label] = {"error": f"{type(e).__name__}: {str(e)[:120]}"}
+              s["shares"] = shares
+              s["share_stale_limit_days"] = ps.SHARE_STALE_DAYS
+              return s
+
+
+          def inventory(facts):
+              """Every revenue-like, sales-like or share-count concept actually reported."""
+              inv = {}
+              wanted = set(ps.REVENUE_TAGS) | set(ps.SHARE_MARKETCAP_TAGS) | set(ps.SHARE_TAGS_DEI)
+              for tax, concepts in ((facts or {}).get("facts") or {}).items():
+                  for k, entry in concepts.items():
+                      if k not in wanted and not re.search(r"(?i)revenue|sales|sharesoutstanding", k):
+                          continue
+                      for unit, rows in (entry.get("units") or {}).items():
+                          ends = [r["end"] for r in rows if r.get("end")]
+                          inv[f"{tax}:{k} [{unit}]"] = {
+                              "facts": len(rows),
+                              "periodic_facts": sum(1 for r in rows if r.get("form") in PERIODIC),
+                              "first_end": min(ends) if ends else None,
+                              "last_end": max(ends) if ends else None,
+                              "last_filed": max((r.get("filed", "") for r in rows), default=None),
+                              "screener_reads_it": k in wanted}
+              return inv
+
+
+          def trim(facts):
+              """Trimmed the way the screener trims its cache, plus any revenue-like
+              concept, so a fixture built from this drives the real pipeline."""
+              out = {"facts": {}}
+              for tax, concepts in ((facts or {}).get("facts") or {}).items():
+                  if tax == "dei":
+                      out["facts"]["dei"] = concepts
+                      continue
+                  kept = {k: v for k, v in concepts.items()
+                          if ps._keep_concept(k) or re.search(r"(?i)revenue|sales", k)}
+                  if kept:
+                      out["facts"][tax] = kept
+              return out
+
+
+          # ---- who is missing ---------------------------------------------------------
+          published = set(json.loads(Path("docs/state.json").read_text())["companies"])
+          cur = pd.read_csv(OUT / "sp500_current.csv", dtype=str)
+          wiki = {r["ticker"]: {"name": r.get("Security"), "cik": cik10(r.get("CIK")),
+                                "date_added": r.get("Date added"), "founded": r.get("Founded"),
+                                "sector": r.get("GICS Sector")}
+                  for _, r in cur.iterrows()}
+          missing = sorted(set(wiki) - published)
+          (OUT / "missing_tickers.txt").write_text(",".join(missing))
+          print(f"{len(missing)} index members are not in the published screen: {' '.join(missing)}")
+
+          first_price = {}
+          try:
+              px = pd.read_csv(OUT / "prices_close.csv.gz", index_col=0, parse_dates=True)
+              first_price = {t: str(px[t].first_valid_index().date())
+                             for t in missing if t in px and px[t].first_valid_index() is not None}
+          except Exception as e:
+              notes.append(f"price file unreadable: {type(e).__name__}")
+
+          sec_map = edgar.ticker_to_cik()
+
+          # ---- pass 1: the evidence for each missing company ----------------------------
+          records, fixture, mine_rev, names_for = [], {}, {}, {}
+          for t in missing:
+              rec = {"ticker": t, "wikipedia": wiki.get(t), "first_price_date": first_price.get(t),
+                     "sec_cik": sec_map.get(t)}
+              cik = rec["sec_cik"] or (wiki.get(t) or {}).get("cik")
+              rec["cik_used"] = cik
+              rec["cik_mismatch_vs_wikipedia"] = bool(rec["sec_cik"] and (wiki.get(t) or {}).get("cik")
+                                                      and rec["sec_cik"] != wiki[t]["cik"])
+              try:
+                  sub = edgar.get_json(f"https://data.sec.gov/submissions/CIK{cik}.json") if cik else None
+                  rec["entity_name"] = (sub or {}).get("name")
+                  rec["former_names"] = [f.get("name") for f in (sub or {}).get("formerNames", [])]
+                  fil = periodic_filings(sub)
+                  per = sorted(d for d, f in fil if f in PERIODIC)
+                  rec["first_periodic_filing"] = per[0] if per else None
+                  rec["last_periodic_filing"] = per[-1] if per else None
+                  rec["successor_notices"] = sorted({f"{f} {d}" for d, f in fil if f.startswith("8-K12")})
+                  facts = edgar.get_json(f"https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json") if cik else None
+                  rec["has_companyfacts"] = bool(facts)
+                  rec["taxonomies"] = sorted(((facts or {}).get("facts") or {}).keys())
+                  rec["stages"] = stages(facts) if facts else None
+                  rec["inventory"] = inventory(facts) if facts else None
+                  if facts:
+                      fixture[cik] = trim(facts)
+                  mine_rev[t] = annual_revenue(facts)
+                  names = {norm(x) for x in [rec["entity_name"], *rec["former_names"],
+                                             (wiki.get(t) or {}).get("name")] if x}
+                  names.discard("")
+                  names_for[t] = names
+              except Exception as e:
+                  rec["error"] = f"{type(e).__name__}: {str(e)[:200]}"
+              records.append(rec)
+
+          # ---- name index: every name a registrant has used, with its CIK ---------------
+          by_name, by_token = {}, {}
+
+
+          def add_name(name, cik):
+              n = norm(name)
+              if n:
+                  by_name.setdefault(n, set()).add(cik)
+                  by_token.setdefault(n.split()[0], set()).add(n)
+
+
+          try:   # primary: EDGAR's complete name index (one file, ~1M names)
+              edgar._throttle()
+              r = edgar.session.get("https://www.sec.gov/Archives/edgar/cik-lookup-data.txt", timeout=300)
+              r.raise_for_status()
+              for line in r.content.decode("latin-1").splitlines():
+                  parts = line.rsplit(":", 2)
+                  if len(parts) == 3 and parts[1].strip().isdigit():
+                      add_name(parts[0], parts[1].strip().zfill(10))
+              name_source = "EDGAR complete name index"
+          except Exception as e:
+              notes.append(f"EDGAR complete name index unavailable: {type(e).__name__}: {e}")
+          if not by_name:
+              # fallback: the quarterly master indexes (pipe-delimited: CIK|Name|Form|Date|File)
+              # around each company's first periodic filing -- a predecessor that handed
+              # over to a new registrant was still filing in those quarters.
+              quarters = set()
+              for rec in records:
+                  f = rec.get("first_periodic_filing") or str(date.today())
+                  y, q = int(f[:4]), (int(f[5:7]) - 1) // 3 + 1
+                  for _ in range(3):
+                      quarters.add((y, q))
+                      y, q = (y, q - 1) if q > 1 else (y - 1, 4)
+              got = 0
+              for y, q in sorted(quarters)[-12:]:
+                  try:
+                      edgar._throttle()
+                      r = edgar.session.get(
+                          f"https://www.sec.gov/Archives/edgar/full-index/{y}/QTR{q}/master.idx", timeout=300)
+                      if r.status_code != 200:
+                          notes.append(f"master index {y} Q{q}: HTTP {r.status_code}")
+                          continue
+                      for line in r.content.decode("latin-1").splitlines():
+                          parts = line.split("|")
+                          if len(parts) == 5 and parts[0].strip().isdigit() and parts[2].strip() in PERIODIC:
+                              add_name(parts[1], parts[0].strip().zfill(10))
+                      got += 1
+                  except Exception as e:
+                      notes.append(f"master index {y} Q{q}: {type(e).__name__}")
+              name_source = f"EDGAR quarterly master indexes ({got} quarters)"
+          notes.append(f"predecessor names searched in: {name_source if by_name else 'nothing (both sources failed)'}")
+          print(f"name index: {len(by_name):,} distinct names from {name_source if by_name else 'no source'}")
+
+          # ---- pass 2: candidate predecessors, verified against the filings ---------------
+          for n_done, rec in enumerate(records, 1):
+              t, cik = rec["ticker"], rec.get("cik_used")
+              try:
+                  names = names_for.get(t, set())
+                  cands = set()
+                  for n in names:
+                      cands |= by_name.get(n, set())
+                  mine_tokens = set().union(*(n.split() for n in names)) if names else set()
+                  pool = []
+                  for n in names:
+                      for other in by_token.get(n.split()[0], ()):
+                          pool.append((len(set(other.split()) & mine_tokens), other))
+                  for _, other in sorted(pool, reverse=True)[:MAX_NAME_CANDIDATES]:
+                      cands |= by_name.get(other, set())
+                  cands.discard(cik)
+                  checked = []
+                  for c in sorted(cands)[:MAX_NAME_CANDIDATES]:
+                      csub = edgar.get_json(f"https://data.sec.gov/submissions/CIK{c}.json")
+                      cper = sorted(d for d, f in periodic_filings(csub) if f in PERIODIC)
+                      if not cper:
+                          continue
+                      checked.append({"cik": c, "name": (csub or {}).get("name"),
+                                      "first_periodic_filing": cper[0], "last_periodic_filing": cper[-1]})
+                  checked.sort(key=lambda x: x["last_periodic_filing"], reverse=True)
+                  mine = mine_rev.get(t, {})
+                  for cand in checked[:MAX_FACT_CANDIDATES]:
+                      cf = edgar.get_json(f"https://data.sec.gov/api/xbrl/companyfacts/CIK{cand['cik']}.json")
+                      cand["shared_annual_periods"], cand["agreeing_annual_periods"] = overlap(mine, annual_revenue(cf))
+                      st = stages(cf) if cf else {}
+                      cand["revenue_first_end"] = st.get("revenue_first_end")
+                      cand["revenue_last_end"] = st.get("revenue_last_end")
+                      cand["revenue_periods"] = st.get("revenue_periods")
+                      if cf and (cand["agreeing_annual_periods"] > 0 or not mine):
+                          fixture[cand["cik"]] = trim(cf)
+                  rec["predecessor_candidates"] = checked
+              except Exception as e:
+                  rec["candidate_error"] = f"{type(e).__name__}: {str(e)[:200]}"
+              best = max(rec.get("predecessor_candidates") or [{}],
+                         key=lambda x: (x.get("agreeing_annual_periods", -1), x.get("last_periodic_filing", "")))
+              st = rec.get("stages") or {}
+              print(f"  {n_done:>2}/{len(records)} {t:6s} cik={cik} first10K/Q={rec.get('first_periodic_filing')} "
+                    f"rev_periods={st.get('revenue_periods')} ttm={st.get('ttm_rows')} "
+                    f"best_pred={best.get('cik')}:{best.get('agreeing_annual_periods')}")
+
+          (OUT / "drop_probe.json").write_text(json.dumps(
+              {"built": str(date.today()), "notes": notes, "records": records}, indent=1, default=str))
+          with gzip.open(OUT / "probe_facts.json.gz", "wt") as fh:
+              json.dump({"tickers": {r["ticker"]: r.get("cik_used") for r in records}, "facts": fixture}, fh)
+          # read both back before trusting them
+          json.loads((OUT / "drop_probe.json").read_text())
+          with gzip.open(OUT / "probe_facts.json.gz", "rt") as fh:
+              back = json.load(fh)
+          print(f"Probe complete: {len(records)} companies, {len(back['facts'])} registrants' filings saved.")
+          PROBE
+
       - name: Rebuild P/S history back to 2009 with the screener itself
         continue-on-error: true
         timeout-minutes: 90
         env:
           SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
         run: |
-          python ps_screener.py --years 17 --tag bt --verify 0
-          cp ps_screen_bt.db backtest_data/ps_screen_bt.db
+          WATCH="$(cat backtest_data/missing_tickers.txt 2>/dev/null || true)"
+          # --verify 5: cross-check five rows against Yahoo. The live screener
+          # crashes at its very last step when NO row is cross-checked (fixed in
+          # the corrected ps_screener.py, not yet shipped); five checked rows
+          # avoid that path. Its files are written before that step regardless,
+          # and are kept below even if it does end in an error.
+          python ps_screener.py --years 17 --tag bt --verify 5 ${WATCH:+--watch "$WATCH"} \
+            || echo "::warning::The screener ended with an error; keeping every file it wrote first"
+          for f in ps_screen_bt.db ps_diagnostics_bt.txt; do
+            if [ -f "$f" ]; then cp "$f" backtest_data/; else echo "::warning::$f was not written"; fi
+          done
 
       - name: Upload everything as one artifact
         if: always()
