@@ -917,10 +917,31 @@ def fetch(series_id, start):
         if v in (None, "", "."):
             continue
         try:
-            out.append((o["date"], float(v)))
+            val = float(v)
         except (ValueError, KeyError):
             continue
+        if math.isfinite(val):
+            out.append((o["date"], val))
     return out
+
+
+def finite_only(series, tag=""):
+    """Drop observations whose value is missing or not a finite number, and say so.
+
+    Added after the 30 Sept 2026 nightly build: yfinance returned NaN for the latest
+    SPY/RSP bar (the build ran shortly after the close), and that NaN went straight
+    into scoring. robust_z's final clamp turned (NaN - median) / MAD = NaN into the
+    +4.0 cap, so a missing reading scored as the most extreme alarm possible, and the
+    card showed "NaN" with no direction. Placed in fetch_raw -- the one function both
+    the nightly build and historical_check.py fetch through -- so no source, present
+    or future, can feed a missing value into a score. The last real observation then
+    stands as the latest, and its date on the card shows how current it is."""
+    bad = [d for d, v in series if v is None or not math.isfinite(v)]
+    if not bad:
+        return series
+    print(f"  [data] {tag}: dropped {len(bad)} missing/non-finite observation(s) "
+          f"(latest {bad[-1]}); using the last real reading")
+    return [(d, v) for d, v in series if v is not None and math.isfinite(v)]
 
 
 def yoy(series):
@@ -1085,6 +1106,13 @@ def robust_z(vals, latest, worry, cap=ROBUST_Z_CAP):
     the series is genuinely flat rather than crashing.
     """
     if worry is None or len(vals) < MIN_Z_HISTORY:
+        return None
+    # A missing or non-finite reading is no reading. Without this, the clamp below
+    # turns NaN into the +cap, i.e. "at a historic extreme" (see finite_only).
+    if latest is None or not math.isfinite(latest):
+        return None
+    vals = [v for v in vals if math.isfinite(v)]
+    if len(vals) < MIN_Z_HISTORY:
         return None
     med = statistics.median(vals)
     mad = statistics.median([abs(v - med) for v in vals])
@@ -1316,6 +1344,14 @@ def fetch_concentration_ratio(start):
     except Exception as exc:
         print(f"  [breadth] fetch failed ({exc})")
         return []
+    # A bar with no close (typically the newest one, when the build runs soon after
+    # the market closes) must not enter the ratio: drop it from BOTH ETFs so the two
+    # stay aligned and the series simply ends on the last complete day.
+    n_missing = int(rsp.isna().sum() + spy.isna().sum())
+    if n_missing:
+        print(f"  [breadth] {n_missing} bar(s) with no close dropped "
+              f"(latest bar probably not final yet)")
+    rsp, spy = rsp.dropna(), spy.dropna()
     if rsp.empty or spy.empty:
         print("  [breadth] empty result from yfinance")
         return []
@@ -1515,8 +1551,13 @@ def combine_series(parts, start, scale=1.0):
 
 
 def fetch_raw(ind):
-    """Fetch one indicator's raw series, dispatching on its compute type. Shared by
-    panel_for and historical_check.py, so the backtest fetches exactly what ships."""
+    """Fetch one indicator's raw series, dispatching on its compute type, with missing
+    or non-finite observations removed (see finite_only). Shared by panel_for and
+    historical_check.py, so the backtest fetches exactly what ships."""
+    return finite_only(_fetch_raw(ind), ind["id"])
+
+
+def _fetch_raw(ind):
     c = ind.get("compute")
     if c == "ratio":
         num = (fetch_sum(ind["nums"], ind["start"]) if ind.get("nums")
@@ -1606,14 +1647,17 @@ def score_series(ind, series, legs=None):
     unscored = bool(ind.get("unscored"))
     # Magnitude: robust z against the signal's own full history (see robust_z),
     # but only once that history is long enough to define "normal".
-    z = None if (short_history or unscored) else robust_z([v for _, v in series], latest, w)
+    finite = math.isfinite(latest)
+    z = None if (short_history or unscored or not finite) else robust_z([v for _, v in series], latest, w)
     phrase = distance_phrase(z)
     # Badge state, in order:
     #   1. externally-defined line (ABSOLUTE_SCORED)       -> fixed threshold
     #   2. enough history                                  -> robust z
     #   3. too little history, but has fixed thresholds    -> fixed threshold
     #   4. otherwise (no worry, too new, or unscored)      -> neutral, context
-    if ind["id"] in ABSOLUTE_SCORED and has_thresholds:
+    if not finite:
+        st, score_mode = "neutral", "context"
+    elif ind["id"] in ABSOLUTE_SCORED and has_thresholds:
         st, score_mode = state_of(w, latest, ind["caution"], ind["alert"]), "absolute"
     elif z is not None:
         st, score_mode = zstate_of(z), "robust"
@@ -1809,6 +1853,367 @@ def _compute_changes(history, all_panels, today):
     return out
 
 
+def _active(p):
+    # "Worsening-active": the signal is moving its worrying way or sitting
+    # at a caution/danger level. This is the original vote trigger.
+    return bool(p["deteriorating"] or p["state"] in ("caution", "alert"))
+
+
+def _healthy_active(p):
+    # The mirror of _active: the signal is moving its GOOD way or sitting
+    # at a healthy (calm) level. Used only for TWO_DIRECTIONAL signals to
+    # cast a reversed vote -- so a strong, improving economy can actually
+    # argue FOR cyclicals/risk/high-yield, not just fail to argue against.
+    return bool(p["improving"] or p["state"] == "calm")
+
+
+def compute_allocation(by_id, _val_c, _cons_c):
+    """The nine bucket leans, from per-signal readings (by_id: series id -> a dict
+    with label, state, deteriorating, improving) and the Valuation and Consumer
+    theme conditions. Pure -- no fetching -- so build() and historical_check.py run
+    the identical engine. Moved out of build() verbatim in Step 2."""
+    bucket_signals = {b: [] for b in ALLOC_BUCKETS}
+    for sid, imps in ALLOC.items():
+        for bucket, lean in imps:
+            bucket_signals[bucket].append((sid, lean))
+
+    # condition -> (weight applied). "extreme"/"stressed" fire at full weight,
+    # "elevated"/"mixed" at half; "normal"/"healthy" don't vote.
+    _val_w = {"extreme": 1.5, "elevated": 0.75}.get(_val_c["condition"], 0.0)
+    _cons_w = {"stressed": 1.5, "mixed": 0.75}.get(_cons_c["condition"], 0.0)
+    CONDITION_VOTES = []
+    if _val_w:
+        CONDITION_VOTES += [
+            ("Valuation condition", "Overall equity exposure", "UW", _val_w),
+            ("Valuation condition", "Defensive equities", "OW", _val_w),
+            ("Valuation condition", "Gold", "OW", _val_w)]
+    if _cons_w:
+        CONDITION_VOTES += [
+            ("Consumer condition", "Cyclicals & small caps", "UW", _cons_w),
+            ("Consumer condition", "Defensive equities", "OW", _cons_w),
+            ("Consumer condition", "Overall equity exposure", "UW", _cons_w)]
+    cond_votes_by_bucket = {b: [] for b in ALLOC_BUCKETS}
+    for label, bucket, lean, w in CONDITION_VOTES:
+        cond_votes_by_bucket[bucket].append((label, lean, w))
+
+    allocation = []
+    for b in ALLOC_BUCKETS:
+        ow = uw = 0.0
+        n_ow = n_uw = 0
+        ow_possible = uw_possible = 0.0
+        drivers = []
+        for sid, lean in bucket_signals[b]:
+            p = by_id.get(sid)
+            if not p:
+                continue
+            w = SIGNAL_WEIGHT.get(sid, 1.0)
+            two_dir = sid in TWO_DIRECTIONAL
+            rev = "UW" if lean == "OW" else "OW"
+            # A two-directional signal can push the bucket EITHER way, so it
+            # contributes to whichever possible-total its live reading points
+            # at; a one-directional (tail) signal only ever adds to its own
+            # side. This keeps the conviction denominator honest.
+            if two_dir:
+                ow_possible += w
+                uw_possible += w
+            elif lean == "OW":
+                ow_possible += w
+            else:
+                uw_possible += w
+            worse = _active(p)
+            better = two_dir and _healthy_active(p) and not worse
+            if worse:
+                if lean == "OW":
+                    ow += w; n_ow += 1
+                else:
+                    uw += w; n_uw += 1
+                drivers.append({"label": p["label"], "lean": lean, "active": True,
+                                "state": p["state"], "weight": w})
+            elif better:
+                # Cast the REVERSED vote.
+                if rev == "OW":
+                    ow += w; n_ow += 1
+                else:
+                    uw += w; n_uw += 1
+                drivers.append({"label": p["label"], "lean": rev, "active": True,
+                                "state": p["state"], "weight": w, "mirror": True})
+            else:
+                drivers.append({"label": p["label"], "lean": lean, "active": False,
+                                "state": p["state"], "weight": w})
+        # Fold in theme-condition votes for this bucket (valuation / consumer).
+        for label, lean, w in cond_votes_by_bucket[b]:
+            if lean == "OW":
+                ow_possible += w; ow += w; n_ow += 1
+            else:
+                uw_possible += w; uw += w; n_uw += 1
+            drivers.append({"label": label, "lean": lean, "active": True,
+                            "state": "caution", "weight": w, "condition": True})
+        drivers.sort(key=lambda d: (not d["active"], -d["weight"], d["lean"]))
+        net = ow - uw
+        active_total = ow + uw
+        if net > 1e-9:
+            lean = "Overweight"
+        elif net < -1e-9:
+            lean = "Underweight"
+        elif active_total > 0:
+            lean = "Balanced"
+        else:
+            lean = "No signal"
+        mag = abs(net)
+        # Conviction is NORMALISED, not absolute. Before this, "strong" was a
+        # flat >=3.0 weighted margin, which meant 3 of 34 signals in Defensive
+        # equities (7.7% of its evidence base) but nearly everything in Gold
+        # (>90%) -- the same word for a ~7x different standard, and adding
+        # signals to a bucket mechanically manufactured conviction. Denominator
+        # is the largest one-sided vote the bucket could actually produce, so
+        # every bucket gets a comparable 0-100% scale regardless of how many
+        # signals feed it. The absolute floors (mag) stop one signal firing in
+        # a small bucket from reading "strong" off a tiny denominator.
+        denom = max(ow_possible, uw_possible)
+        frac = (mag / denom) if denom > 0 else 0.0
+        if frac >= 0.20 and mag >= 2.0:
+            conviction = "strong"
+        elif frac >= 0.10 and mag >= 1.0:
+            conviction = "moderate"
+        elif mag > 0:
+            conviction = "slight"
+        else:
+            conviction = "none"
+        allocation.append({
+            "bucket": b, "definition": BUCKET_DEF.get(b, ""),
+            "lean": lean, "conviction": conviction, "net": round(net, 2),
+            "conviction_pct": round(frac * 100),
+            "ow": [d["label"] for d in drivers if d["active"] and d["lean"] == "OW"],
+            "uw": [d["label"] for d in drivers if d["active"] and d["lean"] == "UW"],
+            "drivers": drivers})
+    return allocation
+
+
+def mom_votes(by_id, ids):
+    """Direction votes for one regime axis: how many of its signals are worsening vs
+    improving, and which. Signals that did not load simply don't vote."""
+    worse = better = 0
+    worse_l, better_l = [], []
+    for sid in ids:
+        p = by_id.get(sid)
+        if not p:
+            continue
+        worse += p["deteriorating"]
+        better += p["improving"]
+        if p["deteriorating"]:
+            worse_l.append(p["label"])
+        elif p["improving"]:
+            better_l.append(p["label"])
+    return worse, better, worse_l, better_l
+
+
+def regime_axes(g_worse, g_better, i_worse, i_better):
+    """The two axis readings the regime is named from."""
+    growth = "decelerating" if (g_worse - g_better) >= REGIME_MARGIN else "accelerating"
+    inflation = "accelerating" if (i_worse - i_better) >= REGIME_MARGIN else "decelerating"
+    return growth, inflation
+
+
+def market_gauge_status(p, up_word):
+    """One market-check gauge: its status word and whether it is 'hot' (moving the
+    risk-off way, or already at a caution/danger level)."""
+    if p["deteriorating"]:
+        return up_word, True
+    if p["state"] in ("caution", "alert"):
+        return "elevated", True
+    return "calm", False
+
+
+def market_gauges(by_id):
+    """The market check's FRED-sourced gauges: (components, number hot). Each
+    component also carries the gauge's own panel under "panel" for the meter."""
+    comps, n_hot = [], 0
+    for sid, lbl, up in MARKET_CHECK_GAUGES:
+        p = by_id.get(sid)
+        if not p:
+            continue
+        status, hot = market_gauge_status(p, up)
+        comps.append({"label": lbl, "status": status, "hot": hot, "sid": sid})
+        n_hot += hot
+    return comps, n_hot
+
+
+def equity_trend_status(vals):
+    """S&P 500 against its 200-day average, from a list of daily closes (oldest
+    first). S&P 500 index data is copyrighted (reproduction prohibited), so these
+    values are only ever used to derive this verdict and are never written into the
+    payload or page. None if there is too little history."""
+    vals = [v for v in vals if isinstance(v, (int, float)) and math.isfinite(v)]
+    if len(vals) < 230:
+        return None
+    sma_now = sum(vals[-200:]) / 200.0
+    sma_prev = sum(vals[-221:-21]) / 200.0     # ~1 trading month earlier
+    above, rising = vals[-1] > sma_now, sma_now > sma_prev
+    if above and rising:
+        status = "above 200-day, rising"
+    elif not above and not rising:
+        status = "below 200-day, falling"
+    elif above:
+        status = "above 200-day, flattening"
+    else:
+        status = "below 200-day"
+    return {"label": "Equity trend (200-day)", "status": status, "hot": (not above),
+            "sid": "SP500"}
+
+
+# =====================================================================================
+#  Step 2: the action meter
+# =====================================================================================
+# One 0-100 number built from three layers, mapped to four action bands. Each layer
+# is itself 0-100 and answers a different question:
+#   regime      how deep and broad is the deterioration in growth?
+#   market      is the market's own risk pricing confirming it, and how hard?
+#   allocation  how strongly does the allocation engine lean toward cutting equity risk?
+# The meter is their average, so one layer at full strength reads Caution, two read
+# Elevated and all three read High: partial confirmation counts in proportion
+# instead of the all-or-nothing alignment that missed crises in the earlier test.
+#
+# EVERY NUMBER BELOW IS PROVISIONAL. Each was fixed from what the quantity means,
+# before looking at any outcome, and nothing has been tuned to a crisis. Step 3 tunes
+# on pre-2011 data and tests on 2011 onward against the 18%+ S&P 500 declines. Until
+# then the page labels the meter provisional.
+METER_VERSION = "2.0"
+METER_WEIGHTS = {"regime": 1.0, "market": 1.0, "allocation": 1.0}   # equal
+# (upper edge, name, tone, what to do) -- the bands and wording agreed in the design.
+METER_BANDS = [
+    (30, "Clear", "calm",
+     "Normal conditions. No defensive action indicated."),
+    (55, "Caution", "caution",
+     "Environment deteriorating. Review speculative positions. No major moves yet."),
+    (75, "Elevated", "elevated",
+     "Multiple independent signals confirm risk. Begin trimming speculative and "
+     "overvalued holdings; add to value and defensive."),
+    (101, "High", "alert",
+     "Strong multi-layer confirmation. Meaningful de-risk: hedge equity, reduce "
+     "cyclicals, size energy and duration calls up."),
+]
+R_FULL_NET = 0.5     # share of growth signals net-worsening at which breadth reads 100
+R_FULL_Z = 1.5       # mean robust-z across growth signals at which depth reads 100
+M_FULL_Z = 2.0       # robust-z at which a market gauge is fully stressed (its "danger" badge)
+M_DIRECTION_FLOOR = 0.25   # a calm gauge still moving the risk-off way counts a quarter
+A_FULL_CONVICTION = 60.0   # equity bucket's conviction % at which the layer reads 100.
+                           # Set from the quantity's own observed range, not from outcomes:
+                           # rebuilding the dashboard monthly 1999-2026, conviction when the
+                           # engine is Underweight had a median of 25% and a 90th percentile
+                           # of 62%. A first guess of 30% pinned 24% of all months at 100
+                           # and threw away "how hard"; 60% is that 90th percentile. (The
+                           # engine's own "strong" label starts at 20%.) The same check found
+                           # the engine Underweight on equities in 55% of months -- Step 3
+                           # must test whether this layer adds anything.
+
+
+def _clamp01(x):
+    return max(0.0, min(1.0, x))
+
+
+def regime_layer(by_id):
+    """0-100: how deep and broad the deterioration in GROWTH is. Breadth is the net
+    share of growth signals getting worse (direction); depth is how far the same
+    signals sit from their own normal (level). Both are needed: direction alone
+    flags a slowdown from a high base, level alone misses the early turn. Inflation
+    is deliberately not scored here -- both unfavourable regimes are defined by
+    growth decelerating -- and is shown beside it as context."""
+    present = [by_id[s] for s in GROWTH_MOM if s in by_id]
+    n = len(present)
+    if not n:
+        return None
+    worse = sum(1 for p in present if p["deteriorating"])
+    better = sum(1 for p in present if p["improving"])
+    breadth = _clamp01(((worse - better) / n) / R_FULL_NET)
+    zs = [p["z"] for p in present if p.get("z") is not None]
+    mean_z = (sum(zs) / len(zs)) if zs else None
+    depth = _clamp01(mean_z / R_FULL_Z) if mean_z is not None else None
+    score = 100.0 * (breadth if depth is None else (breadth + depth) / 2.0)
+    return {"score": score, "breadth": 100.0 * breadth,
+            "depth": None if depth is None else 100.0 * depth,
+            "n": n, "worse": worse, "better": better,
+            "at_level": sum(1 for p in present if p["state"] in ("caution", "alert"))}
+
+
+def market_layer(by_id, comps):
+    """0-100: how many of the market check's gauges are stressed and how hard. A
+    gauge's stress is its level (robust-z over M_FULL_Z; the fixed-threshold badge
+    where it has too little history for z), or M_DIRECTION_FLOOR if it is merely
+    moving the risk-off way. The equity trend gauge is on or off."""
+    stresses, n_hot = [], 0
+    for c in comps:
+        p = by_id.get(c.get("sid"))
+        if p is not None:
+            z = p.get("z")
+            level = (_clamp01(max(z, 0.0) / M_FULL_Z) if z is not None
+                     else {"alert": 1.0, "caution": 0.5}.get(p["state"], 0.0))
+            s = max(level, M_DIRECTION_FLOOR if p["deteriorating"] else 0.0)
+        else:
+            s = 1.0 if c["hot"] else 0.0
+        stresses.append(s)
+        n_hot += bool(c["hot"])
+    if not stresses:
+        return None
+    return {"score": 100.0 * sum(stresses) / len(stresses), "n": len(stresses),
+            "n_hot": n_hot, "hot": [c["label"] for c in comps if c["hot"]]}
+
+
+def allocation_layer(allocation):
+    """0-100: conviction behind an Underweight call on overall equity exposure,
+    against A_FULL_CONVICTION. Anything other than Underweight is zero -- an
+    Overweight call is not a defensive signal, and it is not subtracted."""
+    oee = next((a for a in allocation if a["bucket"] == "Overall equity exposure"), None)
+    if oee is None:
+        return None
+    defensive = oee["lean"] == "Underweight"
+    pct = oee["conviction_pct"] if defensive else 0
+    return {"score": 100.0 * _clamp01(pct / A_FULL_CONVICTION), "lean": oee["lean"],
+            "conviction": oee["conviction"], "pct": oee["conviction_pct"]}
+
+
+def meter_band(score):
+    for hi, name, tone, action in METER_BANDS:
+        if score < hi:
+            return name, tone, action
+    return METER_BANDS[-1][1:]
+
+
+def action_meter(regime, market, allocation):
+    """Combine the three layers (each a dict with "score", or None if it could not
+    be computed -- the meter then averages what is available and says so)."""
+    layers = {"regime": regime, "market": market, "allocation": allocation}
+    avail = {k: v for k, v in layers.items() if v is not None}
+    if not avail:
+        return None
+    wsum = sum(METER_WEIGHTS[k] for k in avail)
+    raw = sum(METER_WEIGHTS[k] * v["score"] for k, v in avail.items()) / wsum
+    score = int(raw + 0.5)
+    name, tone, action = meter_band(score)
+    return {"score": score, "band": name, "tone": tone, "action": action,
+            "layers_used": len(avail), "version": METER_VERSION,
+            "regime": None if regime is None else int(regime["score"] + 0.5),
+            "market": None if market is None else int(market["score"] + 0.5),
+            "allocation": None if allocation is None else int(allocation["score"] + 0.5)}
+
+
+def meter_week_ago(history, today):
+    """The meter's score about a week ago, from the daily snapshots -- only from the
+    same meter version, since a different definition isn't comparable."""
+    t = datetime.strptime(today, "%Y-%m-%d").date()
+    best = None
+    for h in history:
+        try:                       # a cosmetic line must never be able to stop the build
+            m = h.get("meter")
+            if not m or m.get("v") != METER_VERSION:
+                continue
+            age = (t - datetime.strptime(h["date"], "%Y-%m-%d").date()).days
+            if 5 <= age <= 10 and (best is None or abs(age - 7) < abs(best[0] - 7)):
+                best = (age, h["date"], int(m["score"]), str(m["band"]))
+        except (ValueError, KeyError, TypeError, AttributeError):
+            continue
+    return None if best is None else {"date": best[1], "score": best[2], "band": best[3]}
+
+
 def build():
     print("Building recession-risk dashboard from FRED...")
     failed = []
@@ -1910,11 +2315,6 @@ def build():
     for pls in drill_out.values():
         all_panels += pls
     by_id = {p["series_id"]: p for p in all_panels}
-    bucket_signals = {b: [] for b in ALLOC_BUCKETS}
-    for sid, imps in ALLOC.items():
-        for bucket, lean in imps:
-            bucket_signals[bucket].append((sid, lean))
-
     # Theme-condition rollups feed allocation too, not just the regime banner.
     # Stretched valuations argue against broad equity risk and (mildly) for
     # gold/defensives; a stressed consumer argues against cyclicals and for
@@ -1924,127 +2324,7 @@ def build():
     _cons_panels = themes_out.get("Consumer", []) + drill_out.get("Consumer", [])
     _val_c = theme_condition(_val_panels)
     _cons_c = theme_condition(_cons_panels, labels=("stressed", "mixed", "healthy"))
-    # condition -> (weight applied). "extreme"/"stressed" fire at full weight,
-    # "elevated"/"mixed" at half; "normal"/"healthy" don't vote.
-    _val_w = {"extreme": 1.5, "elevated": 0.75}.get(_val_c["condition"], 0.0)
-    _cons_w = {"stressed": 1.5, "mixed": 0.75}.get(_cons_c["condition"], 0.0)
-    CONDITION_VOTES = []
-    if _val_w:
-        CONDITION_VOTES += [
-            ("Valuation condition", "Overall equity exposure", "UW", _val_w),
-            ("Valuation condition", "Defensive equities", "OW", _val_w),
-            ("Valuation condition", "Gold", "OW", _val_w)]
-    if _cons_w:
-        CONDITION_VOTES += [
-            ("Consumer condition", "Cyclicals & small caps", "UW", _cons_w),
-            ("Consumer condition", "Defensive equities", "OW", _cons_w),
-            ("Consumer condition", "Overall equity exposure", "UW", _cons_w)]
-    cond_votes_by_bucket = {b: [] for b in ALLOC_BUCKETS}
-    for label, bucket, lean, w in CONDITION_VOTES:
-        cond_votes_by_bucket[bucket].append((label, lean, w))
-
-    def _active(p):
-        # "Worsening-active": the signal is moving its worrying way or sitting
-        # at a caution/danger level. This is the original vote trigger.
-        return bool(p["deteriorating"] or p["state"] in ("caution", "alert"))
-
-    def _healthy_active(p):
-        # The mirror of _active: the signal is moving its GOOD way or sitting
-        # at a healthy (calm) level. Used only for TWO_DIRECTIONAL signals to
-        # cast a reversed vote -- so a strong, improving economy can actually
-        # argue FOR cyclicals/risk/high-yield, not just fail to argue against.
-        return bool(p["improving"] or p["state"] == "calm")
-
-    allocation = []
-    for b in ALLOC_BUCKETS:
-        ow = uw = 0.0
-        n_ow = n_uw = 0
-        ow_possible = uw_possible = 0.0
-        drivers = []
-        for sid, lean in bucket_signals[b]:
-            p = by_id.get(sid)
-            if not p:
-                continue
-            w = SIGNAL_WEIGHT.get(sid, 1.0)
-            two_dir = sid in TWO_DIRECTIONAL
-            rev = "UW" if lean == "OW" else "OW"
-            # A two-directional signal can push the bucket EITHER way, so it
-            # contributes to whichever possible-total its live reading points
-            # at; a one-directional (tail) signal only ever adds to its own
-            # side. This keeps the conviction denominator honest.
-            if two_dir:
-                ow_possible += w
-                uw_possible += w
-            elif lean == "OW":
-                ow_possible += w
-            else:
-                uw_possible += w
-            worse = _active(p)
-            better = two_dir and _healthy_active(p) and not worse
-            if worse:
-                if lean == "OW":
-                    ow += w; n_ow += 1
-                else:
-                    uw += w; n_uw += 1
-                drivers.append({"label": p["label"], "lean": lean, "active": True,
-                                "state": p["state"], "weight": w})
-            elif better:
-                # Cast the REVERSED vote.
-                if rev == "OW":
-                    ow += w; n_ow += 1
-                else:
-                    uw += w; n_uw += 1
-                drivers.append({"label": p["label"], "lean": rev, "active": True,
-                                "state": p["state"], "weight": w, "mirror": True})
-            else:
-                drivers.append({"label": p["label"], "lean": lean, "active": False,
-                                "state": p["state"], "weight": w})
-        # Fold in theme-condition votes for this bucket (valuation / consumer).
-        for label, lean, w in cond_votes_by_bucket[b]:
-            if lean == "OW":
-                ow_possible += w; ow += w; n_ow += 1
-            else:
-                uw_possible += w; uw += w; n_uw += 1
-            drivers.append({"label": label, "lean": lean, "active": True,
-                            "state": "caution", "weight": w, "condition": True})
-        drivers.sort(key=lambda d: (not d["active"], -d["weight"], d["lean"]))
-        net = ow - uw
-        active_total = ow + uw
-        if net > 1e-9:
-            lean = "Overweight"
-        elif net < -1e-9:
-            lean = "Underweight"
-        elif active_total > 0:
-            lean = "Balanced"
-        else:
-            lean = "No signal"
-        mag = abs(net)
-        # Conviction is NORMALISED, not absolute. Before this, "strong" was a
-        # flat >=3.0 weighted margin, which meant 3 of 34 signals in Defensive
-        # equities (7.7% of its evidence base) but nearly everything in Gold
-        # (>90%) -- the same word for a ~7x different standard, and adding
-        # signals to a bucket mechanically manufactured conviction. Denominator
-        # is the largest one-sided vote the bucket could actually produce, so
-        # every bucket gets a comparable 0-100% scale regardless of how many
-        # signals feed it. The absolute floors (mag) stop one signal firing in
-        # a small bucket from reading "strong" off a tiny denominator.
-        denom = max(ow_possible, uw_possible)
-        frac = (mag / denom) if denom > 0 else 0.0
-        if frac >= 0.20 and mag >= 2.0:
-            conviction = "strong"
-        elif frac >= 0.10 and mag >= 1.0:
-            conviction = "moderate"
-        elif mag > 0:
-            conviction = "slight"
-        else:
-            conviction = "none"
-        allocation.append({
-            "bucket": b, "definition": BUCKET_DEF.get(b, ""),
-            "lean": lean, "conviction": conviction, "net": round(net, 2),
-            "conviction_pct": round(frac * 100),
-            "ow": [d["label"] for d in drivers if d["active"] and d["lean"] == "OW"],
-            "uw": [d["label"] for d in drivers if d["active"] and d["lean"] == "UW"],
-            "drivers": drivers})
+    allocation = compute_allocation(by_id, _val_c, _cons_c)
     n_active = sum(1 for p in all_panels if _active(p))
     n_active_alloc = sum(1 for p in all_panels if _active(p) and p["series_id"] in ALLOC)
     print(f"  [alloc] {n_active} signals flashing dashboard-wide, {n_active_alloc} of them "
@@ -2052,24 +2332,9 @@ def build():
           f"{sum(1 for a in allocation if a['lean'] in ('Overweight', 'Underweight'))} directional tilts")
 
     # ---- Regime: growth x inflation, plus a valuation condition ----
-    def _mom(ids):
-        worse = better = 0
-        worse_l, better_l = [], []
-        for sid in ids:
-            p = by_id.get(sid)
-            if not p:
-                continue
-            worse += p["deteriorating"]
-            better += p["improving"]
-            if p["deteriorating"]:
-                worse_l.append(p["label"])
-            elif p["improving"]:
-                better_l.append(p["label"])
-        return worse, better, worse_l, better_l
-    g_worse, g_better, g_worse_l, g_better_l = _mom(GROWTH_MOM)
-    i_worse, i_better, i_worse_l, i_better_l = _mom(INFLATION_MOM)
-    growth = "decelerating" if (g_worse - g_better) >= REGIME_MARGIN else "accelerating"
-    inflation = "accelerating" if (i_worse - i_better) >= REGIME_MARGIN else "decelerating"
+    g_worse, g_better, g_worse_l, g_better_l = mom_votes(by_id, GROWTH_MOM)
+    i_worse, i_better, i_worse_l, i_better_l = mom_votes(by_id, INFLATION_MOM)
+    growth, inflation = regime_axes(g_worse, g_better, i_worse, i_better)
     raw_name, raw_play = REGIMES[(growth, inflation)]
 
     # ---- Persistence: only DISPLAY a regime once it's held for
@@ -2135,44 +2400,14 @@ def build():
               f"days) -- not yet confirmed, still showing {rname}")
 
     # ---- Market confirmation: does the market's own risk pricing back the macro? ----
-    def _mkt_status(sid, up_word):
-        p = by_id.get(sid)
-        if not p:
-            return None, False
-        if p["deteriorating"]:
-            return up_word, True                     # moving the risk-off way
-        if p["state"] in ("caution", "alert"):
-            return "elevated", True                  # already at a risky level
-        return "calm", False
-    comps, n_hot = [], 0
-    for sid, lbl, up in MARKET_CHECK_GAUGES:
-        status, hot = _mkt_status(sid, up)
-        if status is not None:
-            comps.append({"label": lbl, "status": status, "hot": hot})
-            n_hot += hot
+    comps, n_hot = market_gauges(by_id)
 
-    # Equity trend vs its 200-day average. S&P 500 index data is copyrighted
-    # (reproduction prohibited), so the raw values are used only to derive this
-    # verdict and are never written into the payload/page.
+    # Equity trend vs its 200-day average (see equity_trend_status for why only the
+    # verdict, never the index values, reaches the page).
     def _equity_trend():
         try:
             sp = fetch("SP500", "2015-01-01")
-            vals = [v for _, v in sp if isinstance(v, (int, float))]
-            if len(vals) < 230:
-                return None
-            sma_now = sum(vals[-200:]) / 200.0
-            sma_prev = sum(vals[-221:-21]) / 200.0     # ~1 trading month earlier
-            above, rising = vals[-1] > sma_now, sma_now > sma_prev
-            if above and rising:
-                status = "above 200-day, rising"
-            elif not above and not rising:
-                status = "below 200-day, falling"
-            elif above:
-                status = "above 200-day, flattening"
-            else:
-                status = "below 200-day"
-            return {"label": "Equity trend (200-day)", "status": status,
-                    "hot": (not above)}
+            return equity_trend_status([v for _, v in sp])
         except Exception as exc:
             print(f"  [confirm] equity trend skipped ({exc})"); return None
     et = _equity_trend()
@@ -2223,8 +2458,49 @@ def build():
                 "the market is calm, with risk gauges quiet."))
     confirmation = {"verdict": verdict, "tone": tone, "macro": macro,
                     "message": msg, "components": comps}
-    print(f"  [confirm] macro {macro} | market {'risk-off' if market_riskoff else 'calm'} "
-          f"-> {verdict}" + (f" | equity {et['status']}" if et else " | equity n/a"))
+
+    # ---- Action meter (Step 2): three layers -> one number and an action band ----
+    # Derived from the readings above, so a fault here must not take the page down:
+    # on any error the meter is simply left off and the cause is logged.
+    meter = None
+    try:
+        _rl, _ml, _al = regime_layer(by_id), market_layer(by_id, comps), allocation_layer(allocation)
+        meter = action_meter(_rl, _ml, _al)
+        if meter:
+            layers = []
+            if _rl:
+                layers.append({"key": "regime", "name": "Regime", "score": meter["regime"],
+                               "summary": f"{_rl['worse']} of {_rl['n']} growth signals getting worse, "
+                                          f"{_rl['better']} getting better",
+                               "detail": f"{_rl['at_level']} of {_rl['n']} are at worrying levels",
+                               "context": f"Inflation, shown but not scored here: {i_worse} worsening, "
+                                          f"{i_better} improving"})
+            if _ml:
+                layers.append({"key": "market", "name": "Market check", "score": meter["market"],
+                               "summary": f"{_ml['n_hot']} of {_ml['n']} gauges hot",
+                               "detail": ("Hot: " + ", ".join(_ml["hot"])) if _ml["hot"]
+                                         else "All risk gauges are calm"})
+            if _al:
+                defensive = _al["lean"] == "Underweight"
+                layers.append({"key": "allocation", "name": "Allocation", "score": meter["allocation"],
+                               "summary": (f"Underweight on overall equity exposure, "
+                                           f"{_al['conviction']} conviction ({_al['pct']}%)" if defensive
+                                           else f"{_al['lean']} on overall equity exposure"),
+                               "detail": ("The allocation engine is leaning toward cutting equity risk"
+                                          if defensive else "No defensive conviction")})
+            meter["layers"] = layers
+            meter["bands"] = [{"hi": hi, "name": nm, "tone": tn, "action": ac}
+                              for hi, nm, tn, ac in METER_BANDS]
+            meter["valuation"] = {"condition": valcond, "alert": val_cond["alert"],
+                                  "total": val_cond["total"]}
+            meter["provisional"] = True
+            print(f"  [meter] {meter['score']} -> {meter['band']}  "
+                  f"(regime {meter['regime']}, market {meter['market']}, allocation {meter['allocation']})")
+        print(f"  [confirm] macro {macro} | market {'risk-off' if market_riskoff else 'calm'} "
+              f"-> {verdict}" + (f" | equity {et['status']}" if et else " | equity n/a"))
+    except Exception as exc:
+        print(f"  [meter] skipped ({type(exc).__name__}: {exc})")
+        meter = None
 
     # ---- Jobs by sector: payroll change (thousands) over 12 and 3 months ----
     def _change_over(series, days):
@@ -2267,6 +2543,11 @@ def build():
         "regime": regime["name"], "growth": regime["growth"],
         "inflation": regime["inflation"], "raw_regime": regime["raw_name"],
         "method": METHOD_VERSION}
+    if meter:
+        snapshot["meter"] = {"v": METER_VERSION, "score": meter["score"], "band": meter["band"],
+                             "regime": meter["regime"], "market": meter["market"],
+                             "allocation": meter["allocation"]}
+        meter["week_ago"] = meter_week_ago(history, today)
     # NOTE: `history` here is the SAME list read near the top of build(), before
     # the regime-persistence check -- not re-read from disk, so there's no
     # chance of the persistence check and the write seeing different data.
@@ -2293,7 +2574,8 @@ def build():
                        "points": [[d, round(v, 1)] for d, v in coin]},
         "themes": themes_out, "theme_states": theme_states, "scorecard": scorecard,
         "drilldowns": drill_out, "allocation": allocation, "jobs": jobs,
-        "regime": regime, "confirmation": confirmation, "changes": changes}
+        "regime": regime, "confirmation": confirmation, "changes": changes,
+        "meter": meter}
     html = PAGE.replace("__DATA__", json.dumps(payload)) \
                .replace("__FAILED__", json.dumps(failed)) \
                .replace("__STAMP__", _now_et_local())
@@ -2320,7 +2602,7 @@ PAGE = r"""<!DOCTYPE html>
 <style>
   :root { --bg:#0d1017; --card:#161a22; --ink:#e8eaed; --dim:#8b929e;
           --line:#242a35; --calm:#3fb950; --caution:#d29922; --alert:#f85149;
-          --neutral:#58a6ff; --grid:#1e232c; }
+          --neutral:#58a6ff; --grid:#1e232c; --elevated:#f0883e; }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--ink);
          font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
@@ -2371,7 +2653,7 @@ PAGE = r"""<!DOCTYPE html>
   .feeds { color:var(--dim); font-size:11px; margin-top:4px; font-style:italic; }
   .cbox { height:130px; margin-top:10px; position:relative; }
   .note { color:var(--dim); font-size:11.5px; margin-top:9px; line-height:1.45; }
-  .calm{color:var(--calm);} .caution{color:var(--caution);} .alert{color:var(--alert);} .neutral{color:var(--neutral);} .dim{color:var(--dim);}
+  .calm{color:var(--calm);} .caution{color:var(--caution);} .elevated{color:var(--elevated);} .alert{color:var(--alert);} .neutral{color:var(--neutral);} .dim{color:var(--dim);}
   .bg-calm{background:rgba(63,185,80,.15);color:var(--calm);}
   .bg-caution{background:rgba(210,153,34,.15);color:var(--caution);}
   .bg-alert{background:rgba(248,81,73,.15);color:var(--alert);}
@@ -2391,6 +2673,36 @@ PAGE = r"""<!DOCTYPE html>
   .regime-glossary-axes { color:var(--dim); font-size:11px; }
   .regime-glossary-play { color:var(--dim); font-size:11px; line-height:1.5; margin:2px 0 10px 0; padding-left:2px; }
   .regime-axis:last-child { margin-bottom:0; }
+  .meter-banner { background:var(--card); border:1px solid var(--line); border-left-width:4px; border-radius:13px;
+                  padding:16px 18px; margin-bottom:18px; cursor:pointer; }
+  .meter-banner.t-calm { border-left-color:var(--calm); } .meter-banner.t-caution { border-left-color:var(--caution); }
+  .meter-banner.t-elevated { border-left-color:var(--elevated); } .meter-banner.t-alert { border-left-color:var(--alert); }
+  .meter-top { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .meter-num { font-size:46px; font-weight:800; line-height:1; letter-spacing:-0.02em; }
+  .meter-of { color:var(--dim); font-size:14px; margin-left:-6px; }
+  .meter-band { font-size:21px; font-weight:700; }
+  .meter-prov { font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--caution);
+                border:1px solid var(--caution); border-radius:20px; padding:2px 9px; }
+  .meter-wk { margin-left:auto; font-size:12px; color:var(--dim); text-align:right; }
+  .meter-track { display:flex; height:10px; border-radius:6px; overflow:hidden; margin:15px 0 3px; position:relative;
+                 border:1px solid var(--line); background:#0b0e14; }
+  .meter-seg { height:100%; opacity:.30; } .meter-seg.on { opacity:1; }
+  .meter-mark { position:absolute; top:-4px; bottom:-4px; width:3px; background:var(--ink); border-radius:2px;
+                transform:translateX(-1px); box-shadow:0 0 0 1px #0b0e14; }
+  .meter-scale { position:relative; height:14px; font-size:10px; color:var(--dim); margin-bottom:6px; }
+  .meter-scale span { position:absolute; transform:translateX(-50%); white-space:nowrap; }
+  .meter-action { font-size:13.5px; line-height:1.55; margin:8px 0 8px; max-width:900px; }
+  .meter-val { font-size:12px; color:var(--dim); display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+  .meter-detail { display:none; margin-top:13px; padding-top:13px; border-top:1px solid var(--line); cursor:default; }
+  .meter-banner.open .meter-detail { display:block; }
+  .meter-layer { display:grid; grid-template-columns:116px 34px 1fr; gap:4px 10px; align-items:center; margin:11px 0 3px; font-size:12.5px; }
+  .meter-layer-n { font-weight:600; } .meter-layer-s { font-weight:700; text-align:right; }
+  .meter-bar { height:6px; background:#0b0e14; border-radius:4px; overflow:hidden; border:1px solid var(--line); }
+  .meter-bar > div { height:100%; border-radius:4px; }
+  .meter-layer-t { grid-column:1 / -1; color:var(--dim); font-size:11.5px; line-height:1.5; padding-left:2px; }
+  .meter-how { color:var(--dim); font-size:11.5px; line-height:1.55; margin-top:14px; max-width:900px; }
+  .meter-how b { color:var(--ink); }
+  @media(max-width:560px){ .meter-layer{ grid-template-columns:96px 30px 1fr; } .meter-wk{ margin-left:0; text-align:left; width:100%; } .meter-num{ font-size:40px; } }
   .confirm-banner { background:var(--card); border:1px solid var(--line); border-left-width:4px; border-radius:13px; padding:14px 18px; margin-bottom:18px; }
   .confirm-banner.bd-alert { border-left-color:var(--alert); }
   .confirm-banner.bd-caution { border-left-color:var(--caution); }
@@ -2530,6 +2842,7 @@ PAGE = r"""<!DOCTYPE html>
 </header>
 <div class="wrap">
 <div id="fail" class="fail"></div>
+<div id="meter"></div>
 <div id="regime"></div>
 <div id="confirm"></div>
 <div class="gauges" id="gauges"></div>
@@ -2567,6 +2880,62 @@ const D = __DATA__;
 const FAILED = __FAILED__;
 const css = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
 const stText = s => s==='alert' ? 'danger' : s;
+
+const MT = D.meter;
+if (MT){
+  const colOf = t => t==='elevated' ? 'var(--elevated)' : `var(--${t})`;
+  const score = Math.max(0, Math.min(100, MT.score));
+  let lo = 0;
+  const segs = MT.bands.map(b => {
+    const hi = Math.min(b.hi, 100), w = hi - lo, on = (score >= lo && score < b.hi) || (b.hi > 100 && score >= lo);
+    const h = `<div class="meter-seg${on?' on':''}" style="width:${w}%;background:${colOf(b.tone)}"></div>`;
+    lo = hi; return h;
+  }).join('');
+  lo = 0;
+  const scale = MT.bands.map(b => {
+    const hi = Math.min(b.hi, 100), mid = (lo + hi) / 2, h = `<span style="left:${mid}%">${b.name}</span>`;
+    lo = hi; return h;
+  }).join('');
+  const wk = MT.week_ago;
+  const wkTxt = wk
+    ? `Last week: <b>${wk.score}</b> (${wk.band}) &middot; ${MT.score > wk.score ? '<span class="alert">risk rising</span>' : MT.score < wk.score ? '<span class="calm">risk easing</span>' : 'unchanged'}`
+    : 'No week-ago reading yet';
+  const vcls = MT.valuation.condition==='extreme' ? 'alert' : MT.valuation.condition==='elevated' ? 'caution' : 'calm';
+  const layerRows = (MT.layers || []).map(l => {
+    const lt = l.score >= 75 ? 'alert' : l.score >= 55 ? 'elevated' : l.score >= 30 ? 'caution' : 'calm';
+    return `<div class="meter-layer"><span class="meter-layer-n">${l.name}</span>`
+      + `<span class="meter-layer-s ${lt}">${l.score}</span>`
+      + `<div class="meter-bar"><div style="width:${l.score}%;background:${colOf(lt)}"></div></div>`
+      + `<div class="meter-layer-t">${l.summary}. ${l.detail}.${l.context ? '<br>' + l.context + '.' : ''}</div></div>`;
+  }).join('');
+  const partial = MT.layers_used < 3 ? `<br><b>Only ${MT.layers_used} of 3 layers could be computed today</b>, so the meter averages those.` : '';
+  document.getElementById('meter').innerHTML =
+    `<div class="meter-banner t-${MT.tone}">
+       <div class="meter-top"><span class="regime-tag">Action meter</span>`
+       + `<span class="chev" id="mchev">&#9656;</span>`
+       + `<span class="meter-num ${MT.tone}">${MT.score}</span><span class="meter-of">/ 100</span>`
+       + `<span class="meter-band ${MT.tone}">${MT.band}</span>`
+       + `<span class="meter-prov" title="Weights and band edges are first-principles settings, not yet tested against past market declines.">provisional</span>`
+       + `<span class="meter-wk">${wkTxt}</span></div>`
+     + `<div class="meter-track">${segs}<div class="meter-mark" style="left:${score}%"></div></div>`
+     + `<div class="meter-scale">${scale}</div>`
+     + `<p class="meter-action">${MT.action}</p>`
+     + `<div class="meter-val">Valuations <span class="badge bg-${vcls}">${MT.valuation.condition}</span>`
+       + `<span>${MT.valuation.alert} of ${MT.valuation.total} valuation signals in danger. A slow-moving risk, not part of this meter's timing.</span></div>`
+     + `<div class="meter-detail">${layerRows}`
+       + `<div class="meter-how"><b>How it is built.</b> Three layers, each scored 0-100, averaged with equal weight: `
+       + `regime (how deep and broad the growth slowdown is), market check (how many risk gauges are stressed, and how hard), `
+       + `and allocation (conviction behind an Underweight call on equities). One layer at full strength reads Caution, two read Elevated, all three High.`
+       + `<br><b>Provisional.</b> The weights and band edges are first-principles settings. They have not yet been tested against past market declines, `
+       + `and in early checks the meter tended to confirm a decline already under way rather than call its start. Treat it as a summary of what the dashboard already shows, not as validated advice.${partial}</div></div>
+     </div>`;
+  const mb = document.querySelector('.meter-banner');
+  mb.addEventListener('click', (ev)=>{
+    if (ev.target.closest('.meter-detail')) return;
+    mb.classList.toggle('open');
+    const ch = document.getElementById('mchev'); if(ch) ch.classList.toggle('open');
+  });
+}
 
 const R = D.regime;
 if (R){

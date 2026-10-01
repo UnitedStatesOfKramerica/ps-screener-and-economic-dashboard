@@ -1,32 +1,35 @@
 """
 Historical check for the macro dashboard.
 
-Re-runs the dashboard's OWN signal logic (regime classifier, recession signals,
-valuation, market check) at a set of past dates, so you can see whether the
-signals fired IN TIME around the 2001, 2008, 2020 and 2022 episodes -- or only
-after the fact.
+Re-runs the dashboard's OWN decision stack -- signal scoring, regime, market check,
+allocation and, since Step 2, the action meter -- at past dates. It shows how the
+dashboard behaved around the 2001, 2008, 2020 and 2022 episodes, and how the UNTUNED
+meter scores against the S&P 500's declines of 18% or more.
 
-IMPORTANT caveat, read it: this uses FRED's *latest-vintage* values truncated to
-each date -- today's revised numbers, not what was actually known then. It is a
-sanity check, NOT a true point-in-time backtest (that needs ALFRED vintages).
-Revisions flatter the results, so read "it caught it" with salt. Signals that
-did not exist yet in real time (WEI from 2008, breakevens from 2003) simply drop
-out of the earlier dates.
+IMPORTANT caveats, read them:
+  * Data is FRED's latest-vintage values truncated to each date: today's revised
+    numbers, not what was known then. A true point-in-time test needs ALFRED vintages.
+  * A monthly or quarterly figure is dated on the 1st of its period but covers the
+    whole period and is published weeks later, so a reading "as of the 1st" has
+    seen data that did not exist yet. This also flatters the results.
+  * Both effects make lead times look better than they were. Read "it caught it" with
+    salt; Step 3 and the point-in-time rebuild are where this gets resolved.
+  * Signals that did not exist yet (WEI from 2008, breakevens from 2003, the HY
+    spread index before 2023 on FRED) simply drop out of the earlier dates.
 
-Since Step 1b this file has NO scoring code of its own. Fetching, transforming
-and scoring all come from macro_dashboard.py (fetch_raw, transform, fetch_legs,
-score_series), so what this measures is exactly what ships -- the precondition
-for Step 3's retest. Its earlier copy of the scoring could drift from
-production; it is gone. The market check's gauge list is imported too.
+This file has no scoring or decision code of its own. Fetching, transforming, scoring,
+the regime, the allocation, the market check and the meter all come from
+macro_dashboard.py, so what is measured is exactly what ships.
 
-After the report, "OPEN QUESTIONS" answers what the Step 1b gate left open:
-Q1 the smoothed funding card, Q2 funding stress as a market-check input (for
-Step 2), Q3 whether valuation should be judged against its full history.
+S&P 500 data (yfinance) is used only to derive the equity-trend gauge and the decline
+episodes. It is licensed data, so index levels are never printed here.
 
 Run:  python historical_check.py     (needs FRED_API_KEY, like the dashboard)
 """
 import macro_dashboard as md
-from collections import deque
+import math
+import statistics
+from bisect import bisect_left, bisect_right
 from datetime import datetime, timedelta, timezone, date
 from functools import lru_cache
 
@@ -48,12 +51,13 @@ DATES = ["1999-06-01", "2000-01-01", "2000-07-01", "2001-03-01",
 # Signals for the recession read (leading/coincident risk gauges with long history).
 RECESSION = ["T10Y3M", "SAHMREALTIME", "IC4WSA", "BAMLH0A0HYM2", "NFCI", "DRTSCILM", "WEI"]
 
-# The market check's FRED-sourced gauges, straight from the dashboard. Its fifth,
-# the S&P 500 200-day trend, is excluded: FRED serves only ~10 years of S&P data
-# and the dashboard never stores it, so no backtest has ever had it.
-MARKET_GAUGES = [(sid, lbl) for sid, lbl, _ in md.MARKET_CHECK_GAUGES]
-
 SHOWN = {"alert": "danger", "caution": "caution", "calm": "calm", "neutral": "unscored"}
+
+GRID_START = "1990-01-01"      # monthly grid for the meter replay
+EVENT_DROP = 0.18              # an S&P decline counts at 18% or more, closing basis
+TOO_EARLY_DAYS = 365           # an alarm that starts more than a year before the peak is a false alarm
+OOS_START = "2011-01-01"       # events peaking before this are in-sample; from it, out-of-sample
+BAND_STARTS = [(30, "Caution"), (55, "Elevated"), (75, "High")]
 
 INDS = {}
 for _grp in (md.THEMES, md.DRILLDOWNS):
@@ -62,7 +66,7 @@ for _grp in (md.THEMES, md.DRILLDOWNS):
             INDS[_ind["id"]] = _ind
 
 print("Fetching full history for", len(INDS), "series ...")
-SERIES, LEGS, LOAD_FAILED, RAW = {}, {}, [], {}
+SERIES, LEGS, LOAD_FAILED = {}, {}, []
 for sid, ind in INDS.items():
     if ind.get("compute") == "top10":
         # No historical source exists, and its live fetch rewrites
@@ -76,8 +80,6 @@ for sid, ind in INDS.items():
     # equivalent (year-over-year only ever looks backward) and far faster.
     SERIES[sid] = md.transform(ind, raw)
     LEGS[sid] = md.fetch_legs(ind)
-    if ind.get("smooth_obs"):
-        RAW[sid] = raw                      # kept so Q1 can compare against the unsmoothed daily
 
 if LOAD_FAILED:
     print("\n" + "!" * 78)
@@ -94,13 +96,51 @@ if LOAD_FAILED:
             harm.append(f"{len(votes)} allocation vote(s)")
         if sid in RECESSION:
             harm.append("recession flag count")
-        if sid in dict(MARKET_GAUGES):
+        if sid in [g[0] for g in md.MARKET_CHECK_GAUGES]:
             harm.append("market check")
         print(f"!!   {sid:<24} {lbl[:34]:<36} "
               + ("-> " + "; ".join(harm) if harm else "-> display only"))
     print("!" * 78 + "\n")
 else:
     print("All series loaded.\n")
+
+
+def load_sp500():
+    """Daily S&P 500 closes since 1985, [(date, close)]. Used only for the equity-trend
+    gauge and the decline episodes; levels are never printed (licensed data)."""
+    try:
+        import yfinance as yf
+        h = yf.Ticker("^GSPC").history(start="1985-01-01")["Close"].dropna()
+        out = md.finite_only([(d.strftime("%Y-%m-%d"), float(v)) for d, v in h.items()], "S&P 500")
+    except Exception as exc:
+        print(f"  [sp500] unavailable ({exc})")
+        return []
+    if out:
+        print(f"  [sp500] {len(out)} daily closes, {out[0][0]} -> {out[-1][0]}")
+    else:
+        print("  [sp500] empty result")
+    return out
+
+
+SP = load_sp500()
+SP_DATES = [d for d, _ in SP]
+SP_VALS = [v for _, v in SP]
+
+
+def sp_close_on(d):
+    """Close on the first trading day on or after d (the last one if d is later)."""
+    if not SP:
+        return None
+    return SP_VALS[min(bisect_left(SP_DATES, d), len(SP) - 1)]
+
+
+def equity_trend_at(as_of):
+    """The market check's equity-trend gauge as of a past date, from the same
+    function the live build uses. None if S&P data did not load."""
+    if not SP:
+        return None
+    i = bisect_right(SP_DATES, as_of)
+    return md.equity_trend_status(SP_VALS[max(0, i - 260):i])
 
 
 def _score(ind, series, legs, as_of):
@@ -126,31 +166,48 @@ def eval_signal(sid, as_of):
 
 
 def _hot(e):
-    """Allocation's and the market check's shared rule: moving the risk-off way, or
-    already at caution/danger."""
+    """Moving the risk-off way, or already at caution/danger."""
     return bool(e and (e["det"] or e["state"] in ("caution", "alert")))
 
 
-def _momentum(ids, as_of):
-    worse = better = 0
-    for sid in ids:
+@lru_cache(maxsize=None)
+def decision_at(as_of):
+    """The whole decision stack as of a past date, through the dashboard's own
+    functions: per-signal readings -> regime votes -> Valuation/Consumer conditions ->
+    allocation -> market gauges -> the three meter layers -> the meter. Cached; callers
+    must not modify what it returns."""
+    by_id = {}
+    for sid, ind in INDS.items():
         e = eval_signal(sid, as_of)
         if e is None:
             continue
-        worse += e["det"]
-        better += e["imp"]
-    return worse, better
+        by_id[sid] = {"series_id": sid, "label": ind["label"], "state": e["state"],
+                      "deteriorating": e["det"], "improving": e["imp"],
+                      # the live page stores z to 2 decimals and the meter reads that value
+                      "z": None if e["z"] is None else round(e["z"], 2)}
+    themed = lambda name: [by_id[i["id"]] for g in (md.THEMES, md.DRILLDOWNS)
+                           for i in g.get(name, []) if i["id"] in by_id]
+    val_c = md.theme_condition(themed("Valuation"))
+    cons_c = md.theme_condition(themed("Consumer"), labels=("stressed", "mixed", "healthy"))
+    allocation = md.compute_allocation(by_id, val_c, cons_c)
+    comps, _ = md.market_gauges(by_id)
+    et = equity_trend_at(as_of)
+    if et:
+        comps.append(et)
+    rl, ml, al = md.regime_layer(by_id), md.market_layer(by_id, comps), md.allocation_layer(allocation)
+    gv, iv = md.mom_votes(by_id, md.GROWTH_MOM), md.mom_votes(by_id, md.INFLATION_MOM)
+    growth, inflation = md.regime_axes(gv[0], gv[1], iv[0], iv[1])
+    return {"by_id": by_id, "val": val_c, "cons": cons_c, "allocation": allocation,
+            "comps": comps, "equity_trend": et, "layers": (rl, ml, al),
+            "meter": md.action_meter(rl, ml, al), "votes": (gv, iv),
+            "growth": growth, "inflation": inflation,
+            "regime": md.REGIMES[(growth, inflation)][0]}
 
 
-def regime_at(as_of, growth_ids=None):
-    g_worse, g_better = _momentum(growth_ids or md.GROWTH_MOM, as_of)
-    i_worse, i_better = _momentum(md.INFLATION_MOM, as_of)
-    growth = ("decelerating" if (g_worse - g_better) >= md.REGIME_MARGIN
-              else "accelerating")
-    inflation = ("accelerating" if (i_worse - i_better) >= md.REGIME_MARGIN
-                 else "decelerating")
-    name = md.REGIMES[(growth, inflation)][0]
-    return name, growth[:5], inflation[:5], g_worse, g_better, i_worse, i_better
+def regime_at(as_of):
+    d = decision_at(as_of)
+    (gw, gb, _, _), (iw, ib, _, _) = d["votes"]
+    return d["regime"], d["growth"][:5], d["inflation"][:5], gw, gb, iw, ib
 
 
 def recession_flags(as_of):
@@ -163,25 +220,6 @@ def recession_flags(as_of):
         if _hot(e):
             hot.append(sid)
     return hot, tot
-
-
-def market_riskoff(as_of, gauges, extra=()):
-    """The market check's rule: risk-off needs at least two hot gauges. `extra` adds
-    candidate gauges as (indicator, series) pairs, for testing inputs not shipped."""
-    n_hot = n = 0
-    for sid in gauges:
-        e = eval_signal(sid, as_of)
-        if e is None:
-            continue
-        n += 1
-        n_hot += _hot(e)
-    for ind, series in extra:
-        sc = _score(ind, series, {}, as_of)
-        if sc is None:
-            continue
-        n += 1
-        n_hot += _hot_sc(sc)
-    return n_hot >= 2, n_hot, n
 
 
 def valuation_at(as_of):
@@ -207,175 +245,211 @@ def _months(a, b):
     return out
 
 
+def _days(a, b):
+    return (date.fromisoformat(b) - date.fromisoformat(a)).days
+
+
+def _shift(d, days):
+    return (date.fromisoformat(d) + timedelta(days=days)).isoformat()
+
+
+# ---------------------------------------------------------------------------
+#  S&P 500 declines of 18%+ and the baseline score of the untuned meter
+# ---------------------------------------------------------------------------
+def sp500_events(closes, drop=EVENT_DROP):
+    """Declines of `drop` or more, closing basis, measured from the running all-time
+    closing high. An episode starts at that high and ends at its lowest close before
+    the index makes a new high. Baseline definition only: it does not see a decline
+    from a LOCAL peak that never reached a new all-time high (e.g. 2011), which Step 3
+    takes from the existing confluence sweep's own event list instead.
+    closes: [(date, close)] oldest first."""
+    events, peak_i, trough_i, in_ep = [], 0, 0, False
+    for i in range(1, len(closes)):
+        v = closes[i][1]
+        if v > closes[peak_i][1]:
+            if in_ep:
+                events.append((peak_i, trough_i, False))
+                in_ep = False
+            peak_i = trough_i = i
+            continue
+        if v < closes[trough_i][1]:
+            trough_i = i
+        if not in_ep and v <= closes[peak_i][1] * (1 - drop):
+            in_ep = True
+    if in_ep:
+        events.append((peak_i, trough_i, True))
+    return [{"peak": closes[p][0], "trough": closes[t][0],
+             "depth": 1 - closes[t][1] / closes[p][1], "ongoing": og}
+            for p, t, og in events]
+
+
+def runs_at_or_above(series, thr):
+    """Maximal runs of consecutive grid months with score >= thr: [(first, last)]."""
+    runs, start, prev = [], None, None
+    for m, s in series:
+        if s >= thr:
+            start = start or m
+            prev = m
+        elif start is not None:
+            runs.append((start, prev))
+            start = None
+    if start is not None:
+        runs.append((start, prev))
+    return runs
+
+
+def score_baseline(events, series, thr):
+    """Score 'the meter at or above thr' against the events. A run of alarm months is
+    GOOD for an event if it overlaps [peak - 1 year, trough] and starts no more than a
+    year before the peak; TOO EARLY if it overlaps but started sooner (a false alarm);
+    FALSE if it overlaps no event window. Per event: the first GOOD run, its lead over
+    the peak, and the decline still ahead from its start to the trough."""
+    runs = runs_at_or_above(series, thr)
+    per_event, run_class = [], {r: "FALSE" for r in runs}
+    for ev in events:
+        ws = _shift(ev["peak"], -TOO_EARLY_DAYS)
+        good = early = None
+        for r in runs:
+            a, b = r
+            if a > ev["trough"] or b < ws:
+                continue
+            if a >= ws:
+                good = good or r
+                run_class[r] = "GOOD"
+            else:
+                early = early or r
+                if run_class[r] == "FALSE":
+                    run_class[r] = "TOO EARLY"
+        rec = {"ev": ev, "good": good, "early": early}
+        if good:
+            c0, c1 = sp_close_on(good[0]), sp_close_on(ev["trough"])
+            rec["lead_months"] = _days(good[0], ev["peak"]) / 30.44
+            rec["ahead"] = (c1 / c0 - 1) if c0 and c1 else None
+        per_event.append(rec)
+    return runs, run_class, per_event
+
+
+def _med(v):
+    v = [x for x in v if x is not None]
+    return statistics.median(v) if v else None
+
+
+def meter_report():
+    print("\n" + "=" * 100)
+    print("ACTION METER (Step 2) -- the dashboard's own meter, replayed monthly, UNTUNED")
+    print("=" * 100)
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    grid = _months(GRID_START, today[:8] + "01")
+    series, layers_used = [], []
+    for m in grid:
+        d = decision_at(m)
+        if d["meter"]:
+            series.append((m, d["meter"]["score"]))
+            layers_used.append(d["meter"]["layers_used"])
+    if not series:
+        print("  (no meter readings -- see the failure list at the top)")
+        return
+    n = len(series)
+    print(f"\n  {n} monthly readings, {series[0][0]} -> {series[-1][0]}.  Layers available: "
+          f"{statistics.mean(layers_used):.1f} of 3 on average.")
+    print("  Market layer uses: " + ("FRED gauges plus the S&P 200-day trend. " if SP else
+          "FRED gauges only -- S&P 500 data did not load, so the equity-trend gauge is missing. ")
+          + "The HY-spread gauge exists on FRED only from 2023.")
+    print("  Constants: equal layer weights; regime saturates at 50% of growth signals net-worsening and "
+          f"mean z {md.R_FULL_Z}; market at z {md.M_FULL_Z}; allocation at {md.A_FULL_CONVICTION:.0f}% conviction.")
+    print("  Nothing here has been tuned on any outcome.")
+
+    print("\n-- 1. Where the meter sits, and how often each layer is 'on' (50 or more) --\n")
+    cols = [("all months", lambda m: True), ("before 2011", lambda m: m < OOS_START),
+            ("2011 onward", lambda m: m >= OOS_START)]
+    print(f"   {'':<26}" + "".join(f"{c:<22}" for c, _ in cols))
+    for lbl, key in (("Clear (under 30)", lambda s: s < 30), ("Caution (30-54)", lambda s: 30 <= s < 55),
+                     ("Elevated (55-74)", lambda s: 55 <= s < 75), ("High (75+)", lambda s: s >= 75)):
+        cells = []
+        for _, sel in cols:
+            ss = [s for m, s in series if sel(m)]
+            cells.append(f"{sum(1 for s in ss if key(s))}/{len(ss)} = {100 * sum(1 for s in ss if key(s)) / max(1, len(ss)):.0f}%")
+        print(f"   {lbl:<26}" + "".join(f"{c:<22}" for c in cells))
+    for i, name in enumerate(("Regime layer", "Market layer", "Allocation layer")):
+        cells = []
+        for _, sel in cols:
+            vals = [(decision_at(m)["layers"][i] or {}).get("score") for m, _ in series if sel(m)]
+            vals = [v for v in vals if v is not None]
+            cells.append(f"{sum(1 for v in vals if v >= 50)}/{len(vals)} = {100 * sum(1 for v in vals if v >= 50) / max(1, len(vals)):.0f}%")
+        print(f"   {name + ' >= 50':<26}" + "".join(f"{c:<22}" for c in cells))
+
+    if not SP:
+        print("\n-- 2/3. S&P 500 declines and baseline score: SKIPPED (S&P 500 data did not load) --")
+    else:
+        events = [e for e in sp500_events(SP) if e["peak"] >= GRID_START]
+        print(f"\n-- 2. S&P 500 declines of 18% or more from an all-time closing high, since {GRID_START[:4]} --")
+        print("   (levels are never printed; 'ahead' = decline still to come from that month to the trough)\n")
+        print(f"   {'peak':<12}{'trough':<12}{'decline':>8}  {'sample':<8}{'growth sigs':>12}   "
+              f"meter at: -12m   -6m   -3m  peak  +3m trough")
+        meter_at = lambda d: next((s for m, s in reversed(series) if m <= d), None)
+        for ev in events:
+            nsig = (decision_at(max([m for m, _ in series if m <= ev["peak"]] or [series[0][0]]))["layers"][0] or {}).get("n", 0)
+            offs = [meter_at(_shift(ev["peak"], k)) for k in (-365, -183, -91, 0, 91)] + [meter_at(ev["trough"])]
+            print(f"   {ev['peak']:<12}{ev['trough']:<12}{-100 * ev['depth']:>7.0f}%  "
+                  f"{'in' if ev['peak'] < OOS_START else 'OUT':<8}{nsig:>12}   "
+                  + "".join(f"{('-' if o is None else o):>6}" for o in offs)
+                  + ("   (ongoing)" if ev["ongoing"] else ""))
+        in_win = {m for m, _ in series
+                  if any(_shift(e["peak"], -TOO_EARLY_DAYS) <= m <= e["trough"] for e in events)}
+        print(f"\n   Base rate: {len(in_win)} of {n} months ({100 * len(in_win) / n:.0f}%) fall inside a decline "
+              f"window (a year before the peak through the trough), so a random alarm is 'right' that often.")
+
+        print("\n-- 3. Baseline score of the UNTUNED meter (first-principles settings, nothing fitted) --")
+        print("   Run = consecutive months at or above the line. GOOD = overlaps a decline window and starts")
+        print("   within a year of the peak; TOO EARLY = overlaps but started sooner (counts as a false alarm);")
+        print("   FALSE = overlaps no window. 'ahead' < 0 means that much decline was still to come.")
+        for thr, name in BAND_STARTS:
+            runs, cls, per_event = score_baseline(events, series, thr)
+            print(f"\n   Meter >= {thr} ({name})")
+            for rec in per_event:
+                ev = rec["ev"]
+                tag = "in " if ev["peak"] < OOS_START else "OUT"
+                if rec["good"]:
+                    lead = rec["lead_months"]
+                    when = (f"{lead:.0f} mo before the peak" if lead >= 0.5 else
+                            f"{-lead:.0f} mo after the peak" if lead <= -0.5 else "at the peak")
+                    ahead = f"{100 * rec['ahead']:.0f}% still ahead" if rec["ahead"] is not None else "n/a"
+                    print(f"     [{tag}] {ev['peak']} ({-100 * ev['depth']:.0f}%): first alarm {rec['good'][0]}, {when}; {ahead}")
+                elif rec["early"]:
+                    print(f"     [{tag}] {ev['peak']} ({-100 * ev['depth']:.0f}%): on since {rec['early'][0]} -- "
+                          f"{_days(rec['early'][0], ev['peak']) / 30.44:.0f} mo before the peak, too early")
+                else:
+                    print(f"     [{tag}] {ev['peak']} ({-100 * ev['depth']:.0f}%): MISSED -- never at or above {thr} in the window")
+            for lbl, sel in (("before 2011", lambda e: e["peak"] < OOS_START), ("2011 onward", lambda e: e["peak"] >= OOS_START)):
+                evs = [r for r in per_event if sel(r["ev"])]
+                caught = [r for r in evs if r["good"]]
+                rr = [r for r in runs if (r[0] < OOS_START) == (lbl == "before 2011")]
+                kinds = [cls[r] for r in rr]
+                print(f"     {lbl:<12} events caught {len(caught)}/{len(evs)}"
+                      f" | median lead {_med([r['lead_months'] for r in caught]) if caught else float('nan'):+.1f} mo"
+                      f" | median still ahead {100 * (_med([r['ahead'] for r in caught]) or 0):.0f}%"
+                      f" | alarm runs: {kinds.count('GOOD')} good, {kinds.count('TOO EARLY')} too early, {kinds.count('FALSE')} false")
+            alarm = [m for m, s in series if s >= thr]
+            false_m = [m for m in alarm if m not in in_win]
+            print(f"     months in alarm: {len(alarm)}/{n} ({100 * len(alarm) / n:.0f}%); of those, outside every decline "
+                  f"window (false alarm): {len(false_m)} ({100 * len(false_m) / max(1, len(alarm)):.0f}%)")
+
+    print("\n-- 4. Today --\n")
+    d = decision_at(today)
+    m = d["meter"]
+    if m:
+        print(f"   meter {m['score']} -> {m['band']}  (regime {m['regime']}, market {m['market']}, "
+              f"allocation {m['allocation']}; {m['layers_used']} of 3 layers)")
+    print(f"   regime {d['regime']} | valuation condition {d['val']['condition']} | "
+          f"market gauges hot: {sum(1 for c in d['comps'] if c['hot'])} of {len(d['comps'])}")
+
+
 def _fmt(e):
     if e is None:
         return "(no data)"
     z = f"z{e['z']:+.1f} " if e["z"] is not None else ""
     return (f"{e['latest']:+7.2f}  {z}{SHOWN.get(e['state'], e['state']):<9}"
             f"{'worsening' if e['det'] else ''}")
-
-
-def _trailing_mean(series, n):
-    out, win, tot = [], deque(), 0.0
-    for d, v in series:
-        win.append(v)
-        tot += v
-        if len(win) > n:
-            tot -= win.popleft()
-        if len(win) == n:
-            out.append((d, tot / n))
-    return out
-
-
-# ===========================================================================
-#  OPEN QUESTIONS left by the Step 1b gate (30 Sept 2026 run)
-# ===========================================================================
-def _state_of(ind, series, d):
-    sc = _score(ind, series, {}, d)
-    return sc["state"] if sc else None
-
-
-def _fmt_sc(sc):
-    if sc is None:
-        return "(no data)"
-    return _fmt({"latest": sc["latest"], "z": sc["z"], "state": sc["state"],
-                 "det": sc["deteriorating"]})
-
-
-def open_questions():
-    import statistics
-    print("\n" + "=" * 100)
-    print("OPEN QUESTIONS FROM THE STEP 1b GATE")
-    print("=" * 100)
-    fid = "CP minus T-bill"
-    ind20, s20, raw = INDS[fid], SERIES.get(fid), RAW.get(fid)
-    ind1 = {**ind20, "smooth_obs": None}
-    s1 = md.transform(ind1, raw) if raw else None
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-
-    print("\n-- Q1. Funding card, now a 20-day average: does it keep the crises and drop the "
-          "distortions? --\n")
-    if not (s1 and s20):
-        print("   (funding series did not load -- see the failure list at the top)")
-    else:
-        print(f"   {'moment':<30}{'date':<12}{'daily (last run)':<32}{'20-day avg (as shipped)'}")
-        for lbl, d in [("before the ABCP freeze", "2007-08-01"), ("two weeks into the freeze", "2007-08-24"),
-                       ("2008 recession starts", "2007-12-01"), ("pre-Lehman", "2008-06-01"),
-                       ("Lehman", "2008-10-01"), ("before COVID", "2020-03-01"),
-                       ("COVID funding seizure", "2020-03-23"), ("2022, day after quarter-end", "2022-07-01"),
-                       ("2022, later", "2022-10-01"), ("2005 rate hikes", "2005-06-01"),
-                       ("2018 rate hikes", "2018-03-01")]:
-            print(f"   {lbl:<30}{d:<12}{_fmt_sc(_score(ind1, s1, {}, d)):<32}"
-                  f"{_fmt_sc(_score(ind20, s20, {}, d))}")
-        print("\n   How often the badge reads caution/danger, 2010-2026. A quarter-end effect would")
-        print("   show up as quarter-starts reading hotter than other month-starts:")
-        qs = [f"{y}-{m:02d}-01" for y in range(2010, 2027) for m in (1, 4, 7, 10)
-              if f"{y}-{m:02d}-01" <= "2026-07-01"]
-        other = [f"{y}-{m:02d}-01" for y in range(2010, 2027) for m in (2, 3, 5, 6, 8, 9, 11, 12)
-                 if f"{y}-{m:02d}-01" <= "2026-08-01"]
-        for lbl, ind, ser in (("daily", ind1, s1), ("20-day avg", ind20, s20)):
-            hq = sum(_state_of(ind, ser, d) in ("caution", "alert") for d in qs)
-            ho = sum(_state_of(ind, ser, d) in ("caution", "alert") for d in other)
-            print(f"   {lbl:<12} quarter-starts {hq}/{len(qs)} = {100 * hq / len(qs):.0f}%   "
-                  f"other month-starts {ho}/{len(other)} = {100 * ho / len(other):.0f}%")
-        for lbl, a2, b2 in [("2004-06 hiking cycle", "2004-06-01", "2006-06-01"),
-                            ("2016-18 hiking cycle", "2016-01-01", "2018-12-01"),
-                            ("2022-23 hiking cycle", "2022-03-01", "2023-07-01"),
-                            ("GFC, Aug 2007 - Mar 2009", "2007-08-01", "2009-03-01")]:
-            ms = _months(a2, b2)
-            h1 = sum(_state_of(ind1, s1, m) in ("caution", "alert") for m in ms)
-            h20 = sum(_state_of(ind20, s20, m) in ("caution", "alert") for m in ms)
-            print(f"   months at caution/danger, {lbl:<26} daily {h1}/{len(ms)}   20-day {h20}/{len(ms)}")
-        print("   (last run, daily: 0/25, 6/36, 3/17; GFC 17/20)")
-
-    print("\n-- Q2. Funding stress as a market-check input (evidence for Step 2; not shipped) --\n")
-    base = [sid for sid, _ in MARKET_GAUGES]
-    variants = [("market check as shipped", ())]
-    if s20:
-        variants.append(("+ funding, 20-day", ((ind20, s20),)))
-    if s1:
-        variants.append(("+ funding, daily", ((ind1, s1),)))
-    for lbl, extra in variants:
-        segs = []
-        for yr, a2, b2 in (("2007", "2007-06-01", "2007-12-01"), ("2008", "2008-01-01", "2008-12-01"),
-                           ("2009", "2009-01-01", "2009-06-01")):
-            segs.append(yr + " " + "".join("R" if market_riskoff(m, base, extra)[0] else "."
-                                           for m in _months(a2, b2)))
-        print(f"   {lbl:<26} " + " | ".join(segs))
-    print("   (R = risk-off; 2007 runs Jun-Dec, 2009 Jan-Jun)")
-    calm = [m for a2, b2 in [("2003-06-01", "2006-12-01"), ("2012-01-01", "2014-12-01"),
-                             ("2016-06-01", "2018-06-01"), ("2023-06-01", "2026-08-01")]
-            for m in _months(a2, b2)]
-    for lbl, extra in variants:
-        r = sum(market_riskoff(m, base, extra)[0] for m in calm)
-        print(f"   calm-period risk-off months, {lbl:<26} {r}/{len(calm)}")
-    print("   (last run: 10/143 as shipped now; 19/143 with the daily gauge)")
-
-    print("\n-- Q3. Valuation: judged against history since 1990 (as shipped) or its full "
-          "history? --\n")
-    print("   The robust score measures each reading against its own history. The dashboard")
-    print("   starts most valuation series in 1990, so 'normal' is set by an era that was")
-    print("   itself richly valued. Where the source goes back further, this refetches it.\n")
-    val_ids = [i["id"] for g in (md.THEMES, md.DRILLDOWNS) for i in g.get("Valuation", [])]
-    extend = {}
-    for sid in val_ids:
-        ind = INDS[sid]
-        if ind.get("compute") in (None, "ratio", "cape", "multpl") and ind["start"] <= "1990-01-01" \
-                and SERIES.get(sid):
-            full = {**ind, "start": "1871-01-01"}
-            raw_f = md.fetch_raw(full)
-            ser_f = md.transform(full, raw_f) if raw_f else []
-            if ser_f and ser_f[0][0] < SERIES[sid][0][0]:
-                extend[sid] = (full, ser_f)
-    if not extend:
-        print("   (no valuation series returned longer history -- nothing to compare)")
-    else:
-        print(f"   {'signal':<20}{'full history from':<19}{'normal since 1990':>18}{'full-history normal':>21}"
-              f"   today: since-1990 / full")
-        for sid, (full, ser_f) in extend.items():
-            shp = [v for d, v in SERIES[sid] if d <= today]
-            fl = [v for d, v in ser_f if d <= today]
-            a1, a2 = eval_signal(sid, today), _score(full, ser_f, {}, today)
-            if a1 and a2 and a1["z"] is not None and a2["z"] is not None:
-                today_txt = (f"{SHOWN.get(a1['state'], a1['state'])} (z{a1['z']:+.1f}) / "
-                             f"{SHOWN.get(a2['state'], a2['state'])} (z{a2['z']:+.1f})")
-            else:
-                today_txt = "(not comparable today)"
-            print(f"   {sid[:19]:<20}{ser_f[0][0]:<19}{statistics.median(shp):>18.2f}"
-                  f"{statistics.median(fl):>21.2f}   {today_txt}")
-        print(f"\n   The Valuation condition -- the part that feeds allocation (extreme = 3+ in danger):")
-        print(f"   {'date':<12}{'history since 1990 (as shipped)':<36}{'full history':<36}CAPE: 1990 / full")
-        for d in ["1995-06-01", "2000-03-01", "2003-03-01", "2007-10-01", "2009-03-01", "2012-06-01",
-                  "2016-02-01", "2020-03-01", "2021-12-01", today]:
-            rows = {}
-            for mode in ("shipped", "full"):
-                panels = []
-                for sid in val_ids:
-                    if mode == "full" and sid in extend:
-                        st_ = _state_of(extend[sid][0], extend[sid][1], d)
-                    else:
-                        e = eval_signal(sid, d)
-                        st_ = e["state"] if e else None
-                    if st_ is not None:
-                        panels.append({"state": st_, "label": sid})
-                c = md.theme_condition(panels)
-                rows[mode] = f"{c['condition']} ({c['alert']} of {c['total']} in danger)"
-            cs = eval_signal("Shiller CAPE", d)
-            cf = (_state_of(extend["Shiller CAPE"][0], extend["Shiller CAPE"][1], d)
-                  if "Shiller CAPE" in extend else None)
-            print(f"   {d:<12}{rows['shipped']:<36}{rows['full']:<36}"
-                  f"{SHOWN.get(cs['state'], cs['state']) if cs else '-'} / {SHOWN.get(cf, cf) if cf else '-'}")
-
-    print("\n-- Today --\n")
-    for sid in ("Curve momentum", "CP minus T-bill", "Mortgage debt vs prices"):
-        print(f"   {sid:<26}{_fmt(eval_signal(sid, today))}")
-    r = market_riskoff(today, base)
-    print(f"   regime {regime_at(today)[0]} | market check risk-off from FRED gauges: {r[0]} "
-          f"({r[1]} of {r[2]} hot)")
-
-
-def _hot_sc(sc):
-    return bool(sc and (sc["deteriorating"] or sc["state"] in ("caution", "alert")))
 
 
 def main():
@@ -430,7 +504,7 @@ def main():
         cst, cval = concentration_at(dt)
         print(f"  {label:<16} {dt}: {cst} ({cval})")
 
-    open_questions()
+    meter_report()
 
 
 if __name__ == "__main__":
