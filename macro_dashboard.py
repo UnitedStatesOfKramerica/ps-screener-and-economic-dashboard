@@ -2079,18 +2079,37 @@ def equity_trend_status(vals):
 # then the page labels the meter provisional.
 METER_VERSION = "2.0"
 METER_WEIGHTS = {"regime": 1.0, "market": 1.0, "allocation": 1.0}   # equal
-# (upper edge, name, tone, what to do) -- the bands and wording agreed in the design.
+# (upper edge, name, tone, what history says). The band edges were agreed in the design.
+# The original wording prescribed actions ("begin trimming", "meaningful de-risk") and called
+# the layers "independent". After the first backtest (Step 3a, 1 Oct 2026: the nine S&P 500
+# declines of 18%+ since 1990, revised data, untuned) it was replaced with what the history
+# shows, because the evidence did not support acting on Elevated or High by themselves:
+#   * Caution first appeared 1-10 months before the 2000, 2007 and 2022 peaks, missed 1998 and
+#     2018, and 13 of its 29 alarm bursts were followed by no decline.
+#   * Elevated first appeared from 1 month before to 4 months after the peak, High 2-9 months
+#     after, usually with much of the fall still ahead -- but there is no all-clear: the
+#     12 months after an Elevated/High reading averaged +1.8% against +10.2% for any month
+#     (p = 0.09, so possibly chance), and none of the 15 such months since 2011 was followed
+#     by a loss (+24% on average).
+#   * The layers overlap: the market layer alone, or the allocation layer alone, does about
+#     as well as all three.
 METER_BANDS = [
     (30, "Clear", "calm",
-     "Normal conditions. No defensive action indicated."),
+     "Few of the dashboard's risk layers are flashing."),
     (55, "Caution", "caution",
-     "Environment deteriorating. Review speculative positions. No major moves yet."),
+     "Some risk layers are flashing: worth a closer look. In past declines this level appeared "
+     "1 to 10 months before the peak in 2000, 2007 and 2022, but it has also flashed 13 times "
+     "with no decline starting within the next year."),
     (75, "Elevated", "elevated",
-     "Multiple independent signals confirm risk. Begin trimming speculative and "
-     "overvalued holdings; add to value and defensive."),
+     "Several risk layers are flashing. In past declines this level first appeared from about a "
+     "month before to four months after the peak, usually with much of the fall still ahead. It "
+     "has no reliable all-clear: none of the 15 Elevated or High months since 2011 was followed "
+     "by a market loss over the next 12 months."),
     (101, "High", "alert",
-     "Strong multi-layer confirmation. Meaningful de-risk: hedge equity, reduce "
-     "cyclicals, size energy and duration calls up."),
+     "Most risk layers are flashing. In past declines this level first appeared 2 to 9 months "
+     "after the peak: with most of the fall still ahead in 2000 and 2007, but only at the low in "
+     "2022. It never appeared in five of the nine declines, so it has not been a dependable "
+     "signal either way."),
 ]
 R_FULL_NET = 0.5     # share of growth signals net-worsening at which breadth reads 100
 R_FULL_Z = 1.5       # mean robust-z across growth signals at which depth reads 100
@@ -2459,7 +2478,7 @@ def build():
     confirmation = {"verdict": verdict, "tone": tone, "macro": macro,
                     "message": msg, "components": comps}
 
-    # ---- Action meter (Step 2): three layers -> one number and an action band ----
+    # ---- Risk meter (Step 2; first called the action meter): three layers -> one number and a band ----
     # Derived from the readings above, so a fault here must not take the page down:
     # on any error the meter is simply left off and the cause is logged.
     meter = None
@@ -2911,11 +2930,11 @@ if (MT){
   const partial = MT.layers_used < 3 ? `<br><b>Only ${MT.layers_used} of 3 layers could be computed today</b>, so the meter averages those.` : '';
   document.getElementById('meter').innerHTML =
     `<div class="meter-banner t-${MT.tone}">
-       <div class="meter-top"><span class="regime-tag">Action meter</span>`
+       <div class="meter-top"><span class="regime-tag">Risk meter</span>`
        + `<span class="chev" id="mchev">&#9656;</span>`
        + `<span class="meter-num ${MT.tone}">${MT.score}</span><span class="meter-of">/ 100</span>`
        + `<span class="meter-band ${MT.tone}">${MT.band}</span>`
-       + `<span class="meter-prov" title="Weights and band edges are first-principles settings, not yet tested against past market declines.">provisional</span>`
+       + `<span class="meter-prov" title="First-principles settings, backtested on past S&amp;P 500 declines (see below). Not shown to be a reliable signal.">provisional</span>`
        + `<span class="meter-wk">${wkTxt}</span></div>`
      + `<div class="meter-track">${segs}<div class="meter-mark" style="left:${score}%"></div></div>`
      + `<div class="meter-scale">${scale}</div>`
@@ -2926,8 +2945,11 @@ if (MT){
        + `<div class="meter-how"><b>How it is built.</b> Three layers, each scored 0-100, averaged with equal weight: `
        + `regime (how deep and broad the growth slowdown is), market check (how many risk gauges are stressed, and how hard), `
        + `and allocation (conviction behind an Underweight call on equities). One layer at full strength reads Caution, two read Elevated, all three High.`
-       + `<br><b>Provisional.</b> The weights and band edges are first-principles settings. They have not yet been tested against past market declines, `
-       + `and in early checks the meter tended to confirm a decline already under way rather than call its start. Treat it as a summary of what the dashboard already shows, not as validated advice.${partial}</div></div>
+       + `<br><b>What history says (provisional).</b> The weights and band edges are first-principles settings, tested without tuning against the nine S&amp;P 500 declines of 18% or more since 1990, on revised data, so real-time results would be worse. `
+       + `Caution first appeared 1 to 10 months before the peak of the 2000, 2007 and 2022 declines but missed 1998 and 2018, and 13 of its 29 alarm bursts were followed by no decline. `
+       + `Elevated and High first appeared from a month before to nine months after the peak, usually with much of the fall still ahead, but they have no reliable all-clear: the S&amp;P's average return over the 12 months after an Elevated or High reading was +1.8%, against +10.2% after a typical month (a gap that could be chance with this few declines), and none of the 15 such months since 2011 was followed by a loss (+24% on average). `
+       + `The three layers overlap heavily: the market layer alone, or the allocation layer alone, does about as well as all three. `
+       + `Treat the meter as a summary of what the dashboard already shows, not as a signal to trade.${partial}</div></div>
      </div>`;
   const mb = document.querySelector('.meter-banner');
   mb.addEventListener('click', (ev)=>{
