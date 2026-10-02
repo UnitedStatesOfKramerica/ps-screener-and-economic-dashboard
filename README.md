@@ -7,7 +7,7 @@ The screen is published at `https://USERNAME.github.io/ps-screener/` and
 refreshes on weekday evenings.
 
 - `ps_screener.py` — the whole thing
-- `test_current_build.py` — 36 checks on invented data
+- `test_current_build.py` — 42 checks on invented data
 - `replay.py` — 17 checks against real filings, from `fixture.json.gz`
 - `docs/index.html` — the latest run
 
