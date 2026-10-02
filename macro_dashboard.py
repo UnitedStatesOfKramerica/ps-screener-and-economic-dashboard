@@ -21,6 +21,7 @@ import json
 import math
 import os
 import statistics
+import time
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -89,8 +90,8 @@ THEMES = {
                  "replaced the originally planned CPFF (commercial paper minus fed funds), which "
                  "read danger through most of every hiking cycle because it moves with expected "
                  "rate hikes. Shown for context only -- no allocation votes and not in the market "
-                 "check (see the market check's notes); it is being evaluated as an input to the "
-                 "Step 2 confidence rating. Sources: Board of Governors of the Federal Reserve "
+                 "check (see the market check's notes). Tested as an extra gauge in the risk "
+                 "meter it changed nothing. Sources: Board of Governors of the Federal Reserve "
                  "System, 90-Day AA Financial Commercial Paper Interest Rate [RIFSPPFAAD90NB] and "
                  "3-Month Treasury Bill Secondary Market Rate [DTB3], retrieved from FRED, Federal "
                  "Reserve Bank of St. Louis."},
@@ -896,20 +897,56 @@ SECTOR_JOBS = [
 COINCIDENT_ID = "RECPROUSM156N"
 
 
+# FRED allows about 120 requests a minute per key. A second workflow running at the same
+# time (the 2 Oct 2026 historical check overlapped a dashboard build) pushed it over, and
+# two series came back "429 Too Many Requests". fetch() used to give up on the first
+# failure and drop the series; a rate limit or a server hiccup is transient, so retry.
+FRED_RETRY_WAITS = (5, 15, 30)          # seconds before retry 1, 2 and 3
+FRED_TRANSIENT = (429, 500, 502, 503, 504)
+
+
+def _retry_wait(resp, default):
+    """Seconds to wait before retrying: the server's Retry-After if it sent a sensible one."""
+    try:
+        return min(max(float(resp.headers.get("Retry-After", "")), 1.0), 60.0)
+    except (TypeError, ValueError):
+        return float(default)
+
+
 def fetch(series_id, start):
     if not KEY:
         raise SystemExit("FRED_API_KEY is not set. Register free at "
                          "fredaccount.stlouisfed.org and add the GitHub secret "
                          "FRED_API_KEY.")
-    try:
-        r = requests.get(FRED, params={
-            "series_id": series_id, "api_key": KEY, "file_type": "json",
-            "observation_start": start, "sort_order": "asc", "limit": 100000,
-        }, timeout=30)
-        r.raise_for_status()
-        obs = r.json().get("observations", [])
-    except Exception as exc:
-        print(f"  {series_id}: fetch failed ({exc})")
+    obs = None
+    for attempt in range(len(FRED_RETRY_WAITS) + 1):
+        try:
+            r = requests.get(FRED, params={
+                "series_id": series_id, "api_key": KEY, "file_type": "json",
+                "observation_start": start, "sort_order": "asc", "limit": 100000,
+            }, timeout=30)
+            if r.status_code in FRED_TRANSIENT and attempt < len(FRED_RETRY_WAITS):
+                wait = _retry_wait(r, FRED_RETRY_WAITS[attempt])
+                print(f"  {series_id}: HTTP {r.status_code}, retrying in {wait:g}s "
+                      f"({attempt + 1} of {len(FRED_RETRY_WAITS)})")
+                time.sleep(wait)
+                continue
+            r.raise_for_status()
+            obs = r.json().get("observations", [])
+            break
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as exc:
+            if attempt < len(FRED_RETRY_WAITS):
+                wait = FRED_RETRY_WAITS[attempt]
+                print(f"  {series_id}: {type(exc).__name__}, retrying in {wait}s "
+                      f"({attempt + 1} of {len(FRED_RETRY_WAITS)})")
+                time.sleep(wait)
+                continue
+            print(f"  {series_id}: fetch failed ({exc})")
+            return []
+        except Exception as exc:
+            print(f"  {series_id}: fetch failed ({exc})")
+            return []
+    if obs is None:
         return []
     out = []
     for o in obs:
@@ -2683,6 +2720,8 @@ PAGE = r"""<!DOCTYPE html>
   .regime-top h2 { margin:0; font-size:22px; }
   .regime-sub { color:var(--dim); font-size:12.5px; }
   .regime-play { color:var(--ink); font-size:13px; line-height:1.55; margin:9px 0 10px; max-width:900px; }
+  .regime-note { font-size:12px; color:var(--dim); line-height:1.55; margin:-4px 0 12px; max-width:900px; }
+  .regime-note b { color:var(--ink); }
   .regime-val { font-size:12px; color:var(--dim); display:flex; align-items:center; gap:8px; margin-top:4px; }
   .regime-valnote { color:var(--dim); }
   .regime-banner.expandable { cursor:pointer; }
@@ -3004,6 +3043,7 @@ if (R){
        + `<h2>${R.name}</h2>`
        + `<span class="regime-sub">growth ${R.growth} &middot; inflation ${R.inflation}</span>${rchgTag}${pendingTag}</div>`
      + `<p class="regime-play">${R.playbook}</p>`
+     + `<p class="regime-note"><b>Provisional.</b> The line above is the textbook case for this regime. Tested against what each asset group earned over the next 12 months (1990-2026, revised data), 13 of the 22 claims across the four playbooks had the right sign (about 11 expected by chance) and 4 were clearly the wrong way; the Slowdown / Disinflation claims were mostly wrong (1 of 5). Treat it as context, not a forecast.</p>`
      + `<div class="regime-val">Valuations <span class="badge bg-${vcls}">${R.valuation}</span>`
        + `<span class="regime-valnote">${R.valnote}</span></div>`
      + `<div class="regime-val">Consumer <span class="badge bg-${ccls}">${R.consumer}</span>`
@@ -3108,7 +3148,7 @@ const allocEl = document.getElementById('alloc');
 if (D.allocation && D.allocation.length){
   const acls = l => l==='Overweight'?'calm':l==='Underweight'?'alert':l==='Balanced'?'caution':'neutral';
   let ah = `<h2 class="alloc-h">Capital Allocation</h2>
-    <p class="alloc-sub"><b>Provisional.</b> Tested against what a proxy for each asset class earned over the next 12 months (1990-2026 depending on the proxy, revised data), these tilts showed no reliable skill: Overweight months did better than Underweight months in only 4 of the 9 buckets, and in none could the gap be told apart from chance. A test this size only detects large effects, so a modest edge is not ruled out, just not shown. &ldquo;Conviction&rdquo; means how strongly the active signals agree, not how likely the call is to be right, and the tilts lean one way most of the time (overall equity exposure was Underweight in 55% of months since 1995). Read them as what the rules make of today&rsquo;s conditions, not as a forecast.<br><br>A rules-based read of what the currently-active macro signals lean toward &mdash; not advice, and every driver is shown so you can judge for yourself. A signal counts as &ldquo;active&rdquo; when it is moving its worrying way or sitting at a caution/danger level; the meter shows conviction &mdash; the <b>weighted</b> margin, so heavier signals (the yield curve, Sahm rule, credit spreads) move it more than minor ones. Conviction is scored as a <b>share of what each bucket could possibly signal</b>, not a raw count, so &ldquo;strong&rdquo; means the same thing in a bucket fed by 34 signals as in one fed by 5. Most cyclical signals are <b>two-directional</b>: a strong, improving economy argues <i>for</i> cyclicals and risk (shown as a <span class="wchip mirror">reversed</span> vote), not just against defensives &mdash; but pure recession alarms (yield-curve inversion, the Sahm rule) stay one-way, since calm is the absence of danger, not a buy signal. Stretched valuations and a stressed consumer add their own <span class="wchip cond">condition</span> votes. <b>Balanced</b> means active signals pull both ways; <b>No signal</b> means nothing mapped here is firing. Tap a card for what the bucket means and every signal feeding it &mdash; dimmed rows are mapped but not currently active.</p>
+    <p class="alloc-sub"><b>Provisional.</b> Tested against what a proxy for each asset class earned over the next 12 months (1990-2026 depending on the proxy, revised data), these tilts showed no reliable skill: Overweight months did better than Underweight months in only 4 of the 9 buckets, and in none could the gap be told apart from chance. The test could have picked up an edge of about 3 to 4 points a year in four of the buckets (Treasuries, high yield, defensives, cyclicals) and found none; in the other five only 5 to 11 points would have shown, so a smaller edge there is not ruled out. &ldquo;Conviction&rdquo; means how strongly the active signals agree, not how likely the call is to be right, and the tilts lean one way most of the time (overall equity exposure was Underweight in 55% of months since 1995). Read them as what the rules make of today&rsquo;s conditions, not as a forecast.<br><br>A rules-based read of what the currently-active macro signals lean toward &mdash; not advice, and every driver is shown so you can judge for yourself. A signal counts as &ldquo;active&rdquo; when it is moving its worrying way or sitting at a caution/danger level; the meter shows conviction &mdash; the <b>weighted</b> margin, so heavier signals (the yield curve, Sahm rule, credit spreads) move it more than minor ones. Conviction is scored as a <b>share of what each bucket could possibly signal</b>, not a raw count, so &ldquo;strong&rdquo; means the same thing in a bucket fed by 34 signals as in one fed by 5. Most cyclical signals are <b>two-directional</b>: a strong, improving economy argues <i>for</i> cyclicals and risk (shown as a <span class="wchip mirror">reversed</span> vote), not just against defensives &mdash; but pure recession alarms (yield-curve inversion, the Sahm rule) stay one-way, since calm is the absence of danger, not a buy signal. Stretched valuations and a stressed consumer add their own <span class="wchip cond">condition</span> votes. <b>Balanced</b> means active signals pull both ways; <b>No signal</b> means nothing mapped here is firing. Tap a card for what the bucket means and every signal feeding it &mdash; dimmed rows are mapped but not currently active.</p>
     <div class="alloc-grid">`;
   const allocCh = {}; (CH.alloc_changes||[]).forEach(c=>allocCh[c.bucket]=c);
   D.allocation.forEach((a,ai)=>{

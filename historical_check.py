@@ -103,11 +103,24 @@ if LOAD_FAILED:
             harm.append("recession flag count")
         if sid in [g[0] for g in md.MARKET_CHECK_GAUGES]:
             harm.append("market check")
+        # The Valuation and Consumer condition summaries vote in allocation too, so a signal in
+        # either group is NOT "display only". (The 2 Oct 2026 run mislabelled two such series.)
+        groups = sorted({name for name in ("Valuation", "Consumer") for g in (md.THEMES, md.DRILLDOWNS)
+                         for i in g.get(name, []) if i["id"] == sid})
+        for name in groups:
+            harm.append(f"{name} condition (feeds allocation votes and the meter)")
         print(f"!!   {sid:<24} {lbl[:34]:<36} "
               + ("-> " + "; ".join(harm) if harm else "-> display only"))
     print("!" * 78 + "\n")
 else:
     print("All series loaded.\n")
+
+
+def _load_warning():
+    """One line for the top of any section whose numbers depend on the loaded series."""
+    if LOAD_FAILED:
+        print(f"  WARNING: {len(LOAD_FAILED)} series failed to load (listed at the top of this log), so the numbers "
+              f"below can differ slightly from a clean run. Re-run alone, not alongside another workflow.")
 
 
 def load_sp500():
@@ -689,6 +702,7 @@ def meter_report():
     print("\n" + "=" * 100)
     print("ACTION METER -- the dashboard's own meter, replayed monthly, UNTUNED  (Step 3a diagnostics)")
     print("=" * 100)
+    _load_warning()
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     series, layers_used = [], []
     for m in _months(GRID_START, today[:8] + "01"):
@@ -1013,6 +1027,7 @@ def allocation_report():
     print("\n" + "=" * 100)
     print("ALLOCATION LEANS (Step 3b) -- do the nine Overweight / Underweight calls point the right way?")
     print("=" * 100)
+    _load_warning()
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     months = _months(GRID_START, today[:8] + "01")
     alloc = {}
