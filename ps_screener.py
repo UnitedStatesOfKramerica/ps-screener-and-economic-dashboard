@@ -1418,6 +1418,33 @@ def fetch_prices(tickers: list[str], start: date, *,
 # Assembly
 # ---------------------------------------------------------------------------
 
+# Quarter ends move a day or so between 52/53-week calendars; a count within this many days
+# after the anniversary still counts as "a year earlier".
+SHARE_ANCHOR_GRACE_DAYS = 15
+# A newest count older than this is not a normal reporting lag (a quarter plus a filing lag is
+# at most ~180 days): the filer has stopped tagging the concept or reports it only annually. There
+# the last price date is kept as the anchor, exactly as before, rather than silently re-dating
+# the horizon months into the past (Ares stopped tagging quarterly counts after 2024-12-31).
+SHARE_ANCHOR_MAX_LAG_DAYS = 190
+# Weighted-average counts phase an acquisition in over two reporting periods, so a step is
+# looked for over this many days rather than in a single day.
+SHARE_STEP_WINDOW_DAYS = 190
+
+
+def _share_horizon_anchor(hist, fallback):
+    """The date the newest share count refers to, or `fallback` (the last price date) when the
+    frame does not carry it (older state, hand-built test frames) or the count is too old to be
+    an ordinary reporting lag."""
+    a = hist.attrs.get("share_asof_last") if hist is not None else None
+    try:
+        t = pd.Timestamp(a) if a else None
+    except (ValueError, TypeError):
+        t = None
+    if t is None or t > fallback or (fallback - t).days > SHARE_ANCHOR_MAX_LAG_DAYS:
+        return fallback
+    return t
+
+
 def shares_in_todays_units(hist: pd.DataFrame, splits: dict | None = None) -> pd.Series:
     """The share count restated so every point means the same thing.
 
@@ -1536,6 +1563,10 @@ def monthly_ps(
     if out.empty:
         return out
     out.attrs["splits"] = {str(k.date()): (r, adj) for k, (r, adj) in split_info.items()}
+    # The date the NEWEST share count refers to, so a change over N years can be measured
+    # between counts N years apart rather than from the last price date.
+    _sa = sh.loc[sh["asof"] <= out["date"].max(), "asof"]
+    out.attrs["share_asof_last"] = str(_sa.max().date()) if len(_sa) else None
     cut = stale_after_days(ttm)
     out["rev_stale"] = out["rev_age"] > cut
     out.attrs["stale_cut_days"] = cut
@@ -1724,7 +1755,17 @@ def corroborate_splits(split_info: dict, shares: list[tuple[date, float]]) -> di
                 # the loose test let it through. History was then scaled by
                 # 0.9535 instead of 0.5, and Honeywell became the cheapest
                 # name on the screen on the strength of it.
-                if abs(math.log(observed / ratio)) < math.log(1.25):
+                agrees = abs(math.log(observed / ratio)) < math.log(1.25)
+                # A factor inside the 25% band sits within 25% of "nothing happened" too, so
+                # the test above cannot tell a split from a spin-off there: a count that never
+                # moved passes for any factor between about 0.8 and 1.25. Honeywell's 1.061
+                # (the Solstice spin-off, count 0.98x) was applied and read as a 6% buyback.
+                # Inside the band the count must move the SAME WAY as the factor, by at least
+                # half as much; a real 21-for-20 or 11-for-10 satisfies that easily.
+                if agrees and abs(math.log(ratio)) < math.log(1.25):
+                    lo, lr = math.log(observed), math.log(ratio)
+                    agrees = lo * lr > 0 and abs(lo) >= 0.5 * abs(lr)
+                if agrees:
                     kept[when] = (ratio, rescaled)
                 else:
                     REJECTED_RATIOS.append(
@@ -2367,16 +2408,25 @@ def audit_series(hist: pd.DataFrame, ttm: pd.DataFrame, split_info: dict,
             # Index into the RESTATED array, not back into the raw column --
             # taking the year-ago figure from df["shares"] undid the whole
             # point of restating it.
-            older = np.flatnonzero(
-                np.asarray(dates <= dates[-1] - pd.DateOffset(years=1)))
+            cut7 = _share_horizon_anchor(df, dates[-1])
+            older = np.flatnonzero(np.asarray(
+                dates <= cut7 - pd.DateOffset(years=1) + pd.Timedelta(days=SHARE_ANCHOR_GRACE_DAYS)))
             year_ago = float(sh[older[-1]]) if len(older) else float(sh[0])
             over_window = sh[-1] / sh[0] - 1
             over_year = sh[-1] / year_ago - 1 if year_ago > 0 else 0.0
-            steps7 = np.diff(np.log(np.maximum(sh, 1)))
+            # The largest move over any ~190-day window, not in a single day: a weighted-average
+            # count phases an acquisition in over two reporting periods (AMD/Xilinx was +14.5%
+            # then +15.7%), so no single step reached the threshold although the company's share
+            # base had plainly changed. A single step is just the shortest such window.
+            lsh = np.log(np.maximum(sh, 1))
+            lag7 = np.searchsorted(dates.values,
+                                   (dates - pd.Timedelta(days=SHARE_STEP_WINDOW_DAYS)).values,
+                                   side="left")
+            move7 = lsh - lsh[lag7]
             worst, which = 0.0, None
-            if len(steps7):
-                j = int(np.argmax(np.abs(steps7)))
-                worst, which = float(steps7[j]), dates[j + 1]
+            if len(move7):
+                j = int(np.argmax(np.abs(move7)))
+                worst, which = float(move7[j]), dates[j]
             # Gradual drift is not a problem: the multiple already uses the
             # share count of the day, so a decade of buybacks compares fine.
             # What breaks comparability is a STEP -- the company became a
@@ -2395,8 +2445,8 @@ def audit_series(hist: pd.DataFrame, ttm: pd.DataFrame, split_info: dict,
             # (worst is a LOG step, so compare it as a percentage.)
             elif abs(np.expm1(worst)) > 0.30 and which is not None:
                 issues.append(
-                    f"the share count moved {np.expm1(worst):+.0%} in one step on "
-                    f"{which.date()}, which no split explains -- the multiples "
+                    f"the share count moved {np.expm1(worst):+.0%} within six months, "
+                    f"ending {which.date()}, which no split explains -- the multiples "
                     f"either side of it are measuring different companies")
 
     return issues
@@ -2672,8 +2722,13 @@ def research(ticker: str, facts: dict, hist: pd.DataFrame,
         h = hist.sort_values("date")
         h = h.assign(shares=shares_in_todays_units(h))
         now = float(h["shares"].iloc[-1])
+        # N years back from the date the NEWEST COUNT refers to, not from the last price date:
+        # the count lags the price by up to a reporting period, and anchoring on the price made
+        # "one year" three quarters for a few weeks after every quarter-end anniversary.
+        cut_d = _share_horizon_anchor(hist, h["date"].iloc[-1])
         for yrs in (1, 3, 5):
-            past = h[h["date"] <= h["date"].iloc[-1] - pd.DateOffset(years=yrs)]
+            past = h[h["date"] <= cut_d - pd.DateOffset(years=yrs)
+                     + pd.Timedelta(days=SHARE_ANCHOR_GRACE_DAYS)]
             if len(past) and float(past["shares"].iloc[-1]) > 0:
                 base = float(past["shares"].iloc[-1])
                 # A company that listed or was formed inside the window has a
@@ -3914,7 +3969,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <dt>vs 10y</dt><dd>When this and the 5-year figure disagree, the multiple drifted over recent years rather than the stock suddenly getting cheap. When they agree, the discount is more believable.</dd>
     <dt>Z</dt><dd>The same discount, adjusted for volatility. A stock whose multiple always swings wildly needs a bigger drop to count as unusual. Below minus 2 is rare; minus 0.5 is noise. This is the most reliable column to sort by.</dd>
     <dt>Quality</dt><dd>A 0&ndash;100 read on the business itself, kept deliberately separate from Z. Z tells you a stock is cheap against its own past; it cannot tell a sound company that fell out of favour from one that is cheap because it is quietly failing. Quality combines balance-sheet strength (net debt against free cash flow and profit, gearing, liquidity), profitability (net margin, return on equity), trajectory (are sales and profit growing or shrinking, and are margins widening or compressing) and cash generation (free-cash-flow margin, and how much profit turns into cash). Read it beside Z: a low Z with a high quality score is a research candidate; a low Z with a low one is a possible value trap. The <b>Cheap &amp; sound</b> and <b>Cheap &amp; weak</b> filters select those two corners directly. Green is 60 or above, red 40 or below, amber between; the tooltip breaks out the four parts. Gross margin is left out on purpose &mdash; it swings by sector structure, not by quality. Banks and property companies are not scored, because these measures do not fit their accounts.</dd>
-    <dt>Opportunity</dt><dd>The discount and the quality in a single 0&ndash;100 number, for when you want one figure to sort by. It is not an average of the two &mdash; averaging would let a great business at a fair price and a poor one at a deep discount tie, which is the confusion to avoid. Instead Z becomes a discount score (deep discount high, fairly valued around 40, premium near 0) and is combined with quality as a geometric mean, so a name has to be cheap <b>and</b> sound to score well and a weakness on either side drags it down. Because this is a discount screener, a stock trading at a premium scores low however good it is &mdash; the tool has nothing to offer on it. Green is 65 or above, amber 40&ndash;65, dim below. Sort by this to bring the cheap-and-sound names to the top. It is a way to prioritise what to research, not a recommendation.</dd>
+    <dt>Opportunity</dt><dd>The discount and the quality in a single 0&ndash;100 number, for when you want one figure to sort by. It is not a plain average of the two &mdash; averaging lets a great business at a fair price and a poor one at a deep discount tie, and the geometric mean makes that less likely though not impossible. Instead Z becomes a discount score (deep discount high, fairly valued around 40, premium near 0) and is combined with quality as a geometric mean, so a name has to be cheap <b>and</b> sound to score well and a weakness on either side drags it down. Because this is a discount screener, a stock trading at a premium scores low however good it is &mdash; the tool has nothing to offer on it. Green is 65 or above, amber 40&ndash;65, dim below. Sort by this to bring the cheap-and-sound names to the top. It is a way to prioritise what to research, not a recommendation: a 2014&ndash;2026 backtest could not show that higher-scoring names went on to beat the market, so treat it as a reading order, not a forecast.</dd>
     <dt>Percentile</dt><dd>Where today's multiple sits among the last <b>ten years</b>
     of its own readings — 5 means it has almost never been this cheap, 95 almost never
     this expensive. It ranks the price-to-sales multiple, not the share price: a stock
@@ -4508,7 +4563,8 @@ function verdict(r) {
       `\u2014 volume is being traded for margin, which works until it doesn't.`]);
   else if (salesGrowing && profGrowing)
     out.push(['The business', `Both sides are still growing: sales ${sTxt}${s3Txt ? ', ' + s3Txt : ''}, profit ` +
-      `${p3.toFixed(0)}% a year. Nothing in the operating numbers explains the derating.`]);
+      `${p3.toFixed(0)}% a year. The figures shown here do not account for the lower multiple, ` +
+      `which may be pricing something they do not capture.`]);
   else if (salesGrowing)
     out.push(['The business', `Sales are growing ${sTxt}${s3Txt ? ', ' + s3Txt : ''}.`]);
   else if (salesFalling)
@@ -4836,6 +4892,11 @@ def save_state(summary: pd.DataFrame, series: dict[str, pd.DataFrame], path: Pat
             "row": rows[t],
             "last_price": float(d["price"].iloc[-1]),
             "last_ps": float(d["ps"].iloc[-1]),
+            # summarize() cuts its 5- and 10-year windows from the LAST DATE OF THE FULL
+            # HISTORY. When the newest days were dropped as stale, the saved array ends
+            # earlier than that, so the refresh needs the real anchor to cut the same
+            # five-year window.
+            "ps_anchor": str(pd.Timestamp(anchor).date()),
             # the ten-year daily P/S distribution the stats rest on, and the
             # matching dates so the five-year window can still be cut
             "ps_hist": [round(float(v), 6) for v in d10["ps"].values],
@@ -4920,8 +4981,14 @@ def refresh_prices(tag: str = ""):
             dates = pd.to_datetime(c["ps_dates"])
             if len(hist) >= 200:
                 last10 = hist
-                cut5 = dates.max() - pd.DateOffset(years=5)
+                # Cut the five-year window from the same date summarize() did. Older state
+                # files have no anchor; they fall back to the last saved date.
+                anchor = pd.Timestamp(c["ps_anchor"]) if c.get("ps_anchor") else dates.max()
+                cut5 = anchor - pd.DateOffset(years=5)
                 last5 = hist[dates >= cut5]
+                # Today's day is one of the days the statistics rest on only if it was not
+                # dropped as stale; the range follows the same rule the nightly used.
+                in_dist = bool(dates.max() >= anchor)
                 med10 = float(np.median(last10))
                 med5 = float(np.median(last5)) if len(last5) >= 400 else None
                 row["ps_med_10y"] = med10
@@ -4933,8 +5000,8 @@ def refresh_prices(tag: str = ""):
                 row["zscore"] = (float((math.log(new_ps) - logs.mean()) / spread)
                                  if spread > 1e-9 and new_ps > 0 else None)
                 row["percentile"] = float((last10 < new_ps).mean() * 100)
-                row["ps_min"] = float(min(last10.min(), new_ps))
-                row["ps_max"] = float(max(last10.max(), new_ps))
+                row["ps_min"] = float(min(last10.min(), new_ps)) if in_dist else float(last10.min())
+                row["ps_max"] = float(max(last10.max(), new_ps)) if in_dist else float(last10.max())
             # Research figures that are themselves price-driven must move too, or
             # the panel shows a fresh price beside a stale P/E. P/E is
             # market-cap over profit and profit is fixed overnight, so it scales
