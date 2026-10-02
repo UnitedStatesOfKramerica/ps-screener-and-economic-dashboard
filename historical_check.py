@@ -8,6 +8,8 @@ meter scores against the S&P 500's declines of 18% or more.
 Step 3a adds what the S&P actually did after each reading, which meter layers carry
 information, and a list of the false alarms. Nothing is tuned: it measures, it does not fit.
 Step 3b tests the nine allocation leans against what each bucket's proxy actually earned.
+Step 3c asks whether the engine beats a plain trend rule and whether the regime banner's
+playbooks hold, claim by claim.
 
 IMPORTANT caveats, read them:
   * Data is FRED's latest-vintage values truncated to each date: today's revised
@@ -854,6 +856,145 @@ def load_lean_proxies():
     return out
 
 
+# ---------------------------------------------------------------------------
+#  Step 3c: does the engine beat a plain trend rule, and do the regime playbooks hold?
+# ---------------------------------------------------------------------------
+# MY READING of the text under the regime banner, fixed before any result: +1 = the
+# banner says the regime favours it, -1 = the banner says underweight. Ambiguities, as
+# decided: "growth/tech" favoured (Goldilocks) counts as UNDERweight Value over Growth;
+# "long-duration growth" underweight (Stagflation) counts as OVERweight Value over Growth;
+# "credit" is High-yield credit; "equities broadly" is Overall equity exposure; "real
+# assets", "commodities" and "TIPS" are Real assets & commodities; "quality/defensive
+# equities" is Defensive equities.
+PLAYBOOK = {
+    "Reflation": {"Cyclicals & small caps": 1, "Energy": 1, "Value over Growth": 1,
+                  "Real assets & commodities": 1, "Long-duration Treasuries": -1},
+    "Goldilocks": {"Overall equity exposure": 1, "High-yield credit": 1, "Value over Growth": -1,
+                   "Defensive equities": -1, "Gold": -1},
+    "Stagflation": {"Energy": 1, "Real assets & commodities": 1, "Gold": 1, "Defensive equities": 1,
+                    "Value over Growth": 1, "Long-duration Treasuries": -1, "Cyclicals & small caps": -1},
+    "Slowdown / Disinflation": {"Long-duration Treasuries": 1, "Defensive equities": 1,
+                                "Cyclicals & small caps": -1, "Energy": -1, "Real assets & commodities": -1},
+}
+
+
+def basket_backward(leg_closes, h):
+    """Equal-weight average of each leg's return over the PREVIOUS h months."""
+    n, out = len(leg_closes[0]), []
+    for i in range(n):
+        rs = []
+        for c in leg_closes:
+            if i - h < 0 or c[i] is None or c[i - h] is None or c[i - h] <= 0:
+                rs = None
+                break
+            rs.append(c[i] / c[i - h] - 1)
+        out.append(None if not rs else sum(rs) / len(rs))
+    return out
+
+
+def circular_shift_gap(flag, ret):
+    """Do flagged months precede different returns from the rest? flag: [bool] per month;
+    ret: [float|None]. gap = mean(ret in flagged months) - mean(ret in the others). The
+    flag pattern is slid against the returns through every circular alignment, so runs
+    stay intact, giving p_up (share of alignments with a gap at least this HIGH) and
+    p_down (at least this LOW). Exact and deterministic."""
+    n = len(flag)
+    valid = [i for i in range(n) if ret[i] is not None]
+
+    def parts(k):
+        a = [ret[i] for i in valid if flag[(i - k) % n]]
+        b = [ret[i] for i in valid if not flag[(i - k) % n]]
+        return a, b
+
+    a0, b0 = parts(0)
+    if not a0 or not b0:
+        return None
+    obs = sum(a0) / len(a0) - sum(b0) / len(b0)
+    dist = []
+    for k in range(n):
+        a, b = parts(k)
+        if a and b:
+            dist.append(sum(a) / len(a) - sum(b) / len(b))
+    return {"gap": obs, "mean_in": sum(a0) / len(a0), "mean_out": sum(b0) / len(b0), "n_in": len(a0),
+            "p_up": sum(1 for s in dist if s >= obs - 1e-12) / len(dist),
+            "p_down": sum(1 for s in dist if s <= obs + 1e-12) / len(dist)}
+
+
+def _sd(v):
+    return statistics.pstdev(v) if len(v) > 1 else 0.0
+
+
+def _print_trend_vs_engine(buckets, eng_signs, tr_signs, ex12):
+    print("\n-- D. Does the engine add anything beyond a plain trend rule? --")
+    print("   The same 12-month test, but the lean is simply the sign of the proxy's OWN excess return over")
+    print("   the previous 12 months (Overweight if it has been beating its benchmark, Underweight if lagging).")
+    print("   Any macro engine should beat that, or it is only repackaging persistence. 'agree' = how often the")
+    print("   engine and the trend rule leaned the same way. 'noise' = how big a spread the alignment test")
+    print("   throws up by chance (about 1.65 times this is needed for p < 0.05).\n")
+    print(f"   {'bucket':<27}{'engine spread (p)':>20}{'trend spread (p)':>20}{'agree':>8}{'noise (sd)':>12}")
+    wins = 0
+    cnt = 0
+    for b in buckets:
+        if b not in ex12:
+            continue
+        e = circular_shift_spread(eng_signs[b], ex12[b])
+        t = circular_shift_spread(tr_signs[b], ex12[b])
+        both = [(x, y) for x, y in zip(eng_signs[b], tr_signs[b]) if x != 0 and y != 0]
+        agree = (sum(1 for x, y in both if x == y) / len(both)) if both else None
+        # the alignment noise, from the engine's own pattern
+        n = len(eng_signs[b])
+        valid = [i for i in range(n) if ex12[b][i] is not None]
+        dist = []
+        for k in range(n):
+            up = [ex12[b][i] for i in valid if eng_signs[b][(i - k) % n] == 1]
+            dn = [ex12[b][i] for i in valid if eng_signs[b][(i - k) % n] == -1]
+            if up and dn:
+                dist.append(sum(up) / len(up) - sum(dn) / len(dn))
+        cell = lambda r: "n/a" if not r else f"{100 * r['spread']:+.1f}% (p {r['p']:.2f})"
+        print(f"   {b:<27}{cell(e):>20}{cell(t):>20}{('n/a' if agree is None else f'{100 * agree:.0f}%'):>8}"
+              f"{(f'{100 * _sd(dist):.1f}%' if dist else 'n/a'):>12}")
+        if e and t:
+            cnt += 1
+            wins += e["spread"] > t["spread"]
+    if cnt:
+        print(f"\n   The engine's spread beat the plain trend rule's in {wins} of {cnt} buckets (chance: about half).")
+
+
+def _print_playbook(regimes, ex12):
+    print("\n-- E. Do the regime playbooks hold? The text under the regime banner, claim by claim --")
+    print("   Each claim says a regime favours (+) or underweights (-) a bucket. gap = the proxy's average")
+    print("   12-month excess return in months of that regime minus its average in all other months; a claim")
+    print("   is right if the gap has the claimed sign. p = exact circular-shift test in the claimed")
+    print("   direction. Regimes are the dashboard's own monthly labels (before its persistence filter).\n")
+    names = list(PLAYBOOK)
+    occ = {r: sum(1 for x in regimes if x == r) for r in names}
+    print("   months in each regime: " + " | ".join(f"{r} {occ[r]} ({100 * occ[r] / len(regimes):.0f}%)" for r in names) + "\n")
+    print(f"   {'regime':<24}{'claim':<46}{'months':>7}{'in regime':>11}{'elsewhere':>11}{'gap':>8}{'right?':>8}{'p':>7}")
+    tested = right = sig = wrong = 0
+    for r in names:
+        flag = [x == r for x in regimes]
+        for b, c in PLAYBOOK[r].items():
+            if b not in ex12:
+                continue
+            g = circular_shift_gap(flag, ex12[b])
+            if not g:
+                continue
+            ok = c * g["gap"] > 0
+            p = g["p_up"] if c > 0 else g["p_down"]
+            tested += 1
+            right += ok
+            sig += ok and p < 0.10
+            wrong += (not ok) and p > 0.90
+            print(f"   {r:<24}{('favours ' if c > 0 else 'underweights ') + b:<46}{g['n_in']:>7}"
+                  f"{100 * g['mean_in']:>+10.1f}%{100 * g['mean_out']:>+10.1f}%{100 * g['gap']:>+7.1f}%"
+                  f"{'yes' if ok else 'NO':>8}{p:>7.2f}")
+    if tested:
+        print(f"\n   {right} of {tested} playbook claims had the right sign (chance: about {tested / 2:.0f}); "
+              f"{sig} reached p < 0.10 (chance: about {tested / 10:.0f}); {wrong} were clearly the wrong way "
+              f"(p > 0.90; chance: about {tested / 10:.0f}).")
+        print(f"   The claims overlap (one regime fits several), so read the pattern, not {tested} separate tests.")
+
+
 def _lean_code(a):
     lean = {"Overweight": "OW", "Underweight": "UW", "Balanced": "bal", "No signal": "--"}[a["lean"]]
     conv = {"strong": " S", "moderate": " M", "slight": " w", "none": ""}.get(a["conviction"], "")
@@ -922,6 +1063,7 @@ def allocation_report():
     spy_f = {h: basket_forward([cl["SPY"]], h) for h in LEAN_HORIZONS}
     cash_f = {h: cash_forward(yields, h) for h in LEAN_HORIZONS}
     results = {}
+    eng_signs, tr_signs, ex12 = {}, {}, {}
     print(f"   {'bucket (12 months ahead)':<27}{'proxy history':<22}{'OW n':>5}{'UW n':>6}{'after OW':>10}{'after UW':>10}"
           f"{'spread':>9}{'p':>6}{'hit OW':>8}{'hit UW':>8}  {'before 2011':>12}{'2011 on':>10}")
     for b in buckets:
@@ -950,6 +1092,16 @@ def allocation_report():
         ex = {h: excess(proxy_f[h], bench[h]) for h in LEAN_HORIZONS}
         signs = [_lean_sign(alloc[m][b]) for m in months]
         signs_c = [_lean_sign(alloc[m][b], True) for m in months]
+        back = basket_backward(legs, 12)
+        if spec["bench"] == "cash":
+            bback = cash_forward(yields, 12)
+        elif spec["bench"] == "spy":
+            bback = basket_backward([cl["SPY"]], 12)
+        else:
+            bback = basket_backward([cl[t] for t in spec["bench"]], 12)
+        trail = excess(back, bback)
+        tr_signs[b] = [0 if x is None or x == 0 else (1 if x > 0 else -1) for x in trail]
+        eng_signs[b], ex12[b] = signs, ex[12]
         first = next((m for m, c in zip(months, [all(c[i] is not None for c in legs) for i in range(len(months))]) if c), "?")
         r = circular_shift_spread(signs, ex[12])
         results[b] = {h: circular_shift_spread(signs, ex[h]) for h in LEAN_HORIZONS}
@@ -979,6 +1131,8 @@ def allocation_report():
             def cell(x):
                 return "n/a" if not x else f"{100 * x['spread']:+.1f}% (p {x['p']:.2f})"
             print(f"   {b:<27}{cell(v.get(3)):>16}{cell(v.get(6)):>16}{cell(v.get('conv')):>26}")
+    _print_trend_vs_engine(buckets, eng_signs, tr_signs, ex12)
+    _print_playbook([decision_at(m).get("regime") for m in months], ex12)
 
 
 def _fmt(e):
