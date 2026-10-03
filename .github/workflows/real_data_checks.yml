@@ -1,0 +1,935 @@
+# REAL-DATA CHECKS v2 -- real-data checks on the live ps_screener.py, and the real filings needed to
+# diagnose what they find. (A new name and file on purpose: v1 was called "Quality history".)
+#
+# A manually started run. In order, on GitHub's machines (which can reach the SEC and
+# Yahoo), each as its own step so the Actions page shows which passed:
+#
+#   1-3  your replay checks and unit tests, with a real-filings fixture built here (the
+#        repo never commits one). The fixture now also holds the companies being
+#        diagnosed: Corteva, EchoStar, Carvana, Kimco, FedEx, S&P Global
+#   4    does the first intraday refresh reproduce the nightly page when no price has
+#        moved? -- on real data, every column the refresh recomputes, with the limits
+#        derived from how precisely the history is saved
+#   5    the point-in-time replay checked against the pass step 4 just made with the
+#        same code (decisive), against the last nightly (informational), and for
+#        calendar-independence: dilution must not change across a quarter-end.
+#        Set PIT_FULL_REPLAY to "1" to also rebuild the whole filing history (30 min).
+#
+# Everything comes back as ONE downloadable artifact named "quality-history".
+# Commits nothing, publishes nothing, cannot touch the live screen: permissions are
+# read-only, and every file this writes lands in this run's throwaway copy of the repo.
+
+name: Real-data checks v2
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04      # pinned: GitHub moves ubuntu-latest to Ubuntu 26 on 19 Oct 2026
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: 0. Which version is this?
+        shell: bash
+        run: |
+          mkdir -p backtest_data
+          {
+            echo "workflow: Real-data checks v2 (built 3 Oct 2026)"
+            echo "commit:   $GITHUB_SHA"
+            echo "started:  $(date -u +%Y-%m-%dT%H:%MZ)"
+          } | tee backtest_data/workflow_version.txt
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install libraries
+        run: |
+          pip install -r requirements.txt || echo "requirements.txt did not fully install; filling gaps below"
+          pip install yfinance pandas numpy requests lxml
+          mkdir -p backtest_data
+
+      - name: 1. Build the real-filings fixture your replay checks need
+        continue-on-error: true
+        timeout-minutes: 20
+        env:
+          SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
+        run: |
+          python - <<'FIXTURE'
+          """
+          Build the real-filings fixture replay.py reads -- the file the repo never
+          commits -- using the screener's OWN SEC client and price loader, so the facts
+          and prices are exactly what the nightly sees. Shape, per ticker, as replay.py's
+          load()/series()/run_one() expect:
+              {"facts": <companyfacts>, "prices": {"YYYY-MM-DD": close}, "splits": {...}}
+
+          Companies: replay.py's own -- the eight assert_real_data() checks, plus every
+          name in its SECTOR map (the quality table). Written to
+          backtest_data/replay_fixture.json.gz, then read back before it is trusted.
+          """
+          import gzip
+          import json
+          import os
+          from datetime import date, timedelta
+          from pathlib import Path
+
+          import pandas as pd
+          import ps_screener as ps
+
+          OUT = Path("backtest_data")
+          OUT.mkdir(exist_ok=True)
+          TICKERS = ["HON", "MNST", "AMD", "BG", "AON", "ADM", "DD", "CPT",          # assert_real_data
+                     "OXY", "DVN", "MSFT", "V", "PG", "VZ", "CAT", "INTC", "CRM",     # SECTOR map
+                     "MCD", "MTD", "JPM", "O",
+                     # Real filings and prices for the cases still being diagnosed (not part of the checks):
+                     "CTVA",           # spin-off of Vylor on 1 Oct 2026: Z read -7.5 the next morning
+                     "ECHO", "CVNA",   # P/S histories with values near 0.0003 and 0.026
+                     "KIM",            # a percentile that moved 0.12 points with no price change
+                     "FDX", "SPGI"]    # spin-offs completed in June and July 2026
+
+          edgar = ps.Edgar(os.environ.get("SEC_EMAIL", ""))
+          cik = edgar.ticker_to_cik()
+          # Same start the nightly asks for at its default history length.
+          closes, splits = ps.fetch_prices(
+              TICKERS, date.today() - timedelta(days=365 * ps.HISTORY_YEARS + 400))
+
+          bundle, skipped = {}, []
+          for t in TICKERS:
+              facts = edgar.company_facts(cik[t]) if t in cik else None
+              if not facts or t not in closes:
+                  skipped.append(f"{t} ({'no filings' if not facts else 'no prices'})")
+                  continue
+              sp = splits.get(t)
+              bundle[t] = {
+                  "facts": facts,
+                  "prices": {str(pd.Timestamp(k).date()): float(v) for k, v in closes[t].items()},
+                  "splits": {str(pd.Timestamp(k).date()): float(v)
+                             for k, v in (sp.items() if sp is not None else [])},
+              }
+
+          path = OUT / "replay_fixture.json.gz"
+          with gzip.open(path, "wt") as fh:
+              json.dump(bundle, fh)
+          with gzip.open(path, "rt") as fh:                     # read back before trusting it
+              back = json.load(fh)
+          assert set(back) == set(bundle), "fixture did not read back intact"
+          print(f"replay fixture: {len(back)} companies ({', '.join(back)}); "
+                f"skipped: {', '.join(skipped) or 'none'}; {path.stat().st_size / 1e6:.1f} MB")
+          FIXTURE
+
+      - name: 2. Run your replay checks on the corrected screener
+        continue-on-error: true
+        timeout-minutes: 10
+        shell: bash
+        run: |
+          export QS_FIXTURE=backtest_data/replay_fixture.json.gz
+          {
+            echo "---------- replay.py: the table ----------"
+            python replay.py
+            echo
+            echo "---------- replay.py: the checks against real filings ----------"
+            python - <<'REPLAYCHECKS'
+          """
+          Run replay.py's real-filings checks, without letting one company that has no
+          usable history stop the rest.
+
+          assert_real_data() builds each company's history and goes straight on to use it.
+          For a company the screener cannot build one for today, the history comes back
+          empty and the check dies with a KeyError before reaching the companies after it.
+          Such companies are left out of the run and named here; the checks that CAN run
+          still run, and replay.py itself is untouched.
+          """
+          import inspect
+          import re
+          import sys
+
+          import replay
+
+          # The tickers assert_real_data actually checks, read from its own source, so that a
+          # fixture company that is merely extra (not part of any check) is not reported as a gap.
+          CHECKED = set(re.findall(r'"([A-Z][A-Z.\-]*)"\s*:\s*\(', inspect.getsource(replay.assert_real_data)))
+
+          bundle = replay.load()
+          unusable = []
+          for t, d in bundle.items():
+              try:
+                  h = replay.run_one(t, d)["hist"]
+                  if h is None or h.empty:
+                      unusable.append(t)
+              except Exception as e:
+                  unusable.append(t)
+                  print(f"  {t}: the screener's own pipeline raised {type(e).__name__}: {str(e)[:100]}")
+
+          blocking = [t for t in unusable if t in CHECKED]
+          if blocking:
+              print("*" * 78)
+              print("NOT CHECKED -- the screener builds no usable history for these today, so the")
+              print("check of their share-count or revenue handling has nothing to run on:")
+              print("    " + ", ".join(blocking))
+              print("*" * 78)
+          if unusable:
+              others = [t for t in unusable if t not in CHECKED]
+              if others:
+                  print(f"(fixture companies with no usable history, not part of any check: {', '.join(others)})")
+              _orig = replay.load
+              replay.load = lambda path=None, _o=_orig, _skip=tuple(unusable): {
+                  k: v for k, v in _o(path).items() if k not in _skip}
+
+          sys.exit(0 if replay.assert_real_data() else 1)
+          REPLAYCHECKS
+          } 2>&1 | tee backtest_data/replay_output.txt
+
+      - name: 3. Run your unit tests (test_current_build.py)
+        continue-on-error: true
+        timeout-minutes: 10
+        shell: bash
+        run: |
+          if [ -f test_current_build.py ]; then
+            python test_current_build.py 2>&1 | tee backtest_data/unit_tests_output.txt
+          else
+            echo "test_current_build.py is not in the repo root" | tee backtest_data/unit_tests_output.txt
+            exit 1
+          fi
+
+      - name: 4. Check the intraday refresh against the nightly on real data
+        continue-on-error: true
+        timeout-minutes: 40
+        shell: bash
+        env:
+          SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
+        run: |
+          # A full nightly-style pass under its own tag (writes ps_screen_chk.* and
+          # docs/state_chk.json in this throwaway checkout; the real files are untouched).
+          # --verify 5: cross-check five rows against Yahoo, as the earlier export did.
+          python ps_screener.py --tag chk --verify 5 > backtest_data/nightly_chk_log.txt 2>&1 \
+            || echo "::warning::the screener pass ended with an error; checking whatever it wrote"
+          tail -25 backtest_data/nightly_chk_log.txt
+          # keep what the pass wrote BEFORE the refresh below rewrites the csv
+          cp ps_screen_chk.csv backtest_data/ps_screen_chk_before_refresh.csv 2>/dev/null || true
+          cp ps_diagnostics_chk.txt backtest_data/ 2>/dev/null || true
+          cat > check_z_consistency.py <<'ZCHECK'
+          """
+          Does the first intraday refresh change anything when no price has moved?
+
+          It must not. A refresh that moves a stock's Z-score, percentile or Opportunity
+          while its price is unchanged is showing the reader a difference that does not
+          exist -- and Opportunity is the default sort, so it reorders the page. This
+          exercises the REAL nightly output and the REAL refresh_prices() on real data:
+
+            1. the nightly pass wrote ps_screen<tag>.csv and docs/state<tag>.json
+            2. refresh_prices() is run with every price held at exactly last night's close
+            3. every column it recomputes is compared, company by company
+
+          Only the price feed is replaced (to hold prices still); nothing else is touched.
+          Usage:  python check_z_consistency.py _chk
+          """
+          import json
+          import math
+          import sys
+          from pathlib import Path
+
+          import numpy as np
+          import pandas as pd
+
+          import ps_screener as ps
+
+          TAG = sys.argv[1] if len(sys.argv) > 1 else "_chk"
+          OUT = Path("backtest_data")
+          OUT.mkdir(exist_ok=True)
+
+          # How much can the saved history explain? It keeps every P/S to 6 decimals, so each stored value is
+          # within ROUND = 5e-7 of the truth. A median, minimum or maximum of rounded values therefore differs
+          # from the same statistic of the true values by at most ROUND; allow two of them. That is far
+          # tighter than a flat relative tolerance for ordinary P/S values (3e-7 of a P/S of 3) and looser only
+          # where 6 decimals cannot resolve the number (a P/S of 0.002 is stored with a 2.5e-4 relative error).
+          # The percentile counts days strictly below today's value, and exact ties flip with rounding; one
+          # observation in 2,500 is 0.04 points, the page shows whole numbers, so allow 0.25.
+          # What this does NOT excuse: the failure it exists to catch (a 5-year window cut from the wrong
+          # date) moved a median by 0.1 on a value of 2.3.
+          ROUND = 5e-7
+
+
+          def limit(col, row):
+              """Largest difference between the nightly figure and the refreshed one that the saved
+              history's precision can account for."""
+              if col == "ps_now":
+                  return 1e-9 * abs(row.get("ps_now") or 1) + 1e-12
+              if col in ("ps_med_10y", "ps_med_5y", "ps_min", "ps_max"):
+                  return 2 * ROUND + 1e-9
+              if col in ("vs_10y_pct", "vs_5y_pct"):
+                  med = row.get("ps_med_10y" if col == "vs_10y_pct" else "ps_med_5y")
+                  v = row.get(col)
+                  if med and med == med and med > 0 and v is not None and v == v:
+                      return (1 + v / 100) * (2 * ROUND / med) * 100 + 1e-6
+                  return 0.01
+              if col == "zscore":
+                  return 1e-4
+              if col == "percentile":
+                  return 0.25
+              return 0.0            # opportunity: whole numbers, must be identical
+
+
+          CHECKS = ["zscore", "percentile", "vs_10y_pct", "vs_5y_pct", "ps_med_10y", "ps_med_5y",
+                    "ps_min", "ps_max", "ps_now", "opportunity"]
+
+          state_path = Path(f"docs/state{TAG}.json")
+          csv_path = Path(f"ps_screen{TAG}.csv")
+          if not state_path.exists() or not csv_path.exists():
+              sys.exit(f"Missing {state_path} or {csv_path}: run `python ps_screener.py --tag {TAG.lstrip('_')}` first.")
+
+          state = json.loads(state_path.read_text())
+          before = pd.read_csv(csv_path).set_index("ticker")
+          last = {t: c["last_price"] for t, c in state["companies"].items()}
+
+          # Hold every price exactly where the nightly left it.
+          ps._latest_prices = lambda tickers: ({t: last[t] for t in tickers if t in last},
+                                               {t: last[t] for t in tickers if t in last})
+          ps.refresh_prices(TAG)
+          after = pd.read_csv(csv_path).set_index("ticker")
+
+          lines = [f"Z-CONSISTENCY ON REAL DATA: nightly output vs first intraday refresh, prices held still",
+                   f"state built {state.get('built')}; {len(before)} companies in the nightly output, "
+                   f"{len(after)} after the refresh", ""]
+          common = before.index.intersection(after.index)
+          lines.append(f"{'column':<13}{'compared':>9}{'max difference':>17}{'over its limit':>16}")
+          failed = []
+          for col in CHECKS:
+              if col not in before or col not in after:
+                  lines.append(f"{col:<13}{'(column missing)':>42}")
+                  failed.append(col)
+                  continue
+              b = pd.to_numeric(before.loc[common, col], errors="coerce")
+              a = pd.to_numeric(after.loc[common, col], errors="coerce")
+              both = b.notna() & a.notna()
+              one_sided = int((b.notna() ^ a.notna()).sum())     # present before, absent after (or vice versa)
+              d = (a[both] - b[both]).abs()
+              lim = pd.Series({t: limit(col, before.loc[t].to_dict()) for t in d.index})
+              over = d[d > lim]
+              worst = f"{d.max():.2e}" if len(d) else "n/a"
+              lines.append(f"{col:<13}{int(both.sum()):>9}{worst:>17}{len(over) + one_sided:>16}"
+                           + (f"   ({one_sided} appeared/vanished)" if one_sided else ""))
+              if len(over) or one_sided:
+                  failed.append(col)
+                  for t in list(over.sort_values(ascending=False).index[:6]):
+                      lines.append(f"      {t:<6} before {b[t]:.6g}  after {a[t]:.6g}  (rounding could explain {lim[t]:.2g})")
+
+          lines.append("")
+          lines.append("RESULT: " + ("PASS -- the refresh reproduces the nightly page exactly while prices are still"
+                                     if not failed else f"FAIL -- these columns moved with no price change: {', '.join(failed)}"))
+          text = "\n".join(lines)
+          print(text)
+          (OUT / "z_consistency_report.txt").write_text(text + "\n")
+          sys.exit(1 if failed else 0)
+          ZCHECK
+          python check_z_consistency.py _chk
+
+      - name: 5. Check the replay against the screener itself, and that dilution ignores the calendar
+        continue-on-error: true
+        timeout-minutes: 120
+        shell: bash
+        env:
+          SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
+          PIT_FULL_REPLAY: "0"      # "1" also rebuilds every past filing date (about 30 more minutes)
+        run: |
+          cat > pit_core.py <<'PITCORE'
+          """
+          Point-in-time replay of the screener's research figures.
+
+          For one company and one past date, rebuild what the screener WOULD have computed
+          using only what had been filed by that date -- by running the screener's own
+          functions (collect_periods, derive_quarters, trailing_twelve, collect_instants,
+          monthly_ps, research) on SEC facts filtered by their `filed` date. Nothing is
+          re-implemented except the three places where main() compares against today's
+          date, which here compare against the replay date instead:
+
+            * share-count selection and its staleness test   (main(), lines ~5126-5143)
+            * _instant_at(), the "value N years ago" lookup   (research(), current_ratio_3y)
+            * monthly_ps's history window, which is anchored on today (so a very long
+              window is passed and the price series is cut at the replay date instead)
+
+          Quality itself is NOT computed here. It is a pure function of these figures (plus
+          a dividend yield), so it is scored afterwards with the screener's own
+          quality_score(); that way the pillar formulas can be varied without re-reading
+          the SEC. Everything in a returned record was knowable on its `asof` date.
+          """
+          import math
+          from datetime import date, timedelta
+
+          import numpy as np
+          import pandas as pd
+
+          import ps_screener as ps
+
+          PERIODIC = ("10-K", "10-Q", "10-K/A", "10-Q/A", "20-F")
+          HIST_YEARS = 40            # monthly_ps window: far longer than any price history here
+          PRICE_LOOKBACK_YEARS = 8   # dilution looks back 5y; the extra covers split detection
+          _ASOF = {"d": None}        # the replay date, read by the patched _instant_at
+
+
+          def naive(s):
+              """A price or split series with a timezone-free daily index. Newer yfinance can
+              return tz-aware dates; comparing those with a plain Timestamp raises, and
+              monthly_ps does its own normalisation, so do the same here once, up front."""
+              if s is None:
+                  return None
+              idx = pd.to_datetime(s.index)
+              if getattr(idx, "tz", None) is not None:
+                  idx = idx.tz_localize(None)
+              out = s.copy()
+              out.index = pd.DatetimeIndex(idx).normalize()
+              return out[~out.index.duplicated(keep="last")].sort_index()
+
+
+          def to_date(x):
+              return x if isinstance(x, date) and not isinstance(x, pd.Timestamp) else pd.Timestamp(x).date()
+
+
+          def facts_asof(facts: dict, asof: str) -> dict:
+              """The filings as they stood on `asof` (a 'YYYY-MM-DD' string): every fact row
+              filed after it is removed, original row order preserved. Rows first reported
+              later, restatements filed later and later-filed comparatives all vanish, which
+              is exactly the information set a person looking on that day would have had."""
+              out = {"facts": {}}
+              for taxonomy, concepts in (facts.get("facts") or {}).items():
+                  kept = {}
+                  for name, entry in concepts.items():
+                      units = {}
+                      for unit, rows in (entry.get("units") or {}).items():
+                          keep = [r for r in rows if (r.get("filed") or "") <= asof]
+                          if keep:
+                              units[unit] = keep
+                      if units:
+                          e = dict(entry)
+                          e["units"] = units
+                          kept[name] = e
+                  if kept:
+                      out["facts"][taxonomy] = kept
+              return out
+
+
+          def filing_dates(facts: dict, start: str = "0000-00-00") -> list[str]:
+              """Every distinct date a periodic report reached the SEC -- the dates on which
+              the picture of the company could have changed."""
+              seen = set()
+              for concepts in (facts.get("facts") or {}).values():
+                  for entry in concepts.values():
+                      for rows in (entry.get("units") or {}).values():
+                          for r in rows:
+                              if r.get("form") in PERIODIC and r.get("filed"):
+                                  seen.add(r["filed"])
+              return sorted(d for d in seen if d >= start)
+
+
+          def pick_shares(facts: dict, asof: date):
+              """main()'s share selection, with the staleness test measured from the replay
+              date. Same priority order, same units repair, same backward splice."""
+              shares, src = None, None
+              for concept in ps.SHARE_MARKETCAP_TAGS:
+                  got = ps.collect_instants(facts, "us-gaap", [concept])
+                  if got and (asof - got[-1][0]).days <= ps.SHARE_STALE_DAYS:
+                      shares, src = got, concept
+                      break
+              if shares is not None:
+                  shares = ps._correct_units_error(shares, facts)
+                  shares = ps._splice_share_history(shares, src, facts)
+              if shares is None:
+                  dei = ps.collect_instants(facts, "dei", ps.SHARE_TAGS_DEI)
+                  if dei and (asof - dei[-1][0]).days <= ps.SHARE_STALE_DAYS:
+                      shares, src = dei, "dei:EntityCommonStockSharesOutstanding"
+              ps.CURRENT_SHARE_SRC = src
+              return shares, src
+
+
+          def _instant_at_asof(facts: dict, tags: list, years_ago: float):
+              pts = ps.collect_instants(facts, "us-gaap", tags)
+              if not pts:
+                  return None
+              target = _ASOF["d"] - timedelta(days=int(365.25 * years_ago))
+              older = [(d0, v) for d0, v in pts if d0 <= target]
+              return older[-1][1] if older else None
+
+
+          ps._instant_at = _instant_at_asof     # research() looks this up by name at call time
+
+
+          def replay_one(ticker: str, facts: dict, closes: pd.Series, splits, sector: str,
+                         asof: str, filter_facts: bool = True, production_window: int | None = None) -> dict:
+              """One company on one date. Returns a flat record; `status` says whether the
+              screener would have produced a row at all that day."""
+              asof_d = date.fromisoformat(asof)
+              _ASOF["d"] = asof_d
+              ps.CURRENT_TICKER = ticker
+              rec = {"ticker": ticker, "asof": asof, "sector": sector}
+              f = facts_asof(facts, asof) if filter_facts else facts
+
+              periods = ps.collect_periods(f, "us-gaap", ps.REVENUE_TAGS)
+              quarters = ps.derive_quarters(periods)
+              ttm = ps.trailing_twelve(quarters, periods)
+              if ttm.empty or len(ttm) == 0:
+                  rec["status"] = "no_revenue"
+                  return rec
+              shares, src = pick_shares(f, asof_d)
+              if shares is None:
+                  rec["status"] = "no_shares"
+                  return rec
+              rec["share_src"] = src
+
+              ts = pd.Timestamp(asof)
+              px = closes[closes.index <= ts]
+              if production_window is None:
+                  px = px[px.index >= ts - pd.DateOffset(years=PRICE_LOOKBACK_YEARS)]
+                  years = HIST_YEARS
+              else:
+                  years = production_window
+              sp = None
+              if splits is not None and len(splits):
+                  sp = splits[splits.index <= ts]
+                  sp = sp if len(sp) else None
+              hist = ps.monthly_ps(px, ttm, shares, sp, years)
+              rec["hist_ok"] = bool(hist is not None and not hist.empty)
+              if not rec["hist_ok"]:
+                  hist = None
+              # mktcap is deliberately NOT passed: Yahoo back-adjusts prices for splits that
+              # happen AFTER the replay date, so price x as-reported shares would be wrong
+              # for any company that later split. Nothing in the quality score reads it.
+              try:
+                  rs = ps.research(ticker, f, hist, ttm, None, sector=sector)
+              except Exception as e:                                     # main() does the same
+                  rec["status"] = "research_failed"
+                  rec["error"] = str(e)[:120]
+                  return rec
+              rs.pop("ticker", None)
+              rec.update(rs)
+              rec["status"] = "ok"
+              rec["last_filed"] = asof
+              rec["ttm_rev_b"] = round(float(ttm["ttm"].iloc[-1]) / 1e9, 3)
+              rec["ttm_period_end"] = str(pd.Timestamp(ttm["period_end"].iloc[-1]).date())
+              return rec
+
+
+          def price_cliffs(close: pd.Series, splits, since=None, threshold: float = 0.40, window_days: int = 4):
+              """One-day price falls of `threshold` or more, and whether a recorded split factor lies within
+              `window_days` of each. Yahoo records some spin-offs as split factors and back-adjusts the history,
+              and records others not at all (Altria's 2008 spin-off of Philip Morris International is still a
+              -70% day in its Close); an unexplained fall this size is a spin-off, a special dividend or a
+              crash, and the price history on either side of it is then not comparable."""
+              r = close.pct_change(fill_method=None).dropna()
+              r = r[r <= -threshold]
+              if since is not None:
+                  r = r[r.index >= pd.Timestamp(since)]
+              out = []
+              for d, v in r.items():
+                  near = None
+                  if splits is not None and len(splits):
+                      m = splits[(splits.index >= d - pd.Timedelta(days=window_days))
+                                 & (splits.index <= d + pd.Timedelta(days=window_days))]
+                      if len(m):
+                          near = float(m.iloc[0])
+                  out.append((d, float(v), near))
+              return out
+          PITCORE
+          cat > build_pit_quality.py <<'PITRUN'
+          """
+          Point-in-time research history: the driver. Runs on GitHub's machines.
+
+          For every company in the published screen, replay the screener's own research
+          pipeline at every date a periodic report reached the SEC (pit_core.replay_one),
+          using only what had been filed by that date. Output is one row per
+          (company, filing date): exactly the figures quality_score() reads, as they were
+          knowable then. Scoring is done afterwards, offline, with the screener's own
+          quality_score(), so the pillar formulas can be varied without re-reading the SEC.
+
+          It also checks itself. The same replay is run for TODAY on the unfiltered filings
+          and compared, company by company, with two baselines: the pass step 4 of this same
+          run made moments earlier with the same code (docs/state_chk.json -- the decisive
+          one, because nothing can differ except the replay itself), and what the last nightly
+          published (docs/state.json -- informational: it was built by whatever code was live
+          then). If the replay and the screener disagree about the present, nothing it says
+          about the past can be trusted, so that comparison is written to the report first.
+
+          A second test needs no baseline at all: each company is replayed at its last price
+          date and again just before the latest quarter-end. With nothing newly filed in
+          between, its dilution figures must not move. Before the calendar fix they flipped for
+          about two companies in three.
+
+          PIT_FULL_REPLAY=1 also rebuilds the whole history (about 30 minutes); the default,
+          0, runs only the checks (about 10).
+
+          Writes, in backtest_data/:
+            pit_research.csv.gz   (full replay only) one row per company per filing date
+            pit_validation_chk.csv / pit_validation_production.csv   replay-vs-baseline, per company
+            pit_invariance.csv    dilution at the last price date vs just before the quarter-end
+            pit_price_cliffs.csv  one-day falls of 40%+ in the last 200 days, with whether a split factor explains them
+            pit_report.txt        counts, validation headlines, timing
+          """
+          import json
+          import math
+          import os
+          import sys
+          import time
+          from datetime import date
+          from multiprocessing import Pool, TimeoutError as MPTimeout
+          from pathlib import Path
+
+          import numpy as np
+          import pandas as pd
+
+          import ps_screener as ps
+          import pit_core as pc
+
+          OUT = Path("backtest_data")
+          OUT.mkdir(exist_ok=True)
+          FIRST_ASOF = "2013-06-01"        # a few months before the first Z can exist (~Oct 2014)
+          PRICE_START = date(2005, 1, 1)   # eight years of prices ahead of the earliest replay date
+          TODAY = date.today().isoformat()
+          WORKERS = int(os.environ.get("PIT_WORKERS") or min(4, os.cpu_count() or 1))
+          FULL = os.environ.get("PIT_FULL_REPLAY", "0") == "1"
+          DEADLINE_S = float(os.environ.get("PIT_DEADLINE_MIN", "110")) * 60
+          COMPARE = ["net_income_b", "net_margin", "roe", "net_debt_b", "debt_b", "fcf_b", "fcf_margin",
+                     "debt_to_equity", "current_ratio", "net_debt_to_sales", "equity_b",
+                     "revenue_cagr_3y", "revenue_cagr_5y", "income_cagr_3y", "income_cagr_5y",
+                     "dilution_1y", "dilution_3y", "dilution_5y"]
+          PILLARS = ["quality", "q_balance", "q_profit", "q_traj", "q_cash"]
+          report: list[str] = []
+
+
+          def say(msg=""):
+              print(msg, flush=True)
+              report.append(str(msg))
+
+
+          def missing(v):
+              return v is None or (isinstance(v, float) and math.isnan(v)) or (isinstance(v, str) and v == "")
+
+
+          def same(a, b):
+              if missing(a) and missing(b):
+                  return True
+              if missing(a) or missing(b):
+                  return False
+              try:
+                  return math.isclose(float(a), float(b), rel_tol=1e-6, abs_tol=1e-9)
+              except (TypeError, ValueError):
+                  return a == b
+
+
+          # ---- universe and baselines --------------------------------------------------------------
+          BASELINES = [("chk", Path("docs/state_chk.json"),
+                        "the pass this run made with the same code, minutes ago"),
+                       ("production", Path("docs/state.json"),
+                        "what the last nightly published, built by whatever code was live then")]
+          loaded = {}
+          for name, path, desc in BASELINES:
+              if path.exists():
+                  loaded[name] = (json.loads(path.read_text()), desc)
+          if not loaded:
+              sys.exit("Neither docs/state_chk.json nor docs/state.json exists: nothing to compare against.")
+          primary = (loaded.get("chk") or loaded["production"])[0]
+          built = primary.get("built")
+          prod = {t: c["row"] for t, c in primary["companies"].items()}      # universe and sectors
+          say("baselines: " + "; ".join(f"{n} built {st.get('built')} ({len(st['companies'])} companies)"
+                                        for n, (st, _) in loaded.items()))
+          say(f"python {sys.version.split()[0]}, pandas {pd.__version__}, numpy {np.__version__}, {WORKERS} worker(s)"
+              + ("" if FULL else "; validation only, the full replay is skipped"))
+
+          edgar = ps.Edgar(os.environ.get("SEC_EMAIL", ""))
+          cik_map = edgar.ticker_to_cik()
+          tickers = sorted(t for t in prod if t in cik_map)
+          say(f"{len(tickers)} map to an SEC registrant")
+
+          # refresh=True: ignore any price cache an earlier step in this run wrote. The nightly
+          # pass keeps only ~12 years, and a replay of 2013-2016 needs the earlier prices; a
+          # cache hit would silently skip them and shorten every early dilution window.
+          closes, splits = ps.fetch_prices(tickers, PRICE_START, refresh=True)
+          closes = {t: pc.naive(s) for t, s in closes.items()}
+          splits = {t: pc.naive(s) for t, s in splits.items()}
+          no_px = [t for t in tickers if t not in closes]
+          say(f"prices for {len(tickers) - len(no_px)} of {len(tickers)}"
+              + (f"; none for: {', '.join(no_px)}" if no_px else ""))
+
+          FACTS: dict[str, dict] = {}
+          t0 = time.time()
+          for i, t in enumerate(tickers, 1):
+              if t in closes:
+                  f = edgar.company_facts(cik_map[t])
+                  if f:
+                      FACTS[t] = f
+              if i % 50 == 0:
+                  print(f"  filings {i}/{len(tickers)}  ({time.time() - t0:.0f}s)", flush=True)
+          work_list = [t for t in tickers if t in FACTS]
+          say(f"filings for {len(work_list)} companies ({time.time() - t0:.0f}s)")
+          if len(work_list) < 0.9 * len(prod):
+              (OUT / "pit_report.txt").write_text("\n".join(report))
+              sys.exit(f"Only {len(work_list)} of {len(prod)} companies have both prices and filings; "
+                       "refusing to continue on a gutted universe.")
+
+
+          partial = False
+          if FULL:
+              # ---- the replay, in parallel (forked workers share FACTS/closes without copying) --
+              def work(t):
+                  try:
+                      ps.REJECTED_RATIOS.clear()
+                      ps.CONCEPT_TRACE.clear()
+                      rows = [pc.replay_one(t, FACTS[t], closes[t], splits.get(t),
+                                            (prod[t].get("sector") or ""), f)
+                              for f in pc.filing_dates(FACTS[t], FIRST_ASOF)]
+                      return t, rows, None
+                  except Exception as e:
+                      return t, [], f"{type(e).__name__}: {str(e)[:160]}"
+
+
+              records, errors, done = [], [], 0
+              start = time.time()
+              partial = False
+              say(f"\nreplaying {len(work_list)} companies on {WORKERS} worker(s), first date {FIRST_ASOF}")
+              # The deadline is checked on a timer, not only when a result arrives: a worker killed
+              # from outside (out of memory, say) loses its task silently and imap_unordered would
+              # then wait forever, and the step's own timeout would discard everything unwritten.
+              with Pool(WORKERS) as pool:
+                  it = pool.imap_unordered(work, work_list, chunksize=1)
+                  while done < len(work_list):
+                      try:
+                          t, rows, err = it.next(timeout=30)
+                      except MPTimeout:
+                          if time.time() - start > DEADLINE_S:
+                              partial = True
+                              break
+                          continue
+                      except StopIteration:
+                          break
+                      done += 1
+                      records.extend(rows)
+                      if err:
+                          errors.append((t, err))
+                      if done % 20 == 0 or done == len(work_list):
+                          el = time.time() - start
+                          print(f"  {done}/{len(work_list)} companies, {len(records):,} rows, {el / 60:.1f} min, "
+                                f"~{el / done * (len(work_list) - done) / 60:.1f} min left", flush=True)
+                      if time.time() - start > DEADLINE_S:
+                          partial = True
+                          break
+                  if partial or done < len(work_list):
+                      partial = True
+                      pool.terminate()
+              replay_min = (time.time() - start) / 60
+              say(f"replay finished in {replay_min:.1f} min" + ("  ** PARTIAL: hit the time limit **" if partial else ""))
+              if errors:
+                  say(f"{len(errors)} companies raised an error: " + "; ".join(f"{t}: {e}" for t, e in errors[:8]))
+
+              df = pd.DataFrame(records)
+              lead = [c for c in ["ticker", "asof", "status", "sector"] if c in df.columns]
+              df = df[lead + [c for c in df.columns if c not in lead]].sort_values(["ticker", "asof"]).reset_index(drop=True)
+
+              # quality WITHOUT the dividend bonus, from the screener's own function. (The bonus
+              # reads Yahoo's yield *today*, which has no point-in-time value; it is added back
+              # offline from the dividend history.)
+              ok = df["status"] == "ok"
+              if ok.any():
+                  sc = ps.quality_score(df.loc[ok].copy())
+                  for c in PILLARS:
+                      df.loc[ok, c + "_nodiv"] = pd.to_numeric(sc[c], errors="coerce").values
+              df.to_csv(OUT / "pit_research.csv.gz", index=False)
+              back = pd.read_csv(OUT / "pit_research.csv.gz", usecols=["ticker", "status"])
+              assert len(back) == len(df), "pit_research.csv.gz did not read back intact"
+
+              say("\nROWS BY STATUS (a row is one company on one filing date)")
+              for k, v in df["status"].value_counts().items():
+                  say(f"  {k:16s} {v:>7,}")
+              if "quality_nodiv" in df:
+                  say(f"  rows with a quality score (no dividend bonus): {int(df['quality_nodiv'].notna().sum()):,}")
+
+              say("\nCOVERAGE: companies with a quality score, as of each year-end (latest filing on or before it)")
+              dd = df[df["status"] == "ok"].copy()
+              for y in range(2014, 2027):
+                  cut = f"{y}-12-31" if y < 2026 else TODAY
+                  last = dd[dd["asof"] <= cut].sort_values("asof").groupby("ticker").tail(1)
+                  say(f"  {cut}: {int(last['quality_nodiv'].notna().sum()):>4} scored of {last['ticker'].nunique():>4} with a row")
+
+              (OUT / "pit_report.txt").write_text("\n".join(report) + "\n")     # keep what we have if the self-check fails
+          else:
+              say("\nfull replay of every filing date SKIPPED (set PIT_FULL_REPLAY=1 to rebuild it)")
+              (OUT / "pit_report.txt").write_text("\n".join(report) + "\n")
+
+          # ---- self-check 1: today's replay vs each baseline ----------------------------------------
+          def validate(name, state, desc):
+              b_built = state.get("built")
+              comp = state["companies"]
+              say(f"\nVALIDATION vs {name}: the same day replayed on the same pipeline")
+              say(f"  baseline: {desc} (built {b_built})")
+              vrows = []
+              for t in work_list:
+                  c = comp.get(t)
+                  if not c:
+                      continue
+                  p = c["row"]
+                  # replay on exactly the prices the baseline had: its last date is the anchor
+                  # the window was cut from (older state files only have the last saved date)
+                  last = pd.Timestamp(c.get("ps_anchor") or c["ps_dates"][-1]) if c.get("ps_dates") else None
+                  px = closes[t] if last is None else closes[t][closes[t].index <= last]
+                  rec = pc.replay_one(t, FACTS[t], px, splits.get(t), (p.get("sector") or ""), b_built or TODAY,
+                                      filter_facts=False, production_window=ps.HISTORY_YEARS)
+                  row = dict(rec)
+                  row["dividend_yield"] = p.get("dividend_yield")      # the baseline's own input, to compare like with like
+                  q = ps.quality_score(pd.DataFrame([row])).iloc[0]
+                  v = {"ticker": t, "status": rec["status"],
+                       "new_filing_since_build": bool(b_built and pc.filing_dates(FACTS[t], b_built))}
+                  bad = []
+                  for col in PILLARS:
+                      v["base_" + col], v["replay_" + col] = p.get(col), q.get(col)
+                      if not same(p.get(col), q.get(col)):
+                          bad.append(col)
+                  for col in COMPARE:
+                      if not same(p.get(col), rec.get(col)):
+                          bad.append(col)
+                  v["fields_differing"] = ",".join(bad)
+                  vrows.append(v)
+              vd = pd.DataFrame(vrows)
+              vd.to_csv(OUT / f"pit_validation_{name}.csv", index=False)
+              clean = vd[~vd["new_filing_since_build"]]
+              exact = clean[clean["fields_differing"] == ""]
+              say(f"  {len(vd)} companies; {len(vd) - len(clean)} excluded because they filed a new report after the "
+                  f"baseline was built (expected to differ)")
+              say(f"  of the remaining {len(clean)}: {len(exact)} reproduce the baseline EXACTLY on all "
+                  f"{len(PILLARS) + len(COMPARE)} compared figures ({len(exact) / max(len(clean), 1):.1%})")
+              qm = clean[[not same(a, b) for a, b in zip(clean["base_quality"], clean["replay_quality"])]]
+              say(f"  quality score differs for {len(qm)} of {len(clean)}")
+              if len(clean) - len(exact):
+                  say("  differing companies (up to 25):")
+                  for _, r in clean[clean["fields_differing"] != ""].head(25).iterrows():
+                      say(f"    {r['ticker']:6s} quality baseline {r['base_quality']} vs replay {r['replay_quality']} | "
+                          f"differs: {r['fields_differing']}")
+
+
+          for name, (state, desc) in loaded.items():
+              try:
+                  validate(name, state, desc)
+              except Exception as e:                  # a broken self-check is reported, never fatal to the data
+                  say(f"  VALIDATION vs {name} COULD NOT RUN: {type(e).__name__}: {str(e)[:200]}")
+          (OUT / "pit_report.txt").write_text("\n".join(report) + "\n")
+
+          # ---- self-check 2: dilution must not depend on the calendar --------------------------------
+          # Needs no baseline. Replay each company at its last price date, and again with the prices cut
+          # just before the most recent quarter-end. No filing is added or removed by cutting prices, so
+          # with a normal reporting lag nothing about the share counts differs and dilution must be
+          # identical. (It flipped for about two companies in three before the fix.)
+          try:
+              ref = pd.Timestamp(next(iter(primary["companies"].values())).get("ps_anchor")
+                                 or next(iter(primary["companies"].values()))["ps_dates"][-1])
+              qe = ref - pd.offsets.QuarterEnd(0) if ref.is_quarter_end else ref - pd.offsets.QuarterEnd(1)
+              cut = qe - pd.Timedelta(days=1)
+              say(f"\nCALENDAR INVARIANCE: dilution at {ref.date()} vs with prices cut at {cut.date()} (just before the {qe.date()} quarter-end)")
+              irows, flips = [], []
+              for t in work_list:
+                  sec = (prod[t].get("sector") or "")
+                  a = pc.replay_one(t, FACTS[t], closes[t][closes[t].index <= ref], splits.get(t), sec, ref.date().isoformat(),
+                                    filter_facts=False, production_window=ps.HISTORY_YEARS)
+                  b = pc.replay_one(t, FACTS[t], closes[t][closes[t].index <= cut], splits.get(t), sec, ref.date().isoformat(),
+                                    filter_facts=False, production_window=ps.HISTORY_YEARS)
+                  diff = [f for f in ("dilution_1y", "dilution_3y", "dilution_5y") if not same(a.get(f), b.get(f))]
+                  irows.append({"ticker": t, "status": a["status"], "differs": ",".join(diff),
+                                "dilution_1y_last": a.get("dilution_1y"), "dilution_1y_cut": b.get("dilution_1y"),
+                                "dilution_5y_last": a.get("dilution_5y"), "dilution_5y_cut": b.get("dilution_5y")})
+                  if diff:
+                      flips.append(t)
+              idf = pd.DataFrame(irows)
+              idf.to_csv(OUT / "pit_invariance.csv", index=False)
+              okn = int((idf["status"] == "ok").sum())
+              say(f"  {okn} companies with a full row; dilution identical across the quarter-end for {okn - len(flips)} "
+                  f"({(okn - len(flips)) / max(okn, 1):.1%}); moved for {len(flips)}")
+              if flips:
+                  say("  moved: " + ", ".join(flips[:30]) + (" ..." if len(flips) > 30 else ""))
+          except Exception as e:
+              say(f"  CALENDAR INVARIANCE COULD NOT RUN: {type(e).__name__}: {str(e)[:200]}")
+
+          # ---- self-check 3: recent price cliffs no recorded split explains --------------------------
+          # Not a test of the code: a look at the live universe for the situation that put Corteva at the top
+          # of the cheapest list the day after its spin-off. A one-day fall of 40% or more with no split
+          # factor within four days is a spin-off, a distribution or a crash. Over 20 years the 40-60% falls
+          # are almost all genuine earnings crashes (Fiserv, Centene, DexCom, Carvana: real information, the
+          # multiple IS cheap); at 60% or worse they are distributions (Altria/PMI -70%, Keurig Dr Pepper
+          # -82%, Weyerhaeuser -62%) plus AIG in the Lehman week, and the multiple is then being compared
+          # with a history from a different company. Both tiers are listed; the second is marked.
+          try:
+              since = pd.Timestamp(TODAY) - pd.Timedelta(days=200)
+              crows = []
+              for t in work_list:
+                  for dte, ret, near in pc.price_cliffs(closes[t], splits.get(t), since=since):
+                      b = prod.get(t, {})
+                      crows.append({"ticker": t, "date": dte.date().isoformat(), "one_day_return": round(ret, 4),
+                                    "split_factor_recorded": near, "zscore": b.get("zscore"), "ps_now": b.get("ps_now"),
+                                    "opportunity": b.get("opportunity"), "months_of_history": b.get("months")})
+              cdf = pd.DataFrame(crows)
+              cdf.to_csv(OUT / "pit_price_cliffs.csv", index=False)
+              say(f"\nPRICE CLIFFS in the last 200 days: one-day falls of 40% or more")
+              if len(cdf):
+                  un = cdf[cdf["split_factor_recorded"].isna()]
+                  say(f"  {len(cdf)} found; {len(un)} with NO split factor recorded within four days, {len(cdf) - len(un)} with one")
+                  for _, r in cdf.sort_values("date").iterrows():
+                      z = r["zscore"]
+                      say(f"    {r['ticker']:6s} {r['date']}  {r['one_day_return']:+.0%}  "
+                          + (f"split factor {r['split_factor_recorded']:.4g} recorded" if pd.notna(r["split_factor_recorded"]) else "no split factor recorded")
+                          + (f"  | Z now {z:+.2f}, Opportunity {r['opportunity']}" if pd.notna(z) else "")
+                          + ("   <-- spin-off scale" if r["one_day_return"] <= -0.60 and pd.isna(r["split_factor_recorded"]) else ""))
+              else:
+                  say("  none")
+          except Exception as e:
+              say(f"  PRICE CLIFF SCAN COULD NOT RUN: {type(e).__name__}: {str(e)[:200]}")
+
+          say(f"\ntotal run time {(time.time() - t0) / 60:.1f} min")
+          (OUT / "pit_report.txt").write_text("\n".join(report) + "\n")
+          if partial:
+              sys.exit("Replay hit its time limit; partial results were saved.")
+          PITRUN
+          python build_pit_quality.py
+
+      - name: Say where the download is, and what each check found
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Real-data checks v2 -- commit $(echo "$GITHUB_SHA" | cut -c1-7)"
+            echo ""
+            echo "## Download the data for Claude"
+            echo "Scroll down this page to **Artifacts** and click **real-data-checks**."
+            echo "Upload that zip to Claude -- the zip, not this log."
+            echo ""
+            echo "## What each check found"
+            echo '```'
+            echo "[2] replay checks:      $(grep -h 'checks pass against real filings' backtest_data/replay_output.txt 2>/dev/null | tail -1 | sed 's/^ *//' || true)"
+            grep -h -A2 'NOT CHECKED' backtest_data/replay_output.txt 2>/dev/null | sed 's/^/                          /' | head -3 || true
+            echo "[3] unit tests:         $(grep -h 'behaved as they should' backtest_data/unit_tests_output.txt 2>/dev/null | tail -1 || true)"
+            echo "[4] refresh vs nightly: $(grep -h '^RESULT' backtest_data/z_consistency_report.txt 2>/dev/null | cut -c1-150 || true)"
+            chk_line=$(awk '/^VALIDATION vs chk/{s=1} /^VALIDATION vs production/{s=0} s && /reproduce the baseline EXACTLY/' backtest_data/pit_report.txt 2>/dev/null | sed 's/^ *//' || true)
+            prod_line=$(awk '/^VALIDATION vs production/{s=1} /^CALENDAR/{s=0} s && /reproduce the baseline EXACTLY/' backtest_data/pit_report.txt 2>/dev/null | sed 's/^ *//' || true)
+            cal_line=$(grep -h 'identical across the quarter-end' backtest_data/pit_report.txt 2>/dev/null | sed 's/^ *//' || true)
+            echo "[5] replay vs the same-code pass:  $chk_line"
+            echo "    replay vs the last nightly:    $prod_line"
+            echo "[6] dilution across a quarter-end: $cal_line"
+            cliff_line=$(grep -h -A1 '^PRICE CLIFFS' backtest_data/pit_report.txt 2>/dev/null | tail -1 | sed 's/^ *//' || true)
+            echo "[7] price cliffs, last 200 days:   $cliff_line"
+            grep -h 'spin-off scale' backtest_data/pit_report.txt 2>/dev/null | sed 's/^ */      /' || true
+            grep -h 'PARTIAL\|COULD NOT RUN' backtest_data/pit_report.txt 2>/dev/null | sed 's/^/    /' || true
+            echo '```'
+            echo ""
+            echo "Steps that show a red cross above did not finish; the others are unaffected."
+            echo ""
+            echo "Files in the download:"
+            echo '```'
+            ls -la backtest_data 2>/dev/null || echo "(nothing was written)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload everything as one artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: real-data-checks
+          path: backtest_data/
+          retention-days: 30
+          if-no-files-found: error
