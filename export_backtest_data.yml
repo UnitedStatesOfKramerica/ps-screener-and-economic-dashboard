@@ -1,0 +1,804 @@
+# Export backtest data -- a one-off, manually started run.
+#
+# Pulls, on GitHub's machines (which can reach Yahoo, Wikipedia and the SEC):
+#   * daily prices with and without dividends for every index member, plus
+#     SPY, RSP (equal-weight S&P 500), BIL (cash) and the 11 sector ETFs
+#   * Wikipedia's index-membership dates
+#   * evidence for why each index member missing from the screen is missing,
+#     including earlier SEC registrants that hold its orphaned history
+#   * a 17-year P/S history rebuilt by ps_screener.py itself (--years 17), kept both as
+#     the screener's month-end database AND as every trading day (ps_daily_bt.csv.gz):
+#     the live Z-score is built from daily history with stale-revenue days left out, and
+#     a month-end resample cannot reproduce it
+#   * the real-filings fixture replay.py needs (never committed to the repo),
+#     plus replay.py's results on the live screener as a baseline
+# and hands them back as two artifacts: "backtest-data" (everything a backtest needs,
+# small enough to upload) and "backtest-extras" (the heavy raw filings, only if asked for).
+#
+# Commits nothing, publishes nothing, and cannot touch the live screen:
+# permissions are read-only and the screener pass writes only "_bt" files
+# inside this run's throwaway copy of the repo.
+
+name: Export backtest data
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-24.04      # pinned: GitHub moves ubuntu-latest to Ubuntu 26 on 19 Oct 2026
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install libraries
+        run: |
+          pip install -r requirements.txt || echo "requirements.txt did not fully install; filling gaps below"
+          pip install yfinance pandas numpy requests lxml
+
+      - name: Pull prices, dividends and index-membership history
+        run: |
+          python - <<'PY'
+          """
+          Export everything the screener backtest needs. Runs on GitHub's machines,
+          which can reach Yahoo and Wikipedia. Nothing here is committed or published:
+          the files leave only as this run's downloadable artifact.
+
+          backtest_data/
+            prices_close.csv.gz     daily close adjusted for splits only -- price return,
+                                    i.e. whether the stock itself went up
+            prices_adjclose.csv.gz  daily close adjusted for splits AND dividends --
+                                    total return, what an investor actually earned
+            dividends.csv.gz        every dividend paid: date, ticker, amount
+            splits.csv              every split: date, ticker, ratio
+            sp500_current.csv       Wikipedia's constituent table, incl. "Date added", so
+                                    a company is only tested from the day it joined the
+                                    index, never in the years before it qualified
+            sp500_changes.csv       Wikipedia's additions/removals history, to size the
+                                    survivorship bias rather than hand-wave it
+            manifest.json           what was asked for, what came back, library versions
+          """
+          import json
+          import sys
+          import time
+          from datetime import datetime, timezone
+          from io import StringIO
+          from pathlib import Path
+
+          import pandas as pd
+          import requests
+          import yfinance as yf
+
+          OUT = Path("backtest_data")
+          OUT.mkdir(exist_ok=True)
+          START = "2007-01-01"   # covers a 2009+ P/S history plus a 12-month momentum lookback
+          BENCHMARKS = ["SPY", "RSP", "BIL", "XLB", "XLC", "XLE", "XLF", "XLI",
+                        "XLK", "XLP", "XLRE", "XLU", "XLV", "XLY"]
+          WIKI = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+          # Same browser headers the nightly uses: Wikipedia rejects a bare Python agent.
+          HEADERS = {
+              "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+              "Accept-Language": "en-US,en;q=0.9",
+          }
+          manifest = {
+              "built_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+              "price_start": START,
+              "versions": {"python": sys.version.split()[0], "pandas": pd.__version__,
+                           "yfinance": getattr(yf, "__version__", "unknown")},
+              "notes": [],
+          }
+
+
+          def tidy(sym):
+              """Wikipedia writes BRK.B; Yahoo wants BRK-B. Same rule as the nightly."""
+              return str(sym).strip().upper().replace(".", "-")
+
+
+          # 1. The screener's own universe, from the state file the nightly commits
+          state_tickers = []
+          state_path = Path("docs/state.json")
+          if state_path.exists():
+              state = json.loads(state_path.read_text())
+              state_tickers = sorted(state.get("companies", {}))
+              manifest["state_built"] = state.get("built")
+          else:
+              manifest["notes"].append("docs/state.json not found; universe from Wikipedia only")
+          manifest["tickers_in_state"] = len(state_tickers)
+          print(f"{len(state_tickers)} tickers from docs/state.json")
+
+          # 2. Index membership history from Wikipedia
+          wiki_tickers = []
+          try:
+              r = requests.get(WIKI, headers=HEADERS, timeout=30)
+              r.raise_for_status()
+              tables = pd.read_html(StringIO(r.text))
+              current = next((t for t in tables
+                              if {"Symbol", "GICS Sector"}.issubset(set(map(str, t.columns)))), None)
+              if current is not None:
+                  current = current.copy()
+                  current["ticker"] = current["Symbol"].map(tidy)
+                  current.to_csv(OUT / "sp500_current.csv", index=False)
+                  wiki_tickers = sorted(current["ticker"].unique())
+                  manifest["wikipedia_current_rows"] = len(current)
+                  manifest["has_date_added"] = "Date added" in current.columns
+              else:
+                  manifest["notes"].append("Wikipedia constituent table not found (layout changed?)")
+              changes = None
+              for t in tables:
+                  flat = [" ".join(str(x) for x in c) if isinstance(c, tuple) else str(c)
+                          for c in t.columns]
+                  if any("Removed" in c for c in flat) and any("Added" in c for c in flat):
+                      changes = t.copy()
+                      changes.columns = flat
+                      break
+              if changes is not None:
+                  changes.to_csv(OUT / "sp500_changes.csv", index=False)
+                  manifest["wikipedia_change_rows"] = len(changes)
+              else:
+                  manifest["notes"].append("Wikipedia changes table not found")
+          except Exception as e:
+              manifest["notes"].append(f"Wikipedia unavailable: {type(e).__name__}: {e}")
+          print(f"{len(wiki_tickers)} tickers from Wikipedia")
+
+          # 3. Prices -- the same yfinance call the nightly makes successfully every day,
+          #    reading Adj Close and Dividends as well as Close
+          equities = sorted(set(state_tickers) | set(wiki_tickers))
+          wanted = equities + [b for b in BENCHMARKS if b not in equities]
+          manifest["tickers_requested"] = len(wanted)
+          close, adj, divs, splits = {}, {}, [], []
+
+
+          def download(batch):
+              for attempt in range(3):
+                  try:
+                      return yf.download(batch, start=START, auto_adjust=False, actions=True,
+                                         progress=False, group_by="ticker", threads=True)
+                  except Exception as e:
+                      print(f"    batch failed ({type(e).__name__}: {e}); attempt {attempt + 1} of 3")
+                      time.sleep(15 * (attempt + 1))
+              return None
+
+
+          def frame_for(data, t, n):
+              """One ticker's columns, whichever way round this yfinance version nests them."""
+              if data is None or getattr(data, "empty", True):
+                  return None
+              cols = data.columns
+              if isinstance(cols, pd.MultiIndex):
+                  if t in set(cols.get_level_values(0)):
+                      return data[t]
+                  if cols.nlevels > 1 and t in set(cols.get_level_values(1)):
+                      return data.xs(t, axis=1, level=1)
+                  return None
+              return data if n == 1 else None
+
+
+          def harvest(batch):
+              data = download(batch)
+              got = 0
+              for t in batch:
+                  f = frame_for(data, t, len(batch))
+                  if f is None or "Close" not in f.columns:
+                      continue
+                  c = pd.to_numeric(f["Close"], errors="coerce").dropna()
+                  if not len(c):
+                      continue
+                  close[t] = c
+                  if "Adj Close" in f.columns:
+                      a = pd.to_numeric(f["Adj Close"], errors="coerce").dropna()
+                      if len(a):
+                          adj[t] = a
+                  if "Dividends" in f.columns:
+                      d = pd.to_numeric(f["Dividends"], errors="coerce")
+                      d = d[d > 0]
+                      divs.extend((str(pd.Timestamp(k).date()), t, float(v)) for k, v in d.items())
+                  if "Stock Splits" in f.columns:
+                      s = pd.to_numeric(f["Stock Splits"], errors="coerce")
+                      s = s[s > 0]
+                      splits.extend((str(pd.Timestamp(k).date()), t, float(v)) for k, v in s.items())
+                  got += 1
+              return got
+
+
+          CHUNK = 40
+          for i in range(0, len(wanted), CHUNK):
+              batch = wanted[i:i + CHUNK]
+              n = harvest(batch)
+              print(f"  prices {i + 1}-{i + len(batch)} of {len(wanted)}: {n} returned")
+              time.sleep(1)   # Yahoo throttles back-to-back bulk pulls
+
+          missing = [t for t in wanted if t not in close]
+          if missing:
+              print(f"  second pass for {len(missing)} ticker(s) after a pause")
+              time.sleep(30)
+              for i in range(0, len(missing), 10):
+                  harvest(missing[i:i + 10])
+                  time.sleep(2)
+          missing = [t for t in wanted if t not in close]
+          manifest["tickers_with_prices"] = len(close)
+          manifest["tickers_missing"] = missing
+          manifest["adjclose_missing"] = sorted(t for t in close if t not in adj)
+
+
+          # 4. Write, then read every file back before trusting it
+          def wide(d):
+              df = pd.DataFrame(d).sort_index()
+              idx = pd.to_datetime(df.index)
+              if getattr(idx, "tz", None) is not None:
+                  idx = idx.tz_localize(None)
+              df.index = idx
+              df.index.name = "date"
+              return df[sorted(df.columns)]
+
+
+          written = {}
+          if close:
+              wc = wide(close)
+              wc.to_csv(OUT / "prices_close.csv.gz", float_format="%.6g")
+              written["prices_close.csv.gz"] = wc.shape
+              manifest["date_range"] = [str(wc.index.min().date()), str(wc.index.max().date())]
+          if adj:
+              wa = wide(adj)
+              wa.to_csv(OUT / "prices_adjclose.csv.gz", float_format="%.6g")
+              written["prices_adjclose.csv.gz"] = wa.shape
+          pd.DataFrame(divs, columns=["date", "ticker", "dividend"]).to_csv(
+              OUT / "dividends.csv.gz", index=False)
+          pd.DataFrame(splits, columns=["date", "ticker", "ratio"]).to_csv(
+              OUT / "splits.csv", index=False)
+
+          bad_reads = []
+          for name, shape in written.items():
+              back = pd.read_csv(OUT / name, index_col=0, parse_dates=True)
+              if back.shape != shape:
+                  bad_reads.append(f"{name} read back as {back.shape}, expected {shape}")
+          manifest["notes"].extend(bad_reads)
+
+          eq_got = sum(t in close for t in equities)
+          manifest["equities_requested"] = len(equities)
+          manifest["equities_with_prices"] = eq_got
+          ok = (len(equities) >= 400 and eq_got >= 0.9 * len(equities)
+                and "SPY" in close and "prices_adjclose.csv.gz" in written and not bad_reads)
+          manifest["passed"] = bool(ok)
+          (OUT / "manifest.json").write_text(json.dumps(manifest, indent=2, default=str))
+          print(json.dumps({k: v for k, v in manifest.items() if k != "tickers_missing"},
+                           indent=2, default=str))
+          if not ok:
+              sys.exit("Export incomplete -- see manifest.json in the artifact")
+          print("Export complete and every file read back cleanly.")
+          PY
+
+      - name: Probe why index members are missing from the screen
+        continue-on-error: true
+        timeout-minutes: 30
+        env:
+          SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
+        run: |
+          python - <<'PROBE'
+          """
+          Why are index members missing from the published screen? For every company
+          Wikipedia lists that docs/state.json does not publish, record the evidence
+          needed to fix the ROOT cause for the whole class, not patch one ticker:
+
+            * the SEC registration number (CIK) the screener used, and Wikipedia's
+            * when that registrant began filing periodic reports, and any successor-
+              issuer notice (8-K12B / 8-K12G3) -- the signature of a company that
+              reorganised into a new legal entity and left its history behind
+            * which revenue and share concepts it reports, and how far each of the
+              screener's OWN stages (its real functions, not a re-implementation) gets
+            * earlier registrants with a matching name whose filings overlap and AGREE
+              with this one -- candidate predecessors holding the orphaned history
+
+          Writes backtest_data/drop_probe.json, backtest_data/probe_facts.json.gz (the
+          real filings, trimmed the way the screener trims them, so a fix can be built
+          and tested against them) and backtest_data/missing_tickers.txt.
+          """
+          import gzip
+          import json
+          import os
+          import re
+          from datetime import date
+          from pathlib import Path
+
+          import pandas as pd
+          import ps_screener as ps
+
+          OUT = Path("backtest_data")
+          OUT.mkdir(exist_ok=True)
+          PERIODIC = ("10-K", "10-Q", "10-K/A", "10-Q/A", "20-F")
+          MAX_NAME_CANDIDATES = 40     # per company, checked cheaply via the filing index
+          MAX_FACT_CANDIDATES = 5      # per company, whose full filings are compared
+          SUFFIXES = {"INC", "INCORPORATED", "CORP", "CORPORATION", "CO", "COMPANY", "LTD",
+                      "LIMITED", "PLC", "SA", "NV", "AG", "SE", "LP", "LLC", "THE",
+                      "HOLDINGS", "HOLDING", "GROUP"}
+          edgar = ps.Edgar(os.environ.get("SEC_EMAIL", ""))
+          notes = []
+
+
+          def cik10(x):
+              x = str(x).strip()
+              return x.zfill(10) if x.isdigit() else None
+
+
+          def norm(name):
+              n = re.sub(r"/[A-Z]{1,4}/?", " ", str(name).upper())   # EDGAR tags: /DE/, /NEW/
+              n = re.sub(r"[^A-Z0-9 ]", " ", n)
+              return " ".join(w for w in n.split() if w not in SUFFIXES)
+
+
+          def periodic_filings(sub):
+              rec = (sub or {}).get("filings", {}).get("recent", {})
+              return [(d, f) for d, f in zip(rec.get("filingDate", []), rec.get("form", []))]
+
+
+          def annual_revenue(facts):
+              """(start, end) -> set of reported annual revenue values, from the
+              screener's own revenue concepts, periodic filings only."""
+              out = {}
+              gaap = ((facts or {}).get("facts") or {}).get("us-gaap") or {}
+              for tag in ps.REVENUE_TAGS:
+                  for r in (gaap.get(tag) or {}).get("units", {}).get("USD", []):
+                      if r.get("form") not in PERIODIC or not r.get("start") or not r.get("end"):
+                          continue
+                      try:
+                          days = (date.fromisoformat(r["end"]) - date.fromisoformat(r["start"])).days
+                      except ValueError:
+                          continue
+                      if 350 <= days <= 380 and r.get("val"):
+                          out.setdefault((r["start"], r["end"]), set()).add(float(r["val"]))
+              return out
+
+
+          def overlap(a, b):
+              """How many shared annual periods, and how many report the same revenue."""
+              shared = set(a) & set(b)
+              agree = sum(1 for k in shared
+                          if any(abs(x - y) <= 0.005 * max(abs(x), abs(y)) for x in a[k] for y in b[k]))
+              return len(shared), agree
+
+
+          def stages(facts):
+              """Run the screener's own functions and report how far each gets."""
+              s = {}
+              try:
+                  periods = ps.collect_periods(facts, "us-gaap", ps.REVENUE_TAGS)
+                  quarters = ps.derive_quarters(periods)
+                  ttm = ps.trailing_twelve(quarters, periods)
+                  s["revenue_periods"] = len(periods)
+                  s["revenue_first_end"] = str(min(p.end for p in periods)) if periods else None
+                  s["revenue_last_end"] = str(max(p.end for p in periods)) if periods else None
+                  s["quarters"] = len(quarters)
+                  s["ttm_rows"] = len(ttm)
+                  s["ttm_first"] = str(ttm["period_end"].min()) if len(ttm) else None
+                  s["ttm_last"] = str(ttm["period_end"].max()) if len(ttm) else None
+              except Exception as e:
+                  s["revenue_error"] = f"{type(e).__name__}: {str(e)[:160]}"
+              shares = {}
+              for label, tax, tags in ([(c, "us-gaap", [c]) for c in ps.SHARE_MARKETCAP_TAGS]
+                                       + [("dei:EntityCommonStockSharesOutstanding", "dei",
+                                           ps.SHARE_TAGS_DEI)]):
+                  try:
+                      got = ps.collect_instants(facts, tax, tags)
+                      shares[label] = {"points": len(got),
+                                       "last": str(got[-1][0]) if got else None,
+                                       "age_days": (date.today() - got[-1][0]).days if got else None}
+                  except Exception as e:
+                      shares[label] = {"error": f"{type(e).__name__}: {str(e)[:120]}"}
+              s["shares"] = shares
+              s["share_stale_limit_days"] = ps.SHARE_STALE_DAYS
+              return s
+
+
+          def inventory(facts):
+              """Every revenue-like, sales-like or share-count concept actually reported."""
+              inv = {}
+              wanted = set(ps.REVENUE_TAGS) | set(ps.SHARE_MARKETCAP_TAGS) | set(ps.SHARE_TAGS_DEI)
+              for tax, concepts in ((facts or {}).get("facts") or {}).items():
+                  for k, entry in concepts.items():
+                      if k not in wanted and not re.search(r"(?i)revenue|sales|sharesoutstanding", k):
+                          continue
+                      for unit, rows in (entry.get("units") or {}).items():
+                          ends = [r["end"] for r in rows if r.get("end")]
+                          inv[f"{tax}:{k} [{unit}]"] = {
+                              "facts": len(rows),
+                              "periodic_facts": sum(1 for r in rows if r.get("form") in PERIODIC),
+                              "first_end": min(ends) if ends else None,
+                              "last_end": max(ends) if ends else None,
+                              "last_filed": max((r.get("filed", "") for r in rows), default=None),
+                              "screener_reads_it": k in wanted}
+              return inv
+
+
+          def trim(facts):
+              """Trimmed the way the screener trims its cache, plus any revenue-like
+              concept, so a fixture built from this drives the real pipeline."""
+              out = {"facts": {}}
+              for tax, concepts in ((facts or {}).get("facts") or {}).items():
+                  if tax == "dei":
+                      out["facts"]["dei"] = concepts
+                      continue
+                  kept = {k: v for k, v in concepts.items()
+                          if ps._keep_concept(k) or re.search(r"(?i)revenue|sales", k)}
+                  if kept:
+                      out["facts"][tax] = kept
+              return out
+
+
+          # ---- who is missing ---------------------------------------------------------
+          published = set(json.loads(Path("docs/state.json").read_text())["companies"])
+          cur = pd.read_csv(OUT / "sp500_current.csv", dtype=str)
+          wiki = {r["ticker"]: {"name": r.get("Security"), "cik": cik10(r.get("CIK")),
+                                "date_added": r.get("Date added"), "founded": r.get("Founded"),
+                                "sector": r.get("GICS Sector")}
+                  for _, r in cur.iterrows()}
+          missing = sorted(set(wiki) - published)
+          (OUT / "missing_tickers.txt").write_text(",".join(missing))
+          print(f"{len(missing)} index members are not in the published screen: {' '.join(missing)}")
+
+          first_price = {}
+          try:
+              px = pd.read_csv(OUT / "prices_close.csv.gz", index_col=0, parse_dates=True)
+              first_price = {t: str(px[t].first_valid_index().date())
+                             for t in missing if t in px and px[t].first_valid_index() is not None}
+          except Exception as e:
+              notes.append(f"price file unreadable: {type(e).__name__}")
+
+          sec_map = edgar.ticker_to_cik()
+
+          # ---- pass 1: the evidence for each missing company ----------------------------
+          records, fixture, mine_rev, names_for = [], {}, {}, {}
+          for t in missing:
+              rec = {"ticker": t, "wikipedia": wiki.get(t), "first_price_date": first_price.get(t),
+                     "sec_cik": sec_map.get(t)}
+              cik = rec["sec_cik"] or (wiki.get(t) or {}).get("cik")
+              rec["cik_used"] = cik
+              rec["cik_mismatch_vs_wikipedia"] = bool(rec["sec_cik"] and (wiki.get(t) or {}).get("cik")
+                                                      and rec["sec_cik"] != wiki[t]["cik"])
+              try:
+                  sub = edgar.get_json(f"https://data.sec.gov/submissions/CIK{cik}.json") if cik else None
+                  rec["entity_name"] = (sub or {}).get("name")
+                  rec["former_names"] = [f.get("name") for f in (sub or {}).get("formerNames", [])]
+                  fil = periodic_filings(sub)
+                  per = sorted(d for d, f in fil if f in PERIODIC)
+                  rec["first_periodic_filing"] = per[0] if per else None
+                  rec["last_periodic_filing"] = per[-1] if per else None
+                  rec["successor_notices"] = sorted({f"{f} {d}" for d, f in fil if f.startswith("8-K12")})
+                  facts = edgar.get_json(f"https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json") if cik else None
+                  rec["has_companyfacts"] = bool(facts)
+                  rec["taxonomies"] = sorted(((facts or {}).get("facts") or {}).keys())
+                  rec["stages"] = stages(facts) if facts else None
+                  rec["inventory"] = inventory(facts) if facts else None
+                  if facts:
+                      fixture[cik] = trim(facts)
+                  mine_rev[t] = annual_revenue(facts)
+                  names = {norm(x) for x in [rec["entity_name"], *rec["former_names"],
+                                             (wiki.get(t) or {}).get("name")] if x}
+                  names.discard("")
+                  names_for[t] = names
+              except Exception as e:
+                  rec["error"] = f"{type(e).__name__}: {str(e)[:200]}"
+              records.append(rec)
+
+          # ---- name index: every name a registrant has used, with its CIK ---------------
+          by_name, by_token = {}, {}
+
+
+          by_squash = {}
+
+
+          def add_name(name, cik):
+              n = norm(name)
+              if n:
+                  by_name.setdefault(n, set()).add(cik)
+                  by_token.setdefault(n.split()[0], set()).add(n)
+                  by_squash.setdefault(n.replace(" ", ""), set()).add(n)
+
+
+          try:   # primary: EDGAR's complete name index (one file, ~1M names)
+              edgar._throttle()
+              r = edgar.session.get("https://www.sec.gov/Archives/edgar/cik-lookup-data.txt", timeout=300)
+              r.raise_for_status()
+              for line in r.content.decode("latin-1").splitlines():
+                  parts = line.rsplit(":", 2)
+                  if len(parts) == 3 and parts[1].strip().isdigit():
+                      add_name(parts[0], parts[1].strip().zfill(10))
+              name_source = "EDGAR complete name index"
+          except Exception as e:
+              notes.append(f"EDGAR complete name index unavailable: {type(e).__name__}: {e}")
+          if not by_name:
+              # fallback: the quarterly master indexes (pipe-delimited: CIK|Name|Form|Date|File)
+              # around each company's first periodic filing -- a predecessor that handed
+              # over to a new registrant was still filing in those quarters.
+              quarters = set()
+              for rec in records:
+                  f = rec.get("first_periodic_filing") or str(date.today())
+                  y, q = int(f[:4]), (int(f[5:7]) - 1) // 3 + 1
+                  for _ in range(3):
+                      quarters.add((y, q))
+                      y, q = (y, q - 1) if q > 1 else (y - 1, 4)
+              got = 0
+              for y, q in sorted(quarters)[-12:]:
+                  try:
+                      edgar._throttle()
+                      r = edgar.session.get(
+                          f"https://www.sec.gov/Archives/edgar/full-index/{y}/QTR{q}/master.idx", timeout=300)
+                      if r.status_code != 200:
+                          notes.append(f"master index {y} Q{q}: HTTP {r.status_code}")
+                          continue
+                      for line in r.content.decode("latin-1").splitlines():
+                          parts = line.split("|")
+                          if len(parts) == 5 and parts[0].strip().isdigit() and parts[2].strip() in PERIODIC:
+                              add_name(parts[1], parts[0].strip().zfill(10))
+                      got += 1
+                  except Exception as e:
+                      notes.append(f"master index {y} Q{q}: {type(e).__name__}")
+              name_source = f"EDGAR quarterly master indexes ({got} quarters)"
+          notes.append(f"predecessor names searched in: {name_source if by_name else 'nothing (both sources failed)'}")
+          print(f"name index: {len(by_name):,} distinct names from {name_source if by_name else 'no source'}")
+
+          # ---- pass 2: candidate predecessors, verified against the filings ---------------
+          for n_done, rec in enumerate(records, 1):
+              t, cik = rec["ticker"], rec.get("cik_used")
+              try:
+                  names = names_for.get(t, set())
+                  cands = set()
+                  for n in names:
+                      cands |= by_name.get(n, set())
+                      for other in by_squash.get(n.replace(" ", ""), ()):      # ExxonMobil = Exxon Mobil
+                          cands |= by_name.get(other, set())
+                  # Same first word, ranked by how much of the whole name matches (Jaccard):
+                  # plain "FERGUSON" must outrank "FERGUSON JOHN" for "FERGUSON ENTERPRISES",
+                  # which a raw shared-word count ties and alphabetical order then cut off.
+                  pool = []
+                  for n in names:
+                      toks = set(n.split())
+                      first = n.split()[0]
+                      for key in {first, n.replace(" ", "")[:len(first)]}:
+                          for other in by_token.get(key, ()):
+                              ot = set(other.split())
+                              pool.append((len(toks & ot) / len(toks | ot), -len(ot), other))
+                  for _, _, other in sorted(set(pool), reverse=True)[:MAX_NAME_CANDIDATES]:
+                      cands |= by_name.get(other, set())
+                  cands.discard(cik)
+                  checked = []
+                  for c in sorted(cands)[:MAX_NAME_CANDIDATES]:
+                      csub = edgar.get_json(f"https://data.sec.gov/submissions/CIK{c}.json")
+                      cper = sorted(d for d, f in periodic_filings(csub) if f in PERIODIC)
+                      if not cper:
+                          continue
+                      checked.append({"cik": c, "name": (csub or {}).get("name"),
+                                      "first_periodic_filing": cper[0], "last_periodic_filing": cper[-1]})
+                  checked.sort(key=lambda x: x["last_periodic_filing"], reverse=True)
+                  mine = mine_rev.get(t, {})
+                  for cand in checked[:MAX_FACT_CANDIDATES]:
+                      cf = edgar.get_json(f"https://data.sec.gov/api/xbrl/companyfacts/CIK{cand['cik']}.json")
+                      cand["shared_annual_periods"], cand["agreeing_annual_periods"] = overlap(mine, annual_revenue(cf))
+                      st = stages(cf) if cf else {}
+                      cand["revenue_first_end"] = st.get("revenue_first_end")
+                      cand["revenue_last_end"] = st.get("revenue_last_end")
+                      cand["revenue_periods"] = st.get("revenue_periods")
+                      if cf and (cand["agreeing_annual_periods"] > 0 or not mine):
+                          fixture[cand["cik"]] = trim(cf)
+                  rec["predecessor_candidates"] = checked
+              except Exception as e:
+                  rec["candidate_error"] = f"{type(e).__name__}: {str(e)[:200]}"
+              best = max(rec.get("predecessor_candidates") or [{}],
+                         key=lambda x: (x.get("agreeing_annual_periods", -1), x.get("last_periodic_filing", "")))
+              st = rec.get("stages") or {}
+              print(f"  {n_done:>2}/{len(records)} {t:6s} cik={cik} first10K/Q={rec.get('first_periodic_filing')} "
+                    f"rev_periods={st.get('revenue_periods')} ttm={st.get('ttm_rows')} "
+                    f"best_pred={best.get('cik')}:{best.get('agreeing_annual_periods')}")
+              unread = sorted(((v.get("periodic_facts", 0), k) for k, v in (rec.get("inventory") or {}).items()
+                               if not v.get("screener_reads_it") and re.search(r"(?i)revenue|sales", k)),
+                              reverse=True)[:4]
+              print("EVIDENCE " + json.dumps({
+                  "ticker": t, "name": rec.get("entity_name"), "former": (rec.get("former_names") or [])[:3],
+                  "first_periodic": rec.get("first_periodic_filing"), "notices": rec.get("successor_notices"),
+                  "taxonomies": rec.get("taxonomies"), "rev_periods": st.get("revenue_periods"),
+                  "ttm_first": st.get("ttm_first"), "ttm_last": st.get("ttm_last"),
+                  "unread_revenue_concepts": [f"{k} ({n})" for n, k in unread],
+                  "share_age_days": {k.split(":")[-1][:28]: v.get("age_days")
+                                     for k, v in (st.get("shares") or {}).items()},
+                  "candidates": [{k: c.get(k) for k in ("cik", "name", "last_periodic_filing",
+                                                         "shared_annual_periods", "agreeing_annual_periods",
+                                                         "revenue_first_end")}
+                                 for c in (rec.get("predecessor_candidates") or [])[:3]],
+                  "error": rec.get("error") or rec.get("candidate_error")}, default=str))
+
+          (OUT / "drop_probe.json").write_text(json.dumps(
+              {"built": str(date.today()), "notes": notes, "records": records}, indent=1, default=str))
+          with gzip.open(OUT / "probe_facts.json.gz", "wt") as fh:
+              json.dump({"tickers": {r["ticker"]: r.get("cik_used") for r in records}, "facts": fixture}, fh)
+          # read both back before trusting them
+          json.loads((OUT / "drop_probe.json").read_text())
+          with gzip.open(OUT / "probe_facts.json.gz", "rt") as fh:
+              back = json.load(fh)
+          print(f"Probe complete: {len(records)} companies, {len(back['facts'])} registrants' filings saved.")
+          PROBE
+
+      - name: Rebuild P/S history back to 2009 with the screener itself
+        continue-on-error: true
+        timeout-minutes: 90
+        env:
+          SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
+        run: |
+          WATCH="$(cat backtest_data/missing_tickers.txt 2>/dev/null || true)"
+          # --verify 5: cross-check five rows against Yahoo. The live screener
+          # crashes at its very last step when NO row is cross-checked (fixed in
+          # the corrected ps_screener.py, not yet shipped); five checked rows
+          # avoid that path. Its files are written before that step regardless,
+          # and are kept below even if it does end in an error.
+          cat > bt_capture.py <<'CAPTURE'
+          """
+          Run ps_screener.py exactly as before, and ALSO keep what it throws away: each company's
+          DAILY P/S history. write_sqlite() saves only a month-end resample, but the live Z-score is
+          built from every trading day (days whose revenue figure was already stale are left out), so
+          a backtest that wants to measure the score the screener actually publishes needs the daily
+          series. Nothing about the screener changes: main() runs untouched, and a failure here can
+          never stop its own outputs from being written.
+
+          Writes backtest_data/ps_daily_bt.csv.gz (ticker, date, ps, rev_stale) and
+          backtest_data/ps_daily_bt_attrs.json (the per-company flags summarize() reads).
+          """
+          import json
+          import sys
+          from pathlib import Path
+
+          import pandas as pd
+
+          import ps_screener as ps
+
+          OUT = Path("backtest_data")
+          OUT.mkdir(exist_ok=True)
+          _orig = ps.write_sqlite
+
+
+          def _dump(series):
+              parts, attrs = [], {}
+              for t, df in series.items():
+                  d = df[[c for c in ("date", "ps", "rev_stale") if c in df.columns]].copy()
+                  if "rev_stale" in d.columns:
+                      d["rev_stale"] = d["rev_stale"].astype(int)
+                  d.insert(0, "ticker", t)
+                  parts.append(d)
+                  attrs[t] = {k: (None if df.attrs.get(k) is None else float(df.attrs[k]))
+                              for k in ("used_fresh", "stale_cut_days", "stale_months_dropped",
+                                        "stale_months_kept")}
+              big = pd.concat(parts, ignore_index=True)
+              big["date"] = pd.to_datetime(big["date"]).dt.strftime("%Y-%m-%d")
+              big.to_csv(OUT / "ps_daily_bt.csv.gz", index=False, float_format="%.6g")
+              (OUT / "ps_daily_bt_attrs.json").write_text(json.dumps(attrs))
+              back = pd.read_csv(OUT / "ps_daily_bt.csv.gz", usecols=["ticker"])
+              assert len(back) == len(big), "ps_daily_bt.csv.gz did not read back intact"
+              print(f"  daily P/S kept for {len(series)} companies: {len(big):,} rows", flush=True)
+
+
+          def _capture(summary, series, path):
+              try:
+                  _dump(series)
+              except Exception as e:      # never get in the way of the screener's own files
+                  print(f"::warning::daily P/S dump failed: {type(e).__name__}: {e}")
+              return _orig(summary, series, path)
+
+
+          ps.write_sqlite = _capture
+          sys.argv = ["ps_screener.py"] + sys.argv[1:]
+          ps.main()
+          CAPTURE
+          python bt_capture.py --years 17 --tag bt --verify 5 ${WATCH:+--watch "$WATCH"} \
+            || echo "::warning::The screener ended with an error; keeping every file it wrote first"
+          for f in ps_screen_bt.db ps_diagnostics_bt.txt; do
+            if [ -f "$f" ]; then cp "$f" backtest_data/; else echo "::warning::$f was not written"; fi
+          done
+
+      - name: Build the replay fixture and run replay.py on the live screener
+        continue-on-error: true
+        timeout-minutes: 20
+        env:
+          SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
+        run: |
+          python - <<'FIXTURE'
+          """
+          Build the real-filings fixture replay.py reads -- the file the repo never
+          commits -- using the screener's OWN SEC client and price loader, so the facts
+          and prices are exactly what the nightly sees. Shape, per ticker, as replay.py's
+          load()/series()/run_one() expect:
+              {"facts": <companyfacts>, "prices": {"YYYY-MM-DD": close}, "splits": {...}}
+
+          Companies: replay.py's own -- the eight assert_real_data() checks, plus every
+          name in its SECTOR map (the quality table). Written to
+          backtest_data/replay_fixture.json.gz, then read back before it is trusted.
+          """
+          import gzip
+          import json
+          import os
+          from datetime import date, timedelta
+          from pathlib import Path
+
+          import pandas as pd
+          import ps_screener as ps
+
+          OUT = Path("backtest_data")
+          OUT.mkdir(exist_ok=True)
+          TICKERS = ["HON", "MNST", "AMD", "BG", "AON", "ADM", "DD", "CPT",          # assert_real_data
+                     "OXY", "DVN", "MSFT", "V", "PG", "VZ", "CAT", "INTC", "CRM",     # SECTOR map
+                     "MCD", "MTD", "JPM", "O"]
+
+          edgar = ps.Edgar(os.environ.get("SEC_EMAIL", ""))
+          cik = edgar.ticker_to_cik()
+          # Same start the nightly asks for at its default history length.
+          closes, splits = ps.fetch_prices(
+              TICKERS, date.today() - timedelta(days=365 * ps.HISTORY_YEARS + 400))
+
+          bundle, skipped = {}, []
+          for t in TICKERS:
+              facts = edgar.company_facts(cik[t]) if t in cik else None
+              if not facts or t not in closes:
+                  skipped.append(f"{t} ({'no filings' if not facts else 'no prices'})")
+                  continue
+              sp = splits.get(t)
+              bundle[t] = {
+                  "facts": facts,
+                  "prices": {str(pd.Timestamp(k).date()): float(v) for k, v in closes[t].items()},
+                  "splits": {str(pd.Timestamp(k).date()): float(v)
+                             for k, v in (sp.items() if sp is not None else [])},
+              }
+
+          path = OUT / "replay_fixture.json.gz"
+          with gzip.open(path, "wt") as fh:
+              json.dump(bundle, fh)
+          with gzip.open(path, "rt") as fh:                     # read back before trusting it
+              back = json.load(fh)
+          assert set(back) == set(bundle), "fixture did not read back intact"
+          print(f"replay fixture: {len(back)} companies ({', '.join(back)}); "
+                f"skipped: {', '.join(skipped) or 'none'}; {path.stat().st_size / 1e6:.1f} MB")
+          FIXTURE
+          export QS_FIXTURE=backtest_data/replay_fixture.json.gz
+          echo "---------- replay.py on the LIVE screener (baseline) ----------"
+          python replay.py || echo "::warning::replay table did not complete"
+          python -c "import replay; replay.assert_real_data()" || echo "::warning::replay checks did not complete"
+
+      - name: Say where the download is
+        if: always()
+        run: |
+          {
+            echo "## Download the data for Claude"
+            echo "Scroll down this page to **Artifacts** and click **backtest-data**."
+            echo "Upload that zip to Claude -- the zip, not the log."
+            echo "(backtest-extras holds the heavy raw filings; leave it unless Claude asks.)"
+            echo ""
+            echo "Contents:"
+            echo '```'
+            ls -la backtest_data 2>/dev/null || echo "(nothing was written)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the data the backtest needs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: backtest-data
+          path: |
+            backtest_data/
+            !backtest_data/probe_facts.json.gz
+            !backtest_data/replay_fixture.json.gz
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload the heavy raw filings separately
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: backtest-extras
+          path: |
+            backtest_data/probe_facts.json.gz
+            backtest_data/replay_fixture.json.gz
+          retention-days: 30
+          if-no-files-found: ignore

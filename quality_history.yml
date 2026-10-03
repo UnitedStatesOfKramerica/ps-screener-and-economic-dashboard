@@ -12,7 +12,8 @@
 #   5    the point-in-time replay checked against the pass step 4 just made with the
 #        same code (decisive), against the last nightly (informational), and for
 #        calendar-independence: dilution must not change across a quarter-end.
-#        Set PIT_FULL_REPLAY to "1" to also rebuild the whole filing history (30 min).
+#        The full replay is switched ON in this version (PIT_FULL_REPLAY "1"): it also rebuilds
+#        every past filing date, which is the data the Opportunity backtest is built on.
 #
 # Everything comes back as ONE downloadable artifact named "quality-history".
 # Commits nothing, publishes nothing, cannot touch the live screen: permissions are
@@ -29,7 +30,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-24.04      # pinned: GitHub moves ubuntu-latest to Ubuntu 26 on 19 Oct 2026
-    timeout-minutes: 150
+    timeout-minutes: 300
     steps:
       - uses: actions/checkout@v6
 
@@ -319,11 +320,12 @@ jobs:
 
       - name: 5. Check the replay against the screener itself, and that dilution ignores the calendar
         continue-on-error: true
-        timeout-minutes: 120
+        timeout-minutes: 200
         shell: bash
         env:
           SEC_EMAIL: ${{ secrets.SEC_EMAIL }}
-          PIT_FULL_REPLAY: "0"      # "1" also rebuilds every past filing date (about 30 more minutes)
+          PIT_FULL_REPLAY: "1"      # also rebuilds every past filing date (about 30 more minutes)
+          PIT_DEADLINE_MIN: "150"   # the replay saves what it has and stops at this limit
         run: |
           cat > pit_core.py <<'PITCORE'
           """
@@ -828,6 +830,7 @@ jobs:
             echo "## Download the data for Claude"
             echo "Scroll down this page to **Artifacts** and click **quality-history**."
             echo "Upload that zip to Claude -- the zip, not this log."
+            echo "(quality-history-extras holds the heavy raw filings; leave it unless Claude asks.)"
             echo ""
             echo "## What each check found"
             echo '```'
@@ -852,11 +855,22 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload everything as one artifact
+      - name: Upload the quality history and every check
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: quality-history
-          path: backtest_data/
+          path: |
+            backtest_data/
+            !backtest_data/replay_fixture.json.gz
           retention-days: 30
           if-no-files-found: error
+
+      - name: Upload the heavy raw filings separately
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: quality-history-extras
+          path: backtest_data/replay_fixture.json.gz
+          retention-days: 30
+          if-no-files-found: ignore
