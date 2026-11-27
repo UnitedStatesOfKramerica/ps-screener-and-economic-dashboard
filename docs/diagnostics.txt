@@ -2,17 +2,17 @@
 RELIABILITY: WHERE OUR NUMBERS DISAGREE WITH YAHOO
 ==============================================================================
 468 rows cross-checked against Yahoo's independently reported figures.
-15 disagree on market cap by more than 12%, 11 on revenue by more than 15%.
+15 disagree on market cap by more than 12%, 12 on revenue by more than 15%.
 A market-cap gap points at the share count; a revenue gap at the concept merge.
 
 MARKET CAP (ours = SEC shares x Yahoo price, vs Yahoo's own):
   IBKR      -73%   ours $33.9B
-  CVNA      -71%   ours $50.2B
   VMRK      -50%   ours $25.1B
   WAT       -50%   ours $45.0B
   KMB       -46%   ours $36.5B
   SWKS      -36%   ours $12.4B
   BX        -35%   ours $95.2B
+  CVNA      -33%   ours $50.2B
   FOXA      -25%   ours $27.7B
   CHTR      -23%   ours $20.3B
   ECHO      +21%   ours $30.1B
@@ -34,6 +34,7 @@ REVENUE (ours = trailing twelve from filings, vs Yahoo's):
   BDX       +19%
   APTV      -19%
   NVDA      -16%
+  DELL      -16%
 
 ==============================================================================
 CONSTITUENTS THAT NEVER REACHED THE SCREEN
@@ -41,15 +42,15 @@ CONSTITUENTS THAT NEVER REACHED THE SCREEN
 
 APA     not yet filing          reports no revenue period of any kind -- typically a when-issued or spin-off ticker the index list added before the entity began filing with the SEC
 APO     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-ARES    share count stale       the newest consolidated share count is 695 days old (2024-12-31); a current one is only filed per share class, which companyfacts omits
+ARES    share count stale       the newest consolidated share count is 696 days old (2024-12-31); a current one is only filed per share class, which companyfacts omits
 BG      no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 BKR     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 BLK     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-BRK-B   share count stale       the newest consolidated share count is 4075 days old (2015-09-30); a current one is only filed per share class, which companyfacts omits
+BRK-B   share count stale       the newest consolidated share count is 4076 days old (2015-09-30); a current one is only filed per share class, which companyfacts omits
 CEG     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 COIN    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 CRH     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-ERIE    share count stale       the newest consolidated share count is 1975 days old (2021-06-30); a current one is only filed per share class, which companyfacts omits
+ERIE    share count stale       the newest consolidated share count is 1976 days old (2021-06-30); a current one is only filed per share class, which companyfacts omits
 FDXF    no revenue series       9 period(s) and 2 quarter(s) survived collection from 1 revenue concept(s), not enough to form a trailing twelve
 FERG    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 GEHC    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
@@ -68,7 +69,7 @@ STZ     no share count          no consolidated share concept is reported; the c
 SW      no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 SYF     not yet filing          reports no revenue period of any kind -- typically a when-issued or spin-off ticker the index list added before the entity began filing with the SEC
 TKO     no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
-V       share count stale       the newest consolidated share count is 6140 days old (2010-02-03); a current one is only filed per share class, which companyfacts omits
+V       share count stale       the newest consolidated share count is 6141 days old (2010-02-03); a current one is only filed per share class, which companyfacts omits
 VLTO    no summary row          summarize() returned nothing -- usually fewer than 60 usable months in the window
 VYLR    not yet filing          reports no revenue period of any kind -- typically a when-issued or spin-off ticker the index list added before the entity began filing with the SEC
 XOM     no revenue series       8 period(s) and 4 quarter(s) survived collection from 1 revenue concept(s), not enough to form a trailing twelve
@@ -79,7 +80,7 @@ AMD
 FLAGGED FOR:
   - the share count moved +33% within six months, ending 2022-07-05, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 14.84 | 5y med 9.09 | 10y med 8.09 | Z 1.2414472594423842 | years 10.0
+P/S now 14.84 | 5y med 9.09 | 10y med 8.09 | Z 1.2414472594519665 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -210,7 +211,7 @@ FLAGGED FOR:
   - 15 of the months in the window are valued on a revenue figure that was already up to 729 days old, and there is not enough history left to measure without them, so the median rests on them
   - the share count moved +140% within six months, ending 2021-09-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 7.41 | 5y med 8.46 | 10y med 9.27 | Z -0.7772818836716031 | years 6.0
+P/S now 7.41 | 5y med 8.46 | 10y med 9.27 | Z -0.7772818837804133 | years 6.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -319,7 +320,7 @@ ALB
 FLAGGED FOR:
   - the share count moved +42% within six months, ending 2015-07-09, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.81 | 5y med 2.62 | 10y med 3.19 | Z -1.062956043691459 | years 10.0
+P/S now 1.81 | 5y med 2.62 | 10y med 3.19 | Z -1.062956043685753 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -440,7 +441,7 @@ LNT
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 209 days ago, so the denominator is stale
+  - newest revenue figure was filed 210 days ago, so the denominator is stale
 
 P/S now 4.28 | 5y med 3.85 | 10y med 3.47 | Z 1.3901598406025408 | years 9.9
 cross-check: None (revenue None, mktcap None)
@@ -571,7 +572,7 @@ AMCR
 FLAGGED FOR:
   - the share count moved +1129% within six months, ending 2024-12-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.88 | 5y med 0.11 | 10y med 0.12 | Z 1.4504027028947204 | years 9.2
+P/S now 0.88 | 5y med 0.11 | 10y med 0.12 | Z 1.4504027028622573 | years 9.2
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -685,7 +686,7 @@ AEP
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 205 days ago, so the denominator is stale
+  - newest revenue figure was filed 206 days ago, so the denominator is stale
 
 P/S now 3.14 | 5y med 2.67 | 10y med 2.61 | Z 1.503762356847764 | years 9.9
 cross-check: None (revenue None, mktcap None)
@@ -818,7 +819,7 @@ ADI
 FLAGGED FOR:
   - the share count moved +42% within six months, ending 2022-02-07, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 11.77 | 5y med 10.39 | 10y med 7.85 | Z 1.1683632870707186 | years 10.0
+P/S now 11.77 | 5y med 10.39 | 10y med 7.85 | Z 1.1683632870973648 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -949,7 +950,7 @@ FLAGGED FOR:
   - 11 of the months in the window are valued on a revenue figure that was already up to 743 days old, and there is not enough history left to measure without them, so the median rests on them
   - the share count moved +73% within six months, ending 2021-09-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 16.78 | 5y med 14.02 | 10y med 15.57 | Z 0.25464545946009465 | years 5.6
+P/S now 16.78 | 5y med 14.02 | 10y med 15.57 | Z 0.2546454594397218 | years 5.6
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1160,7 +1161,7 @@ FLAGGED FOR:
   - share count jumps +86% in one day on 2015-12-31 with no split or corporate action to explain it
   - the share count moved +88% within six months, ending 2016-03-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 5.92 | 5y med 8.39 | 10y med 7.07 | Z -0.5340357352755439 | years 10.0
+P/S now 5.92 | 5y med 8.39 | 10y med 7.07 | Z -0.5340357353005203 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1279,7 +1280,7 @@ BE
 FLAGGED FOR:
   - the share count is 38% higher than a year ago, on 2018-10-01 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 13.01 | 5y med 3.71 | 10y med 3.47 | Z 1.2618974114903323 | years 7.7
+P/S now 13.01 | 5y med 3.71 | 10y med 3.47 | Z 1.2618974114953376 | years 7.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1402,7 +1403,7 @@ BNY
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 273 days ago, so the denominator is stale
+  - newest revenue figure was filed 274 days ago, so the denominator is stale
 
 P/S now 5.08 | 5y med 2.57 | 10y med 2.75 | Z 2.140677487814782 | years 9.7
 cross-check: None (revenue None, mktcap None)
@@ -1532,7 +1533,7 @@ BMY
 FLAGGED FOR:
   - the share count moved +38% within six months, ending 2020-06-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.53 | 5y med 2.52 | 10y med 3.33 | Z -0.8646763870769534 | years 10.0
+P/S now 2.53 | 5y med 2.52 | 10y med 3.33 | Z -0.8646763870700569 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1765,7 +1766,7 @@ COF
 FLAGGED FOR:
   - the share count moved +67% within six months, ending 2025-09-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.79 | 5y med 1.63 | 10y med 1.62 | Z 0.3098503323642749 | years 10.0
+P/S now 1.79 | 5y med 1.63 | 10y med 1.62 | Z 0.30985033231688885 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -1893,7 +1894,7 @@ FLAGGED FOR:
   - trailing revenue falls 85% around 2021-02-28, 87x this company's usual move between filings, at the exact point the source concept changes from reported-annual to RevenueFromContractWithCustomerExcludingAssessedTax
   - the share count moved +52% within six months, ending 2021-03-01, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.40 | 5y med 1.28 | 10y med 1.53 | Z -0.37417724460765833 | years 9.4
+P/S now 1.40 | 5y med 1.28 | 10y med 1.53 | Z -0.3741772446126063 | years 9.4
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2135,7 +2136,7 @@ CBOE
 FLAGGED FOR:
   - the share count moved +38% within six months, ending 2017-10-02, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 6.99 | 5y med 5.16 | 10y med 4.86 | Z 1.138903589588013 | years 10.0
+P/S now 6.99 | 5y med 5.16 | 10y med 4.86 | Z 1.1389035896082196 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2263,7 +2264,7 @@ CNC
 FLAGGED FOR:
   - the share count moved +42% within six months, ending 2016-09-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.18 | 5y med 0.27 | 10y med 0.34 | Z -1.2579492263474348 | years 10.0
+P/S now 0.18 | 5y med 0.27 | 10y med 0.34 | Z -1.2579492262800143 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2389,7 +2390,7 @@ CNP
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 217 days ago, so the denominator is stale
+  - newest revenue figure was filed 218 days ago, so the denominator is stale
 
 P/S now 2.85 | 5y med 2.26 | 10y med 2.08 | Z 1.4541356205635516 | years 9.6
 cross-check: None (revenue None, mktcap None)
@@ -2517,7 +2518,7 @@ SCHW
 FLAGGED FOR:
   - the share count moved +47% within six months, ending 2021-06-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 6.01 | 5y med 7.18 | 10y med 7.17 | Z -0.5609294108022138 | years 10.0
+P/S now 6.01 | 5y med 7.18 | 10y med 7.17 | Z -0.5609294107322885 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2643,7 +2644,7 @@ CHTR
 FLAGGED FOR:
   - the share count moved +171% within six months, ending 2016-10-07, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.36 | 5y med 0.97 | 10y med 1.71 | Z -2.1650440867537455 | years 10.0
+P/S now 0.36 | 5y med 0.97 | 10y med 1.71 | Z -2.1650440869607412 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2761,7 +2762,7 @@ CB
 FLAGGED FOR:
   - the share count moved +43% within six months, ending 2016-09-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.41 | 5y med 2.08 | 10y med 2.06 | Z 1.8986060570560799 | years 10.0
+P/S now 2.41 | 5y med 2.08 | 10y med 2.06 | Z 1.898606056367441 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -2888,7 +2889,7 @@ CIEN
 FLAGGED FOR:
   - the share count moved +41% within six months, ending 2016-08-01, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 5.90 | 5y med 2.30 | 10y med 1.92 | Z 1.6702613236797603 | years 10.0
+P/S now 5.90 | 5y med 2.30 | 10y med 1.92 | Z 1.6702613237321817 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -3016,7 +3017,7 @@ CI
 FLAGGED FOR:
   - the share count moved +56% within six months, ending 2019-04-01, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.25 | 5y med 0.44 | 10y med 0.47 | Z -1.773876334167575 | years 9.7
+P/S now 0.25 | 5y med 0.44 | 10y med 0.47 | Z -1.773876333987985 | years 9.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -3137,7 +3138,7 @@ C
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 279 days ago, so the denominator is stale
+  - newest revenue figure was filed 280 days ago, so the denominator is stale
 
 P/S now 2.49 | 5y med 1.54 | 10y med 1.99 | Z 1.0072115167076845 | years 9.7
 cross-check: None (revenue None, mktcap None)
@@ -3264,7 +3265,7 @@ CLX
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 210 days ago, so the denominator is stale
+  - newest revenue figure was filed 211 days ago, so the denominator is stale
 
 P/S now 2.00 | 5y med 2.49 | 10y med 2.80 | Z -1.5596122101967542 | years 9.9
 cross-check: None (revenue None, mktcap None)
@@ -3392,7 +3393,7 @@ COHR
 FLAGGED FOR:
   - the share count moved +42% within six months, ending 2020-03-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 5.01 | 5y med 2.29 | 10y med 2.31 | Z 1.4471019802694074 | years 10.0
+P/S now 5.01 | 5y med 2.29 | 10y med 2.31 | Z 1.4471019802990297 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -3514,7 +3515,7 @@ ED
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 203 days ago, so the denominator is stale
+  - newest revenue figure was filed 204 days ago, so the denominator is stale
 
 P/S now 2.57 | 5y med 2.24 | 10y med 2.16 | Z 2.139390537743499 | years 9.9
 cross-check: None (revenue None, mktcap None)
@@ -3856,7 +3857,7 @@ CRWD
 FLAGGED FOR:
   - the share count moved +48% within six months, ending 2020-11-02, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 40.51 | 5y med 24.87 | 10y med 27.31 | Z 0.8214114625816828 | years 6.7
+P/S now 40.51 | 5y med 24.87 | 10y med 27.31 | Z 0.8214114626555745 | years 6.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -3971,7 +3972,7 @@ DELL
 FLAGGED FOR:
   - the share count moved +85% within six months, ending 2019-05-03, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.28 | 5y med 0.76 | 10y med 0.34 | Z 1.489870628627736 | years 9.7
+P/S now 1.28 | 5y med 0.76 | 10y med 0.34 | Z 1.4898706286722085 | years 9.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4100,7 +4101,7 @@ DVN
 FLAGGED FOR:
   - the share count is 80% higher than a year ago, on 2026-10-07 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 2.09 | 5y med 1.82 | 10y med 1.80 | Z 0.2826577942349891 | years 8.7
+P/S now 2.09 | 5y med 1.82 | 10y med 1.80 | Z 0.28265779421481024 | years 8.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4223,7 +4224,7 @@ FANG
 FLAGGED FOR:
   - the share count moved +62% within six months, ending 2025-03-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.72 | 5y med 3.31 | 10y med 3.38 | Z -0.5188955882948298 | years 7.7
+P/S now 2.72 | 5y med 3.31 | 10y med 3.38 | Z -0.5188955882491221 | years 7.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -4345,7 +4346,7 @@ DLR
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 209 days ago, so the denominator is stale
+  - newest revenue figure was filed 210 days ago, so the denominator is stale
 
 P/S now 9.27 | 5y med 9.00 | 10y med 8.72 | Z 0.3061820738705055 | years 9.9
 cross-check: None (revenue None, mktcap None)
@@ -4473,7 +4474,7 @@ D
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 209 days ago, so the denominator is stale
+  - newest revenue figure was filed 210 days ago, so the denominator is stale
   - the derived quarters disagreed with the company's own reported annual total at 10 of 19 year ends; the reported figures have been used instead, but the quarterly series is unreliable
 
 P/S now 3.44 | 5y med 3.31 | 10y med 3.92 | Z -0.6097164413284885 | years 9.9
@@ -4605,7 +4606,7 @@ DOW
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 216 days ago, so the denominator is stale
+  - newest revenue figure was filed 217 days ago, so the denominator is stale
 
 P/S now 0.55 | 5y med 0.69 | 10y med 0.74 | Z -0.9710781968860625 | years 6.6
 cross-check: None (revenue None, mktcap None)
@@ -4725,7 +4726,7 @@ DTE
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 210 days ago, so the denominator is stale
+  - newest revenue figure was filed 211 days ago, so the denominator is stale
 
 P/S now 1.74 | 5y med 1.77 | 10y med 1.53 | Z 0.5708647850372749 | years 9.8
 cross-check: None (revenue None, mktcap None)
@@ -4856,7 +4857,7 @@ DUK
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 205 days ago, so the denominator is stale
+  - newest revenue figure was filed 206 days ago, so the denominator is stale
 
 P/S now 3.16 | 5y med 2.93 | 10y med 2.73 | Z 1.192042247302839 | years 9.9
 cross-check: None (revenue None, mktcap None)
@@ -4989,7 +4990,7 @@ ECHO
 FLAGGED FOR:
   - the share count is 122144% higher than a year ago, on 2026-06-30 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 2.48 | 5y med 0.07 | 10y med 1.61 | Z 0.6169853463589495 | years 10.0
+P/S now 2.48 | 5y med 0.07 | 10y med 1.61 | Z 0.6169853463532322 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -5120,7 +5121,7 @@ EIX
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 212 days ago, so the denominator is stale
+  - newest revenue figure was filed 213 days ago, so the denominator is stale
 
 P/S now 1.25 | 5y med 1.52 | 10y med 1.62 | Z -1.6063604848232844 | years 9.8
 cross-check: None (revenue None, mktcap None)
@@ -5242,7 +5243,7 @@ ETR
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 209 days ago, so the denominator is stale
+  - newest revenue figure was filed 210 days ago, so the denominator is stale
 
 P/S now 3.74 | 5y med 2.01 | 10y med 1.87 | Z 2.0400545336494256 | years 9.9
 cross-check: None (revenue None, mktcap None)
@@ -5374,7 +5375,7 @@ EQT
 FLAGGED FOR:
   - the share count moved +53% within six months, ending 2018-07-02, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.47 | 5y med 3.54 | 10y med 2.22 | Z 0.6612138009161583 | years 9.7
+P/S now 3.47 | 5y med 3.54 | 10y med 2.22 | Z 0.6612138008998217 | years 9.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -5497,7 +5498,7 @@ EVRG
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 203 days ago, so the denominator is stale
+  - newest revenue figure was filed 204 days ago, so the denominator is stale
   - the share count moved +88% within six months, ending 2018-10-01, which no split explains -- the multiples either side of it are measuring different companies
 
 P/S now 3.59 | 5y med 2.69 | 10y med 2.79 | Z 2.0308302179449482 | years 9.6
@@ -5613,7 +5614,7 @@ EXC
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 204 days ago, so the denominator is stale
+  - newest revenue figure was filed 205 days ago, so the denominator is stale
 
 P/S now 1.93 | 5y med 1.93 | 10y med 1.68 | Z 0.5309159298042295 | years 9.9
 cross-check: None (revenue None, mktcap None)
@@ -5745,7 +5746,7 @@ EXE
 FLAGGED FOR:
   - the share count moved +964% within six months, ending 2021-03-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.48 | 5y med 1.84 | 10y med 1.64 | Z -0.10374369146682816 | years 5.8
+P/S now 1.48 | 5y med 1.84 | 10y med 1.64 | Z -0.10374369142966648 | years 5.8
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -5868,7 +5869,7 @@ FLAGGED FOR:
   - share count jumps +30% in one day on 2024-04-01 with no split or corporate action to explain it
   - the share count moved +53% within six months, ending 2024-04-01, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 10.22 | 5y med 10.77 | 10y med 10.83 | Z -0.5007284901844195 | years 10.0
+P/S now 10.22 | 5y med 10.77 | 10y med 10.83 | Z -0.5007284902365138 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -5995,7 +5996,7 @@ FRT
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 209 days ago, so the denominator is stale
+  - newest revenue figure was filed 210 days ago, so the denominator is stale
 
 P/S now 7.55 | 5y med 7.43 | 10y med 8.29 | Z -0.6873142445076804 | years 9.9
 cross-check: None (revenue None, mktcap None)
@@ -6118,7 +6119,7 @@ FERG
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 352 days ago, so the denominator is stale
+  - newest revenue figure was filed 353 days ago, so the denominator is stale
   - 26 of the months in the window are valued on a revenue figure that was already up to 615 days old, and there is not enough history left to measure without them, so the median rests on them
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6215,7 +6216,7 @@ FLAGGED FOR:
   - share count jumps +39% in one day on 2020-03-31 with no split or corporate action to explain it
   - the share count moved +91% within six months, ending 2020-03-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.10 | 5y med 4.03 | 10y med 4.24 | Z -3.5295574930536513 | years 10.0
+P/S now 1.10 | 5y med 4.03 | 10y med 4.24 | Z -3.5295574927546562 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6464,7 +6465,7 @@ FE
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 212 days ago, so the denominator is stale
+  - newest revenue figure was filed 213 days ago, so the denominator is stale
 
 P/S now 1.78 | 5y med 1.79 | 10y med 1.77 | Z 0.2428327751241332 | years 9.8
 cross-check: None (revenue None, mktcap None)
@@ -6598,7 +6599,7 @@ FLAGGED FOR:
   - share count jumps +32% in one day on 2020-03-31 with no split or corporate action to explain it
   - the share count moved +73% within six months, ending 2020-03-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.53 | 5y med 4.09 | 10y med 4.79 | Z -2.4351468934146863 | years 10.0
+P/S now 1.53 | 5y med 4.09 | 10y med 4.79 | Z -2.435146893540552 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6729,7 +6730,7 @@ FLAGGED FOR:
   - share count jumps +101371% in one day on 2015-06-29 with no split or corporate action to explain it
   - the share count moved -100% within six months, ending 2015-09-28, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 6.87 | 5y med 5.54 | 10y med 4.76 | Z 0.5780726261782672 | years 10.0
+P/S now 6.87 | 5y med 5.54 | 10y med 4.76 | Z 0.5780726261774315 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -6857,7 +6858,7 @@ GE
 FLAGGED FOR:
   - the derived quarters disagreed with the company's own reported annual total at 11 of 19 year ends; the reported figures have been used instead, but the quarterly series is unreliable
 
-P/S now 6.31 | 5y med 4.85 | 10y med 1.10 | Z 1.4716341603300054 | years 10.0
+P/S now 6.31 | 5y med 4.85 | 10y med 1.10 | Z 1.4716341603500698 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7191,7 +7192,7 @@ GEN
 FLAGGED FOR:
   - trailing revenue falls 46% around 2018-03-30, 31x this company's usual move between filings, at the exact point the source concept changes from mixed to RevenueFromContractWithCustomerExcludingAssessedTax
 
-P/S now 3.48 | 5y med 4.11 | 10y med 4.60 | Z -1.0218887829214613 | years 10.0
+P/S now 3.48 | 5y med 4.11 | 10y med 4.60 | Z -1.0218887829596526 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7320,7 +7321,7 @@ GPN
 FLAGGED FOR:
   - the share count moved +91% within six months, ending 2020-03-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.25 | 5y med 3.26 | 10y med 4.11 | Z -1.6008669166018934 | years 10.0
+P/S now 2.25 | 5y med 3.26 | 10y med 4.11 | Z -1.6008669167608471 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7440,7 +7441,7 @@ GDDY
 FLAGGED FOR:
   - the share count moved +90% within six months, ending 2024-01-02, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.65 | 5y med 2.45 | 10y med 1.98 | Z 0.35480430250179196 | years 10.0
+P/S now 2.65 | 5y med 2.45 | 10y med 1.98 | Z 0.3548043025171138 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7560,7 +7561,7 @@ HBAN
 FLAGGED FOR:
   - the share count is 38% higher than a year ago, on 2021-09-30 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 16.30 | 5y med 16.09 | 10y med 16.18 | Z 0.2496027716988218 | years 7.8
+P/S now 16.30 | 5y med 16.09 | 10y med 16.18 | Z 0.24960277170546938 | years 7.8
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7683,7 +7684,7 @@ IR
 FLAGGED FOR:
   - the share count moved +102% within six months, ending 2020-09-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.04 | 5y med 4.30 | 10y med 4.15 | Z 0.1493860811097755 | years 9.5
+P/S now 4.04 | 5y med 4.30 | 10y med 4.15 | Z 0.14938608116122673 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7799,7 +7800,7 @@ ICE
 FLAGGED FOR:
   - the share count moved +435% within six months, ending 2016-06-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 7.16 | 5y med 7.24 | 10y med 7.42 | Z -0.12485026931960093 | years 9.7
+P/S now 7.16 | 5y med 7.24 | 10y med 7.42 | Z -0.12485026920400241 | years 9.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -7924,7 +7925,7 @@ IFF
 FLAGGED FOR:
   - the share count moved +124% within six months, ending 2021-07-09, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.88 | 5y med 1.86 | 10y med 2.65 | Z -0.9114019862187851 | years 10.0
+P/S now 1.88 | 5y med 1.86 | 10y med 2.65 | Z -0.9114019861992704 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8047,7 +8048,7 @@ IP
 FLAGGED FOR:
   - the share count moved +51% within six months, ending 2025-06-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.70 | 5y med 0.85 | 10y med 0.90 | Z -0.8373047331029216 | years 10.0
+P/S now 0.70 | 5y med 0.85 | 10y med 0.90 | Z -0.837304733047432 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8171,7 +8172,7 @@ INVH
 FLAGGED FOR:
   - the share count moved +67% within six months, ending 2018-07-02, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 5.72 | 5y med 8.45 | 10y med 8.64 | Z -1.9459409084671888 | years 8.7
+P/S now 5.72 | 5y med 8.45 | 10y med 8.64 | Z -1.9459409083963668 | years 8.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8294,7 +8295,7 @@ IQV
 FLAGGED FOR:
   - the share count moved +94% within six months, ending 2017-04-10, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.44 | 5y med 2.64 | 10y med 2.65 | Z -0.35766941337236136 | years 10.0
+P/S now 2.44 | 5y med 2.64 | 10y med 2.65 | Z -0.3576694133448512 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8550,7 +8551,7 @@ FLAGGED FOR:
   - share count jumps +29% in one day on 2019-04-01 with no split or corporate action to explain it
   - the share count moved +683% within six months, ending 2019-04-01, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.10 | 5y med 3.05 | 10y med 3.58 | Z -1.6318513899009752 | years 9.1
+P/S now 2.10 | 5y med 3.05 | 10y med 3.58 | Z -1.631851389927274 | years 9.1
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8672,7 +8673,7 @@ KIM
 FLAGGED FOR:
   - the share count moved +43% within six months, ending 2022-03-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 8.01 | 5y med 7.26 | 10y med 7.03 | Z 0.6501204690376994 | years 10.0
+P/S now 8.01 | 5y med 7.26 | 10y med 7.03 | Z 0.6501204690529809 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8803,7 +8804,7 @@ KMI
 FLAGGED FOR:
   - the share count moved +113% within six months, ending 2015-06-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.21 | 5y med 3.19 | 10y med 3.21 | Z 1.214469987695809 | years 10.0
+P/S now 4.21 | 5y med 3.19 | 10y med 3.21 | Z 1.2144699877169438 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -8933,7 +8934,7 @@ KKR
 FLAGGED FOR:
   - the share count moved +47% within six months, ending 2022-06-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.15 | 5y med 4.99 | 10y med 5.34 | Z -0.5442096733689386 | years 6.9
+P/S now 4.15 | 5y med 4.99 | 10y med 5.34 | Z -0.5442096734313475 | years 6.9
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9051,7 +9052,7 @@ KHC
 FLAGGED FOR:
   - the share count moved +56% within six months, ending 2016-10-03, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.28 | 5y med 1.57 | 10y med 1.66 | Z -0.9388020627119938 | years 10.0
+P/S now 1.28 | 5y med 1.57 | 10y med 1.66 | Z -0.9388020627052224 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9168,7 +9169,7 @@ LHX
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 392 days ago, so the denominator is stale
+  - newest revenue figure was filed 393 days ago, so the denominator is stale
   - the share count moved +87% within six months, ending 2019-09-27, which no split explains -- the multiples either side of it are measuring different companies
 
 P/S now 2.26 | 5y med 2.24 | 10y med 2.51 | Z -0.5966127538151242 | years 9.3
@@ -9303,7 +9304,7 @@ FLAGGED FOR:
   - share count jumps +47% in one day on 2017-03-31 with no split or corporate action to explain it
   - the share count moved +107% within six months, ending 2017-03-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.93 | 5y med 1.05 | 10y med 1.07 | Z -0.9471165861799448 | years 9.7
+P/S now 0.93 | 5y med 1.05 | 10y med 1.07 | Z -0.9471165860841025 | years 9.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9432,7 +9433,7 @@ LEN
 FLAGGED FOR:
   - the share count moved +40% within six months, ending 2018-05-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.65 | 5y med 0.93 | 10y med 0.97 | Z -1.5808899269282393 | years 10.0
+P/S now 0.65 | 5y med 0.93 | 10y med 0.97 | Z -1.5808899268991548 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9552,7 +9553,7 @@ LIN
 FLAGGED FOR:
   - the share count moved +89% within six months, ending 2019-04-01, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 6.72 | 5y med 6.23 | 10y med 5.60 | Z 1.061402422526184 | years 9.7
+P/S now 6.72 | 5y med 6.23 | 10y med 5.60 | Z 1.0614024224461451 | years 9.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9671,7 +9672,7 @@ LYV
 FLAGGED FOR:
   - trailing revenue falls 58% around 2021-03-31, 30x this company's usual move between filings, at the exact point the source concept changes from reported-annual to Revenues
 
-P/S now 1.67 | 5y med 1.38 | 10y med 1.23 | Z 0.09240543251182064 | years 10.0
+P/S now 1.67 | 5y med 1.38 | 10y med 1.23 | Z 0.09240543252291188 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -9795,7 +9796,7 @@ LITE
 FLAGGED FOR:
   - the share count is 30% higher than a year ago, on 2026-03-30 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 12.95 | 5y med 3.57 | 10y med 3.44 | Z 1.7348571222035207 | years 10.0
+P/S now 12.95 | 5y med 3.57 | 10y med 3.44 | Z 1.7348571223158455 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -10034,7 +10035,7 @@ MPC
 FLAGGED FOR:
   - the share count moved +44% within six months, ending 2019-04-08, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.57 | 5y med 0.40 | 10y med 0.39 | Z 1.3794826826144073 | years 9.7
+P/S now 0.57 | 5y med 0.40 | 10y med 0.39 | Z 1.3794826825126252 | years 9.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -10166,7 +10167,7 @@ MAR
 FLAGGED FOR:
   - the share count moved +51% within six months, ending 2017-03-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.01 | 5y med 2.97 | 10y med 2.71 | Z 1.242716940540183 | years 10.0
+P/S now 4.01 | 5y med 2.97 | 10y med 2.71 | Z 1.242716940606289 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -10292,7 +10293,7 @@ MDT
 FLAGGED FOR:
   - the share count moved +44% within six months, ending 2015-08-03, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.29 | 5y med 3.51 | 10y med 3.80 | Z -1.0322049197548964 | years 10.0
+P/S now 3.29 | 5y med 3.51 | 10y med 3.80 | Z -1.0322049197307215 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -10414,7 +10415,7 @@ MAA
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 210 days ago, so the denominator is stale
+  - newest revenue figure was filed 211 days ago, so the denominator is stale
   - the share count moved +157% within six months, ending 2018-07-02, which no split explains -- the multiples either side of it are measuring different companies
 
 P/S now 6.20 | 5y med 8.10 | 10y med 8.21 | Z -1.5490068122312333 | years 8.6
@@ -10542,7 +10543,7 @@ MRNA
 
 FLAGGED FOR:
   - trailing revenue jumps 132% around 2020-09-30, 5x this company's usual move between filings, at the exact point the source concept changes from mixed to Revenues
-  - newest revenue figure was filed 273 days ago, so the denominator is stale
+  - newest revenue figure was filed 274 days ago, so the denominator is stale
 
 P/S now 48.85 | 5y med 3.56 | 10y med 6.80 | Z 0.6419852994855184 | years 7.4
 cross-check: None (revenue None, mktcap None)
@@ -10664,7 +10665,7 @@ NEM
 FLAGGED FOR:
   - the share count moved +54% within six months, ending 2019-10-07, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.08 | 5y med 3.56 | 10y med 3.78 | Z 0.4404578260285922 | years 9.7
+P/S now 4.08 | 5y med 3.56 | 10y med 3.78 | Z 0.4404578261004053 | years 9.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -10790,7 +10791,7 @@ NEE
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 217 days ago, so the denominator is stale
+  - newest revenue figure was filed 218 days ago, so the denominator is stale
 
 P/S now 6.87 | 5y med 6.68 | 10y med 6.44 | Z 0.3506971840864208 | years 9.8
 cross-check: None (revenue None, mktcap None)
@@ -10918,7 +10919,7 @@ FLAGGED FOR:
   - trailing revenue falls 97% around 2021-03-31, 105x this company's usual move between filings, at the exact point the source concept changes from reported-annual to RevenueFromContractWithCustomerIncludingAssessedTax
   - the share count moved +45% within six months, ending 2021-09-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 0.78 | 5y med 1.13 | 10y med 1.77 | Z -0.7545072352014249 | years 10.0
+P/S now 0.78 | 5y med 1.13 | 10y med 1.77 | Z -0.7545072352095215 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -11039,7 +11040,7 @@ NXPI
 FLAGGED FOR:
   - the share count moved +39% within six months, ending 2017-01-03, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.47 | 5y med 4.38 | 10y med 4.35 | Z 0.08601409191412354 | years 9.7
+P/S now 4.47 | 5y med 4.38 | 10y med 4.35 | Z 0.08601409185570472 | years 9.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -11167,7 +11168,7 @@ OMC
 FLAGGED FOR:
   - the share count is 45% higher than a year ago, on 2026-04-08 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 1.04 | 5y med 1.12 | 10y med 1.13 | Z -0.41731055410707696 | years 10.0
+P/S now 1.04 | 5y med 1.12 | 10y med 1.13 | Z -0.41731055412085183 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -11283,7 +11284,7 @@ FLAGGED FOR:
   - share count jumps +37% in one day on 2018-04-02 with no split or corporate action to explain it
   - the share count moved +93% within six months, ending 2018-04-02, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.27 | 5y med 1.64 | 10y med 1.84 | Z -1.2315134187818912 | years 10.0
+P/S now 1.27 | 5y med 1.64 | 10y med 1.84 | Z -1.2315134189145922 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -11414,7 +11415,7 @@ PCAR
 FLAGGED FOR:
   - the share count moved +50% within six months, ending 2023-01-03, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.96 | 5y med 1.56 | 10y med 1.39 | Z 1.3913948127262734 | years 10.0
+P/S now 1.96 | 5y med 1.56 | 10y med 1.39 | Z 1.3913948127919187 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -11540,7 +11541,7 @@ PLTR
 FLAGGED FOR:
   - the share count moved +109% within six months, ending 2021-06-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 57.77 | 5y med 25.98 | 10y med 28.34 | Z 0.639820937627424 | years 5.3
+P/S now 57.77 | 5y med 25.98 | 10y med 28.34 | Z 0.6398209375725783 | years 5.3
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -11656,7 +11657,7 @@ PANW
 FLAGGED FOR:
   - the share count moved +250% within six months, ending 2023-05-01, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 23.97 | 5y med 13.66 | 10y med 3.30 | Z 1.7095537807606533 | years 10.0
+P/S now 23.97 | 5y med 13.66 | 10y med 3.30 | Z 1.709553780813275 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -11785,7 +11786,7 @@ PPL
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 202 days ago, so the denominator is stale
+  - newest revenue figure was filed 203 days ago, so the denominator is stale
 
 P/S now 2.85 | 5y med 2.93 | 10y med 3.00 | Z -0.4115145829627675 | years 9.9
 cross-check: None (revenue None, mktcap None)
@@ -11916,7 +11917,7 @@ PLD
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 210 days ago, so the denominator is stale
+  - newest revenue figure was filed 211 days ago, so the denominator is stale
 
 P/S now 13.59 | 5y med 15.18 | 10y med 15.35 | Z -0.7354979371195042 | years 9.9
 cross-check: None (revenue None, mktcap None)
@@ -12044,7 +12045,7 @@ PRU
 FLAGGED FOR:
   - trailing revenue jumps 68% around 2012-12-31, 16x this company's usual move between filings, at the exact point the source concept changes from Revenues to reported-annual
 
-P/S now 0.68 | 5y med 0.62 | 10y med 0.64 | Z 0.4546930517081184 | years 10.0
+P/S now 0.68 | 5y med 0.62 | 10y med 0.64 | Z 0.4546930517722626 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12355,7 +12356,7 @@ O
 FLAGGED FOR:
   - the share count moved +59% within six months, ending 2022-03-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 9.19 | 5y med 10.29 | 10y med 12.39 | Z -1.4967597183564931 | years 10.0
+P/S now 9.19 | 5y med 10.29 | 10y med 12.39 | Z -1.496759718376171 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12479,7 +12480,7 @@ REG
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 206 days ago, so the denominator is stale
+  - newest revenue figure was filed 207 days ago, so the denominator is stale
   - 1 of the months in the window are valued on a revenue figure that was already up to 205 days old, and there is not enough history left to measure without them, so the median rests on them
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12597,7 +12598,7 @@ FLAGGED FOR:
   - share count jumps +76% in one day on 2022-03-31 with no split or corporate action to explain it
   - the share count moved +274% within six months, ending 2022-03-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 11.82 | 5y med 9.39 | 10y med 9.39 | Z 0.16428207491909272 | years 5.3
+P/S now 11.82 | 5y med 9.39 | 10y med 9.39 | Z 0.16428207495248193 | years 5.3
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12707,7 +12708,7 @@ ROL
 FLAGGED FOR:
   - the share count moved +50% within six months, ending 2020-09-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.63 | 5y med 7.10 | 10y med 6.98 | Z -2.10983587012821 | years 10.0
+P/S now 4.63 | 5y med 7.10 | 10y med 6.98 | Z -2.1098358697450643 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12832,7 +12833,7 @@ RCL
 FLAGGED FOR:
   - trailing revenue falls 90% around 2021-03-31, 101x this company's usual move between filings, at the exact point the source concept changes from reported-annual to RevenueFromContractWithCustomerExcludingAssessedTax
 
-P/S now 4.42 | 5y med 3.65 | 10y med 2.86 | Z 0.10075267612127774 | years 10.0
+P/S now 4.42 | 5y med 3.65 | 10y med 2.86 | Z 0.1007526761133191 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -12957,7 +12958,7 @@ SPGI
 FLAGGED FOR:
   - the share count moved +40% within six months, ending 2022-06-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 7.89 | 5y med 10.23 | 10y med 9.72 | Z -0.6270425808793237 | years 10.0
+P/S now 7.89 | 5y med 10.23 | 10y med 9.72 | Z -0.6270425808559312 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -13170,14 +13171,14 @@ CORPORATE ACTIONS: []
 
 P/S SERIES, YEARLY SAMPLE
   2025-12-31  price    237.38  shares      1,192M  cap $    283.0B  rev $    7.78B  P/S    36.37
-  2026-12-31  price     94.39  shares      1,232M  cap $    116.3B  rev $   28.97B  P/S     4.01
+  2026-12-31  price     73.61  shares      1,232M  cap $     90.7B  rev $   28.97B  P/S     3.13
 
 ==============================================================================
 SRE
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 203 days ago, so the denominator is stale
+  - newest revenue figure was filed 204 days ago, so the denominator is stale
 
 P/S now 4.26 | 5y med 4.06 | 10y med 3.74 | Z 0.863087250521215 | years 9.9
 cross-check: None (revenue None, mktcap None)
@@ -13575,7 +13576,7 @@ SO
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 210 days ago, so the denominator is stale
+  - newest revenue figure was filed 211 days ago, so the denominator is stale
 
 P/S now 3.65 | 5y med 3.42 | 10y med 2.98 | Z 1.18500384387376 | years 9.9
 cross-check: None (revenue None, mktcap None)
@@ -13705,7 +13706,7 @@ TMUS
 FLAGGED FOR:
   - the share count moved +45% within six months, ending 2020-09-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 1.92 | 5y med 2.35 | 10y med 2.13 | Z -0.17725952107720663 | years 10.0
+P/S now 1.92 | 5y med 2.35 | 10y med 2.13 | Z -0.17725952108746165 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -13835,7 +13836,7 @@ TTWO
 FLAGGED FOR:
   - the share count moved +46% within six months, ending 2023-01-03, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 6.64 | 5y med 5.36 | 10y med 5.48 | Z 0.8980277053755851 | years 10.0
+P/S now 6.64 | 5y med 5.36 | 10y med 5.48 | Z 0.8980277052988386 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -13963,7 +13964,7 @@ TRGP
 FLAGGED FOR:
   - the share count moved +40% within six months, ending 2017-10-02, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.38 | 5y med 1.63 | 10y med 1.07 | Z 1.697607027844623 | years 9.7
+P/S now 3.38 | 5y med 1.63 | 10y med 1.07 | Z 1.697607027994777 | years 9.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14189,7 +14190,7 @@ TFC
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 3132 days ago, so the denominator is stale
+  - newest revenue figure was filed 3133 days ago, so the denominator is stale
   - 108 of the months in the window are valued on a revenue figure that was already up to 3131 days old, and there is not enough history left to measure without them, so the median rests on them
   - a P/S of 405 is not a valuation, it is a broken denominator
   - the share count moved +75% within six months, ending 2020-03-31, which no split explains -- the multiples either side of it are measuring different companies
@@ -14315,7 +14316,7 @@ TWLO
 FLAGGED FOR:
   - the share count moved +35% within six months, ending 2020-06-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 5.01 | 5y med 3.76 | 10y med 7.45 | Z -0.5379556247931868 | years 9.5
+P/S now 5.01 | 5y med 3.76 | 10y med 7.45 | Z -0.5379556247975473 | years 9.5
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14438,7 +14439,7 @@ UBER
 FLAGGED FOR:
   - the share count moved +275% within six months, ending 2019-09-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.41 | 5y med 3.31 | 10y med 3.68 | Z -1.0229338992933896 | years 6.7
+P/S now 2.41 | 5y med 3.31 | 10y med 3.68 | Z -1.0229338993605595 | years 6.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14552,7 +14553,7 @@ URI
 ==============================================================================
 
 FLAGGED FOR:
-  - newest revenue figure was filed 218 days ago, so the denominator is stale
+  - newest revenue figure was filed 219 days ago, so the denominator is stale
 
 P/S now 3.89 | 5y med 2.89 | 10y med 2.27 | Z 1.4907673770323493 | years 9.8
 cross-check: None (revenue None, mktcap None)
@@ -14779,7 +14780,7 @@ VRT
 FLAGGED FOR:
   - the share count moved +43% within six months, ending 2020-12-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 5.19 | 5y med 4.14 | 10y med 2.00 | Z 0.8841031097587063 | years 7.7
+P/S now 5.19 | 5y med 4.14 | 10y med 2.00 | Z 0.8841031097919169 | years 7.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14893,7 +14894,7 @@ VTRS
 FLAGGED FOR:
   - trailing revenue falls 77% around 2020-03-31, 74x this company's usual move between filings, at the exact point the source concept changes from reported-annual to RevenueFromContractWithCustomerExcludingAssessedTax
 
-P/S now 1.56 | 5y med 0.86 | 10y med 0.91 | Z 1.068445186338459 | years 7.7
+P/S now 1.56 | 5y med 0.86 | 10y med 0.91 | Z 1.0684451861889241 | years 7.7
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -14996,7 +14997,7 @@ VICI
 FLAGGED FOR:
   - the share count moved +67% within six months, ending 2022-09-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 6.65 | 5y med 8.88 | 10y med 10.04 | Z -1.789920550153112 | years 7.8
+P/S now 6.65 | 5y med 8.88 | 10y med 10.04 | Z -1.7899205499343787 | years 7.8
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -15117,7 +15118,7 @@ WRB
 FLAGGED FOR:
   - the share count moved -34% within six months, ending 2025-03-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.10 | 5y med 1.84 | 10y med 1.69 | Z 1.2270316242867112 | years 10.0
+P/S now 2.10 | 5y med 1.84 | 10y med 1.69 | Z 1.227031624375162 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -15244,7 +15245,7 @@ WAB
 FLAGGED FOR:
   - the share count moved +99% within six months, ending 2019-09-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 4.00 | 5y med 2.77 | 10y med 2.24 | Z 1.9070440137584739 | years 10.0
+P/S now 4.00 | 5y med 2.77 | 10y med 2.24 | Z 1.9070440140095024 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -15367,7 +15368,7 @@ WAT
 FLAGGED FOR:
   - the share count is 66% higher than a year ago, on 2026-10-05 -- the multiples before that point are built on a different share base, so the median is not a like-for-like comparison with today
 
-P/S now 8.03 | 5y med 6.89 | 10y med 6.67 | Z 1.1713749046482191 | years 10.0
+P/S now 8.03 | 5y med 6.89 | 10y med 6.67 | Z 1.1713749047969058 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -15498,7 +15499,7 @@ WEC
 FLAGGED FOR:
   - the share count moved +40% within six months, ending 2015-10-07, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.79 | 5y med 3.55 | 10y med 3.51 | Z 0.8254506684350654 | years 10.0
+P/S now 3.79 | 5y med 3.55 | 10y med 3.51 | Z 0.8254506684555515 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -15625,7 +15626,7 @@ WY
 FLAGGED FOR:
   - the share count moved +45% within six months, ending 2016-09-30, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.12 | 5y med 2.67 | 10y med 2.89 | Z -1.7631774556204955 | years 10.0
+P/S now 2.12 | 5y med 2.67 | 10y med 2.89 | Z -1.7631774551482011 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -15753,7 +15754,7 @@ FLAGGED FOR:
   - share count jumps +25% in one day on 2019-04-01 with no split or corporate action to explain it
   - the share count moved +46% within six months, ending 2019-04-01, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 5.28 | 5y med 4.10 | 10y med 3.29 | Z 1.4157007394958512 | years 10.0
+P/S now 5.28 | 5y med 4.10 | 10y med 3.29 | Z 1.4157007393256438 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -15883,7 +15884,7 @@ WTW
 FLAGGED FOR:
   - the share count moved -62% within six months, ending 2015-12-31, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 3.32 | 5y med 3.09 | 10y med 2.90 | Z 1.1126154236609485 | years 10.0
+P/S now 3.32 | 5y med 3.09 | 10y med 2.90 | Z 1.1126154238232717 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -16012,7 +16013,7 @@ XYL
 FLAGGED FOR:
   - the share count moved +34% within six months, ending 2023-10-02, which no split explains -- the multiples either side of it are measuring different companies
 
-P/S now 2.53 | 5y med 3.56 | 10y med 3.19 | Z -1.2582708370305264 | years 10.0
+P/S now 2.53 | 5y med 3.56 | 10y med 3.19 | Z -1.2582708371543185 | years 10.0
 cross-check: None (revenue None, mktcap None)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -16291,7 +16292,7 @@ NVDA
 FLAGGED FOR:
   - revenue differs from Yahoo by -16%
 
-P/S now 11.99 | 5y med 25.40 | 10y med 20.18 | Z -1.0512329852966715
+P/S now 11.99 | 5y med 25.40 | 10y med 20.18 | Z -1.0512329853536238
   my revenue  $    302.97B   Yahoo $    361.81B
   my mktcap   $  3,633.66B   Yahoo $  3,605.15B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -16322,7 +16323,7 @@ HLT
 FLAGGED FOR:
   - revenue differs from Yahoo by +145%
 
-P/S now 6.61 | 5y med 5.36 | 10y med 4.64 | Z 1.0387157021857965
+P/S now 6.61 | 5y med 5.36 | 10y med 4.64 | Z 1.0387157021171907
   my revenue  $     12.69B   Yahoo $      5.18B
   my mktcap   $     83.86B   Yahoo $     81.48B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -16353,7 +16354,7 @@ SPG
 FLAGGED FOR:
   - market cap differs from Yahoo by -14%
 
-P/S now 10.60 | 5y med 8.73 | 10y med 8.87 | Z 0.9514150680343247
+P/S now 10.60 | 5y med 8.73 | 10y med 8.87 | Z 0.9514150680481716
   my revenue  $      7.15B   Yahoo $      7.15B
   my mktcap   $     75.84B   Yahoo $     88.57B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -16375,9 +16376,9 @@ BDX
 FLAGGED FOR:
   - revenue differs from Yahoo by +19%
 
-P/S now 2.68 | 5y med 2.74 | 10y med 2.89 | Z -0.2559662523106537
+P/S now 2.68 | 5y med 2.74 | 10y med 2.89 | Z -0.2559662524043682
   my revenue  $     23.25B   Yahoo $     19.46B
-  my mktcap   $     62.30B   Yahoo $     60.26B
+  my mktcap   $     62.30B   Yahoo $     59.98B
   (structurally clean -- this block exists only because the two sources disagree)
 
 REVENUE-LIKE CONCEPTS, ANNUAL VALUE BY FISCAL YEAR ($bn)
@@ -16400,7 +16401,7 @@ NDAQ
 FLAGGED FOR:
   - revenue differs from Yahoo by +58%
 
-P/S now 6.64 | 5y med 5.69 | 10y med 4.48 | Z 1.5592209276471878
+P/S now 6.64 | 5y med 5.69 | 10y med 4.48 | Z 1.5592209274865994
   my revenue  $      9.15B   Yahoo $      5.78B
   my mktcap   $     60.77B   Yahoo $     59.42B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -16458,7 +16459,7 @@ IBKR
 FLAGGED FOR:
   - market cap differs from Yahoo by -73%
 
-P/S now 4.76 | 5y med 2.97 | 10y med 2.51 | Z 1.5635510340439664
+P/S now 4.76 | 5y med 2.97 | 10y med 2.51 | Z 1.5635510341228103
   my revenue  $      7.12B   Yahoo $      7.06B
   my mktcap   $     33.93B   Yahoo $    127.35B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -16485,7 +16486,7 @@ FOXA
 FLAGGED FOR:
   - market cap differs from Yahoo by -25%
 
-P/S now 1.54 | 5y med 1.45 | 10y med 1.52 | Z 0.24141986859558592
+P/S now 1.54 | 5y med 1.45 | 10y med 1.52 | Z 0.24141986865288945
   my revenue  $     17.96B   Yahoo $     17.96B
   my mktcap   $     27.66B   Yahoo $     36.70B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -16508,7 +16509,7 @@ VMRK
 FLAGGED FOR:
   - market cap differs from Yahoo by -50%
 
-P/S now 8.03 | 5y med 8.56 | 10y med 9.54 | Z -1.0096089579652834
+P/S now 8.03 | 5y med 8.56 | 10y med 9.54 | Z -1.009608958108721
   my revenue  $      3.13B   Yahoo $      3.50B
   my mktcap   $     25.12B   Yahoo $     50.62B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -16543,7 +16544,7 @@ SMCI
 FLAGGED FOR:
   - market cap differs from Yahoo by +14%
 
-P/S now 0.32 | 5y med 0.97 | 10y med 0.63 | Z -1.3194165891572662
+P/S now 0.32 | 5y med 0.97 | 10y med 0.63 | Z -1.3194165891450775
   my revenue  $     53.99B   Yahoo $     53.99B
   my mktcap   $     17.47B   Yahoo $     15.37B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -16572,7 +16573,7 @@ SWKS
 FLAGGED FOR:
   - market cap differs from Yahoo by -36%
 
-P/S now 3.13 | 5y med 3.18 | 10y med 3.83 | Z -0.7674664627218944
+P/S now 3.13 | 5y med 3.18 | 10y med 3.83 | Z -0.7674664626312618
   my revenue  $      3.96B   Yahoo $      3.96B
   my mktcap   $     12.38B   Yahoo $     19.26B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -16600,7 +16601,7 @@ APTV
 FLAGGED FOR:
   - revenue differs from Yahoo by -19%
 
-P/S now 0.47 | 5y med 1.09 | 10y med 1.46 | Z -2.590154963664995
+P/S now 0.47 | 5y med 1.09 | 10y med 1.46 | Z -2.5901549635449777
   my revenue  $     16.71B   Yahoo $     20.59B
   my mktcap   $      7.90B   Yahoo $      7.60B
   (structurally clean -- this block exists only because the two sources disagree)
@@ -16629,6 +16630,7 @@ CROSS-CHECK AGAINST YAHOO — every row that disagrees
 tkr    sector                     my revenue   my mktcap  rev diff  cap diff
 NVDA   Information Technology         303.0B    3,633.7B      -16%       +1%
 C      Financials                      85.2B      212.3B       +2%      +13%
+DELL   Information Technology         151.2B      194.3B      -16%       +3%
 COF    Financials                      63.0B      112.8B      +29%       +3%
 MAR    Consumer Discretionary          27.4B      109.8B     +262%       +3%
 ICE    Financials                      14.0B      100.6B      +29%       +1%
@@ -16637,9 +16639,9 @@ MRNA   Health Care                      1.9B       95.0B      -23%       +6%
 HLT    Consumer Discretionary          12.7B       83.9B     +145%       +3%
 WMB    Energy                          15.4B       81.5B      +22%       -2%
 SPG    Real Estate                      7.2B       75.8B       -0%      -14%
-BDX    Health Care                     23.2B       62.3B      +19%       +3%
+BDX    Health Care                     23.2B       62.3B      +19%       +4%
 NDAQ   Financials                       9.1B       60.8B      +58%       +2%
-CVNA   Consumer Discretionary          27.5B       50.2B       -0%      -71%
+CVNA   Consumer Discretionary          27.5B       50.2B       -0%      -33%
 LITE   Information Technology           3.7B       48.5B       +0%      +12%
 WAT    Health Care                      5.6B       45.0B       +0%      -50%
 KMB    Consumer Staples                16.6B       36.5B       +0%      -46%
